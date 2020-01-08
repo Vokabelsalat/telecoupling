@@ -102,3 +102,19 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+database.js
+
+report.*.json
+
+*.xlsx
+
+*.xls
+
+*.DS_Store
+
+.gitignore
+
+webapp/node_modules/
+
+webapp/import/data/
