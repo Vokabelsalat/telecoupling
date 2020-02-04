@@ -1,7 +1,7 @@
 const csv = require('csv-parser')
 const fs = require('fs')
 const mysql = require('mysql');
-const utils = require('../utils.js');
+const utils = require('../public/js/utils.js');
 const database = require('../database.js');
 
 function createInsertQeury(data, columnsString, table) {
@@ -35,7 +35,7 @@ function processFile(filename) {
         .on('end', () => {
             console.log(results.length);
             for (let row of results.values()) {
-                let query = createInsertQeury(row, "`Id`, `Kingdom`, `Phylum`, `Class`, `Order`, `Family`, `Genus`, `Species`, `Subspecies`, `Scientific Name`, `Author`, `Rank`, `Listing`, `Party`, `Listed under`, `All_DistributionFullNames`, `All_DistributionISOCodes`, `NativeDistributionFullNames`, `Introduced_Distribution`, `Introduced(?)_Distribution`, `Reintroduced_Distribution`, `Extinct_Distribution`, `Extinct(?)_Distribution`, `Distribution_Uncertain`", "species");
+                let query = createInsertQeury(row, "`Id`, `Kingdom`, `Phylum`, `Class`, `Order`, `Family`, `Genus`, `Species`, `Subspecies`, `Scientific Name`, `Author`, `Rank`, `Listing`, `Party`, `Listed under`, `Full note`, `# Full note`, `All_DistributionFullNames`, `All_DistributionISOCodes`, `NativeDistributionFullNames`, `Introduced_Distribution`, `Introduced(?)_Distribution`, `Reintroduced_Distribution`, `Extinct_Distribution`, `Extinct(?)_Distribution`, `Distribution_Uncertain`", "species");
 
                 db.query(query, (err, result) => {
                     if (err) {

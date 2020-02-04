@@ -2,7 +2,7 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const mysql = require('mysql');
 var MySql = require('sync-mysql');
-const utils = require('../utils.js');
+const utils = require('../public/js/utils.js');
 const database = require('../database.js');
 
 const path = require('path');
@@ -35,21 +35,21 @@ function scanFiles() {
         }
         //listing all files using forEach
         files.forEach(function(file) {
-        	if(file.indexOf(".csv")>0) {
-        		globfiles.push("./data/tradeDB/"+file);
-        		/*processFile("./data/tradeDB/"+file);*/
-        	}
+            if (file.indexOf(".csv") > 0) {
+                globfiles.push("./data/tradeDB/" + file);
+                /*processFile("./data/tradeDB/"+file);*/
+            }
         });
         next();
     });
 }
 
 function next() {
-	console.log("NEXT");
-	if(fileindex<globfiles.length) {
-		processFile(globfiles[fileindex]);
-		fileindex++;
-	}
+    console.log("NEXT");
+    if (fileindex < globfiles.length) {
+        processFile(globfiles[fileindex]);
+        fileindex++;
+    }
 }
 
 function createInsertQuery(data, columnsString, table) {
@@ -70,10 +70,8 @@ function insert(ofg, row) {
     let family = row.Family;
     let genus = row.Genus;
 
-    for (let entry of ofg.values()) {
-        if (entry.Order === order && entry.Family === family && entry.Genus === genus) {
-            return createInsertQuery(row, "`Year`, `Appendix`, `Taxon`, `Class`, `Order`, `Family`, `Genus`, `Term`, `Quantity`, `Unit`, `Importer`, `Exporter`, `Origin`, `Purpose`, `Source`, `Reporter.type`, `Import.permit.RandomID`, `Export.permit.RandomID`, `Origin.permit.RandomID`", "trade");
-        }
+    if (row.Class === "") {
+        return createInsertQuery(row, "`Year`, `Appendix`, `Taxon`, `Class`, `Order`, `Family`, `Genus`, `Term`, `Quantity`, `Unit`, `Importer`, `Exporter`, `Origin`, `Purpose`, `Source`, `Reporter.type`, `Import.permit.RandomID`, `Export.permit.RandomID`, `Origin.permit.RandomID`", "trade");
     }
     return null;
 }
@@ -85,8 +83,8 @@ function fire(vals, nextbool) {
                 console.log(err);
             } else {
                 console.log("DONE", vals.length);
-                if(nextbool)
-                	next();
+                if (nextbool)
+                    next();
             }
         });
     }

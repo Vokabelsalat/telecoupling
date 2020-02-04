@@ -1,0 +1,19 @@
+<%- include('./partials/header.ejs') %>
+
+
+<% if (entries.length > 0) {%>  
+    <table id="resultTable">
+  <tr class="tableHead">
+    <th>Scientific Name</th>
+    <th>Full Note</th>
+    <th># Full note</th>
+  </tr>
+  <% entries.forEach((entry, index) => { %>
+        <tr><td class='<%= 'scientific_name' %>'><%= entry["Scientific Name"] %></td><td class='<%= 'full_note' %>'><%= entry["Full note"] %></td><td class='<%= '__full_note' %>'><%= entry["# Full note"] %></td></tr>
+    <%})%>
+</table>
+<% } %>
+ 
+</div>
+</body>
+</html>
