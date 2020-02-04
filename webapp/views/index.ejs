@@ -86,9 +86,8 @@
     function appendIUCN(data) {
         let $tableRow = $(this.tableRow);
         data = JSON.parse(data);
-        console.log(data);
         if(data.length > 0) {
-            $tableRow.find(".iucnCol").first().append(data[0].category);
+            $tableRow.find(".iucnCol").first().find(".scroll").first().append(data.map(e => "&#8226; " + e.year + " " + e.code));
         }
     }
 
@@ -96,7 +95,6 @@
         let $tableRow = $(this.tableRow);
         data = JSON.parse(data);
         let taxonKey = data.taxonKey;
-        console.log(data);
 
         $.post( "/queryGBIF/"+taxonKey, (result) => {
             result = JSON.parse(result);
@@ -113,8 +111,6 @@
                         }*/
                     }
                 }
-
-                console.log(entry);
 
                 text += entry.datasetName ? "&#8226; " + entry.datasetName + ", " : "";
 
@@ -134,7 +130,6 @@
     }
 
     function getMainPart(instruments) {
-        console.log("GETMAINPART", instruments);
          $.post( "/getMainPart/"+instruments, function( data ) {
             data = JSON.parse(data);
             let mainPartSelect = $("#mainPartSelect");
@@ -168,7 +163,7 @@
                     <td><div class='tableCell tradeCol'><div class='scroll'/></div></td>\
                     <td><div class='tableCell gbifCol'><div class='scroll'/></div></td>\
                     <td><div class='tableCell imageCol'><div class='scroll'/></div></td></td>\
-                    <td><div class='tableCell iucnCol'/></td>\
+                    <td><div class='tableCell iucnCol'><div class='scroll'/></div></td>\
                     <td><div class='tableCell bgciCol'><div class='scroll'/></div></td>\
                     <td><div class='tableCell bgciThreatCol'><div class='scroll'/></div></td>\
                 </tr>");
@@ -229,7 +224,7 @@
     <th>Trade</th>
     <th>GBIF</th>
     <th>Image</th>
-    <th>IUCN</th>
+    <th>IUCN Categories</th>
     <th>TreeSearch</th>
     <th>ThreatSearch</th>
   </tr>

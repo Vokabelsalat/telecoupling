@@ -9,7 +9,10 @@ const app = express();
 const database = require("./database.js");
 const utils = require("./public/js/utils.js");
 
-const { getHomePage, getMainPart, getMaterial, getSynonyms, getTrade, queryGBIF, queryGBIFspecies, queryIUCN, queryTreeSearchSpecies, queryTreeSearchSpeciesWithSciName, queryThreatSearchWithSciName } = require('./routes/index');
+const { getHomePage, getMainPart, getMaterial, getSynonyms, queryIUCN } = require('./routes/index');
+const { getTrade } = require('./routes/cites');
+const { queryGBIF, queryGBIFspecies, } = require('./routes/gbif');
+const { queryTreeSearchSpecies, queryTreeSearchSpeciesWithSciName, queryThreatSearchWithSciName } = require('./routes/bgci');
 const { getSpecies, searchSpeciesNotes, searchSpeciesNotesPage } = require('./routes/species');
 /*const {addPlayerPage, addPlayer, deletePlayer, editPlayer, editPlayerPage} = require('./routes/player');*/
 const port = 5000;

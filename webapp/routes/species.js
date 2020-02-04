@@ -13,7 +13,6 @@ module.exports = {
     searchSpeciesNotes: (req, res) => {
         let word = req.params.word;
         let query = knex.select("Scientific Name", "Full note", "# Full note").from("species").where("Full note", "like", "%" + word + "%").orWhere("# Full note", "like", "%" + word + "%");
-        console.log(query.toString());
         query.then(rows => {
             res.end(JSON.stringify(rows));
         });
@@ -21,7 +20,6 @@ module.exports = {
     searchSpeciesNotesPage: (req, res) => {
         let word = req.params.word;
         let query = knex.select("Scientific Name", "Full note", "# Full note").from("species").where("Full note", "like", "%" + word + "%").orWhere("# Full note", "like", "%" + word + "%");
-        console.log(query.toString());
         query.then(rows => {
             res.render('species.ejs', {
                 title: "Species",
