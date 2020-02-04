@@ -107,10 +107,6 @@ database.js
 
 report.*.json
 
-*.xlsx
-
-*.xls
-
 *.DS_Store
 
 .gitignore
