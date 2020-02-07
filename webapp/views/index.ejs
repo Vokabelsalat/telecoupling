@@ -38,16 +38,32 @@
 
     function appendBGCI(data) {
         let $tableRow = $(this.tableRow);
+        let treeName = this.treeName;
         try {
-            data = JSON.parse(data);
+            if(data != "") {
+                data = JSON.parse(data);
 
-            let $col = $tableRow.find(".bgciCol").first().find(".scroll").last();
-            
-            $col.append("ID:" + data.id + "<br>");
-            $col.append(data.TSGeolinks.map(e => "&#8226; " + (e.province ? e.country+"/"+e.province : e.country)).join("<br>"));
+                let $col = $tableRow.find(".bgciCol").first().find(".scroll").last();
+                
+                let map = new BGCIMap("mapid");
 
+                let countries = [];
+
+                function processEntry(e) {
+
+                    countries.push(e.country);
+
+                    return "&#8226; " + (e.province ? e.country+"/"+e.province : e.country);
+                }
+                
+                $col.append("ID:" + data.id + "<br>");
+                $col.append(data.TSGeolinks.map(processEntry).join("<br>"));
+                map.addTreeCountries(treeName, [ ...new Set(countries) ]);
+            }
         }
-        catch(err) {}
+        catch(err) {
+            console.log(err);
+        }
     }
 
     function appendThreatSearch(data) {
@@ -74,7 +90,7 @@
             );
 
             $.post( "/queryTreeSearchSpeciesWithSciName/"+syn, 
-                $.proxy(appendBGCI, {"tableRow": $tableRow})
+                $.proxy(appendBGCI, {"tableRow": $tableRow, "treeName": syn})
             );
 
             $.post( "/queryThreatSearchWithSciName/"+syn, 
@@ -93,6 +109,7 @@
 
     function appendGBIF(data) {
         let $tableRow = $(this.tableRow);
+        let treeName = this.treeName;
         data = JSON.parse(data);
         let taxonKey = data.taxonKey;
 
@@ -114,10 +131,13 @@
 
                 text += entry.datasetName ? "&#8226; " + entry.datasetName + ", " : "";
 
-                /*decimalLatitude
-                decimalLongitude*/
-
+                if(entry.decimalLatitude !== undefined && entry.decimalLongitude !== undefined) {
+                    coordinates.push([entry.decimalLatitude, entry.decimalLongitude]);
+                }
             }
+
+            let map = new BGCIMap("mapid");
+            map.addTreeCoordinates(treeName, coordinates);
 
             if(image !== "") {
                 $tableRow.find(".imageCol").first().find(".scroll").first().append("<img src='"+ image +"'/>");
@@ -129,20 +149,24 @@
         });
     }
 
-    function getMainPart(instruments) {
-         $.post( "/getMainPart/"+instruments, function( data ) {
+    function getMainPart(instruments, selectedMainPart=null) {
+         $.post( "/getMainPart/"+instruments , function( data ) {
             data = JSON.parse(data);
             let mainPartSelect = $("#mainPartSelect");
             mainPartSelect.closest(".select-wrapper").css("display", "block");
             mainPartSelect.html("");
-            mainPartSelect.html(data.map(e => "<option>"+e.Main_part+"</option>"));
+            mainPartSelect.html(data.map(e => (selectedMainPart != null && selectedMainPart === e.Main_part ? "<option selected='true'>" : "<option>")+e.Main_part+"</option>"));
             mainPartSelect.attr("instruments", instruments);
+
+            if(selectedMainPart) {
+                func2($("#mainPartSelect"));
+            }
         });
     }
 
-    function func1(e){
+    function func1(e, selectedMainPart=null){
         let instruments = $(e).val();
-        getMainPart(instruments);
+        getMainPart(instruments, selectedMainPart);
     }
 
     function func2(e){
@@ -184,27 +208,28 @@
                 );
 
                 $.post( "/queryTreeSearchSpeciesWithSciName/"+scientificName, 
-                    $.proxy(appendBGCI, {"tableRow": $tableRow})
+                    $.proxy(appendBGCI, {"tableRow": $tableRow, "treeName": scientificName})
                 );
 
                 $.post( "/queryThreatSearchWithSciName/"+scientificName, 
                     $.proxy(appendThreatSearch, {"tableRow": $tableRow})
                 );
 
-                $.post( "/queryGBIFspecies/"+scientificName, $.proxy(appendGBIF, {"tableRow": $tableRow}));
+                $.post( "/queryGBIFspecies/"+scientificName, $.proxy(appendGBIF, {"tableRow": $tableRow, "treeName": scientificName}));
 
                 table.append($tableRow);
             }
         });
     }
 </script>
-<% if (instruments.length > 0) {%>  
+<% if (instruments.length > 0) {%> 
     <div class="select-wrapper">
         <div class="label">Instruments:</div>
         <select id="instrumentsSelect" onchange='<%= 'func1(this);' %>'>  
             <% instruments.forEach((instrument, index) => { %>
-                <% if (seleselectedinstrument == instrument.Instruments) { %>
+                <% if (selectedinstrument == instrument.Instruments) { %>
                     <option selected="selected"><%= instrument.Instruments %></option>
+                    <script type="text/javascript">func1($("#instrumentsSelect"), "<%= selectedMainPart %>");</script> 
                 <% } else{ %>
                     <option><%= instrument.Instruments %>%></option>
                 <% } %>
@@ -229,6 +254,8 @@
     <th>ThreatSearch</th>
   </tr>
 </table>
+
+<div id="mapid"></div>
 <% } %>
  
 </div>

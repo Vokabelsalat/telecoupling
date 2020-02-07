@@ -114,3 +114,5 @@ report.*.json
 webapp/node_modules/
 
 webapp/import/data/
+
+variables.js

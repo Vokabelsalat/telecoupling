@@ -1,45 +1,48 @@
 html {
-	width: 100%;
+    width: 100%;
 }
 
 body {
-	padding: 20px;
-	width: 100%;
+    padding: 20px;
+    width: 100%;
 }
 
 .select-wrapper {
-	margin: 5px;
+    margin: 5px;
 }
 
 .label {
-	display: inline-block;
-	font-weight: bold;
+    display: inline-block;
+    font-weight: bold;
 }
 
 .array-wrapper {
-	padding: 5px;
-	width: 33%;
-	border: 1px grey solid;
+    padding: 5px;
+    width: 33%;
+    border: 1px grey solid;
 }
 
-table, th, tr {
-	border: solid 1px gray;
+table,
+th,
+tr {
+    border: solid 1px gray;
 }
 
 .scroll {
-	height: 100%;
-	width: 100%;/**/
-	margin: 0;
-	padding: 0;
-	overflow: auto;
+    height: 100%;
+    width: 100%;
+    /**/
+    margin: 0;
+    padding: 0;
+    overflow: auto;
 }
 
 table {
-	width: 100%
+    width: 100%
 }
 
 td {
-	width: 25%;
+    width: 25%;
 }
 
 /*.tableRow {
@@ -49,16 +52,20 @@ td {
 }*/
 
 .tableCell {
-	width: 25%;
-	height: 8em;
-	display: table-cell;
+    width: 25%;
+    height: 8em;
+    display: table-cell;
 }
 
 .tableHead {
-	height: 1em;
-	width: 25%;
+    height: 1em;
+    width: 25%;
 }
 
 img {
-	width: 300px;
+    width: 300px;
+}
+
+#mapid {
+    height: 600px;
 }

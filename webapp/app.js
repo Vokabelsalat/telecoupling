@@ -3,13 +3,15 @@ const fileUpload = require('express-fileupload');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const path = require('path');
+const fs = require('fs');
 const request = require('ajax-request');
 global.request = request;
 const app = express();
 const database = require("./database.js");
+const variables = require("./variables.js");
 const utils = require("./public/js/utils.js");
 
-const { getHomePage, getMainPart, getMaterial, getSynonyms, queryIUCN } = require('./routes/index');
+const { getHomePage, getMainPart, getMaterial, getSynonyms, queryIUCN, requestMapboxToken, getCountriesGeoJSON } = require('./routes/index');
 const { getTrade } = require('./routes/cites');
 const { queryGBIF, queryGBIFspecies, } = require('./routes/gbif');
 const { queryTreeSearchSpecies, queryTreeSearchSpeciesWithSciName, queryThreatSearchWithSciName } = require('./routes/bgci');
@@ -20,6 +22,10 @@ const port = 5000;
 // create connection to database
 // the mysql.createConnection function takes in a configuration object which contains host, user, password and the database name.
 const db = mysql.createConnection(database.databaseConfig);
+global.variables = variables.variables;
+
+/*let rawdata = fs.readFileSync('./countries10m.geo.json'); 
+global.countriesGeoJson = JSON.parse(rawdata);*/
 
 // connect to database
 db.connect((err) => {
@@ -48,6 +54,7 @@ app.use(fileUpload()); // configure fileupload
 
 app.get('/', getHomePage);
 app.get('/:selectedInstruments', getHomePage);
+app.get('/:selectedInstruments/:selectedMainPart', getHomePage);
 app.post('/getMainPart/:instruments', getMainPart);
 app.post('/getMaterial/:instruments/:mainPart', getMaterial);
 app.post('/getSpecies/:family/:genus/:species', getSpecies);
@@ -61,6 +68,8 @@ app.post('/queryGBIFspecies/:word', queryGBIFspecies);
 app.post('/queryTreeSearchSpecies/:genus/:species', queryTreeSearchSpecies);
 app.post('/queryTreeSearchSpeciesWithSciName/:name', queryTreeSearchSpeciesWithSciName);
 app.post('/queryThreatSearchWithSciName/:name', queryThreatSearchWithSciName);
+app.post('/requestMapboxToken', requestMapboxToken);
+app.post('/getCountriesGeoJSON', getCountriesGeoJSON);
 /*app.get('/add', addPlayerPage);
 app.get('/edit/:id', editPlayerPage);
 app.get('/delete/:id', deletePlayer);

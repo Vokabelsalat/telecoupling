@@ -1,11 +1,16 @@
 module.exports = {
+    requestMapboxToken: (req, res) => {
+        res.end(JSON.stringify({ accessToken: variables.mapboxAccessToken}));
+    },
     getHomePage: (req, res) => {
-        let seleselectedinstrument = req.params.selectedInstruments;
+        let selectedinstrument = req.params.selectedInstruments;
+        let selectedMainPart = req.params.selectedMainPart;
         knex.select("Instruments").from('materials').groupBy("Instruments").then(rows =>
             res.render('index.ejs', {
                 title: "Welcome to Telecoupling",
                 instruments: rows,
-                seleselectedinstrument: seleselectedinstrument
+                selectedinstrument: selectedinstrument,
+                selectedMainPart: selectedMainPart
             })
         );
     },
@@ -43,5 +48,8 @@ module.exports = {
             let results = data["result"];
             outerRes.end(JSON.stringify(results));
         });
+    },
+    getCountriesGeoJSON: (req, res) => {
+        res.end(JSON.stringify(countriesGeoJson));
     }
 };
