@@ -56,8 +56,8 @@ L.Control.GroupedLayers = L.Control.extend({
     return this;
   },
 
-  addOverlay: function (layer, name, group) {
-    this._addLayer(layer, name, group, true);
+  addOverlay: function (layer, name, group, onMethod, offMethod) {
+    this._addLayer(layer, name, group, true, onMethod, offMethod);
     this._update();
     return this;
   },
@@ -127,13 +127,15 @@ L.Control.GroupedLayers = L.Control.extend({
     container.appendChild(form);
   },
 
-  _addLayer: function (layer, name, group, overlay) {
+  _addLayer: function (layer, name, group, overlay, onMethod, offMethod) {
     var id = L.Util.stamp(layer);
 
     var _layer = {
       layer: layer,
       name: name,
-      overlay: overlay
+      overlay: overlay, 
+      onMethod, 
+      offMethod
     };
     this._layers.push(_layer);
 
@@ -195,6 +197,20 @@ L.Control.GroupedLayers = L.Control.extend({
 
     if (obj.overlay) {
       type = e.type === 'layeradd' ? 'overlayadd' : 'overlayremove';
+
+      switch (type) {
+        case "overlayadd":
+          if(obj.onMethod !== undefined)
+            obj.onMethod();
+          break;
+        case "overlayremove":
+          if(obj.offMethod !== undefined)
+            obj.offMethod();
+          break;
+        default:
+          // statements_def
+          break;
+      }
     } else {
       type = e.type === 'layeradd' ? 'baselayerchange' : null;
     }

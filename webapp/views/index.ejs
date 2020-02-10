@@ -164,6 +164,10 @@
         });
     }
 
+    function clearTable() {
+        $(".tableRow").remove();
+    }
+
     function func1(e, selectedMainPart=null){
         let instruments = $(e).val();
         getMainPart(instruments, selectedMainPart);
@@ -171,6 +175,7 @@
 
     function func2(e){
         let mainPart = $(e).val();
+        clearTable();
         $.post( "/getMaterial/"+$("#instrumentsSelect").val()+"/"+mainPart, function( data ) {
             data = JSON.parse(data);
             let materialArray = $("#materialArray");
@@ -180,7 +185,7 @@
 
 
             for(let material of data.values()) {
-                let $tableRow = $("<tr>\
+                let $tableRow = $("<tr class='tableRow'>\
                     <td><div class='tableCell materialCol'/></td>\
                     <td><div class='tableCell speciesCol'/></td>\
                     <td><div class='tableCell synonymCol'/></td>\
