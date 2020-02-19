@@ -25,13 +25,25 @@
             let speciesView = createArrayView(data[0], "Scientific Name", ["Scientific Name", "Rank", "Listing", "All_DistributionFullNames"]);
             $tableRow.find(".speciesCol").first().append(speciesView[0]);
 
-            $.post( "/getTrade/"+scientificName, $.proxy(appendTrade, {"tableRow": $tableRow}));
+            $.post( "/getTrade/"+scientificName, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName}));
         }
     }
 
     function appendTrade(data) {
         let $tableRow = $(this.tableRow);
+        let treeName = this.treeName;
         data = JSON.parse(data);
+
+        let exportsCountry = {};
+
+        data.forEach( function(element, index) {
+            exportsCountry = pushOrCreate(exportsCountry, element["Exporter"], element);
+        });
+
+        if(Object.keys(exportsCountry).length > 0) {
+            let map = new BGCIMap("mapid");
+            map.addExportCountries(treeName, exportsCountry);
+        }
 
         $tableRow.find(".tradeCol").first().find(".scroll").last().append(data.map(e => "&#8226; " + e.Year + " " + e.Term).join("<br>"));
     }
@@ -83,7 +95,7 @@
         $tableRow.find(".synonymCol").first().append(data.join(", "));
 
         for(let syn of data.values()) {
-            $.post( "/getTrade/"+syn, $.proxy(appendTrade, {"tableRow": $tableRow}));
+            $.post( "/getTrade/"+syn, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName}));
 
             $.post( "/queryIUCN/"+syn, 
                 $.proxy(appendIUCN, {"tableRow": $tableRow})
@@ -132,7 +144,9 @@
                 text += entry.datasetName ? "&#8226; " + entry.datasetName + ", " : "";
 
                 if(entry.decimalLatitude !== undefined && entry.decimalLongitude !== undefined) {
-                    coordinates.push([entry.decimalLatitude, entry.decimalLongitude]);
+                    if(entry.decimalLatitude !== 0 && entry.decimalLongitude !== 0) {
+                        coordinates.push([entry.decimalLatitude, entry.decimalLongitude]);
+                    }
                 }
             }
 
@@ -183,7 +197,6 @@
 
             let table = $("#resultTable");
 
-
             for(let material of data.values()) {
                 let $tableRow = $("<tr class='tableRow'>\
                     <td><div class='tableCell materialCol'/></td>\
@@ -230,7 +243,7 @@
 <% if (instruments.length > 0) {%> 
     <div class="select-wrapper">
         <div class="label">Instruments:</div>
-        <select id="instrumentsSelect" onchange='<%= 'func1(this);' %>'>  
+        <select id="instrumentsSelect" onchange="<%= 'func1(this);' %>">  
             <% instruments.forEach((instrument, index) => { %>
                 <% if (selectedinstrument == instrument.Instruments) { %>
                     <option selected="selected"><%= instrument.Instruments %></option>
@@ -243,7 +256,7 @@
     </div>
     <div class="select-wrapper" style="display: none;">
         <div class="label">Main Parts:</div>
-        <select id="mainPartSelect" onchange='<%= 'func2(this);' %>'>  
+        <select id="mainPartSelect" onchange="<%= 'func2(this);' %>">  
         </select>
     </div>
     <table id="resultTable">
