@@ -179,7 +179,7 @@
     }
 
     function clearTable() {
-        $(".tableRow").remove();
+        $(".tableRow").not(".tableHead").remove();
     }
 
     function func1(e, selectedMainPart=null){

@@ -33,7 +33,7 @@ module.exports = {
 
         let query = knex.select().from("synonyms").where({ "A": word }).orWhere({ "B": word });
         query.then(rows => {
-            res.end(JSON.stringify(rows.map(e => [e.A, e.B]).flat().filter(e => e !== word)));
+            res.end(JSON.stringify(rows.map(e => [e.A, e.B]).reduce((acc, val) => acc.concat(val), []).filter(e => e !== word)));
         });
     },
     queryIUCN: (req, res) => {
