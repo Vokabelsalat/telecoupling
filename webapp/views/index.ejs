@@ -241,6 +241,57 @@
     }
 </script>
 <% if (instruments.length > 0) {%> 
+    <div class="orchester-wrapper">
+        <svg width = "1600" height = "900" style="border: solid 1px red">
+            <g id="selectchart"></g>
+            <!-- <g stroke="red" fill="none" stroke-width="30" stroke-linecap="round"> -->
+   <!-- <path stroke="red" fill="none" stroke-width="30" stroke-linecap="butt" d="M 70 180 A 250 250 0 0 1 270 180" />
+   <path stroke="red" fill="none" stroke-width="30" stroke-linecap="butt" d="M 100 125 A 105 105 0 0 1 240 125" />
+   <path stroke="red" fill="none" stroke-width="30" stroke-linecap="butt" d="M 130 160 A 60 60 0 0 1 210 160" /> -->
+<!-- </g> -->
+
+<!-- <circle cx="170" cy="200" r="25" fill="red" /> -->
+
+    <!-- <path
+    class="instrumentGroupSVG"
+       inkscape:export-ydpi="300"
+       inkscape:export-xdpi="300"
+       id="plucked"
+       d="M 96.657917,8.2449765 85.016247,28.409116 a 65.057166,63.172888 0 0 1 12.98526,5.56969 65.057166,63.172888 0 0 1 26.470213,28.87472 l 3.68814,-0.006 A 63.123048,61.294785 0 0 0 97.022237,8.4374265 a 63.123048,61.294785 0 0 0 -0.36432,-0.19275 z"
+       style="display:inline;opacity:1;fill:#d400aa;fill-opacity:1;stroke:none;stroke-width:2.28616905;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:13.71701583, 13.71701583;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       inkscape:connector-curvature="0" />
+    <path
+    class="instrumentGroupSVG"
+       inkscape:connector-curvature="0"
+       style="display:inline;opacity:1;fill:#00a600;fill-opacity:1;stroke:none;stroke-width:2.28616905;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:13.71701566, 13.71701566;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       d="M 64.965273,8.0416146e-6 A 63.123047,61.294784 0 0 0 62.899767,0.03359954 63.123047,61.294784 0 0 0 33.494327,8.2429165 L 45.118939,28.377605 a 65.057165,63.172887 0 0 1 38.32376,-0.467672 L 95.231125,7.4915422 A 63.123047,61.294784 0 0 0 64.965273,8.0416146e-6 Z"
+       id="percussion" />
+    <path
+    class="instrumentGroupSVG"
+       inkscape:export-ydpi="300"
+       inkscape:export-xdpi="300"
+       id="keyboard"
+       d="M 32.104227,9.0599165 A 63.123048,61.294785 0 0 0 1.9598169,63.043176 l 3.62459,-0.006 a 65.057166,63.172888 0 0 1 26.3492901,-28.95636 65.057166,63.172888 0 0 1 11.59568,-5.23224 z"
+       style="display:inline;opacity:1;fill:#ff6600;fill-opacity:1;stroke:none;stroke-width:2.28616905;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:13.71701583, 13.71701583;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       inkscape:connector-curvature="0" />
+    <path
+    class="instrumentGroupSVG"
+       inkscape:export-ydpi="300"
+       inkscape:export-xdpi="300"
+       id="woodwinds"
+       d="m 67.073107,25.310286 a 65.057167,63.172887 0 0 0 -4.239525,0.007 65.057167,63.172887 0 0 0 -30.899946,8.76432 65.057167,63.172887 0 0 0 -31.90708305,56.17641 l 5.21880295,-0.008 a 65.025648,63.14228 0 0 1 26.6784631,-29.68244 65.025648,63.14228 0 0 1 66.035768,-0.10232 65.025648,63.14228 0 0 1 26.769953,29.59974 l 5.36347,-0.008 a 65.057167,63.172887 0 0 0 -32.091563,-56.07719 65.057167,63.172887 0 0 0 -30.92834,-8.66873 z"
+       style="display:inline;opacity:1;fill:#00aad2;fill-opacity:1;stroke:none;stroke-width:2.35621834;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:14.13731157, 14.13731157;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       inkscape:connector-curvature="0" />
+    <path
+    class="instrumentGroupSVG"
+       inkscape:export-ydpi="300"
+       inkscape:export-xdpi="300"
+       id="streicher"
+       d="M 0.03180695,116.71626 A 65.025649,63.142282 0 0 1 31.923697,60.566896 a 65.025649,63.142282 0 0 1 66.03571,-0.10235 65.025649,63.142282 0 0 1 32.076213,56.050274"
+       style="display:inline;opacity:1;fill:#ffd42a;fill-opacity:1;stroke:none;stroke-width:2.35507703;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:14.13046229, 14.13046229;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       inkscape:connector-curvature="0" /> -->
+        </svg>
+    </div>
     <div class="select-wrapper">
         <div class="label">Instruments:</div>
         <select id="instrumentsSelect" onchange="<%= 'func1(this);' %>">  
@@ -274,6 +325,300 @@
 </table>
 
 <div id="mapid"></div>
+
+<script type="text/javascript">
+
+function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+  var angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
+
+  return {
+    x: centerX + (radius * Math.cos(angleInRadians)),
+    y: centerY + (radius * Math.sin(angleInRadians))
+  };
+}
+
+function describeArc(x, y, radius, startAngle, endAngle, test = 0){
+
+    var start = polarToCartesian(x, y, radius, endAngle);
+    var end = polarToCartesian(x, y, radius, startAngle);
+
+    var largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+    var d = [
+        "M", start.x, start.y, 
+        "A", radius, radius, 0, largeArcFlag, test, end.x, end.y
+    ].join(" ");
+
+    return d;       
+}
+    let selectchart = d3.select("#selectchart");
+    
+    selectchart
+    .append("path")
+    .style("fill", "none")
+    .style("stroke", "#FFC914")
+    .style("stroke-width", "170")
+    .attr("id", "streicher")
+    .attr("class", "instrumentGroupSVG")
+    .attr("d", describeArc(130, 210, 90, 460, 260, 1));
+
+    selectchart
+    .append("path")
+    .style("fill", "none")
+    .style("stroke", "#DD1C1A")
+    .style("stroke-width", "70")
+    .attr("id", "percussion")
+    .attr("class", "instrumentGroupSVG")
+    .attr("d", describeArc(130, 150, 140, 400, 320, 1));
+
+    selectchart
+    .append("path")
+    .style("fill", "none")
+    .style("stroke", "#14CC88")
+    .style("stroke-width", "70")
+    .attr("id", "keyboard")
+    .attr("class", "instrumentGroupSVG")
+    .attr("d", describeArc(130, 150, 140, 320, 260, 1));
+
+    selectchart
+    .append("path")
+    .style("fill", "none")
+    .style("stroke", "#A4036F")
+    .style("stroke-width", "70")
+    .attr("id", "plucked")
+    .attr("class", "instrumentGroupSVG")
+    .attr("d", describeArc(130, 150, 140, 460, 400, 1));
+
+    selectchart
+    .append("path")
+    .style("fill", "none")
+    .style("stroke", "#008DD5")
+    .style("stroke-width", "70")
+    .attr("id", "woodwinds")
+    .attr("class", "instrumentGroupSVG")
+    .attr("d", describeArc(130, 150, 70, 420, 300, 1));
+
+    d3.select("#selectchart")
+    .append("path")
+    .style("fill", "none")
+    .style("stroke", "lime")
+    .style("stroke-width", "170")
+    .style("display", "none")
+    .attr("id", "selectedchart")
+    .attr("class", "instrumentGroupSVG")
+    .attr("d", describeArc(130, 150, 110, 1, 360));
+
+    selectchart
+    .append("text")
+    .append("textPath")
+    .attr("class", "textonpath noselect")
+    .attr("xlink:href", "#plucked")
+    .attr("startOffset", "90")
+    .attr("font-size", "30")
+    .text("Plucked Instruments");
+
+    selectchart
+    .append("text")
+    .append("textPath")
+    .attr("class", "textonpath noselect")
+    .attr("xlink:href", "#streicher")
+    .attr("startOffset", "260")
+    .attr("font-size", "30")
+    .text("String Instruments");
+
+    selectchart
+    .append("text")
+    .append("textPath")
+    .attr("class", "textonpath noselect")
+    .attr("xlink:href", "#keyboard")
+    .attr("startOffset", "90")
+    .attr("font-size", "30")
+    .text("Keyboard Instruments");
+
+    selectchart
+    .append("text")
+    .append("textPath")
+    .attr("class", "textonpath noselect")
+    .attr("xlink:href", "#percussion")
+    .attr("startOffset", "150")
+    .attr("font-size", "30")
+    .text("Percussion Instruments");
+
+    selectchart
+    .append("text")
+    .append("textPath")
+    .attr("class", "textonpath noselect")
+    .attr("xlink:href", "#woodwinds")
+    .attr("startOffset", "80")
+    .attr("font-size", "30")
+    .text("Woodwind Instruments");
+
+    selectchart.attr("transform", "translate(120, 100) scale(0.7)");
+
+
+   /* d3.select("svg").append("path").style("fill", "none").style("stroke", "red").style("stroke-width", "50").attr("d", describeArc(130, 150, 50, 220, 500));
+
+  document.getElementById("arc5").setAttribute("d", describeArc(130, 150, 140, 320, 400));
+  document.getElementById("arc1").setAttribute("d", describeArc(130, 150, 140, 260, 320));
+  document.getElementById("arc3").setAttribute("d", describeArc(130, 150, 140, 400, 460));
+  document.getElementById("arc2").setAttribute("d", describeArc(130, 150, 70, 300, 420));
+  document.getElementById("arc4").setAttribute("d", describeArc(130, 210, 90, 260, 460));*/
+
+    let selected = false;
+    let offset = 500;
+    let offsetScale = 3.0;
+    d3.selectAll('path.instrumentGroupSVG').attr("transform", "translate("+offset+", 0) scale("+offsetScale+")");
+    d3.selectAll('path.instrumentGroupSVG:not([id=selectedchart])').on("mouseover", function(d) {
+        d3.select(this).attr("origFill", d3.select(this).style("stroke"));
+        d3.select(this).style("stroke", "orange");
+    })                  
+    .on("mouseout", function(d) {
+      d3.select(this).style("stroke", d3.select(this).attr("origFill"));
+    })
+    .on("click", function(d) {
+        let id = d3.select(this).attr("id");
+        let group = "";
+
+        switch (id) {
+            case "streicher":
+                group = "String instruments";
+                break;
+            case "woodwinds":
+                group = "Woodwind instruments (reed driven instruments)";
+                break;
+            case "plucked":
+                group = "Woodwind instruments (reed driven instruments)";
+                break;
+            case "percussion":
+                group = "Percussion instruments";
+                break;
+            case "plucked":
+                group = "Plucked instruments";
+                break;
+            case "keyboard":
+                group = "Keyboard instrument";
+                break;
+            default:
+                // statements_def
+                break;
+        }
+
+        console.log(id);
+
+        var scalex=7.0, scaley=5.0, translatex = 150;
+
+        if(d3.select(this).attr("selected") === "true") {
+            scalex=offsetScale;
+            scaley=offsetScale;
+            translatex = offset;
+
+            d3.select(this).attr("selected", "false");
+        }
+        else {
+            d3.select(this).attr("selected", "true");
+        }
+
+        let bounding = d3.select(this).node().getBoundingClientRect();
+
+        var bbox=bounding;
+        var cx=bbox.x+(bbox.width/2),
+            cy=bbox.y+(bbox.height/2);   // finding center of element
+            // your desired scale
+        var saclestr=scalex+','+scaley;
+        var tx=-cx*(scalex-1);
+        var ty=-cy*(scaley-1);                        
+        var translatestr=tx+','+ty;
+
+        /*d3.selectAll("path.instrumentGroupSVG:not([id="+id+"])").transition().duration(100)
+        .attr ('transform','translate('+ 0 +',0) scale('+1.0+')').attr("selected", "false");*/
+
+        if(selected === false) {
+            d3.selectAll("text").style("display", "none");
+            d3.select("#selectedchart").transition().duration(100).style("display", "initial").style("stroke", d3.select(this).attr("origFill"));
+
+
+            selected = true;
+
+
+/*        d3.select(this).transition().duration(50)
+                .attr ('transform','translate('+ translatex +',0) scale('+ scalex +','+ scaley +')');
+
+        d3.select(this).each(function() {
+            this.parentNode.appendChild(this);
+        });*/
+
+            $.post( "/group/"+group, function( data ) {
+                data = JSON.parse(data);
+
+                let bounding = d3.select("#selectedchart").node().getBoundingClientRect();
+
+                console.log(bounding);
+
+                /*d3.selectAll("path.instrumentGroupSVG:not([id="+id+"])").transition().duration(100)
+                .attr ('transform','translate('+ 0 +',0) scale('+1.0+')').attr("selected", "false");*/
+
+                d3.selectAll("rect.rectangle").remove();
+                d3.selectAll("text.detailText").remove();
+
+                /*d3.select(this).transition().duration(101)
+                .attr ('transform','translate('+ translatex +',0) scale('+ scalex +','+ scaley +')').each("end", e => {*/
+
+                    let row = 0;
+
+                    let angle = 360 / data.length;
+
+                    for(let i = 0; i < data.length; i++) {
+
+                        if(i > 2 && i % 4 === 0) {
+                            row++;
+                        }
+
+                        let position = polarToCartesian(bounding.x - 50, bounding.x + 50, bounding.width / 2, angle * i);
+                        console.log(position);
+
+                        let posX = position.x + bounding.width / 2;
+                        let posY = position.y - bounding.height / 2;
+
+                        /*d3.select("svg").append("rect")
+                            .attr("class", "rectangle")
+                            .attr("x", posX)
+                            .attr("y", posY)
+                            .attr("width",box.width / data.length - 5)
+                            .attr("height", box.height)
+                            .style("fill", "red");*/
+
+                        d3.select("svg").append("text")
+                            //.attr("dy", ".35em")
+                            .attr("class", "detailText")
+                            .attr("x", posX)
+                            .attr("y", posY)
+                            .text(function(d) { return data[i].Instruments; });
+                    }
+               /* });*/
+
+            }.bind(this));
+
+        }
+        else {
+            d3.selectAll("rect.rectangle").remove();
+            d3.selectAll("text.detailText").remove();
+
+            d3.select("#selectedchart").transition().duration(100).style("display", "none");
+            d3.selectAll("text").transition().duration(101).style("display", "initial");
+
+            selected = false;
+        }
+
+           
+
+            //d3.select(this).call(zoom.transform, d3.zoomIdentity.translate(100, 50).scale(0.5));
+
+
+
+    });
+
+</script>
+
 <% } %>
  
 </div>

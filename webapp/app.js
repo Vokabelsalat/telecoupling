@@ -11,7 +11,7 @@ const database = require("./database.js");
 const variables = require("./variables.js");
 const utils = require("./public/js/utils.js");
 
-const { getHomePage, getMainPart, getMaterial, getSynonyms, queryIUCN, requestMapboxToken, getCountriesGeoJSON } = require('./routes/index');
+const { getHomePage, getMainPart, getMaterial, getSynonyms, queryIUCN, requestMapboxToken, getCountriesGeoJSON, getMusicalChairs, processMusicalChairs, getInstrumentsFromGroup } = require('./routes/index');
 const { getTrade } = require('./routes/cites');
 const { queryGBIF, queryGBIFspecies, } = require('./routes/gbif');
 const { queryTreeSearchSpecies, queryTreeSearchSpeciesWithSciName, queryThreatSearchWithSciName } = require('./routes/bgci');
@@ -24,8 +24,8 @@ const port = 8080;
 const db = mysql.createConnection(database.databaseConfig);
 global.variables = variables.variables;
 
-/*let rawdata = fs.readFileSync('./countries10m.geo.json'); 
-global.countriesGeoJson = JSON.parse(rawdata);*/
+let rawdata = fs.readFileSync('./public/locations.json'); 
+global.musicalChairsLocations = JSON.parse(rawdata);
 
 // connect to database
 db.connect((err) => {
@@ -53,8 +53,9 @@ app.use(fileUpload()); // configure fileupload
 // routes for the app
 
 app.get('/', getHomePage);
-app.get('/:selectedInstruments', getHomePage);
-app.get('/:selectedInstruments/:selectedMainPart', getHomePage);
+app.get('/instruments/:selectedInstruments', getHomePage);
+app.post('/group/:selectedGroup', getInstrumentsFromGroup);
+app.get('/instruments/:selectedInstruments/mainpart/:selectedMainPart', getHomePage);
 app.post('/getMainPart/:instruments', getMainPart);
 app.post('/getMaterial/:instruments/:mainPart', getMaterial);
 app.post('/getSpecies/:family/:genus/:species', getSpecies);
@@ -70,6 +71,8 @@ app.post('/queryTreeSearchSpeciesWithSciName/:name', queryTreeSearchSpeciesWithS
 app.post('/queryThreatSearchWithSciName/:name', queryThreatSearchWithSciName);
 app.post('/requestMapboxToken', requestMapboxToken);
 app.post('/getCountriesGeoJSON', getCountriesGeoJSON);
+app.post('/getMusicalChairs', getMusicalChairs);
+app.get('/processMusicalChairs', processMusicalChairs);
 /*app.get('/add', addPlayerPage);
 app.get('/edit/:id', editPlayerPage);
 app.get('/delete/:id', deletePlayer);

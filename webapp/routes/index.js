@@ -1,6 +1,6 @@
 module.exports = {
     requestMapboxToken: (req, res) => {
-        res.end(JSON.stringify({ accessToken: variables.mapboxAccessToken}));
+        res.end(JSON.stringify({ accessToken: variables.mapboxAccessToken }));
     },
     getHomePage: (req, res) => {
         let selectedinstrument = req.params.selectedInstruments;
@@ -13,6 +13,13 @@ module.exports = {
                 selectedMainPart: selectedMainPart
             })
         );
+    },
+    getInstrumentsFromGroup: (req, res) => {
+        let group = req.params.selectedGroup;
+        console.log(group);
+        knex.select("Instruments").from('materials').where("Instrument_groups", group).groupBy("Instruments").then(rows => {
+            res.end(JSON.stringify(rows));
+        });
     },
     getMainPart: (req, res) => {
         let instruments = req.params.instruments;
@@ -51,5 +58,55 @@ module.exports = {
     },
     getCountriesGeoJSON: (req, res) => {
         res.end(JSON.stringify(countriesGeoJson));
+    },
+    getMusicalChairs: (req, res) => {
+        let query = knex.select().from("musicalchair");
+        query.then(rows => {
+            let secondQuery = knex.select().from("musicalchairslocations");
+            secondQuery.then(data => {
+                res.end(JSON.stringify({ orchestras: rows, locations: data }));
+            });
+        });
+    },
+    processMusicalChairs: (req, res) => {
+
+        let query = knex.select().from("musicalchair");
+        query.then(rows => {
+            for (let entry of rows) {
+                let locs = musicalChairsLocations[entry.country];
+                if (locs !== null && locs !== undefined) {
+                    let filter = locs.filter(e => e.city === entry.city);
+                    if (filter.length === 1) {
+                        if (filter[0].location.lat && filter[0].location.lon) {
+                            let query = knex('musicalchair')
+                                .where('country', '=', entry.country)
+                                .andWhere("city", "=", entry.city)
+                                .update({
+                                    lat: filter[0].location.lat,
+                                    lon: filter[0].location.lon
+                                });
+                                console.log(query);
+                            query.then(result => {
+                                console.log(result);
+                            });
+                        }
+                    }
+                }
+            }
+        });
+
+        /*let query = knex('musicalchair')
+            .where('published_date', '=', 2000)
+            .update({
+                status: 'archived',
+                thisKeyIsSkipped: undefined
+            })
+        let query = knex.select().from("musicalchair");
+        query.then(rows => {
+            let secondQuery = knex.select().from("musicalchairslocations");
+            secondQuery.then(data => {
+                res.end(JSON.stringify({ orchestras: rows, locations: data }));
+            });
+        });*/
     }
 };
