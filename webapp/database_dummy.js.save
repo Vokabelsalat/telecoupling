@@ -1,0 +1,8 @@
+exports.databaseConfig = {
+    host: 'localhost',
+    user: 'root',
+    password: 'mysqlpassword',
+    database: 'telecoupling
+',
+    port: ""
+};

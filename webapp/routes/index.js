@@ -3,6 +3,7 @@ module.exports = {
         res.end(JSON.stringify({ accessToken: variables.mapboxAccessToken}));
     },
     getHomePage: (req, res) => {
+        console.log("SERVER MAIN");
         let selectedinstrument = req.params.selectedInstruments;
         let selectedMainPart = req.params.selectedMainPart;
         knex.select("Instruments").from('materials').groupBy("Instruments").then(rows =>
