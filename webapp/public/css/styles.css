@@ -215,3 +215,19 @@ img {
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
 }
+
+.blur {
+  filter: url('#dropshadow');
+}
+
+.stroke {
+  filter: url('#strokeshadow');
+}
+
+.arcgroup {
+    paint-order: stroke;
+}
+
+.subarc > path{
+    stroke: rgb(95, 77, 73)
+}

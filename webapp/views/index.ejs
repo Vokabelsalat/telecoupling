@@ -178,6 +178,12 @@
         });
     }
 
+    d3.selection.prototype.moveToFront = function() {
+      this.each(function(){
+        this.parentNode.appendChild(this);
+      });
+    };
+
     function clearTable() {
         $(".tableRow").not(".tableHead").remove();
     }
@@ -242,54 +248,14 @@
 </script>
 <% if (instruments.length > 0) {%> 
     <div class="orchester-wrapper">
-        <svg width = "1600" height = "900" style="border: solid 1px red">
-            <g id="selectchart"></g>
-            <!-- <g stroke="red" fill="none" stroke-width="30" stroke-linecap="round"> -->
-   <!-- <path stroke="red" fill="none" stroke-width="30" stroke-linecap="butt" d="M 70 180 A 250 250 0 0 1 270 180" />
-   <path stroke="red" fill="none" stroke-width="30" stroke-linecap="butt" d="M 100 125 A 105 105 0 0 1 240 125" />
-   <path stroke="red" fill="none" stroke-width="30" stroke-linecap="butt" d="M 130 160 A 60 60 0 0 1 210 160" /> -->
-<!-- </g> -->
-
-<!-- <circle cx="170" cy="200" r="25" fill="red" /> -->
-
-    <!-- <path
-    class="instrumentGroupSVG"
-       inkscape:export-ydpi="300"
-       inkscape:export-xdpi="300"
-       id="plucked"
-       d="M 96.657917,8.2449765 85.016247,28.409116 a 65.057166,63.172888 0 0 1 12.98526,5.56969 65.057166,63.172888 0 0 1 26.470213,28.87472 l 3.68814,-0.006 A 63.123048,61.294785 0 0 0 97.022237,8.4374265 a 63.123048,61.294785 0 0 0 -0.36432,-0.19275 z"
-       style="display:inline;opacity:1;fill:#d400aa;fill-opacity:1;stroke:none;stroke-width:2.28616905;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:13.71701583, 13.71701583;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
-       inkscape:connector-curvature="0" />
-    <path
-    class="instrumentGroupSVG"
-       inkscape:connector-curvature="0"
-       style="display:inline;opacity:1;fill:#00a600;fill-opacity:1;stroke:none;stroke-width:2.28616905;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:13.71701566, 13.71701566;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
-       d="M 64.965273,8.0416146e-6 A 63.123047,61.294784 0 0 0 62.899767,0.03359954 63.123047,61.294784 0 0 0 33.494327,8.2429165 L 45.118939,28.377605 a 65.057165,63.172887 0 0 1 38.32376,-0.467672 L 95.231125,7.4915422 A 63.123047,61.294784 0 0 0 64.965273,8.0416146e-6 Z"
-       id="percussion" />
-    <path
-    class="instrumentGroupSVG"
-       inkscape:export-ydpi="300"
-       inkscape:export-xdpi="300"
-       id="keyboard"
-       d="M 32.104227,9.0599165 A 63.123048,61.294785 0 0 0 1.9598169,63.043176 l 3.62459,-0.006 a 65.057166,63.172888 0 0 1 26.3492901,-28.95636 65.057166,63.172888 0 0 1 11.59568,-5.23224 z"
-       style="display:inline;opacity:1;fill:#ff6600;fill-opacity:1;stroke:none;stroke-width:2.28616905;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:13.71701583, 13.71701583;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
-       inkscape:connector-curvature="0" />
-    <path
-    class="instrumentGroupSVG"
-       inkscape:export-ydpi="300"
-       inkscape:export-xdpi="300"
-       id="woodwinds"
-       d="m 67.073107,25.310286 a 65.057167,63.172887 0 0 0 -4.239525,0.007 65.057167,63.172887 0 0 0 -30.899946,8.76432 65.057167,63.172887 0 0 0 -31.90708305,56.17641 l 5.21880295,-0.008 a 65.025648,63.14228 0 0 1 26.6784631,-29.68244 65.025648,63.14228 0 0 1 66.035768,-0.10232 65.025648,63.14228 0 0 1 26.769953,29.59974 l 5.36347,-0.008 a 65.057167,63.172887 0 0 0 -32.091563,-56.07719 65.057167,63.172887 0 0 0 -30.92834,-8.66873 z"
-       style="display:inline;opacity:1;fill:#00aad2;fill-opacity:1;stroke:none;stroke-width:2.35621834;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:14.13731157, 14.13731157;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
-       inkscape:connector-curvature="0" />
-    <path
-    class="instrumentGroupSVG"
-       inkscape:export-ydpi="300"
-       inkscape:export-xdpi="300"
-       id="streicher"
-       d="M 0.03180695,116.71626 A 65.025649,63.142282 0 0 1 31.923697,60.566896 a 65.025649,63.142282 0 0 1 66.03571,-0.10235 65.025649,63.142282 0 0 1 32.076213,56.050274"
-       style="display:inline;opacity:1;fill:#ffd42a;fill-opacity:1;stroke:none;stroke-width:2.35507703;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:14.13046229, 14.13046229;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
-       inkscape:connector-curvature="0" /> -->
+        <svg style="border: solid 1px red">
+             <filter id="dropshadow" x="-2" y="-2" width="200" height="200">
+              <!-- <feGaussianBlur  stdDeviation="1"/> -->
+              <feDropShadow stdDeviation="3.0"/>
+            </filter>
+            <g id="wrapper">
+                <g id="selectchart"></g>
+            </g>
         </svg>
     </div>
     <div class="select-wrapper">
@@ -328,155 +294,94 @@
 
 <script type="text/javascript">
 
-function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-  var angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
+    let padding = 20;
 
-  return {
-    x: centerX + (radius * Math.cos(angleInRadians)),
-    y: centerY + (radius * Math.sin(angleInRadians))
-  };
-}
+    var svgWidth = parseInt($(window).width()) - 2*padding;
+    var svgHeight = parseInt(window.innerHeight) - 2*padding;
 
-function describeArc(x, y, radius, startAngle, endAngle, test = 0){
+    d3.select("svg").attr("width", svgWidth).attr("height", svgHeight);
 
-    var start = polarToCartesian(x, y, radius, endAngle);
-    var end = polarToCartesian(x, y, radius, startAngle);
+    console.log("svg", svgWidth, svgHeight);
 
-    var largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+    var animationTime = 1200;
 
-    var d = [
-        "M", start.x, start.y, 
-        "A", radius, radius, 0, largeArcFlag, test, end.x, end.y
-    ].join(" ");
+    let positionX = svgWidth / 2;
+    let positionY = svgHeight / 2 + 100;
 
-    return d;       
-}
-    let selectchart = d3.select("#selectchart");
-    
-    selectchart
-    .append("path")
-    .style("fill", "none")
-    .style("stroke", "#FFC914")
-    .style("stroke-width", "170")
-    .attr("id", "streicher")
-    .attr("class", "instrumentGroupSVG")
-    .attr("d", describeArc(130, 210, 90, 460, 260, 1));
+    var container = d3.select("#wrapper");
+    var svg_group = d3.select("#selectchart");
 
-    selectchart
-    .append("path")
-    .style("fill", "none")
-    .style("stroke", "#DD1C1A")
-    .style("stroke-width", "70")
-    .attr("id", "percussion")
-    .attr("class", "instrumentGroupSVG")
-    .attr("d", describeArc(130, 150, 140, 400, 320, 1));
+    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+      var angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
 
-    selectchart
-    .append("path")
-    .style("fill", "none")
-    .style("stroke", "#14CC88")
-    .style("stroke-width", "70")
-    .attr("id", "keyboard")
-    .attr("class", "instrumentGroupSVG")
-    .attr("d", describeArc(130, 150, 140, 320, 260, 1));
+      return {
+        x: centerX + (radius * Math.cos(angleInRadians)),
+        y: centerY + (radius * Math.sin(angleInRadians))
+      };
+    }
 
-    selectchart
-    .append("path")
-    .style("fill", "none")
-    .style("stroke", "#A4036F")
-    .style("stroke-width", "70")
-    .attr("id", "plucked")
-    .attr("class", "instrumentGroupSVG")
-    .attr("d", describeArc(130, 150, 140, 460, 400, 1));
+    function getStartAndEnd(path) {
+        try {
+            let split = path.split(" ");
+            return {start: {x: parseInt(split[1]), y: parseInt(split[2])}, end: {x: parseInt(split[9]), y: parseInt(split[10])}};
+            // statements
+        } catch(e) {
+            console.log(e);
+            return null;
+        }
+    }
 
-    selectchart
-    .append("path")
-    .style("fill", "none")
-    .style("stroke", "#008DD5")
-    .style("stroke-width", "70")
-    .attr("id", "woodwinds")
-    .attr("class", "instrumentGroupSVG")
-    .attr("d", describeArc(130, 150, 70, 420, 300, 1));
+    function getAngle( x1, y1, x2, y2 ) {
+        
+        var dx = x1 - x2,
+            dy = y1 - y2;
+        
+        return (-1) * (Math.atan2(dy,dx) * 180 / Math.PI - 180);
+    }
 
-    d3.select("#selectchart")
-    .append("path")
-    .style("fill", "none")
-    .style("stroke", "lime")
-    .style("stroke-width", "170")
-    .style("display", "none")
-    .attr("id", "selectedchart")
-    .attr("class", "instrumentGroupSVG")
-    .attr("d", describeArc(130, 150, 110, 1, 360));
+    function getDistance(x1, y1, x2, y2) {
+        let sum = Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2);
+        return Math.sqrt(sum);
+    }
 
-    selectchart
-    .append("text")
-    .append("textPath")
-    .attr("class", "textonpath noselect")
-    .attr("xlink:href", "#plucked")
-    .attr("startOffset", "90")
-    .attr("font-size", "30")
-    .text("Plucked Instruments");
+    function describeArc(x, y, radius, startAngle, endAngle, direction = 0, withoutM = false){
 
-    selectchart
-    .append("text")
-    .append("textPath")
-    .attr("class", "textonpath noselect")
-    .attr("xlink:href", "#streicher")
-    .attr("startOffset", "260")
-    .attr("font-size", "30")
-    .text("String Instruments");
+        var start = polarToCartesian(x, y, radius, endAngle);
+        var end = polarToCartesian(x, y, radius, startAngle);
 
-    selectchart
-    .append("text")
-    .append("textPath")
-    .attr("class", "textonpath noselect")
-    .attr("xlink:href", "#keyboard")
-    .attr("startOffset", "90")
-    .attr("font-size", "30")
-    .text("Keyboard Instruments");
+        if(direction === 0) {
+            let tmp = start;
+            start = end;
+            end = tmp;
+        }
 
-    selectchart
-    .append("text")
-    .append("textPath")
-    .attr("class", "textonpath noselect")
-    .attr("xlink:href", "#percussion")
-    .attr("startOffset", "150")
-    .attr("font-size", "30")
-    .text("Percussion Instruments");
+        var largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
 
-    selectchart
-    .append("text")
-    .append("textPath")
-    .attr("class", "textonpath noselect")
-    .attr("xlink:href", "#woodwinds")
-    .attr("startOffset", "80")
-    .attr("font-size", "30")
-    .text("Woodwind Instruments");
+        if(withoutM) {
+            var d = [
+                "L", start.x, start.y, 
+                "A", radius, radius, 0, largeArcFlag, direction, end.x, end.y
+            ].join(" ");    
+        }
+        else {
+            var d = [
+                "M", start.x, start.y, 
+                "A", radius, radius, 0, largeArcFlag, direction, end.x, end.y
+            ].join(" ");    
+        }
+        
 
-    selectchart.attr("transform", "translate(120, 100) scale(0.7)");
+        return d;       
+    }
 
+    function describeLine(x, y, endX, endY, withoutM) {
+        if(withoutM)
+            return ["L", endX, endY].join(" ");
+        else
+            return ["M", x, y, "L", endX, endY].join(" ");
+    }
 
-   /* d3.select("svg").append("path").style("fill", "none").style("stroke", "red").style("stroke-width", "50").attr("d", describeArc(130, 150, 50, 220, 500));
-
-  document.getElementById("arc5").setAttribute("d", describeArc(130, 150, 140, 320, 400));
-  document.getElementById("arc1").setAttribute("d", describeArc(130, 150, 140, 260, 320));
-  document.getElementById("arc3").setAttribute("d", describeArc(130, 150, 140, 400, 460));
-  document.getElementById("arc2").setAttribute("d", describeArc(130, 150, 70, 300, 420));
-  document.getElementById("arc4").setAttribute("d", describeArc(130, 210, 90, 260, 460));*/
-
-    let selected = false;
-    let offset = 500;
-    let offsetScale = 3.0;
-    d3.selectAll('path.instrumentGroupSVG').attr("transform", "translate("+offset+", 0) scale("+offsetScale+")");
-    d3.selectAll('path.instrumentGroupSVG:not([id=selectedchart])').on("mouseover", function(d) {
-        d3.select(this).attr("origFill", d3.select(this).style("stroke"));
-        d3.select(this).style("stroke", "orange");
-    })                  
-    .on("mouseout", function(d) {
-      d3.select(this).style("stroke", d3.select(this).attr("origFill"));
-    })
-    .on("click", function(d) {
-        let id = d3.select(this).attr("id");
+    function getGroupFromID(id) {
         let group = "";
 
         switch (id) {
@@ -484,9 +389,6 @@ function describeArc(x, y, radius, startAngle, endAngle, test = 0){
                 group = "String instruments";
                 break;
             case "woodwinds":
-                group = "Woodwind instruments (reed driven instruments)";
-                break;
-            case "plucked":
                 group = "Woodwind instruments (reed driven instruments)";
                 break;
             case "percussion":
@@ -503,119 +405,301 @@ function describeArc(x, y, radius, startAngle, endAngle, test = 0){
                 break;
         }
 
-        console.log(id);
+        return group;
+    }
 
-        var scalex=7.0, scaley=5.0, translatex = 150;
+    function calcArcLength(r, strokewidth, textlength, angle) {
+        return (Math.PI * r) * (angle / 180) - (textlength);
+    }
 
-        if(d3.select(this).attr("selected") === "true") {
-            scalex=offsetScale;
-            scaley=offsetScale;
-            translatex = offset;
+    function getParent(sel) {
+        return sel.select(function() { return this.parentNode; });
+    }
 
-            d3.select(this).attr("selected", "false");
+    function bindMouseOver(element, callback) {
+        if(!touchDisplay) {
+            element.on("mouseover", callback);
+        }
+    } 
+
+    let mouseover = function(d) {
+        let sel = d3.select(this);
+        sel.select(".arc").style("stroke", "rgb(95, 77, 73)").style("stroke-opacity", 0.70).style("stroke-width", 2).style("stroke-linejoin", "round");
+        getParent(sel).moveToFront();
+        sel.moveToFront();
+        /*d3.select(this).classed("blur", true);*/
+    };
+
+    let mouseout = function(d)  {
+        /*d3.select(this).classed("blur", false);*/
+      d3.select(this).select("#" + d3.select(this).attr("id").replace("arcgroup", "") + "path").style("stroke", "initial").style("stroke-opacity", 1.0).style("stroke-width", 1).style("stroke-linejoin", "miter");
+    };
+
+    function zoomAndRotate(path, center=false) {
+        var bbox = path.node().getBBox();
+
+        let startEnd = getStartAndEnd(path.attr("d"));
+
+        let strokewidth = parseInt(path.attr("arcwidth"));
+
+        let angle = 0.0, distance = 0, toBeScaled = 0;
+
+        if(startEnd && strokewidth) {
+
+            distance = getDistance(startEnd.start.x, startEnd.start.y, startEnd.end.x, startEnd.end.y); //+ strokewidth / 2;
+
+            toBeScaled = (svgWidth / 2) / distance;
+
+            angle = getAngle(startEnd.start.x, startEnd.start.y, startEnd.end.x, startEnd.end.y);
         }
         else {
-            d3.select(this).attr("selected", "true");
+            distance = bbox.width;
+
+            toBeScaled = (svgWidth / 1.1) / distance;
         }
 
-        let bounding = d3.select(this).node().getBoundingClientRect();
+        console.log("bbox", bbox.width, bbox.height);
 
-        var bbox=bounding;
         var cx=bbox.x+(bbox.width/2),
             cy=bbox.y+(bbox.height/2);   // finding center of element
-            // your desired scale
-        var saclestr=scalex+','+scaley;
-        var tx=-cx*(scalex-1);
-        var ty=-cy*(scaley-1);                        
+
+        console.log("center", cy, cy);
+        console.log("centerOfChart", svgWidth / 2, svgHeight / 2);
+
+        let differenceToCenterX = positionX - cx;
+        let differenceToCenterY = positionY - cy;
+
+        console.log("difference", differenceToCenterX, differenceToCenterY);
+
+   /*     d3.select("#selectchart").append("rect")
+        .style("fill", "blue")
+        .attr("width", 3)
+        .attr("height", 3)
+        .attr("x", cx-1)
+        .attr("y", cy-1);*/
+
+/*        d3.select("#selectchart").append("rect")
+        .style("fill", "red")
+        .attr("width", 3)
+        .attr("height", 3)
+        .attr("x", svgWidth/2-1)
+        .attr("y", svgHeight/2-1);*/
+
+/*        if(isSafari) {
+            container.transition().duration(animationTime).attr('transform', 'translate('+ (cx) + ' ' + (cy) +') scale('+ toBeScaled + ' ' + toBeScaled +') rotate('+angle+') translate('+ (-cx) + ' ' + (-cy) +')');
+        }
+        else {
+            container.style("transform-box", "fill-box").style("transform-origin", "center").transition().duration(animationTime).attr('transform', 'scale('+ toBeScaled + ' ' + toBeScaled +') rotate('+angle+') translate('+ (differenceToCenterX) + ' ' + (differenceToCenterY) +')');
+        }*/
+
+        let box = container.node().getBBox();
+        let boxCenterX = box.x+(box.width/2);
+        let boxCenterY = box.y+(box.height);
+
+        let rotateCenterX = positionX;
+        let rotateCenterY = positionY;
+
+/*         d3.select("#selectchart").append("rect")
+        .style("fill", "red")
+        .attr("width", 3)
+        .attr("height", 3)
+        .attr("x", rotateCenterX-1)
+        .attr("y", rotateCenterY-1);
+
+         d3.select("#selectchart").append("rect")
+        .style("fill", "purple")
+        .attr("width", 3)
+        .attr("height", 3)
+        .attr("x", differenceToCenterX)
+        .attr("y", differenceToCenterY);*/
+
+        var saclestr=toBeScaled+','+toBeScaled;
+        var tx=-cx*(toBeScaled-1);
+        var ty=-cy*(toBeScaled-1);                        
         var translatestr=tx+','+ty;
 
-        /*d3.selectAll("path.instrumentGroupSVG:not([id="+id+"])").transition().duration(100)
-        .attr ('transform','translate('+ 0 +',0) scale('+1.0+')').attr("selected", "false");*/
+        svg_group.transition().duration(animationTime).attr("transform", "\
+            translate(" + differenceToCenterX + " " + differenceToCenterY + ") \
+            rotate("+angle+" "+cx+" "+cy+") \
+            translate("+translatestr+") scale("+saclestr+") \
+            ");
 
-        if(selected === false) {
-            d3.selectAll("text").style("display", "none");
-            d3.select("#selectedchart").transition().duration(100).style("display", "initial").style("stroke", d3.select(this).attr("origFill"));
+/*         d3.select("svg").append("rect")
+        .style("fill", "lime")
+        .attr("width", 3)
+        .attr("height", 3)
+        .attr("x", positionX-1)
+        .attr("y", positionY-1);*/
+    }
 
+    function appendSelectArc(dst, id, text, color, strokewidth, x, y, width, start, end, direction, fontSize, classStr = "") {
+        let group = dst.append("g")
+        .style("cursor", "pointer")
+        .attr("id", id + "arcgroup")
+        .attr("class", "arcgroup");
 
-            selected = true;
+        let upper = describeArc(x, y, width + strokewidth / 2, start, end, direction);
+        let lower = describeArc(x, y, width - strokewidth / 2, start, end, 0, true);
 
+        pathstr = [
+            upper,
+            lower,
+            "Z"
+        ].join(" ");
 
-/*        d3.select(this).transition().duration(50)
-                .attr ('transform','translate('+ translatex +',0) scale('+ scalex +','+ scaley +')');
+        let path = group.append("path")
+        .style("fill", color)
+        .style("stroke", "rgb(95, 77, 73)")
+        .style("stroke-width", "0.5")
+        .attr("id", id + "path")
+        .attr("class", "arc")
+        .attr("start", start)
+        .attr("end", end)
+        .attr("radius", width)
+        .attr("name", text)
+        .attr("arcwidth", strokewidth)
+        .attr("d", pathstr);
 
-        d3.select(this).each(function() {
-            this.parentNode.appendChild(this);
-        });*/
+        path.classed(classStr, true);
 
-            $.post( "/group/"+group, function( data ) {
+        if(!classStr.includes("subarc")) {
+            let instrumentGroup = getGroupFromID(id);
+
+            $.post( "/group/"+instrumentGroup, function( data ) {
+                console.log(data);
                 data = JSON.parse(data);
 
-                let bounding = d3.select("#selectedchart").node().getBoundingClientRect();
+                    let newstroke = strokewidth / (data.length + 2);
 
-                console.log(bounding);
+                    data = data.map(e => e.Instruments).sort((a,b) => {
+                        return b.length - a.length;
+                    });
 
-                /*d3.selectAll("path.instrumentGroupSVG:not([id="+id+"])").transition().duration(100)
-                .attr ('transform','translate('+ 0 +',0) scale('+1.0+')').attr("selected", "false");*/
+                    let startRadius = width + strokewidth / 2 - newstroke / 2;
 
-                d3.selectAll("rect.rectangle").remove();
-                d3.selectAll("text.detailText").remove();
+                    let newId = (text+instrumentGroup).replaceSpecialCharacters();
+                    appendSelectArc(group, newId, text, color, newstroke * 2, positionX, positionY, startRadius - (newstroke / 2) , start, end, 1, 10, "subarc heading");
+                    d3.select("#"+newId+"text").style("text-decoration", "underline");
 
-                /*d3.select(this).transition().duration(101)
-                .attr ('transform','translate('+ translatex +',0) scale('+ scalex +','+ scaley +')').each("end", e => {*/
-
-                    let row = 0;
-
-                    let angle = 360 / data.length;
-
+/*                    d3.select("#"+newId).transition().duration(animationTime * 1.5).style("opacity", 1.0);
+                    d3.select("#"+newId+"textPath").transition().duration(animationTime * 1.5).style("opacity", 1.0).style("text-decoration", "underline");
+*/
                     for(let i = 0; i < data.length; i++) {
-
-                        if(i > 2 && i % 4 === 0) {
-                            row++;
+                        name = data[i];
+                        if(name.trim() === "") {
+                            name = "General";
                         }
 
-                        let position = polarToCartesian(bounding.x - 50, bounding.x + 50, bounding.width / 2, angle * i);
-                        console.log(position);
+                        newId = (name+instrumentGroup).replaceSpecialCharacters();
+                        appendSelectArc(group, newId, name, color, newstroke, positionX, positionY, startRadius - (newstroke) * (i + 2), start, end, 1, 5, "subarc");
 
-                        let posX = position.x + bounding.width / 2;
-                        let posY = position.y - bounding.height / 2;
-
-                        /*d3.select("svg").append("rect")
-                            .attr("class", "rectangle")
-                            .attr("x", posX)
-                            .attr("y", posY)
-                            .attr("width",box.width / data.length - 5)
-                            .attr("height", box.height)
-                            .style("fill", "red");*/
-
-                        d3.select("svg").append("text")
-                            //.attr("dy", ".35em")
-                            .attr("class", "detailText")
-                            .attr("x", posX)
-                            .attr("y", posY)
-                            .text(function(d) { return data[i].Instruments; });
+                       /* d3.select("#"+newId).transition().duration(animationTime * 1.5).style("opacity", 1.0);
+                        d3.select("#"+newId+"textPath").transition().duration(animationTime * 1.5).style("opacity", 1.0);*/
                     }
-               /* });*/
 
-            }.bind(this));
+            });
+        }
+
+        let textpath = dst.append("path")
+        .style("fill", "none")
+        .style("stroke", "none")
+        .attr("id", id+"textpath")
+        .attr("class", "arcTextPath")
+        .attr("start", start)
+        .attr("end", end)
+        .attr("radius", width)
+        .attr("name", text)
+        .attr("d", describeArc(x, y, width, start, end, direction));
+
+        let textElement = group
+        .append("text")
+        .attr("id", id + "text")
+        .attr("class", classStr ? classStr + " text" : "text")
+        .append("textPath")
+        .style("dominant-baseline", "central")
+        .attr("class", "textonpath noselect")
+        .attr("xlink:href", "#"+ id+"textpath")
+        .attr("font-size", fontSize) 
+        .attr("text-anchor", "middle")
+        .attr("startOffset", "50%")
+        .attr("id", id + "textPath")
+        .text(text);
+
+        textElement.classed(classStr, true);
+
+        if(classStr.includes("subarc")) {
+            textElement.style("opacity", "0.0").style("display", "none");
+            path.style("opacity", "0.0").style("stroke", "none").style("display", "none");
+            group.classed("subarc", true);
+
+            bindMouseOver(group, mouseover);
+            group.on("mouseout", mouseout)
+            .on("click", function(d) {
+                console.log("HERE", d3.select(this).attr("id"));
+            });
 
         }
         else {
-            d3.selectAll("rect.rectangle").remove();
-            d3.selectAll("text.detailText").remove();
-
-            d3.select("#selectedchart").transition().duration(100).style("display", "none");
-            d3.selectAll("text").transition().duration(101).style("display", "initial");
-
-            selected = false;
+            group.moveToFront();
         }
 
-           
+        if(classStr.includes("heading")) {
+            group.on("mouseover", null);
+            group.on("mouseout", null);
+            group.on("click", null);
+            group.style("cursor", "initial");
+        }
+    }
 
-            //d3.select(this).call(zoom.transform, d3.zoomIdentity.translate(100, 50).scale(0.5));
+    let selectchart = d3.select("#selectchart");
+
+    let touchDisplay = Boolean(navigator.maxTouchPoints);
+
+    console.log("TOUCH", touchDisplay);
+
+    appendSelectArc(selectchart, "streicher", "Strings", "#FFC914", 90, positionX, positionY, 60, 90, 270, 1, 12);
+    appendSelectArc(selectchart, "percussion", "Percussion", "#DD1C1A", 70, positionX, positionY, 140, 330, 300, 1, 12);
+    appendSelectArc(selectchart, "woodwinds", "Woodwinds", "#008DD5", 70, positionX, positionY, 140, 390, 330, 1, 12);
+    appendSelectArc(selectchart, "plucked", "Plucked", "#A4036F", 70, positionX, positionY, 140, 450, 420, 1, 12);
+    appendSelectArc(selectchart, "keyboard", "Keyboard", "#14CC88", 70, positionX, positionY, 140, 300, 270, 1, 12);
+    appendSelectArc(selectchart, "brasses", "Brasses", "#85D845", 70, positionX, positionY, 140, 420, 390, 1, 12);
+
+    let selected = false;
+    let offset = 500;
+    let offsetScale = 3.0;
+
+    console.log(selectchart.node().getBBox().height);
+
+    container.attr("transform", "translate(0 "+ -svg_group.node().getBBox().height/2 +")");
+    zoomAndRotate(selectchart, true);
+
+    bindMouseOver(d3.selectAll('g.arcgroup'), mouseover);
+    d3.selectAll('g.arcgroup')
+    .on("mouseout", mouseout)
+    .on("click", function(d) {
+
+        let id = d3.select(this).attr("id").replace("arcgroup", "");
+
+        let clickedgroup = d3.select(this);
+        let path = clickedgroup.select("#" + id + "path");
+        
+        bindMouseOver(d3.selectAll('g.arcgroup:not(.subarc)'), mouseover);
+
+        clickedgroup.on("mouseover", null);
+
+        selectchart.selectAll(".subarc").style("display", "none").transition().duration(animationTime/5).style("opacity", 0.0);
+        selectchart.selectAll(".text").style("opacity", 1.0); //.transition().duration(animationTime/2)
+
+        d3.select("#"+id+"text").style("display", "initial").transition().duration(animationTime/4).style("opacity", 0.0);
+        clickedgroup.selectAll(".subarc").style("display", "initial").transition().duration(animationTime/5).style("opacity", 1.0);
+
+        setTimeout(function() {
+            zoomAndRotate(path);
+        });
+        }, animationTime/1.5);
 
 
-
-    });
+   
 
 </script>
 
