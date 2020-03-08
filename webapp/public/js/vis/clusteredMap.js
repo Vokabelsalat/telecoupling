@@ -84,6 +84,50 @@ class BGCIMap {
             setTimeout(obj.processTreeQueue(), 10);
         });
 
+        $.post("/getMusicalChairs", function(data) {
+            data = JSON.parse(data);
+
+            let locationMapping = {};
+/*            let locationMapping100 = {};
+            let locationMapping80 = {};
+*/
+            for (let orchestra of data.orchestras) {
+                let found = false;
+                let country = orchestra.country;
+                let city = orchestra.city;
+
+                for (let location of data.locations) {
+                    if (location.location.includes(city+",") && (location.location.includes(country) || country === "United States")) {
+                        locationMapping = pushOrCreate(locationMapping, country, { city, location, cert: 100 });
+                        found = true;
+                        break;
+                    } else if (location.location.includes(city+",")) {
+                        /*console.log(location.location + " => " + city);*/
+                        locationMapping = pushOrCreate(locationMapping, country, { city, location, cert: 80 });
+                        found = true;
+                        break;
+                    }
+                }
+                if (found === false) {
+                    //console.log("NOT MATCHED", city +" : "+ country);
+                }
+            }
+
+            console.log(locationMapping);
+
+/*            for(let country of Object.keys(locationMapping100)) {
+                for(let mapping of locationMapping100[country]) {
+                    console.log(country + "\t" + mapping.city + "\t" + mapping.location.lat + "\t" + mapping.location.lon);
+                }
+            }
+
+            for(let country of Object.keys(locationMapping80)) {
+                for(let mapping of locationMapping80[country]) {
+                    console.log(country + "\t" + mapping.city + "\t" + mapping.location.lat + "\t" + mapping.location.lon);
+                }
+            }*/
+        });
+
         $.getJSON("/hotspots_2011_polygons-2.json", function(data) {
             function filterByType(feature) {
                 if (feature.properties.TYPE !== "outer_limit") return true;
