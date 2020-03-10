@@ -249,7 +249,7 @@
 </script>
 <% if (instruments.length > 0) {%> 
     <div class="orchester-wrapper">
-        <svg style="border: solid 1px red">
+        <svg style="border: solid 1px gray">
              <filter id="dropshadow" x="-2" y="-2" width="200" height="200">
               <!-- <feGaussianBlur  stdDeviation="1"/> -->
               <feDropShadow stdDeviation="3.0"/>
@@ -384,8 +384,10 @@
             return ["M", x, y, "L", endX, endY].join(" ");
     }
 
-    function getGroupAndFileFromID(id) {
+    function getGroupFileAndRotationFromID(id) {
         let group = "";
+        let filename = "";
+        let rotation = 0;
 
         switch (id) {
             case "streicher":
@@ -395,6 +397,7 @@
             case "woodwinds":
                 group = "Woodwind instruments (reed driven instruments)";
                 filename = "woodwinds.svg";
+                rotation = 80;
                 break;
             case "percussion":
                 group = "Percussion instruments";
@@ -417,7 +420,7 @@
                 break;
         }
 
-        return {group, filename};
+        return {group, filename, rotation};
     }
 
     function calcArcLength(r, strokewidth, textlength, angle) {
@@ -437,7 +440,7 @@
     let mouseover = function(d) {
         let sel = d3.select(this);
         sel.select(".arc").style("stroke", "rgb(95, 77, 73)").style("stroke-opacity", 0.70).style("stroke-width", 2).style("stroke-linejoin", "round");
-        getParent(sel).moveToFront();
+        //getParent(sel).moveToFront();
         sel.moveToFront();
         /*d3.select(this).classed("blur", true);*/
     };
@@ -573,7 +576,7 @@
 
         let groupAndFile;
         if(!classStr.includes("subarc")) {
-            groupAndFile = getGroupAndFileFromID(id);
+            groupAndFile = getGroupFileAndRotationFromID(id);
             let instrumentGroup = groupAndFile.group;
 
             width = width + 10;
@@ -596,6 +599,10 @@
 /*                    d3.select("#"+newId).transition().duration(animationTime * 1.5).style("opacity", 1.0);
                 d3.select("#"+newId+"textPath").transition().duration(animationTime * 1.5).style("opacity", 1.0).style("text-decoration", "underline");
 */
+                if(data.length === 0) {
+                    group.on("click", null);
+                }
+
                 for(let i = 0; i < data.length; i++) {
                     name = data[i];
                     if(name.trim() === "") {
@@ -603,7 +610,7 @@
                     }
 
                     newId = (name+instrumentGroup).replaceSpecialCharacters();
-                    appendSelectArc(group, newId, name, color, newstroke, positionX, positionY, startRadius - (newstroke) * (i + 2), start, end, 1, 5, "subarc");
+                    appendSelectArc(group, newId, name, "hsl(0, 100%, "+getRandomInt(40,90)+"%)", newstroke, positionX, positionY, startRadius - (newstroke) * (i + 2), start, end, 1, 5, "subarc");
 
                    /* d3.select("#"+newId).transition().duration(animationTime * 1.5).style("opacity", 1.0);
                     d3.select("#"+newId+"textPath").transition().duration(animationTime * 1.5).style("opacity", 1.0);*/
@@ -615,7 +622,7 @@
         let pathForText = dst.append("path")
         .style("fill", "none")
         .style("stroke", "none")
-        .attr("id", id+"textpath")
+        .attr("id", id+"pathfortext")
         .attr("class", "arcTextPath")
         .attr("start", start)
         .attr("end", end)
@@ -631,7 +638,7 @@
         let textPath = textElement.append("textPath")
         .style("dominant-baseline", "central")
         .attr("class", "textonpath noselect")
-        .attr("xlink:href", "#"+ id+"textpath")
+        .attr("xlink:href", "#"+ id+"pathfortext")
         .attr("font-size", fontSize) 
         .attr("text-anchor", "middle")
         .attr("startOffset", "50%")
@@ -639,8 +646,6 @@
         .text(text);
 
         textElement.classed(classStr, true);
-
-        let pathForIcon = "";
 
         if(classStr.includes("subarc")) {
             textElement.style("opacity", "0.0").style("display", "none");
@@ -656,29 +661,33 @@
 
         }
         else {
-            pathForIcon = dst.append("path")
+            let pathForIcon = dst.append("path")
             .style("fill", "none")
             .style("stroke", "none")
             .attr("id", id+"textpathIcon")
-            .attr("d", describeArc(x, y, width-35, start, end, direction));
+            .attr("d", describeArc(x, y, width-25, start, end, direction));
 
             let textElementForIcon = group
             .append("text")
             .attr("id", id + "textIcon")
             .attr("class", classStr ? classStr + " text" : "text");
             
-            let textPathForIcon = textElement.append("textPath")
+            let textPathForIcon = textElementForIcon.append("textPath")
             .style("dominant-baseline", "central")
+            .style("opacity", "0.0")
+            .style("fill-opacity", "0.0")
             .attr("class", "textonpath noselect")
             .attr("xlink:href", "#"+ id+"textpathIcon")
-            .attr("font-size", fontSize) 
+            .attr("font-size", 1) 
             .attr("text-anchor", "middle")
             .attr("startOffset", "50%")
-            .attr("id", id + "textPath")
-            .attr("opacity", "0.0")
-            .text(text);
+            .attr("id", id + "textPathIcon")
+            .text("m");
 
+            /*.style("opacity", "0.0")
+            .style("fill-opacity", "0.0")*/
             let filename = groupAndFile.filename;
+            let rot = groupAndFile.rotation;
 
             if(filename !== "") {
                 $.get(filename, function(data){
@@ -694,6 +703,10 @@
 
                     let angle = (start+((end - start)/2) - 360) % 180;
 
+                    if(rot != 0) {
+                        angle += rot;
+                    }
+
                     cx=iconBox.x+(iconBox.width/2);
                     cy=iconBox.y+(iconBox.height/2);
 
@@ -705,15 +718,14 @@
                     svgNode.classed("icon", true);
 
                     svgNode.attr("transform", "\
-                    translate("+(textBox.x+(textBox.width/2)) + " " + (textBox.y+(textBox.height/2)) + ") \
-                    scale("+scale + " " + scale + ") \
-                    rotate("+angle+") \
-                    translate("+(-cx) + " " + (-cy) + ") \
+                        translate("+(textBox.x) + " " + (textBox.y) + ") \
+                        rotate("+angle+") \
+                        scale("+scale+") \
+                        translate("+(-cx) + " " + (-cy) + ") \
                     ");
                 });
             }
 
-            //textPath.attr("opacity", "0.0");
             group.moveToFront();
         }
 
@@ -733,12 +745,12 @@
 
     let margin = 1;
 
-    appendSelectArc(selectchart, "keyboard", "Keyboard", "hsl(0, 100%, 85%)", 70, positionX, positionY, 140, 300-margin, 270, 1, 12);
-    appendSelectArc(selectchart, "percussion", "Percussion", "hsl(0, 100%, 90%)", 70, positionX, positionY, 140, 330-margin, 300, 1, 12);
-    appendSelectArc(selectchart, "woodwinds", "Woodwinds", "hsl(0, 100%, 70%)", 70, positionX, positionY, 140, 390, 330, 1, 12);
-    appendSelectArc(selectchart, "brasses", "Brasses", "hsl(0, 100%, 75%)", 70, positionX, positionY, 140, 420, 390+margin, 1, 12);
-    appendSelectArc(selectchart, "plucked", "Plucked", "hsl(0, 100%, 100%)", 70, positionX, positionY, 140, 450, 420+margin, 1, 12);
-    appendSelectArc(selectchart, "streicher", "Strings", "hsl(0, 100%, 60%)", 90, positionX, positionY, 60-margin*2, 90, 270, 1, 12);
+    appendSelectArc(selectchart, "keyboard", "Keyboard", "hsl(0, 100%, "+getRandomInt(40,90)+"%)", 70, positionX, positionY, 140, 300-margin, 270, 1, 12);
+    appendSelectArc(selectchart, "percussion", "Percussion", "hsl(0, 100%, "+getRandomInt(40,90)+"%)", 70, positionX, positionY, 140, 330-margin, 300, 1, 12);
+    appendSelectArc(selectchart, "woodwinds", "Woodwinds", "hsl(0, 100%, "+getRandomInt(40,90)+"%)", 70, positionX, positionY, 140, 390, 330, 1, 12);
+    appendSelectArc(selectchart, "brasses", "Brasses", "hsl(0, 100%, "+getRandomInt(40,90)+"%)", 70, positionX, positionY, 140, 420, 390+margin, 1, 12);
+    appendSelectArc(selectchart, "plucked", "Plucked", "hsl(0, 100%, "+getRandomInt(40,90)+"%)", 70, positionX, positionY, 140, 450, 420+margin, 1, 12);
+    appendSelectArc(selectchart, "streicher", "Strings", "hsl(0, 100%, "+getRandomInt(40,90)+"%)", 90, positionX, positionY, 60-margin*2, 90, 270, 1, 12);
 /*
     appendSelectArc(selectchart, "streicher", "Strings", "#FFC914", 90, positionX, positionY, 60-margin*5, 90, 270, 1, 12);
     appendSelectArc(selectchart, "percussion", "Percussion", "#DD1C1A", 70, positionX, positionY, 140, 330-margin, 300+margin, 1, 12);
