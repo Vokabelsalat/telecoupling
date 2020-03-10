@@ -394,7 +394,7 @@
                 break;
             case "woodwinds":
                 group = "Woodwind instruments (reed driven instruments)";
-                filename = "woodwinds2.svg";
+                filename = "woodwinds.svg";
                 break;
             case "percussion":
                 group = "Percussion instruments";
@@ -444,7 +444,8 @@
 
     let mouseout = function(d)  {
         /*d3.select(this).classed("blur", false);*/
-      d3.select(this).select("#" + d3.select(this).attr("id").replace("arcgroup", "") + "path").style("stroke", "initial").style("stroke-opacity", 1.0).style("stroke-width", 1).style("stroke-linejoin", "miter");
+        let path = d3.select(this).select("#" + d3.select(this).attr("id").replace("arcgroup", "") + "path");
+        path.style("stroke", path.attr("origStroke")).style("stroke-opacity", 1.0).style("stroke-width", path.attr("origStrokeWidth")).style("stroke-linejoin", "miter");
     };
 
     function zoomAndRotate(path, center=false) {
@@ -556,7 +557,9 @@
         let path = group.append("path")
         .style("fill", color)
         .style("stroke", "rgb(95, 77, 73)")
+        .attr("origStroke", "rgb(95, 77, 73)")
         .style("stroke-width", "0.5")
+        .attr("origStrokeWidth", "0.5")
         .attr("id", id + "path")
         .attr("class", "arc")
         .attr("start", start)
@@ -641,7 +644,7 @@
 
         if(classStr.includes("subarc")) {
             textElement.style("opacity", "0.0").style("display", "none");
-            path.style("opacity", "0.0").style("stroke", "none").style("display", "none");
+            path.style("opacity", "0.0").style("stroke", "none").attr("origStroke", "none").style("display", "none");
             group.classed("subarc", true);
 
             bindMouseOver(group, mouseover);
@@ -728,14 +731,14 @@
 
     console.log("TOUCH", touchDisplay);
 
-    let margin = 0.5;
+    let margin = 1;
 
-    appendSelectArc(selectchart, "streicher", "Strings", "hsl(0, 100%, 60%)", 90, positionX, positionY, 60-margin*5, 90, 270, 1, 12);
-    appendSelectArc(selectchart, "percussion", "Percussion", "hsl(0, 100%, 90%)", 70, positionX, positionY, 140, 330-margin, 300+margin, 1, 12);
-    appendSelectArc(selectchart, "woodwinds", "Woodwinds", "hsl(0, 100%, 70%)", 70, positionX, positionY, 140, 390-margin, 330+margin, 1, 12);
-    appendSelectArc(selectchart, "plucked", "Plucked", "hsl(0, 100%, 100%)", 70, positionX, positionY, 140, 450, 420+margin, 1, 12);
     appendSelectArc(selectchart, "keyboard", "Keyboard", "hsl(0, 100%, 85%)", 70, positionX, positionY, 140, 300-margin, 270, 1, 12);
-    appendSelectArc(selectchart, "brasses", "Brasses", "hsl(0, 100%, 75%)", 70, positionX, positionY, 140, 420-margin, 390+margin, 1, 12);
+    appendSelectArc(selectchart, "percussion", "Percussion", "hsl(0, 100%, 90%)", 70, positionX, positionY, 140, 330-margin, 300, 1, 12);
+    appendSelectArc(selectchart, "woodwinds", "Woodwinds", "hsl(0, 100%, 70%)", 70, positionX, positionY, 140, 390, 330, 1, 12);
+    appendSelectArc(selectchart, "brasses", "Brasses", "hsl(0, 100%, 75%)", 70, positionX, positionY, 140, 420, 390+margin, 1, 12);
+    appendSelectArc(selectchart, "plucked", "Plucked", "hsl(0, 100%, 100%)", 70, positionX, positionY, 140, 450, 420+margin, 1, 12);
+    appendSelectArc(selectchart, "streicher", "Strings", "hsl(0, 100%, 60%)", 90, positionX, positionY, 60-margin*2, 90, 270, 1, 12);
 /*
     appendSelectArc(selectchart, "streicher", "Strings", "#FFC914", 90, positionX, positionY, 60-margin*5, 90, 270, 1, 12);
     appendSelectArc(selectchart, "percussion", "Percussion", "#DD1C1A", 70, positionX, positionY, 140, 330-margin, 300+margin, 1, 12);
