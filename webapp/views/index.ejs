@@ -474,16 +474,17 @@
 
         if(startEnd && strokewidth) {
 
-            distance = getDistance(startEnd.start.x, startEnd.start.y, startEnd.end.x, startEnd.end.y); //+ strokewidth / 2;
+            //distance = getDistance(startEnd.start.x, startEnd.start.y, startEnd.end.x, startEnd.end.y); //+ strokewidth / 2;
+            distance = bbox.height;
 
-            toBeScaled = (svgWidth / 2) / distance;
+            toBeScaled = (svgHeight / 1.5) / distance;
 
             angle = getAngle(startEnd.start.x, startEnd.start.y, startEnd.end.x, startEnd.end.y);
         }
         else {
-            distance = bbox.width;
+            distance = bbox.height;
 
-            toBeScaled = (svgWidth / 1.1) / distance;
+            toBeScaled = (svgHeight / 1.5) / distance;
         }
 
         var cx=bbox.x+(bbox.width/2),
