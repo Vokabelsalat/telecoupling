@@ -1,3 +1,11 @@
+:root {
+    --main: rgba(45, 188, 233, 1);
+    --highlight: rgba(251, 176, 59, 1);
+    --black: rgba(45, 49, 66, 1);
+    --gray: rgba(191, 192, 192, 1);
+    --lightgray: rgba(255, 255, 255, 1);
+}
+
 html {
     width: 100%;
 }
@@ -155,19 +163,19 @@ img {
 }
 
 .cluster-pie {
-/*  -webkit-filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
+    /*  -webkit-filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
   filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));*/
-  -webkit-filter: drop-shadow( 2px 2px 2px rgba(0, 0, 0, 0.2)) brightness(1.05);
-  filter: drop-shadow( 2px 2px 2px rgba(0, 0, 0, 0.2)) brightness(1.05);
+    -webkit-filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.2)) brightness(1.05);
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.2)) brightness(1.05);
 }
 
 .cluster-pie.text {
-  filter: none;
+    filter: none;
 }
 
 /*Markers*/
 .marker {
-/*    width: 18px;
+    /*    width: 18px;
     height: 18px;
     border-width: 2px;
     border-radius: 10px;
@@ -207,27 +215,33 @@ img {
 }
 
 .noselect {
-  -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
+    -webkit-touch-callout: none;
+    /* iOS Safari */
+    -webkit-user-select: none;
+    /* Safari */
+    -khtml-user-select: none;
+    /* Konqueror HTML */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
 }
 
 .blur {
-  filter: url('#dropshadow');
+    filter: url('#dropshadow');
 }
 
 .stroke {
-  filter: url('#strokeshadow');
+    filter: url('#strokeshadow');
 }
 
 .arcgroup {
     paint-order: stroke;
 }
 
-.subarc > path{
+.subarc>path {
     stroke: rgb(95, 77, 73)
 }
