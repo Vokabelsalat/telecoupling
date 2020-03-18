@@ -528,11 +528,12 @@
         var translatestr=tx+','+ty;
 
         svg_group.transition().duration(animationTime).attr("transform", "\
-            translate(" + differenceToCenterX + " " + differenceToCenterY + ") \
-            rotate("+angle+" "+cx+" "+cy+") \
             translate("+translatestr+") scale("+saclestr+") \
             ");
 
+            //translate(" + differenceToCenterX + " " + differenceToCenterY + ") \
+            //rotate("+angle+" "+cx+" "+cy+") \
+            
 /*         d3.select("svg").append("rect")
         .style("fill", "lime")
         .attr("width", 3)
