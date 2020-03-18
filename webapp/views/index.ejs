@@ -657,6 +657,7 @@
             .on("click", function(d) {
                 //func1($("#instrumentsSelect"), d3.select(this).attr("name"));
                 $("#instrumentsSelect").val(d3.select(this).attr("name")).change();
+                scrollTo("#instrumentsSelect");
             });
 
         }
