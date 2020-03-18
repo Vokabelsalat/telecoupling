@@ -451,6 +451,18 @@
         path.style("stroke", path.attr("origStroke")).style("stroke-opacity", 1.0).style("stroke-width", path.attr("origStrokeWidth")).style("stroke-linejoin", "miter");
     };
 
+    function reset() {
+            d3.select("#backButton").style("display", "none");
+
+            bindMouseOver(d3.selectAll('g.arcgroup:not(.subarc)'), mouseover);
+
+            selectchart.selectAll(".subarc").style("display", "none").transition().duration(animationTime/5).style("opacity", 0.0);
+            selectchart.selectAll(".text").style("opacity", 1.0);
+            selectchart.selectAll(".icon").style("opacity", 1.0);
+
+            zoomAndRotate(selectchart, true);
+    }
+
     function zoomAndRotate(path, center=false) {
         var bbox = path.node().getBBox();
 
@@ -533,7 +545,7 @@
 
             //translate(" + differenceToCenterX + " " + differenceToCenterY + ") \
             //rotate("+angle+" "+cx+" "+cy+") \
-            
+
 /*         d3.select("svg").append("rect")
         .style("fill", "lime")
         .attr("width", 3)
@@ -739,6 +751,41 @@
         }
     }
 
+    let backButton = d3.select("svg")
+    .append("g")
+    .attr("id", "backButton")
+    .attr("transform", "translate("+padding+ " " + 10 +")")
+    .style("cursor", "pointer")
+    .style("display", "none")
+    .on("mouseover", function(e) {
+        d3.select(this).select("path").style("stroke", "rgb(95, 77, 73)").style("stroke-opacity", 0.70).style("stroke-width", 2).style("stroke-linejoin", "round").style("fill", "var(--highlight)");
+    })
+    .on("mouseout", function(e) {
+      d3.select(this).select("path").style("stroke", "var(--black)").style("stroke-opacity", 1).style("stroke-width", 0.5).style("stroke-linejoin", "miter").style("fill", "var(--main)");
+    })
+    .on("click", reset);
+
+    let backPath = backButton.append("path")
+    .attr("d", "m 5 0 l 40 0 l 0 25 l -40 0 l -15 -12.5 z")
+    .style("fill", "var(--main)")
+    .style("stroke", "black")
+    .style("stroke-width", 0.5);
+
+    let pathForText = backButton.append("path")
+    .attr("d", "m 5 12.5 l 40 0")
+    .attr("id", "backPathForText");
+
+    let backText = backButton
+    .append("text")
+    .append("textPath")
+    .attr("xlink:href", "#backPathForText")
+    .style("line-height", "1em")
+    .style("stroke", "var(--black)")
+    .style("fill", "var(--black)")
+    .style("dominant-baseline", "middle")
+    .attr("class", "textonpath noselect")
+    .text("back");
+
     let selectchart = d3.select("#selectchart");
 
     let touchDisplay = Boolean(navigator.maxTouchPoints);
@@ -779,7 +826,8 @@
         let path = clickedgroup.select("#" + id + "path");
         let icon = clickedgroup.select(".icon");
 
-        
+        d3.select("#backButton").style("display", "block");
+
         bindMouseOver(d3.selectAll('g.arcgroup:not(.subarc)'), mouseover);
 
         clickedgroup.on("mouseover", null);
