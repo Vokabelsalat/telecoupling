@@ -249,11 +249,11 @@
 </script>
 <% if (instruments.length > 0) {%> 
     <div class="orchester-wrapper">
-        <svg style="border: solid 1px gray">
-             <filter id="dropshadow" x="-2" y="-2" width="200" height="200">
-              <!-- <feGaussianBlur  stdDeviation="1"/> -->
+        <svg id="selectchartSVG" style="border: solid 1px gray">
+             <!-- <filter id="dropshadow" x="-2" y="-2" width="200" height="200">
+              <feGaussianBlur  stdDeviation="1"/>
               <feDropShadow stdDeviation="3.0"/>
-            </filter>
+            </filter> -->
             <g id="wrapper">
                 <g id="selectchart"></g>
             </g>
@@ -276,6 +276,14 @@
         <div class="label">Main Parts:</div>
         <select id="mainPartSelect" onchange="<%= 'func2(this);' %>">  
         </select>
+    </div>
+    <div id="mainpartSelectWrapper">
+        <svg id="selectmainpartSVG" style="border: solid 1px gray; display: none; margin-bottom: 20px">
+             <!-- <filter id="dropshadow" x="-2" y="-2" width="200" height="200">
+              <feGaussianBlur  stdDeviation="1"/>
+              <feDropShadow stdDeviation="3.0"/>
+            </filter> -->
+        </svg>
     </div>
     <table id="resultTable">
   <tr class="tableRow tableHead">
@@ -304,7 +312,7 @@
     var svgWidth = parseInt($(window).width()) - 2*padding;
     var svgHeight = parseInt(window.innerHeight) - 2*padding;
 
-    d3.select("svg").attr("width", svgWidth).attr("height", svgHeight);
+    d3.select("#selectchartSVG").attr("width", svgWidth).attr("height", svgHeight);
 
     var animationTime = 1200;
 
@@ -391,24 +399,24 @@
 
         switch (id) {
             case "streicher":
-                group = "String instruments";
+                group = "Strings";
                 filename = "strings2.svg";
                 break;
             case "woodwinds":
-                group = "Woodwind instruments (reed driven instruments)";
+                group = "Woodwinds";
                 filename = "woodwinds.svg";
                 rotation = 80;
                 break;
             case "percussion":
-                group = "Percussion instruments";
+                group = "Percussion";
                 filename = "percussion2.svg";
                 break;
             case "plucked":
-                group = "Plucked instruments";
+                group = "Plucked";
                 filename = "plucked2.svg";
                 break;
             case "keyboard":
-                group = "Keyboard instrument";
+                group = "Keyboard";
                 filename = "keyboard2.svg";
                 break;
             case "brasses":
@@ -598,7 +606,16 @@
             $.post( "/group/"+instrumentGroup, function( data ) {
                 data = JSON.parse(data);
 
-                let newstroke = strokewidth / (data.length + 2);
+                let lowerAmount = false;
+                let newstroke;
+                if(data.length <= 4) {
+                    lowerAmount = true;
+                    newstroke = strokewidth / (data.length + 1);
+                }
+                else {
+                    newstroke = strokewidth / (data.length + 2);
+                }
+
 
                 data = data.map(e => e.Instruments).sort((a,b) => {
                     return b.length - a.length;
@@ -607,7 +624,16 @@
                 let startRadius = width - 10 + strokewidth / 2 - newstroke / 2;
 
                 let newId = (text+instrumentGroup).replaceSpecialCharacters();
-                appendSelectArc(group, newId, text, color, newstroke * 2, positionX, positionY, startRadius - (newstroke / 2) , start, end, 1, 10, "subarc heading");
+                appendSelectArc(group, 
+                    newId, 
+                    text, 
+                    color, 
+                    (lowerAmount ? newstroke : newstroke * 2), 
+                    positionX, 
+                    positionY, 
+                    (lowerAmount ? startRadius : startRadius - (newstroke / 2)), 
+                    start, 
+                    end, 1, 10, "subarc heading");
                 d3.select("#"+newId+"text").style("text-decoration", "underline");
 
 /*                    d3.select("#"+newId).transition().duration(animationTime * 1.5).style("opacity", 1.0);
@@ -617,6 +643,11 @@
                     group.on("click", null);
                 }
 
+
+                if(lowerAmount) {
+                    startRadius += newstroke;
+                }
+
                 for(let i = 0; i < data.length; i++) {
                     name = data[i];
                     if(name.trim() === "") {
@@ -624,7 +655,8 @@
                     }
 
                     newId = (name+instrumentGroup).replaceSpecialCharacters();
-                    appendSelectArc(group, newId, name, "hsl(0, 100%, "+getRandomInt(40,90)+"%)", newstroke, positionX, positionY, startRadius - (newstroke) * (i + 2), start, end, 1, 5, "subarc");
+                    appendSelectArc(group, newId, name, "hsl(0, 100%, "+getRandomInt(40,90)+"%)", newstroke, positionX, positionY, startRadius - (newstroke) * (i+2), start, end, 1, 
+                        Math.min(newstroke - 1, 7), "subarc");
 
                    /* d3.select("#"+newId).transition().duration(animationTime * 1.5).style("opacity", 1.0);
                     d3.select("#"+newId+"textPath").transition().duration(animationTime * 1.5).style("opacity", 1.0);*/
@@ -669,8 +701,68 @@
             bindMouseOver(group, mouseover);
             group.on("mouseout", mouseout)
             .on("click", function(d) {
+                let value = d3.select(this).attr("name");
                 //func1($("#instrumentsSelect"), d3.select(this).attr("name"));
-                $("#instrumentsSelect").val(d3.select(this).attr("name")).change();
+                $("#instrumentsSelect").val(value).change();
+
+                if(value.trim() === "String instrument bow") {
+
+                    $.get("stringinstrumentbow.svg", function(data){
+                        let svg =  d3.select("#selectmainpartSVG");
+
+                        svg
+                        .attr("width", svgWidth)
+                        .attr("height", svgHeight)
+                        .style("display", "block");
+
+                        var svgNode = d3.select(data.documentElement).select("g");
+                        svg.append(() => svgNode.node()) ; 
+
+                        //scale it to the height of svg window
+                        let bbox = svgNode.node().getBBox();
+
+                        let largest = Math.max(bbox.width, bbox.height);
+                        let smallest = Math.min(bbox.width, bbox.height);
+
+                        let scale = (svgWidth  - 2 * padding) / largest;
+                        svgNode.attr("transform", "translate(" + (largest * scale + padding) +" " + padding +") rotate(90) scale("+ scale +")");
+
+                        svg
+                        .attr("height", smallest * scale + padding * 2);
+
+                        svgNode.selectAll("path")
+                        .attr("origFill", function(d) {
+                            return d3.select(this).style("fill");
+                        })
+                        .on("click", function() {
+                            let sel = d3.select(this);
+                            svgNode.selectAll("path").style("opacity", 0.2).classed("selected", false).style("fill", function(d) {
+                                return d3.select(this).attr("origFill");
+                            });
+                            sel.style("opacity", 1.0).style("fill", "var(--highlight)").classed("selected", true);
+                            $("#mainPartSelect").val(d3.select(this).select("title").text()).change();
+                        })
+                        .on("mouseover", function() {
+                             let sel = d3.select(this);
+                             svgNode.selectAll("path:not(.selected)").style("opacity", 0.2);
+                             sel.style("opacity", 1.0);
+                        })
+                        .on("mouseout", function() {
+                            let sel = d3.select(this);
+                            if(d3.selectAll("path.selected").size() === 0) {
+                                svgNode.selectAll("path:not(.selected)").style("opacity", 1.0);
+                            }
+                            else {
+                                svgNode.selectAll("path:not(.selected)").style("opacity", 0.2);   
+                            }
+                        });
+                    });
+                 }
+                 else {
+                    console.log("REMOVE");
+                    d3.select("#selectmainpartSVG").selectAll("*").remove();
+                 }
+                
                 scrollTo("#instrumentsSelect");
             });
 
@@ -752,7 +844,7 @@
         }
     }
 
-    let backButton = d3.select("svg")
+    let backButton = d3.select("#selectchartSVG")
     .append("g")
     .attr("id", "backButton")
     .attr("transform", "translate("+padding+ " " + 10 +")")
@@ -785,7 +877,7 @@
     .style("fill", "var(--black)")
     .style("dominant-baseline", "middle")
     .attr("class", "textonpath noselect")
-    .text("back");
+    .text("Back");
 
     let selectchart = d3.select("#selectchart");
 
