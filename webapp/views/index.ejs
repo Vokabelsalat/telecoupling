@@ -731,6 +731,7 @@
                         .attr("height", smallest * scale + padding * 2);
 
                         svgNode.selectAll("path")
+                        .style("cursor", "pointer")
                         .attr("origFill", function(d) {
                             return d3.select(this).style("fill");
                         })
