@@ -4,7 +4,7 @@
 
     function createArrayView(array, idKey, selection) {
         let id = array[idKey].replaceSpecialCharacters() + "ArrayView";
-        let arrayStr = "<div id='" + id + "'>";
+        let arrayStr = "<div class='arrayView' id='" + id + "'>";
 
         let keyarray = Object.keys(array);
         if(is(selection) && selection.length > 0) {
@@ -20,13 +20,42 @@
 
     function appendSpecies(data) {
         data = JSON.parse(data);
-        if(data[0] !== undefined) {
-            let $tableRow = $(this);
+
+        let $tableRow = $(this);
+
+        console.log($tableRow);
+
+        if(data.length === 1 && data[0] !== undefined) {
             let scientificName = data[0]["Scientific Name"];
-            let speciesView = createArrayView(data[0], "Scientific Name", ["Scientific Name", "Rank", "Listing", "All_DistributionFullNames"]);
-            $tableRow.find(".speciesCol").first().append(speciesView[0]);
+            let speciesViews = data.map(e => {
+                return createArrayView(e, "Scientific Name", ["Scientific Name", "Rank", "Listing", "All_DistributionFullNames"])[0];
+            }); 
+            $tableRow.find(".speciesCol").first().append(...speciesViews);
 
             $.post( "/getTrade/"+scientificName, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName}));
+        }
+        else if(data[0] !== undefined) {
+            let listings = {};
+            data.forEach( function(element, index) {
+                pushOrCreate(listings, element.Listing, element);
+            });
+            let speciesObject = {
+            "Name": data[0]["Genus"], 
+            "Listing": Object.keys(listings).reduce((s ,e) => { // collect all listing identifiers (e.g. I) and their amount
+                return s + e + " (" + listings[e].length + ")<br>";
+            }, "")};
+
+            let speciesView = createArrayView(speciesObject, "Name", ["Name", "Listing"])[0];
+
+            $tableRow.find(".speciesCol").first().append(speciesView);
+
+            data.forEach( function(element, index) {
+                $.post( "/getSynonyms/"+element["Scientific Name"], 
+                    $.proxy(appendSynonyms, {"tableRow": $tableRow, "scientificName": element["Scientific Name"]})
+                );
+            });
+
+            //$.post( "/getTrade/"+scientificName, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName}));
         }
     }
 
@@ -93,23 +122,25 @@
         let $tableRow = $(this.tableRow);
         let scientificName = this.scientificName;
         data = JSON.parse(data);
-        $tableRow.find(".synonymCol").first().append(data.join(", "));
+        if(data.length > 0) {
+            $tableRow.find(".synonymCol").first().append("<div><b>"+scientificName + ":</b><br>" + data.join(", ")+"</div>");
 
-        for(let syn of data.values()) {
-            $.post( "/getTrade/"+syn, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName}));
+            for(let syn of data.values()) {
+/*                $.post( "/getTrade/"+syn, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName}));
 
-            $.post( "/queryIUCN/"+syn, 
-                $.proxy(appendIUCN, {"tableRow": $tableRow})
-            );
+                $.post( "/queryIUCN/"+syn, 
+                    $.proxy(appendIUCN, {"tableRow": $tableRow})
+                );
 
-            $.post( "/queryTreeSearchSpeciesWithSciName/"+syn, 
-                $.proxy(appendBGCI, {"tableRow": $tableRow, "treeName": syn})
-            );
+                $.post( "/queryTreeSearchSpeciesWithSciName/"+syn, 
+                    $.proxy(appendBGCI, {"tableRow": $tableRow, "treeName": syn})
+                );
 
-            $.post( "/queryThreatSearchWithSciName/"+syn, 
-                $.proxy(appendThreatSearch, {"tableRow": $tableRow})
-            );
-        } 
+                $.post( "/queryThreatSearchWithSciName/"+syn, 
+                    $.proxy(appendThreatSearch, {"tableRow": $tableRow})
+                );*/
+            } 
+        }
     }
 
     function appendIUCN(data) {
@@ -220,15 +251,30 @@
                 let materialView = createArrayView(material, "Trade_name");
                 $tableRow.find(".materialCol").first().append(materialView[0]);
 
-                let scientificName = material["Genus"].trim() + " " + material["Species"].trim();
+                let scientificName = null, justGenus = false;
+                if(material["Species"].trim() === "") {
+                    if(material["Genus"].trim().includes("spp.")) {
+                        justGenus = true;
+                        scientificName = material["Genus"].trim()
+                        console.log("JUSTGENUS!", justGenus);
+                    }
+                }
+                else {
+                    scientificName = material["Genus"].trim() + " " + material["Species"].trim();
+                }
 
-                $.post( "/getSpecies/"+material["Family"]+"/"+material["Genus"]+"/"+material["Species"], $.proxy(appendSpecies, $tableRow));
+                if(justGenus) {
+                    $.post( "/getSpeciesJustGenus/"+material["Family"].trim()+"/"+material["Genus"].trim().replace("spp.", "").trim(), $.proxy(appendSpecies, $tableRow));
+                }
+                else {
+                    $.post( "/getSpecies/"+material["Family"]+"/"+material["Genus"]+"/"+material["Species"], $.proxy(appendSpecies, $tableRow));
 
-                $.post( "/getSynonyms/"+scientificName, 
-                    $.proxy(appendSynonyms, {"tableRow": $tableRow, "scientificName": scientificName})
-                );
+                    $.post( "/getSynonyms/"+scientificName, 
+                        $.proxy(appendSynonyms, {"tableRow": $tableRow, "scientificName": scientificName})
+                    );
+                }
 
-                $.post( "/queryIUCN/"+scientificName, 
+/*                $.post( "/queryIUCN/"+scientificName, 
                     $.proxy(appendIUCN, {"tableRow": $tableRow})
                 );
 
@@ -240,7 +286,7 @@
                     $.proxy(appendThreatSearch, {"tableRow": $tableRow})
                 );
 
-                $.post( "/queryGBIFspecies/"+scientificName, $.proxy(appendGBIF, {"tableRow": $tableRow, "treeName": scientificName}));
+                $.post( "/queryGBIFspecies/"+scientificName, $.proxy(appendGBIF, {"tableRow": $tableRow, "treeName": scientificName}));*/
 
                 table.append($tableRow);
             }

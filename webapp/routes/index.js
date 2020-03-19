@@ -3,7 +3,6 @@ module.exports = {
         res.end(JSON.stringify({ accessToken: variables.mapboxAccessToken }));
     },
     getHomePage: (req, res) => {
-        console.log("SERVER MAIN");
         let selectedinstrument = req.params.selectedInstruments;
         let selectedMainPart = req.params.selectedMainPart;
         knex.select("Instruments").from('materials').groupBy("Instruments").then(rows =>
@@ -17,7 +16,6 @@ module.exports = {
     },
     getInstrumentsFromGroup: (req, res) => {
         let group = req.params.selectedGroup;
-        console.log(group);
         knex.select("Instruments").from('materials').where("Instrument_groups", group).groupBy("Instruments").then(rows => {
             res.end(JSON.stringify(rows));
         });
@@ -31,7 +29,8 @@ module.exports = {
     getMaterial: (req, res) => {
         let instruments = req.params.instruments;
         let mainPart = req.params.mainPart;
-        knex.select("Trade_name", "Family", "Genus", "Species").from("materials").where({ "Instruments": instruments, "Main_part": mainPart }).then(rows => {
+
+        knex.select("Trade_name", "Family", "Genus", "Species", "Main_part" , "Subpart").from("materials").where({ "Instruments": instruments, "Main_part": mainPart }).then(rows => {
             res.end(JSON.stringify(rows));
         });
     },
@@ -71,7 +70,7 @@ module.exports = {
     },
     processMusicalChairs: (req, res) => {
 
-        let query = knex.select().from("musicalchair");
+/*        let query = knex.select().from("musicalchair");
         query.then(rows => {
             for (let entry of rows) {
                 let locs = musicalChairsLocations[entry.country];
@@ -86,15 +85,13 @@ module.exports = {
                                     lat: filter[0].location.lat,
                                     lon: filter[0].location.lon
                                 });
-                                console.log(query);
                             query.then(result => {
-                                console.log(result);
                             });
                         }
                     }
                 }
             }
-        });
+        });*/
 
         /*let query = knex('musicalchair')
             .where('published_date', '=', 2000)

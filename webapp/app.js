@@ -15,7 +15,7 @@ const { getHomePage, getMainPart, getMaterial, getSynonyms, queryIUCN, requestMa
 const { getTrade } = require('./routes/cites');
 const { queryGBIF, queryGBIFspecies, } = require('./routes/gbif');
 const { queryTreeSearchSpecies, queryTreeSearchSpeciesWithSciName, queryThreatSearchWithSciName } = require('./routes/bgci');
-const { getSpecies, searchSpeciesNotes, searchSpeciesNotesPage } = require('./routes/species');
+const { getSpecies, searchSpeciesNotes, searchSpeciesNotesPage, getSpeciesJustGenus } = require('./routes/species');
 /*const {addPlayerPage, addPlayer, deletePlayer, editPlayer, editPlayerPage} = require('./routes/player');*/
 const port = 8080;
 
@@ -59,6 +59,7 @@ app.get('/instruments/:selectedInstruments/mainpart/:selectedMainPart', getHomeP
 app.post('/getMainPart/:instruments', getMainPart);
 app.post('/getMaterial/:instruments/:mainPart', getMaterial);
 app.post('/getSpecies/:family/:genus/:species', getSpecies);
+app.post('/getSpeciesJustGenus/:family/:genus', getSpeciesJustGenus);
 app.post('/getSynonyms/:word', getSynonyms);
 app.post('/getTrade/:taxon', getTrade);
 app.post('/searchSpeciesNotes/:word', searchSpeciesNotes);
@@ -71,8 +72,8 @@ app.post('/queryTreeSearchSpeciesWithSciName/:name', queryTreeSearchSpeciesWithS
 app.post('/queryThreatSearchWithSciName/:name', queryThreatSearchWithSciName);
 app.post('/requestMapboxToken', requestMapboxToken);
 app.post('/getCountriesGeoJSON', getCountriesGeoJSON);
-app.post('/getMusicalChairs', getMusicalChairs);
-app.get('/processMusicalChairs', processMusicalChairs);
+/*app.post('/getMusicalChairs', getMusicalChairs);*/
+/*app.get('/processMusicalChairs', processMusicalChairs);*/
 /*app.get('/add', addPlayerPage);
 app.get('/edit/:id', editPlayerPage);
 app.get('/delete/:id', deletePlayer);

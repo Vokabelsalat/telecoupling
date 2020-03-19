@@ -245,3 +245,7 @@ img {
 .subarc>path {
     stroke: rgb(95, 77, 73)
 }
+
+.arrayView {
+    margin-bottom: 1em;
+}
