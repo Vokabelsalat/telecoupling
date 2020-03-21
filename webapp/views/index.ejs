@@ -2,6 +2,8 @@
 
 <script>
 
+    let collectedData = {};
+
     function createArrayView(array, idKey, selection) {
         let id = array[idKey].replaceSpecialCharacters() + "ArrayView";
         let arrayStr = "<div class='arrayView' id='" + id + "'>";
@@ -21,41 +23,47 @@
     function appendSpecies(data) {
         data = JSON.parse(data);
 
-        let $tableRow = $(this);
+        let $tableRow = $(this.tableRow);
+        let material = this.material;
 
-        console.log($tableRow);
+        collectedData[material].species = {};
 
         if(data.length === 1 && data[0] !== undefined) {
             let scientificName = data[0]["Scientific Name"];
-            let speciesViews = data.map(e => {
-                return createArrayView(e, "Scientific Name", ["Scientific Name", "Rank", "Listing", "All_DistributionFullNames"])[0];
-            }); 
-            $tableRow.find(".speciesCol").first().append(...speciesViews);
-
-            $.post( "/getTrade/"+scientificName, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName}));
+            collectedData[material].species[scientificName] = data[0];
         }
         else if(data[0] !== undefined) {
-            let listings = {};
+            
             data.forEach( function(element, index) {
-                pushOrCreate(listings, element.Listing, element);
+                collectedData[material].species[element["Scientific Name"]] = element;
             });
+        }
+
+        let listings = {};
+
+        Object.values(collectedData[material].species).forEach( function(element, index) {
+            pushOrCreate(listings, element.Listing, element);
+        });
+
+        let speciesView;
+
+        if(Object.keys(collectedData[material].species).length > 1) {
             let speciesObject = {
-            "Name": data[0]["Genus"], 
+            "Name": material, 
             "Listing": Object.keys(listings).reduce((s ,e) => { // collect all listing identifiers (e.g. I) and their amount
                 return s + e + " (" + listings[e].length + ")<br>";
             }, "")};
 
-            let speciesView = createArrayView(speciesObject, "Name", ["Name", "Listing"])[0];
+            speciesView = createArrayView(speciesObject, "Name", ["Name", "Listing"])[0];
+        }
+        else {
+            speciesView = Object.values(collectedData[material].species).map(e => {
+                return createArrayView(e, "Scientific Name", ["Scientific Name", "Rank", "Listing", "All_DistributionFullNames"])[0];
+            })[0]; 
+        }
 
-            $tableRow.find(".speciesCol").first().append(speciesView);
-
-            data.forEach( function(element, index) {
-                $.post( "/getSynonyms/"+element["Scientific Name"], 
-                    $.proxy(appendSynonyms, {"tableRow": $tableRow, "scientificName": element["Scientific Name"]})
-                );
-            });
-
-            //$.post( "/getTrade/"+scientificName, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName}));
+        if(speciesView !== undefined) {
+            $tableRow.find(".speciesCol").first().html(speciesView);
         }
     }
 
@@ -121,11 +129,18 @@
     function appendSynonyms(data) {
         let $tableRow = $(this.tableRow);
         let scientificName = this.scientificName;
+        let material = this.material;
         data = JSON.parse(data);
         if(data.length > 0) {
             $tableRow.find(".synonymCol").first().append("<div><b>"+scientificName + ":</b><br>" + data.join(", ")+"</div>");
 
             for(let syn of data.values()) {
+                let synSplit = syn.split(" ");
+                $.post( "/getSpecies/"+synSplit[0]+"/"+synSplit[1], 
+                    $.proxy(appendSpecies, {tableRow: $tableRow, material: material})
+                );
+
+
 /*                $.post( "/getTrade/"+syn, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName}));
 
                 $.post( "/queryIUCN/"+syn, 
@@ -263,14 +278,16 @@
                     scientificName = material["Genus"].trim() + " " + material["Species"].trim();
                 }
 
+                collectedData[scientificName] = {};
+
                 if(justGenus) {
-                    $.post( "/getSpeciesJustGenus/"+material["Family"].trim()+"/"+material["Genus"].trim().replace("spp.", "").trim(), $.proxy(appendSpecies, $tableRow));
+                    $.post( "/getSpeciesJustGenus/"+material["Genus"].trim().replace("spp.", "").trim(), $.proxy(appendSpecies, {tableRow: $tableRow, material: scientificName}));
                 }
                 else {
-                    $.post( "/getSpecies/"+material["Family"]+"/"+material["Genus"]+"/"+material["Species"], $.proxy(appendSpecies, $tableRow));
+                    $.post( "/getSpecies/"+material["Genus"]+"/"+material["Species"], $.proxy(appendSpecies, {tableRow: $tableRow, material: scientificName}));
 
                     $.post( "/getSynonyms/"+scientificName, 
-                        $.proxy(appendSynonyms, {"tableRow": $tableRow, "scientificName": scientificName})
+                        $.proxy(appendSynonyms, {"tableRow": $tableRow, "scientificName": scientificName, material:scientificName})
                     );
                 }
 

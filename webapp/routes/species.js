@@ -1,7 +1,6 @@
 module.exports = {
     getSpecies: (req, res) => {
         //let tradeName = req.params.tradeName;
-        let family = req.params.family;
         let genus = req.params.genus;
         let species = req.params.species;
         let scientificName = genus.trim() + " " + species.trim();
@@ -12,7 +11,6 @@ module.exports = {
     },
     getSpeciesJustGenus: (req, res) => {
         //let tradeName = req.params.tradeName;
-        let family = req.params.family;
         let genus = req.params.genus;
         let query = knex.select().from("species").where({ "Genus": genus });
         query.then(rows => {

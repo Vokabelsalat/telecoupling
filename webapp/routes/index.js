@@ -30,7 +30,7 @@ module.exports = {
         let instruments = req.params.instruments;
         let mainPart = req.params.mainPart;
 
-        knex.select("Trade_name", "Family", "Genus", "Species", "Main_part" , "Subpart").from("materials").where({ "Instruments": instruments, "Main_part": mainPart }).then(rows => {
+        knex.select("Trade_name", "Family", "Genus", "Species", "Main_part" , "Subpart", "CITES_regulation").from("materials").where({ "Instruments": instruments, "Main_part": mainPart }).then(rows => {
             res.end(JSON.stringify(rows));
         });
     },
@@ -40,7 +40,16 @@ module.exports = {
 
         let query = knex.select().from("synonyms").where({ "A": word }).orWhere({ "B": word });
         query.then(rows => {
-            res.end(JSON.stringify(rows.map(e => [e.A, e.B]).reduce((acc, val) => acc.concat(val), []).filter(e => e !== word)));
+            let fromSynonyms = rows.map(e => [e.A, e.B]).reduce((acc, val) => acc.concat(val), []).filter(e => e !== word);
+            console.log(fromSynonyms);
+
+            let query = knex.select("FullName").from("speciesFull").where( "SynonymsWithAuthors", "like", "%" + word + "%").whereNot({"FullName": word });
+            query.then(rows => {
+                let fromSpeciesFull = rows.map(e => e["FullName"]);
+                console.log("full", fromSpeciesFull);
+                fromSynonyms.push(...fromSpeciesFull);
+                res.end(JSON.stringify(fromSynonyms));
+            });
         });
     },
     queryIUCN: (req, res) => {

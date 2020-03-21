@@ -31,7 +31,7 @@ function processFile(filename) {
 
     fs.createReadStream(filename)
         .pipe(csv())
-        .on('data', (data) => { data.Kingdom !== "Animalia" ? results.push(data) : {}; })
+        .on('data', (data) => { /*data.Kingdom !== "Animalia" ? */results.push(data) /*: {}*/; })
         .on('end', () => {
             console.log(results.length);
             for (let row of results.values()) {
