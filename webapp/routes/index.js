@@ -30,7 +30,7 @@ module.exports = {
         let instruments = req.params.instruments;
         let mainPart = req.params.mainPart;
 
-        knex.select("Trade_name", "Family", "Genus", "Species", "Main_part" , "Subpart", "CITES_regulation").from("materials").where({ "Instruments": instruments, "Main_part": mainPart }).then(rows => {
+        knex.select("Trade_name", "Family", "Genus", "Species", "Main_part", "Subpart", "CITES_regulation").from("materials").where({ "Instruments": instruments, "Main_part": mainPart }).then(rows => {
             res.end(JSON.stringify(rows));
         });
     },
@@ -41,28 +41,51 @@ module.exports = {
         let query = knex.select().from("synonyms").where({ "A": word }).orWhere({ "B": word });
         query.then(rows => {
             let fromSynonyms = rows.map(e => [e.A, e.B]).reduce((acc, val) => acc.concat(val), []).filter(e => e !== word);
-            console.log(fromSynonyms);
 
-            let query = knex.select("FullName").from("speciesFull").where( "SynonymsWithAuthors", "like", "%" + word + "%").whereNot({"FullName": word });
+            res.end(JSON.stringify(fromSynonyms));
+
+            /*let query = knex.select("FullName").from("speciesFull").where("SynonymsWithAuthors", "like", "%" + word + "%")
+                .whereNot({ "FullName": word })
+                .whereNot("SynonymsWithAuthors", "like", "%" + word + " var.%");
             query.then(rows => {
                 let fromSpeciesFull = rows.map(e => e["FullName"]);
-                console.log("full", fromSpeciesFull);
                 fromSynonyms.push(...fromSpeciesFull);
                 res.end(JSON.stringify(fromSynonyms));
-            });
+            });*/
         });
     },
     queryIUCN: (req, res) => {
         let species = req.params.species;
         let outerRes = res;
 
-        request({
-            url: encodeURI('https://apiv3.iucnredlist.org/api/v3/species/history/name/' + species + '?token=58238783dc4a815f380f9cc8e36fc01e468db5672e464f8411bb4f323a4c7c94'),
-            method: 'GET',
-            json: true,
-        }, function(err, res, data) {
-            let results = data["result"];
-            outerRes.end(JSON.stringify(results));
+        let query = knex.select().from("iucnCache").where({ "Scientific Name": species });
+        query.then(rows => {
+
+            if (rows.length === 0) {
+                request({
+                    url: encodeURI('https://apiv3.iucnredlist.org/api/v3/species/history/name/' + species + '?token=58238783dc4a815f380f9cc8e36fc01e468db5672e464f8411bb4f323a4c7c94'),
+                    method: 'GET',
+                }, function(err, res, data) {
+                    try {
+                        data = JSON.parse(data);
+                        let results = data["result"];
+                        results.forEach(function(element, index) {
+                            knex('iucnCache').insert({ "Scientific Name": species, "year": element["year"], "code": element["code"], "category": element["category"] }).then(result => {});
+                        });
+
+                        outerRes.end(JSON.stringify(results));
+                    } catch (e) {
+                        if (e instanceof SyntaxError) {
+                            outerRes.end(data);
+                        }
+                        else {
+                            console.error(e);
+                        }
+                    }
+                });
+            } else {
+                outerRes.end(JSON.stringify(rows));
+            }
         });
     },
     getCountriesGeoJSON: (req, res) => {
@@ -79,28 +102,28 @@ module.exports = {
     },
     processMusicalChairs: (req, res) => {
 
-/*        let query = knex.select().from("musicalchair");
-        query.then(rows => {
-            for (let entry of rows) {
-                let locs = musicalChairsLocations[entry.country];
-                if (locs !== null && locs !== undefined) {
-                    let filter = locs.filter(e => e.city === entry.city);
-                    if (filter.length === 1) {
-                        if (filter[0].location.lat && filter[0].location.lon) {
-                            let query = knex('musicalchair')
-                                .where('country', '=', entry.country)
-                                .andWhere("city", "=", entry.city)
-                                .update({
-                                    lat: filter[0].location.lat,
-                                    lon: filter[0].location.lon
-                                });
-                            query.then(result => {
-                            });
+        /*        let query = knex.select().from("musicalchair");
+                query.then(rows => {
+                    for (let entry of rows) {
+                        let locs = musicalChairsLocations[entry.country];
+                        if (locs !== null && locs !== undefined) {
+                            let filter = locs.filter(e => e.city === entry.city);
+                            if (filter.length === 1) {
+                                if (filter[0].location.lat && filter[0].location.lon) {
+                                    let query = knex('musicalchair')
+                                        .where('country', '=', entry.country)
+                                        .andWhere("city", "=", entry.city)
+                                        .update({
+                                            lat: filter[0].location.lat,
+                                            lon: filter[0].location.lon
+                                        });
+                                    query.then(result => {
+                                    });
+                                }
+                            }
                         }
                     }
-                }
-            }
-        });*/
+                });*/
 
         /*let query = knex('musicalchair')
             .where('published_date', '=', 2000)

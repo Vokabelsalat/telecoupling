@@ -1,5 +1,5 @@
 module.exports = {
-	    queryGBIFspecies: (req, res) => {
+    queryGBIFspecies: (req, res) => {
         let word = req.params.word;
         let outerRes = res;
 
@@ -11,15 +11,59 @@ module.exports = {
                 "name": word
             }
         }, function(err, res, data) {
-            /*console.log(data);*/
             let taxonKey = data["usageKey"];
             let conf = data["confidence"];
-            /* console.log(word, taxonKey, conf);*/
+            console.log("HERE", data);
             if (conf > 80) {
-                outerRes.end(JSON.stringify({ word, taxonKey, conf }));
+                outerRes.end(JSON.stringify(data));
             } else {
                 outerRes.end();
             }
+        });
+    },
+    getGBIFsynonyms: (req, res) => {
+        let taxonKey = req.params.taxonKey;
+        let outerRes = res;
+
+        request({
+            url: 'http://api.gbif.org/v1/species/' + taxonKey + '/synonyms',
+            method: 'GET',
+            json: true,
+            /*data: {
+                "name": word
+            }*/
+        }, function(err, res, data) {
+
+            if (data !== undefined) {
+
+                let syns = [];
+                data["results"].forEach(function(element, index) {
+                    /*if (element["taxonomicStatus"] === "SYNONYM") {*/
+                        syns.push(element["canonicalName"]);
+  /*                  }
+                    else if(element["taxonomicStatus"] === "HOMOTYPIC_SYNONYM") {
+                        if(element["origin"] === "SOURCE") {
+                            syns.push(element["species"]);   
+                        }
+                        else if(element["origin"] === "EX_AUTHOR_SYNONYM"){
+                            syns.push(element["canonicalName"]);
+                        }
+                    }*/
+                });
+
+                outerRes.end(JSON.stringify(syns));
+            }
+            else {
+                outerRes.end();
+            }
+
+            /*            let taxonKey = data["usageKey"];
+                        let conf = data["confidence"];
+                        if (conf > 80) {
+                            outerRes.end(JSON.stringify({ word, taxonKey, conf }));
+                        } else {
+                        }*/
+
         });
     },
     queryGBIF: (req, res) => {

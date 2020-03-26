@@ -25,29 +25,72 @@
 
         let $tableRow = $(this.tableRow);
         let material = this.material;
+        let origScientificName = this.scientificName;
 
-        collectedData[material].species = {};
+/*        if(Object.keys(getOrCreate(getOrCreate(collectedData, material, {}), "species", {})).includes(origScientificName)) {
+
+            return;
+        }*/
 
         if(data.length === 1 && data[0] !== undefined) {
             let scientificName = data[0]["Scientific Name"];
-            collectedData[material].species[scientificName] = data[0];
+            getOrCreate(getOrCreate(getOrCreate(collectedData, material, {}), "species", {}), scientificName, data[0]);
         }
         else if(data[0] !== undefined) {
             
             data.forEach( function(element, index) {
-                collectedData[material].species[element["Scientific Name"]] = element;
+                getOrCreate(getOrCreate(getOrCreate(collectedData, material, {}), "species", {}), element["Scientific Name"
+                    ], element);
+
+                $.post("/queryGBIFspecies/"+ element["Scientific Name"], function(data) {
+                    if(data !== undefined) {
+                        //appendGBIF(data).bind({"tableRow": $tableRow, "treeName": element["Scientific Name"]});
+
+                        data = JSON.parse(data);
+
+                        if(data.hasOwnProperty("speciesKey")) {
+                            let taxon = data["speciesKey"];
+
+                            $.post("/getGBIFsynonyms/"+ taxon, 
+                                $.proxy(appendSynonyms, {"tableRow": $tableRow, "scientificName": element["Scientific Name"], material:material}));
+                        }
+                    }
+                });
+
+
+                 $.post( "/queryIUCN/"+element["Scientific Name"], 
+                    $.proxy(appendIUCN, {"tableRow": $tableRow, material: material, scientificName: element["Scientific Name"]})
+                );
+
+                if(!getOrCreate(
+                    getOrCreate(collectedData, material, {}), "trade", {}).hasOwnProperty(element["Scientific Name"
+                    ])) {
+                        $.post( "/getTrade/"+element["Scientific Name"], $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": element["Scientific Name"],  material: material, scientificName: element["Scientific Name"]}));
+                }
+                else {
+                    appendTrade(collectedData[material].trade[element["Scientific Name"]]).bind({"tableRow": $tableRow, "treeName": element["Scientific Name"], material: material, scientificName: element["Scientific Name"]});
+                }
+
+                 $.post( "/queryTreeSearchSpeciesWithSciName/"+element["Scientific Name"], 
+                    $.proxy(appendBGCI, {"tableRow": $tableRow, "treeName": element["Scientific Name"]})
+                );
+
+                $.post( "/queryThreatSearchWithSciName/"+element["Scientific Name"], 
+                    $.proxy(appendThreatSearch, {"tableRow": $tableRow})
+                );
             });
         }
 
         let listings = {};
 
-        Object.values(collectedData[material].species).forEach( function(element, index) {
-            pushOrCreate(listings, element.Listing, element);
-        });
-
         let speciesView;
 
-        if(Object.keys(collectedData[material].species).length > 1) {
+        if(getOrCreate(getOrCreate(collectedData, material, {}), "species", {}).length > 1) {
+
+            Object.values(collectedData[material].species).forEach( function(element, index) {
+                listings = pushOrCreate(listings, element.Listing, element);
+            });        
+
             let speciesObject = {
             "Name": material, 
             "Listing": Object.keys(listings).reduce((s ,e) => { // collect all listing identifiers (e.g. I) and their amount
@@ -58,30 +101,53 @@
         }
         else {
             speciesView = Object.values(collectedData[material].species).map(e => {
+                e["All_DistributionFullNames"] = e["All_DistributionFullNames"].replaceAll(",", ", ");
                 return createArrayView(e, "Scientific Name", ["Scientific Name", "Rank", "Listing", "All_DistributionFullNames"])[0];
             })[0]; 
         }
 
         if(speciesView !== undefined) {
-            $tableRow.find(".speciesCol").first().html(speciesView);
+            $tableRow.find(".speciesCol").first().find(".scroll").first().html(speciesView);
         }
     }
 
     function appendTrade(data) {
         let $tableRow = $(this.tableRow);
         let treeName = this.treeName;
+        let scientificName = this.scientificName;
+        let material = this.material;
+
         data = JSON.parse(data);
 
         let exportsCountry = {};
 
+        let collect = false;
+
+
+        if(
+            !getOrCreate(
+                getOrCreate(collectedData, material, {}), "trade", {}).hasOwnProperty(scientificName)
+        ) {
+            collect = true;
+        }
+
         data.forEach( function(element, index) {
             exportsCountry = pushOrCreate(exportsCountry, element["Exporter"], element);
+
+            if(collect) {
+                pushOrCreate(
+                    getOrCreate(
+                        getOrCreate(collectedData, material, {}), 
+                        "trade", {}), 
+                    scientificName, element);
+            }
         });
 
-        if(Object.keys(exportsCountry).length > 0) {
+
+/*        if(Object.keys(exportsCountry).length > 0) {
             let map = new BGCIMap("mapid");
             map.addExportCountries(treeName, exportsCountry);
-        }
+        }*/
 
         $tableRow.find(".tradeCol").first().find(".scroll").last().append(data.map(e => "&#8226; " + e.Year + " " + e.Term).join("<br>"));
     }
@@ -137,17 +203,14 @@
             for(let syn of data.values()) {
                 let synSplit = syn.split(" ");
                 $.post( "/getSpecies/"+synSplit[0]+"/"+synSplit[1], 
-                    $.proxy(appendSpecies, {tableRow: $tableRow, material: material})
+                    $.proxy(appendSpecies, {tableRow: $tableRow, material: material, scientificName: scientificName})
                 );
-
-
-/*                $.post( "/getTrade/"+syn, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName}));
 
                 $.post( "/queryIUCN/"+syn, 
-                    $.proxy(appendIUCN, {"tableRow": $tableRow})
+                    $.proxy(appendIUCN, {"tableRow": $tableRow, material: material, scientificName: scientificName})
                 );
 
-                $.post( "/queryTreeSearchSpeciesWithSciName/"+syn, 
+               /* $.post( "/queryTreeSearchSpeciesWithSciName/"+syn, 
                     $.proxy(appendBGCI, {"tableRow": $tableRow, "treeName": syn})
                 );
 
@@ -160,9 +223,38 @@
 
     function appendIUCN(data) {
         let $tableRow = $(this.tableRow);
-        data = JSON.parse(data);
-        if(data.length > 0) {
-            $tableRow.find(".iucnCol").first().find(".scroll").first().append(data.map(e => "&#8226; " + e.year + " " + e.code));
+        let material = this.material;
+        let sciName = this.scientificName;
+
+        let collect = false;
+            if(
+                !getOrCreate(
+                   getOrCreate(collectedData, material, {}), "listings", {}).hasOwnProperty(sciName)
+            ) {
+                    collect = true;
+            }
+
+        try {
+            data = JSON.parse(data);
+            data.forEach( function(element, index) {
+                $tableRow.find(".iucnCol").first().find(".scroll").first()
+                .append(" &#8226;" + element.year + " " + element.code);
+
+                if(collect) {
+                    pushOrCreate(
+                        getOrCreate(
+                            getOrCreate(collectedData, material, {}), 
+                            "listings", {}), 
+                        sciName, element);
+                }
+            });
+        } catch(e) {
+            if(data.includes("Bad Gateway")) {
+                data = "Bad Gateway";    
+            }
+
+            $tableRow.find(".iucnCol").first().find(".scroll").first()
+                .append("<br>" + data + " " );
         }
     }
 
@@ -251,9 +343,10 @@
             let table = $("#resultTable");
 
             for(let material of data.values()) {
+                console.log("DATA", data);
                 let $tableRow = $("<tr class='tableRow'>\
                     <td><div class='tableCell materialCol'/></td>\
-                    <td><div class='tableCell speciesCol'/></td>\
+                    <td><div class='tableCell speciesCol'><div class='scroll'/></div></td>\
                     <td><div class='tableCell synonymCol'/></td>\
                     <td><div class='tableCell tradeCol'><div class='scroll'/></div></td>\
                     <td><div class='tableCell gbifCol'><div class='scroll'/></div></td>\
@@ -271,29 +364,42 @@
                     if(material["Genus"].trim().includes("spp.")) {
                         justGenus = true;
                         scientificName = material["Genus"].trim()
-                        console.log("JUSTGENUS!", justGenus);
                     }
                 }
                 else {
                     scientificName = material["Genus"].trim() + " " + material["Species"].trim();
                 }
 
-                collectedData[scientificName] = {};
-
-                if(justGenus) {
+              /*  if(justGenus) {
                     $.post( "/getSpeciesJustGenus/"+material["Genus"].trim().replace("spp.", "").trim(), $.proxy(appendSpecies, {tableRow: $tableRow, material: scientificName}));
-                }
-                else {
+
+                    $.post( "/getTrade/"+scientificName, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName}));
+                }*/
+/*                else {
                     $.post( "/getSpecies/"+material["Genus"]+"/"+material["Species"], $.proxy(appendSpecies, {tableRow: $tableRow, material: scientificName}));
 
-                    $.post( "/getSynonyms/"+scientificName, 
-                        $.proxy(appendSynonyms, {"tableRow": $tableRow, "scientificName": scientificName, material:scientificName})
-                    );
-                }
+                    $.post("/queryGBIFspecies/"+ scientificName, function(data) {
+                        if(data !== undefined) {
 
-/*                $.post( "/queryIUCN/"+scientificName, 
-                    $.proxy(appendIUCN, {"tableRow": $tableRow})
-                );
+                            //appendGBIF(data).bind({"tableRow": $tableRow, "treeName": scientificName});
+
+                            data = JSON.parse(data);
+
+                            if(data.hasOwnProperty("speciesKey")) {
+                                let taxon = data["speciesKey"];
+
+                                $.post("/getGBIFsynonyms/"+ taxon, 
+                                    $.proxy(appendSynonyms, {"tableRow": $tableRow, "scientificName": scientificName, material:scientificName}));
+                            }
+                        }
+                    });
+
+                    $.post( "/queryIUCN/"+scientificName, 
+                        $.proxy(appendIUCN, {"tableRow": $tableRow, material: scientificName, scientificName: scientificName})
+                    );
+
+                    $.post( "/getTrade/"+scientificName, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName}));
+                }*/
 
                 $.post( "/queryTreeSearchSpeciesWithSciName/"+scientificName, 
                     $.proxy(appendBGCI, {"tableRow": $tableRow, "treeName": scientificName})
@@ -302,8 +408,6 @@
                 $.post( "/queryThreatSearchWithSciName/"+scientificName, 
                     $.proxy(appendThreatSearch, {"tableRow": $tableRow})
                 );
-
-                $.post( "/queryGBIFspecies/"+scientificName, $.proxy(appendGBIF, {"tableRow": $tableRow, "treeName": scientificName}));*/
 
                 table.append($tableRow);
             }
@@ -365,10 +469,6 @@
 <div id="mapid"></div>
 
 <script type="text/javascript">
-
-    /*$("#instrumentsSelect").change(function() {
-        console.log("CHANGED");
-    });*/
 
     let padding = 20;
 
@@ -823,7 +923,6 @@
                     });
                  }
                  else {
-                    console.log("REMOVE");
                     d3.select("#selectmainpartSVG").selectAll("*").remove();
                  }
                 
@@ -861,7 +960,7 @@
             let rot = groupAndFile.rotation;
 
             if(filename !== "") {
-                $.get(filename, function(data){
+                $.get("/" + filename, function(data){
                     let textBox = textPathForIcon.node().getBBox();
                     var svgNode = d3.select(data.documentElement).select("g");
                     group.append(() => svgNode.node()) ; 

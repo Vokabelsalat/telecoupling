@@ -13,11 +13,11 @@ const utils = require("./public/js/utils.js");
 
 const { getHomePage, getMainPart, getMaterial, getSynonyms, queryIUCN, requestMapboxToken, getCountriesGeoJSON, getMusicalChairs, processMusicalChairs, getInstrumentsFromGroup } = require('./routes/index');
 const { getTrade } = require('./routes/cites');
-const { queryGBIF, queryGBIFspecies, } = require('./routes/gbif');
+const { queryGBIF, queryGBIFspecies, getGBIFsynonyms} = require('./routes/gbif');
 const { queryTreeSearchSpecies, queryTreeSearchSpeciesWithSciName, queryThreatSearchWithSciName } = require('./routes/bgci');
 const { getSpecies, searchSpeciesNotes, searchSpeciesNotesPage, getSpeciesJustGenus } = require('./routes/species');
 /*const {addPlayerPage, addPlayer, deletePlayer, editPlayer, editPlayerPage} = require('./routes/player');*/
-const port = 8080;
+const port = 5000;
 
 // create connection to database
 // the mysql.createConnection function takes in a configuration object which contains host, user, password and the database name.
@@ -53,9 +53,7 @@ app.use(fileUpload()); // configure fileupload
 // routes for the app
 
 app.get('/', getHomePage);
-app.get('/instruments/:selectedInstruments', getHomePage);
 app.post('/group/:selectedGroup', getInstrumentsFromGroup);
-app.get('/instruments/:selectedInstruments/mainpart/:selectedMainPart', getHomePage);
 app.post('/getMainPart/:instruments', getMainPart);
 app.post('/getMaterial/:instruments/:mainPart', getMaterial);
 app.post('/getSpecies/:genus/:species', getSpecies);
@@ -66,6 +64,7 @@ app.post('/searchSpeciesNotes/:word', searchSpeciesNotes);
 app.get('/searchSpeciesNotes/:word', searchSpeciesNotesPage);
 app.post('/queryIUCN/:species', queryIUCN);
 app.post('/queryGBIF/:taxonKey', queryGBIF);
+app.post('/getGBIFsynonyms/:taxonKey', getGBIFsynonyms);
 app.post('/queryGBIFspecies/:word', queryGBIFspecies);
 app.post('/queryTreeSearchSpecies/:genus/:species', queryTreeSearchSpecies);
 app.post('/queryTreeSearchSpeciesWithSciName/:name', queryTreeSearchSpeciesWithSciName);
@@ -80,6 +79,8 @@ app.get('/delete/:id', deletePlayer);
 app.post('/add', addPlayer);
 app.post('/edit/:id', editPlayer);
 */
+app.get('/:selectedInstruments/:selectedMainPart', getHomePage);
+app.get('/:selectedInstruments', getHomePage);
 
 // set the app to listen on the port
 app.listen(port, () => {
