@@ -31,7 +31,7 @@ module.exports = {
         let mainPart = req.params.mainPart;
 
         knex.select("Trade_name", "Family", "Genus", "Species", "Main_part", "Subpart", "CITES_regulation").from("materials").where({ "Instruments": instruments, "Main_part": mainPart }).then(rows => {
-            res.end(JSON.stringify(rows));
+            res.json(rows);
         });
     },
     getSynonyms: (req, res) => {
@@ -60,7 +60,6 @@ module.exports = {
 
         let query = knex.select().from("iucnCache").where({ "Scientific Name": species });
         query.then(rows => {
-
             if (rows.length === 0) {
                 request({
                     url: encodeURI('https://apiv3.iucnredlist.org/api/v3/species/history/name/' + species + '?token=58238783dc4a815f380f9cc8e36fc01e468db5672e464f8411bb4f323a4c7c94'),
@@ -73,18 +72,19 @@ module.exports = {
                             knex('iucnCache').insert({ "Scientific Name": species, "year": element["year"], "code": element["code"], "category": element["category"] }).then(result => {});
                         });
 
-                        outerRes.end(JSON.stringify(results));
+                        outerRes.json(results);
                     } catch (e) {
                         if (e instanceof SyntaxError) {
                             outerRes.end(data);
                         }
                         else {
                             console.error(e);
+                            outerRes.end();
                         }
                     }
                 });
             } else {
-                outerRes.end(JSON.stringify(rows));
+                outerRes.json(rows);
             }
         });
     },
