@@ -53,7 +53,7 @@ function rgbToRGBA(rgbString, alpha) {
         return rgbString.replace(")", "," + alpha + ")");
     } catch (e) {
         // statements
-        console.log(e);
+        /*console.log(e);*/
         return rgbString;
     }
 }
