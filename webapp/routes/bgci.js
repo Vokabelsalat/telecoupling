@@ -33,7 +33,7 @@ module.exports = {
                 json: true,
             }, function(err, res, data) {
                 if (data.results.length > 0) {
-                    outerRes.end(JSON.stringify(data.results[0]));
+                    outerRes.json(data.results);
                 } else {
                     outerRes.end();
                 }
@@ -57,10 +57,64 @@ module.exports = {
                 method: 'GET',
                 json: true,
             }, function(err, res, data) {
-                outerRes.end(JSON.stringify(data.results));
+                if(data) {
+                    outerRes.json(data.results);
+                }
+                else {
+                    outerRes.end();
+                }
             });
         } else {
             res.end();
         }
-    }	
+    },
+    queryBGCITreeSearchByGenus: (req, res) => {
+       
+        let genus = req.params.genus;
+        let outerRes = res;
+
+        if (genus) {
+            request({
+                url: 'https://data.bgci.org/treesearch/genus/' + genus,
+                method: 'GET',
+                json: true,
+            }, function(err, res, data) {
+                if(data && data.hasOwnProperty("results")) {
+                    outerRes.json(data["results"]);
+                }
+                else {
+                    outerRes.end();   
+                }
+            });
+        } else {
+            outerRes.end();
+        }
+    },
+    queryBGCIThreatSearchByGenus: (req, res) => {
+       
+        let genus = req.params.genus;
+        let outerRes = res;
+
+        if (genus) {
+            request({
+                url: 'https://data.bgci.org/threatsearch/genus/' + genus,
+                method: 'GET',
+                json: true,
+            }, function(err, res, data) {
+                if(data) {
+                    if(data.hasOwnProperty("results")) {
+                        outerRes.json(data["results"]);
+                    }
+                    else {
+                        outerRes.end();   
+                    }
+                } 
+                else {
+                    outerRes.end();   
+                }
+            });
+        } else {
+            outerRes.end();
+        }
+    }
 };

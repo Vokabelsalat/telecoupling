@@ -11,59 +11,17 @@ module.exports = {
                 "name": word
             }
         }, function(err, res, data) {
-            let taxonKey = data["usageKey"];
-            let conf = data["confidence"];
-            console.log("HERE", data);
-            if (conf > 80) {
-                outerRes.end(JSON.stringify(data));
-            } else {
-                outerRes.end();
-            }
-        });
-    },
-    getGBIFsynonyms: (req, res) => {
-        let taxonKey = req.params.taxonKey;
-        let outerRes = res;
-
-        request({
-            url: 'http://api.gbif.org/v1/species/' + taxonKey + '/synonyms',
-            method: 'GET',
-            json: true,
-            /*data: {
-                "name": word
-            }*/
-        }, function(err, res, data) {
-
-            if (data !== undefined) {
-
-                let syns = [];
-                data["results"].forEach(function(element, index) {
-                    /*if (element["taxonomicStatus"] === "SYNONYM") {*/
-                        syns.push(element["canonicalName"]);
-  /*                  }
-                    else if(element["taxonomicStatus"] === "HOMOTYPIC_SYNONYM") {
-                        if(element["origin"] === "SOURCE") {
-                            syns.push(element["species"]);   
-                        }
-                        else if(element["origin"] === "EX_AUTHOR_SYNONYM"){
-                            syns.push(element["canonicalName"]);
-                        }
-                    }*/
-                });
-
-                outerRes.end(JSON.stringify(syns));
+            if(data) {
+                let conf = data["confidence"];
+                if (conf > 80) {
+                    outerRes.json(data);
+                } else {
+                    outerRes.end();
+                }
             }
             else {
                 outerRes.end();
             }
-
-            /*            let taxonKey = data["usageKey"];
-                        let conf = data["confidence"];
-                        if (conf > 80) {
-                            outerRes.end(JSON.stringify({ word, taxonKey, conf }));
-                        } else {
-                        }*/
-
         });
     },
     queryGBIF: (req, res) => {
@@ -103,7 +61,7 @@ module.exports = {
             let wait = Array(pages - 1).fill(0);
 
             let fin = (data) => {
-                outerRes.end(JSON.stringify(data));
+                outerRes.json(data);
             };
 
             results.push(...(data.results));
@@ -133,17 +91,90 @@ module.exports = {
                         if (wait.length === 0) {
                             fin(results);
                         }
-
-                        /*console.log("DONE", data.results.length);
-                        console.log(data.results[0]);*/
                     });
-
-                    /*                outerRes.render('info.ejs', {
-                                        title: "Welcome to Telecoupling",
-                                        info: { "text": "Found: " + count + " in " + pages + " pages" }
-                                    });*/
                 }
             }
         });
+    },
+    queryGBIFspeciesByGenus: (req, res) => {
+
+        let genus = req.params.genus;
+        let outerRes = res;
+
+        if (genus) {
+            request({
+                url: 'http://api.gbif.org/v1/species/match',
+                method: 'GET',
+                json: true,
+                data: {
+                    "genus": genus
+                }
+            }, function(err, res, data) {
+                if(data.hasOwnProperty("genusKey")) {
+                    let genusKey = data["genusKey"];
+                    outerRes.end(genusKey.toString());
+                }
+                else {
+                    outerRes.end();   
+                }
+            });
+        } else {
+            outerRes.end();
+        }
+    },
+    queryGBIFchildren: (req, res) => {
+
+        let genusKey = req.params.genusKey;
+        let outerRes = res;
+
+        if (genusKey) {
+            request({
+                url: 'http://api.gbif.org/v1/species/' + genusKey + '/children',
+                method: 'GET',
+                json: true,
+                data: {
+                    limit: 1000
+                }
+            }, function(err, res, data) {
+                if(data.hasOwnProperty("results")) {
+                    outerRes.json(data["results"]);
+                }
+                else {
+                    outerRes.end();   
+                }
+            });
+        } else {
+            outerRes.end();
+        }
+    },
+    queryGBIFsynonyms: (req, res) => {
+
+        let taxonKey = req.params.taxonKey;
+        let outerRes = res;
+
+        if (taxonKey) {
+            request({
+                url: 'http://api.gbif.org/v1/species/' + taxonKey + '/synonyms',
+                method: 'GET',
+                json: true,
+                data: {
+                    limit: 1000
+                }
+            }, function(err, res, data) {
+                if(data) {
+                    if(data.hasOwnProperty("results")) {
+                        outerRes.json(data["results"]);
+                    }
+                    else {
+                        outerRes.end();   
+                    }
+                }
+                else {
+                    outerRes.end();   
+                }
+            });
+        } else {
+            outerRes.end();
+        }
     }
 };

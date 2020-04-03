@@ -1,12 +1,14 @@
 module.exports = {
     getSpecies: (req, res) => {
-        //let tradeName = req.params.tradeName;
-        let genus = req.params.genus;
-        let species = req.params.species;
-        let scientificName = genus.trim() + " " + species.trim();
+        let scientificName = req.params.scientificName;
         let query = knex.select().from("species").where({ "Scientific Name": scientificName });
         query.then(rows => {
-            res.end(JSON.stringify(rows));
+            if(rows.length > 0) {
+                res.json(rows);
+            }
+            else {
+                res.end();
+            }
         });
     },
     getSpeciesJustGenus: (req, res) => {
@@ -14,7 +16,12 @@ module.exports = {
         let genus = req.params.genus;
         let query = knex.select().from("species").where({ "Genus": genus });
         query.then(rows => {
-            res.end(JSON.stringify(rows));
+            if(rows.length > 0) {
+                res.json(rows);
+            }
+            else {
+                res.end();
+            }
         });
     },
     searchSpeciesNotes: (req, res) => {
