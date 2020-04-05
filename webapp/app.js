@@ -12,7 +12,7 @@ const variables = require("./variables.js");
 const utils = require("./public/js/utils.js");
 
 const { getHomePage, getMainPart, getMaterial, getSynonyms, queryIUCN, requestMapboxToken, getCountriesGeoJSON, getMusicalChairs, processMusicalChairs, getInstrumentsFromGroup } = require('./routes/index');
-const { getTrade, getTradeByGenus } = require('./routes/cites');
+const { getTrade, getTradeByGenus, getListingHistory, getListingHistoryByGenus } = require('./routes/cites');
 const { queryGBIF, queryGBIFspecies, queryGBIFspeciesByGenus, queryGBIFchildren, queryGBIFsynonyms} = require('./routes/gbif');
 const { queryTreeSearchSpecies, queryTreeSearchSpeciesWithSciName, queryThreatSearchWithSciName, queryBGCITreeSearchByGenus, queryBGCIThreatSearchByGenus } = require('./routes/bgci');
 const { getSpecies, searchSpeciesNotes, searchSpeciesNotesPage, getSpeciesJustGenus } = require('./routes/species');
@@ -60,6 +60,8 @@ app.post('/getSpecies/:scientificName', getSpecies);
 app.post('/getSpeciesJustGenus/:genus', getSpeciesJustGenus);
 app.post('/getSynonyms/:word', getSynonyms);
 app.post('/getTrade/:taxon', getTrade);
+app.post('/getListingHistory/:scientificName', getListingHistory);
+app.post('/getListingHistoryByGenus/:genus', getListingHistoryByGenus);
 app.post('/getTradeByGenus/:genus', getTradeByGenus);
 app.post('/searchSpeciesNotes/:word', searchSpeciesNotes);
 app.get('/searchSpeciesNotes/:word', searchSpeciesNotesPage);

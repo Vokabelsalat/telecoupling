@@ -31,6 +31,20 @@
         }
     }
 
+    function appendListingHistory(data) {
+
+        let $tableRow = $(this.tableRow);
+        let material = this.material;
+        let origScientificName = this.scientificName;
+
+        if(data) {
+            data.forEach( function(element, index) {
+                pushOrCreate(getOrCreate(collectedData, material, {}), "listingHistory", element);
+
+                $tableRow.find(".listingHistoryCol").first().find(".scroll").first().append("&#8226; " + element["Appendix"] + " " + element["EffectiveAt"] + "<br>");
+            });
+        }
+    }
 
     function appendSpecies(data) {
 

@@ -157,6 +157,17 @@
         });
     }
 
+    function getListingHistoryInBulk(names, index, callback) {
+        $.post( "/getListingHistory/"+names[index], function(resData) {
+            if(resData.length > 0) {
+                callback(resData);
+            }
+            else if(index+1 < names.length) {
+                getListingHistoryInBulk(names, index+1, callback);                
+            }
+        });
+    }
+
     function getTreeSearchInBulk(names, index, callback) {
         $.post( "/queryTreeSearchSpeciesWithSciName/"+names[index], function(resData) {
             if(resData.length > 0) {
@@ -214,6 +225,7 @@
                     <td><div class='tableCell materialCol'/></td>\
                     <td><div class='tableCell speciesCol'><div class='scroll'/></div></td>\
                     <td><div class='tableCell listingsCol'><div class='scroll'/></div></td>\
+                    <td><div class='tableCell listingHistoryCol'><div class='scroll'/></div></td>\
                     <td><div class='tableCell synonymCol'><div class='scroll'/></div></td>\
                     <td><div class='tableCell tradeCol'><div class='scroll'/></div></td>\
                     <td><div class='tableCell gbifCol'><div class='scroll'/></div></td>\
@@ -315,7 +327,13 @@
                                 //######### Listings #########
                                 let appendListingsBound = appendListings.bind({"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"]});
 
+
                                 getListingsInBulk(allNames, 0, appendListingsBound);
+
+                                //######### ListingHistory #########
+                                let appendListingHistoryBound = appendListingHistory.bind({"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"]});
+
+                                getListingHistoryInBulk(allNames, 0, appendListingHistoryBound);
 
                                 //######### IUCN #########
                                 let appendIUCNBound = appendIUCN.bind({"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"]});
@@ -456,6 +474,7 @@
     <th>Material</th>
     <th>Species</th>
     <th>Listings</th>
+    <th>ListingHistory</th>
     <th>Synonyms</th>
     <th>Trade</th>
     <th>GBIF</th>
