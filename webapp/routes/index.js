@@ -14,6 +14,11 @@ module.exports = {
             })
         );
     },
+    getTimeline: (req, res) => {
+        res.render("timeline.ejs", {
+            title: "Welcome to Teletimeline",
+        });
+    },
     getInstrumentsFromGroup: (req, res) => {
         let group = req.params.selectedGroup;
         knex.select("Instruments").from('materials').where("Instrument_groups", group).groupBy("Instruments").then(rows => {

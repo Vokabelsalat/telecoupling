@@ -249,3 +249,18 @@ img {
 .arrayView {
     margin-bottom: 1em;
 }
+
+#timeline .bar {
+  fill: steelblue;
+}
+
+#timeline .bar:hover {
+  fill: brown;
+}
+
+.circleLabel {
+    text-anchor: middle;
+    dominant-baseline: central;
+    fill: white;
+    font-family: serif;
+}

@@ -11,7 +11,7 @@ const database = require("./database.js");
 const variables = require("./variables.js");
 const utils = require("./public/js/utils.js");
 
-const { getHomePage, getMainPart, getMaterial, getSynonyms, queryIUCN, requestMapboxToken, getCountriesGeoJSON, getMusicalChairs, processMusicalChairs, getInstrumentsFromGroup } = require('./routes/index');
+const { getHomePage, getMainPart, getMaterial, getSynonyms, queryIUCN, requestMapboxToken, getCountriesGeoJSON, getMusicalChairs, processMusicalChairs, getInstrumentsFromGroup, getTimeline } = require('./routes/index');
 const { getTrade, getTradeByGenus, getListingHistory, getListingHistoryByGenus } = require('./routes/cites');
 const { queryGBIF, queryGBIFspecies, queryGBIFspeciesByGenus, queryGBIFchildren, queryGBIFsynonyms} = require('./routes/gbif');
 const { queryTreeSearchSpecies, queryTreeSearchSpeciesWithSciName, queryThreatSearchWithSciName, queryBGCITreeSearchByGenus, queryBGCIThreatSearchByGenus } = require('./routes/bgci');
@@ -53,6 +53,7 @@ app.use(fileUpload()); // configure fileupload
 // routes for the app
 
 app.get('/', getHomePage);
+app.get('/timeline', getTimeline);
 app.post('/group/:selectedGroup', getInstrumentsFromGroup);
 app.post('/getMainPart/:instruments', getMainPart);
 app.post('/getMaterial/:instruments/:mainPart', getMaterial);
