@@ -132,7 +132,6 @@ function getTimelineThreatsDataFromSpecies(speciesObject) {
     }
 }
 
-//########### CREATING DATA ###########
 
 let index = 0;
 let colorString = colorBrewerScheme8Qualitative.map(e => '<div style="display:inline-block; width:20px; height:20px; background-color:' + e + '">' + (index++) + '</div>');
@@ -140,6 +139,45 @@ let colorString = colorBrewerScheme8Qualitative.map(e => '<div style="display:in
 $.get("timelinedata.json", function(tradeData) {
 
     $(".page-wrapper").first().append("<div>").append(colorString.join(""));
+
+	//########### CREATING DATA ###########
+	let minYear = 9999;
+	let maxYear = -9999;
+
+    for (let speciesName of Object.keys(tradeData).values()) {
+    	let speciesObject = tradeData[speciesName];
+
+    	let data = getTimelineTradeDataFromSpecies(speciesObject);
+        let listingData = getTimelineListingDataFromSpecies(speciesObject);
+        let iucnData = getTimelineIUCNDataFromSpecies(speciesObject);
+        let threatData = getTimelineThreatsDataFromSpecies(speciesObject);
+
+        tradeData[speciesName].timeTrade = data;
+        tradeData[speciesName].timeListing = listingData;
+        tradeData[speciesName].timeIUCN = iucnData;
+        tradeData[speciesName].timeThreat = threatData;
+
+        let allCircleData = [];
+        allCircleData.push(...listingData);
+        allCircleData.push(...iucnData);
+        allCircleData.push(...threatData);
+
+        let domainYears = data
+            .map(function(d) { return d.year; });
+
+        domainYears.push(...allCircleData.map(d => d.year));
+
+        let extent = d3.extent(domainYears);
+
+        minYear = Math.min(minYear, extent[0]);
+        maxYear = Math.max(maxYear, extent[1]);
+
+		tradeData[speciesName].allCircleData = allCircleData;        
+		tradeData[speciesName].timeExtent = extent;
+    }
+
+	let yearDiff = maxYear - minYear;
+    let xDomain = Array(yearDiff+1).fill().map((_, i) => (minYear-1) + i+1);
 
     for (let speciesName of Object.keys(tradeData).values()) {
         let speciesObject = tradeData[speciesName];
@@ -149,7 +187,12 @@ $.get("timelinedata.json", function(tradeData) {
         let $wrapper = $(".page-wrapper").first().append('<div id="timelineWrapper" class="visWrapper">');
         let $svg = $(".page-wrapper").first().append('<svg id="'+id+'" width="960" height="250">');
 
-        console.log(speciesName, speciesObject);
+        let data = speciesObject.timeTrade;
+        let listingData = speciesObject.timeListing;
+        let iucnData = speciesObject.timeIUCN;
+        let threatData = speciesObject.timeThreat;
+
+        let allCircleData = listingData.concat(iucnData).concat(threatData);
 
         //########### BUILDING CHART ###########
         var svg = d3.select("#"+id);
@@ -173,39 +216,16 @@ $.get("timelinedata.json", function(tradeData) {
             .rangeRound([height, 0]);
 
 
-        let data = getTimelineTradeDataFromSpecies(speciesObject);
-        let listingData = getTimelineListingDataFromSpecies(speciesObject);
-        let iucnData = getTimelineIUCNDataFromSpecies(speciesObject);
-        let threatData = getTimelineThreatsDataFromSpecies(speciesObject);
-        console.log("timedata", listingData);
-        console.log("iucndata", iucnData);
-        console.log("threats", threatData);
-
-        let allCircleData = [];
-        allCircleData.push(...listingData);
-        allCircleData.push(...iucnData);
-        allCircleData.push(...threatData);
-
         var circleYearCount = {};
 
-        let yearCount = (y) => {
-            let count = getOrCreate(circleYearCount, y.toString(), -1);
-            circleYearCount[y.toString()] = ++count;
+        let yearCount = (y, obj) => {
+            let count = getOrCreate(obj, y.toString(), -1);
+            obj[y.toString()] = ++count;
             return count;
         };
 
-        let domainYears = data
-            .map(function(d) { return d.year; });
+        x.domain(xDomain);
 
-        /*domainYears.push(...listingData.map(d => d.year));
-        domainYears.push(...iucnData.map(d => d.year));
-        domainYears.push(...threatData.map(d => d.year));*/
-        domainYears.push(...allCircleData.map(d => d.year));
-        domainYears = domainYears.sort();
-
-        console.log(domainYears);
-
-        x.domain(domainYears);
         y.domain([0, d3.max(data, function(d) {
             return Number(d.count);
         })]);
@@ -248,7 +268,7 @@ $.get("timelinedata.json", function(tradeData) {
 
         var elemEnter = elem.enter()
             .append("g")
-            .attr("transform", function(d) { return "translate(" + x(Number(d.year)) + "," + (height - (radius * 2 * yearCount(d.year))) + ")" });
+            .attr("transform", function(d) { return "translate(" + x(Number(d.year)) + "," + (height - (radius * 2 * yearCount(d.year, circleYearCount))) + ")" });
 
         //let radius = (height - y(1)) / 2;
         elemEnter.append("circle")
