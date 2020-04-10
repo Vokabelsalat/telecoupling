@@ -250,11 +250,11 @@ img {
     margin-bottom: 1em;
 }
 
-#timeline .bar {
+.bar {
   fill: steelblue;
 }
 
-#timeline .bar:hover {
+.bar:hover {
   fill: brown;
 }
 
