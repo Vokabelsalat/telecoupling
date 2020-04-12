@@ -250,17 +250,17 @@ img {
     margin-bottom: 1em;
 }
 
-.bar {
-  fill: steelblue;
-}
-
-.bar:hover {
-  fill: brown;
-}
-
 .circleLabel {
     text-anchor: middle;
     dominant-baseline: central;
     fill: white;
     font-family: serif;
+}
+
+.visWrapper {
+    position: relative;
+}
+
+svg {
+    vertical-align: top;
 }

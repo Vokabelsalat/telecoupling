@@ -121,7 +121,7 @@ function getTimelineThreatsDataFromSpecies(speciesObject) {
                             }
                         }
 
-                        return { year: year, scopo: e.bgciScope, count: count++, threatened: e.threatened, consAssCategory: e.consAssCategory, text: e.consAssCategory, type: "threat" };
+                        return { year: year, scope: e.bgciScope, count: count++, threatened: e.threatened, consAssCategory: e.consAssCategory, text: e.consAssCategory, type: "threat" };
                     }
                 ));
             }
@@ -134,26 +134,30 @@ function getTimelineThreatsDataFromSpecies(speciesObject) {
 
 
 let index = 0;
-let colorString = colorBrewerScheme8Qualitative.map(e => '<div style="display:inline-block; width:20px; height:20px; background-color:' + e + '">' + (index++) + '</div>');
+//let colorString = colorBrewerScheme8Qualitative.map(e => '<div style="display:inline-block; width:20px; height:20px; background-color:' + e + '">' + (index++) + '</div>');
+let colorString = Object.keys(iucnColors).map(e => '<div style="display:inline-block; width:30px; height:20px; background-color:' + iucnColors[e].bg + '; color: '+iucnColors[e].fg+'">' + e + '</div>');
 
 $.get("timelinedata.json", function(tradeData) {
 
-    $(".page-wrapper").first().append("<div>").append(colorString.join(""));
+    $("#page-wrapper").append("<div>").append(colorString.join(""));
 
-	//########### CREATING DATA ###########
-	let minYear = 9999;
-	let maxYear = -9999;
+    //########### CREATING DATA ###########
+    let minYear = 9999;
+    let maxYear = -9999;
 
     for (let speciesName of Object.keys(tradeData).values()) {
-    	let speciesObject = tradeData[speciesName];
+        let speciesObject = tradeData[speciesName];
 
-    	let data = getTimelineTradeDataFromSpecies(speciesObject);
+        let data = getTimelineTradeDataFromSpecies(speciesObject);
         let listingData = getTimelineListingDataFromSpecies(speciesObject);
         let iucnData = getTimelineIUCNDataFromSpecies(speciesObject);
         let threatData = getTimelineThreatsDataFromSpecies(speciesObject);
 
         tradeData[speciesName].timeTrade = data;
         tradeData[speciesName].timeListing = listingData;
+
+        console.log(speciesName, iucnData);
+
         tradeData[speciesName].timeIUCN = iucnData;
         tradeData[speciesName].timeThreat = threatData;
 
@@ -172,35 +176,63 @@ $.get("timelinedata.json", function(tradeData) {
         minYear = Math.min(minYear, extent[0]);
         maxYear = Math.max(maxYear, extent[1]);
 
-		tradeData[speciesName].allCircleData = allCircleData;        
-		tradeData[speciesName].timeExtent = extent;
+        tradeData[speciesName].allCircleData = allCircleData;
+        tradeData[speciesName].timeExtent = extent;
     }
 
-	let yearDiff = maxYear - minYear;
-    let xDomain = Array(yearDiff+1).fill().map((_, i) => (minYear-1) + i+1);
+    let yearDiff = maxYear - minYear;
+    let xDomain = Array(yearDiff + 1).fill().map((_, i) => (minYear - 1) + i + 1);
+
+    // create a tooltip
+    var Tooltip = d3.select("#page-wrapper")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "2px")
+        .style("border-radius", "5px")
+        .style("padding", "5px")
+
+    // Three function that change the tooltip when user hover / move / leave a cell
+    var mouseover = function(d) {
+        Tooltip
+            .style("opacity", 1)
+    }
+    var mousemove = function(d) {
+        var parentOffset = $(this).closest(".visWrapper").offset();
+        Tooltip
+            .html("Amount of trades: " + d.count + " in " + d.year)
+            .style("left", (d3.mouse(this)[0] + 85) + "px")
+            .style("top", (parentOffset.top + d3.mouse(this)[1]) + 35 + "px")
+    }
+    var mouseleave = function(d) {
+        Tooltip
+            .style("opacity", 0)
+    }
 
     for (let speciesName of Object.keys(tradeData).values()) {
         let speciesObject = tradeData[speciesName];
 
         let id = "timeline" + speciesName.replaceSpecialCharacters();
 
-        let $wrapper = $(".page-wrapper").first().append('<div id="timelineWrapper" class="visWrapper">');
-        let $svg = $(".page-wrapper").first().append('<svg id="'+id+'" width="960" height="250">');
+        let $wrapper = $("#page-wrapper").append('<div id="' + id + 'Wrapper" class="visWrapper">');
+        let $svg = $("#" + id + "Wrapper").append('<svg id="' + id + '" width="960" height="250">');
 
         let data = speciesObject.timeTrade;
         let listingData = speciesObject.timeListing;
         let iucnData = speciesObject.timeIUCN;
         let threatData = speciesObject.timeThreat;
 
-        let allCircleData = listingData.concat(iucnData).concat(threatData);
+        //let otherCircleData = listingData.concat(iucnData).concat(threatData);
 
         //########### BUILDING CHART ###########
-        var svg = d3.select("#"+id);
+        var svg = d3.select("#" + id);
 
         var margin = {
             top: 20,
             right: 20,
-            bottom: 30,
+            bottom: 20,
             left: 50
         };
 
@@ -244,27 +276,35 @@ $.get("timelinedata.json", function(tradeData) {
             .attr("text-anchor", "end")
             .text(speciesName);
 
-        g.selectAll(".bar")
-            .data(data)
-            .enter().append("rect")
-            .attr("class", "bar")
-            .attr("x", function(d) {
-                return x(Number(d.year));
-            })
-            .attr("y", function(d) {
-                return y(Number(d.count));
-            })
-            .attr("width", x.bandwidth())
-            .attr("height", function(d) {
-                return height - y(Number(d.count));
-            });
+        g.append("path")
+            .datum(data)
+            .attr("fill", "none")
+            .attr("stroke", "#69b3a2")
+            .attr("stroke-width", 1.5)
+            .attr("d", d3.line()
+                .x(function(d) { return x(d.year) + x.bandwidth() / 2 })
+                .y(function(d) { return y(d.count) })
+            )
 
+        // Add the points
+        g.append("g")
+            .selectAll("dot")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("cx", function(d) { return x(d.year) + x.bandwidth() / 2 })
+            .attr("cy", function(d) { return y(d.count) })
+            .attr("r", 3)
+            .attr("fill", "#69b3a2")
+            .on("mouseover", mouseover)
+            .on("mousemove", mousemove)
+            .on("mouseleave", mouseleave)
 
         let elem = g.selectAll("g myCircleText")
-            .data(allCircleData);
+            .data(listingData);
 
 
-        let radius = Math.min(x.bandwidth() / 2 - 4, height/2);
+        let radius = Math.min(x.bandwidth() / 2 - 5, height / 2);
 
         var elemEnter = elem.enter()
             .append("g")
@@ -294,46 +334,6 @@ $.get("timelinedata.json", function(tradeData) {
                                 break;
                         }
                         break;
-                    case "iucn":
-                        switch (d.code) {
-                            case "LC":
-                                return colorBrewerScheme8Qualitative[0];
-                            case "NT":
-                                return colorBrewerScheme8Qualitative[2];
-                            case "VU":
-                                return colorBrewerScheme8Qualitative[3];
-                            case "EN":
-                                return colorBrewerScheme8Qualitative[6];
-                            case "CR":
-                                return colorBrewerScheme8Qualitative[7];
-                            case "EW":
-                                return colorBrewerScheme8Qualitative[4];
-                            case "EX":
-                                return colorBrewerScheme8Qualitative[5];
-                            default:
-                                break;
-                        }
-                        break;
-                    case "threat":
-                        switch (d.consAssCategory) {
-                            case "LC":
-                                return colorBrewerScheme8Qualitative[0];
-                            case "NT":
-                                return colorBrewerScheme8Qualitative[2];
-                            case "VU":
-                                return colorBrewerScheme8Qualitative[3];
-                            case "EN":
-                                return colorBrewerScheme8Qualitative[6];
-                            case "CR":
-                                return colorBrewerScheme8Qualitative[7];
-                            case "EW":
-                                return colorBrewerScheme8Qualitative[4];
-                            case "EX":
-                                return colorBrewerScheme8Qualitative[5];
-                            default:
-                                break;
-                        }
-                        break;
                 }
             });
 
@@ -349,5 +349,220 @@ $.get("timelinedata.json", function(tradeData) {
             .style("font-size", radius)
             .style("font-family", d => d.type === "listingHistory" ? "serif" : "sans-serif");
 
+        // ############# IUCN #############
+
+        if (iucnData.length > 0) {
+
+            let circleYearCountIUCN = {};
+
+            let $iucnSvg = $("#" + id + "Wrapper").append('<svg id="' + id + 'IUCN" width="960" height="' + (2 * radius + 1) + '">');
+            let maxCount = 0;
+
+            /*            $("#"+id+"IUCN").append("<defs>\
+            			    <linearGradient id='myGradient' gradientTransform='rotate(90)'>\
+            			      <stop offset='5%'  stop-color='gold' />\
+            			      <stop offset='95%' stop-color='red' />\
+            			    </linearGradient\
+            			  </defs>");*/
+
+            svgIUCN = d3.select("#" + id + "IUCN");
+
+            svgIUCN
+                .style("display", "block");
+
+/*                <linearGradient id="myGradient" gradientTransform="rotate(90)">
+      <stop offset="5%"  stop-color="gold" />
+      <stop offset="95%" stop-color="red" />
+    </linearGradient>*/
+
+            // Define the gradient
+            var gradient = svgIUCN.append("svg:defs")
+                .append("svg:linearGradient")
+                .attr("gradientTransform", "rotate(90)")
+                .attr("id", "gradient");
+
+            // Define the gradient colors
+            gradient.append("svg:stop")
+                .attr("offset", "0%")
+                .attr("stop-color", "white")
+                .attr("stop-opacity", 1);
+
+            gradient.append("svg:stop")
+                .attr("offset", "5%")
+                .attr("stop-color", "white")
+                .attr("stop-opacity", 0.1);
+
+            gradient.append("svg:stop")
+                .attr("offset", "95%")
+                .attr("stop-color", "gray")
+                .attr("stop-opacity", 0.2);
+
+            g = svgIUCN.append("g").attr("transform", "translate(" + margin.left + "," + 0 + ")");
+
+            let rect = g.append("rect")
+                .attr("width", width)
+                .attr("height", ((maxCount + 1) * 2 * radius + 1))
+            .attr("fill", 'url(#gradient)')
+            //.style("fill", "url(#mainGradient)")
+            /*.style("stroke", "black")*/
+            //.style("fill", "url(#myGradient)");
+
+            elem = g.selectAll("g myCircleText")
+                .data(iucnData);
+
+            elemEnter = elem.enter()
+                .append("g")
+                .attr("transform", function(d) {
+                    let count = yearCount(d.year, circleYearCountIUCN);
+                    maxCount = Math.max(maxCount, count);
+                    rect.attr("height", ((maxCount + 1) * 2 * radius + 1));
+                    svgIUCN.attr("height", ((maxCount + 1) * 2 * radius + 1));
+                    return "translate(" + x(Number(d.year)) + "," + (radius * 2 * count) + ")"
+                });
+
+            let text = g.append("text")
+                .attr("transform", "translate(-5," + ((maxCount + 1) * 2 * radius + 1) / 2 + ")")
+                .style("text-anchor", "end")
+                .style("dominant-baseline", "central")
+                .style("font-size", "9")
+                .text("IUCN");
+
+            //let radius = (height - y(1)) / 2;
+            elemEnter.append("circle")
+                .attr("class", "pinpoint")
+                .attr("r", radius)
+                .attr("cx", function(d) {
+                    return x.bandwidth() / 2;
+                })
+                .attr("cy", function(d) {
+                    return radius;
+                })
+                .style("fill", function(d) {
+                    switch (d.type) {
+                        case "iucn":
+                            return iucnColors[d.code] ? iucnColors[d.code].bg : "";
+                            break;
+                    }
+                });
+
+            elemEnter.append("text")
+                .attr("class", "circleLabel noselect")
+                .text(function(d) { return d.text })
+                .attr("x", function(d) {
+                    return x.bandwidth() / 2;
+                })
+                .attr("y", function(d) {
+                    return radius;
+                })
+                .style("font-size", radius)
+                .style("font-family", d => d.type === "listingHistory" ? "serif" : "sans-serif");
+        }
+
+        // ############# THREATS #############
+        if (threatData.length > 0) {
+
+            let circleYearCountThreats = {};
+
+            let $threatSvg = $("#" + id + "Wrapper").append('<svg id="' + id + 'Threat" width="960" height="' + (2 * radius + 1) + '">');
+            maxCount = 0;
+            svgThreat = d3.select("#" + id + "Threat");
+
+            svgThreat.style("display", "block");
+
+            // Define the gradient
+            var gradient = svgThreat.append("svg:defs")
+                .append("svg:linearGradient")
+                .attr("gradientTransform", "rotate(90)")
+                .attr("id", "gradient");
+
+            // Define the gradient colors
+            gradient.append("svg:stop")
+                .attr("offset", "0%")
+                .attr("stop-color", "white")
+                .attr("stop-opacity", 1);
+
+            gradient.append("svg:stop")
+                .attr("offset", "25%")
+                .attr("stop-color", "white")
+                .attr("stop-opacity", 0.1);
+
+            gradient.append("svg:stop")
+                .attr("offset", "95%")
+                .attr("stop-color", "gray")
+                .attr("stop-opacity", 0.2);
+
+            g = svgThreat.append("g")
+                .attr("transform", "translate(" + margin.left + "," + 0 + ")");
+
+            rect = g.append("rect")
+                .attr("width", width)
+                .attr("height", ((maxCount + 1) * 2 * radius + 1))
+                .style("border", "1px solid black")
+                .style("border-top", "none")
+                /*.style("stroke", "lightblue")*/
+                .style("fill", "url(#gradient)");
+
+            elem = g.selectAll("g myCircleText")
+                .data(threatData);
+
+            elemEnter = elem.enter()
+                .append("g")
+                .attr("transform", function(d) {
+                    let count = yearCount(d.year, circleYearCountThreats);
+                    maxCount = Math.max(maxCount, count);
+                    rect.attr("height", ((maxCount + 1) * 2 * radius + 1));
+                    svgThreat.attr("height", ((maxCount + 1) * 2 * radius + 1));
+                    return "translate(" + x(Number(d.year)) + "," + (radius * 2 * count) + ")"
+                });
+
+            let text = g.append("text")
+                .attr("transform", "translate(-5," + ((maxCount + 1) * 2 * radius + 1) / 2 + ")")
+                .style("text-anchor", "end")
+                .style("dominant-baseline", "central")
+                .style("font-size", "9")
+                .text("Threats");
+
+            let getIucnColor = function(d) {
+            	if(d.type === "threat")
+            		return iucnColors[d.text] ? iucnColors[d.text].bg : "";
+            };
+
+            //let radius = (height - y(1)) / 2;
+            elemEnter
+            .filter(d => d.scope === "Global")
+            .append("circle")
+                .attr("class", "pinpoint")
+                .attr("r", radius)
+                .attr("cx", function(d) {
+                    return x.bandwidth() / 2;
+                })
+                .attr("cy", function(d) {
+                    return radius;
+                })
+                .style("fill", getIucnColor);
+
+            elemEnter
+            .filter(d => d.scope !== "Global")
+            .append("rect")
+                .attr("class", "pinpoint")
+                .attr("width", Math.sqrt(2*(radius*radius)))
+                .attr("height", Math.sqrt(2*(radius*radius)))
+                .attr("transform", "translate("+(x.bandwidth() / 2)+",0) rotate(45)")
+                .style("fill", getIucnColor);
+
+            elemEnter.append("text")
+                .attr("class", "circleLabel noselect")
+                .text(function(d) { return d.text })
+                .attr("x", function(d) {
+                    return x.bandwidth() / 2;
+                })
+                .attr("y", function(d) {
+                	console.log(d.scope);
+                    return radius;
+                })
+                .style("font-size", radius-1)
+                .style("font-family", d => d.type === "listingHistory" ? "serif" : "sans-serif");
+
+        }
     }
 });
