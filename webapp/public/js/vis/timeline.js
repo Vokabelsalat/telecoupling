@@ -3,14 +3,74 @@ console.log("RUNNING");
 function getTimelineTradeDataFromSpecies(speciesObject) {
     if (speciesObject.hasOwnProperty("trade")) {
         //subkeys
+        let sciName = speciesObject.material[0].Genus.trim() + " " + speciesObject.material[0].Species.trim();
+
         let groupedByYear = {};
+        let groupByExIm = {};
         for (let subkey of Object.keys(speciesObject["trade"]).values()) {
             let tradeArray = speciesObject["trade"][subkey];
             for (let trade of tradeArray.values()) {
                 let year = trade.Year;
                 pushOrCreate(groupedByYear, year.toString(), trade);
+                pushOrCreate(groupByExIm, trade.Exporter + "|" + trade.Importer, trade);
             }
         }
+
+/*        console.log(sciName);
+        console.log(groupByExIm);
+
+        let groupByMiddleMan = {};
+
+        for(let exImKey of Object.keys(groupByExIm).values()) {
+            for(let exImKeySecond of Object.keys(groupByExIm).values()) {
+                if(exImKey !== exImKeySecond && exImKey.split("|")[1] === exImKeySecond.split("|")[0]) {
+                    pushOrCreate(groupByMiddleMan, exImKey.split("|")[1], exImKey+"|"+exImKeySecond.split("|")[1]);
+                }
+            }
+        }*/
+        
+        /*console.log(groupByMiddleMan);*/
+
+        /*let traderoutes = {};
+        
+        for(let middleman of Object.keys(groupByMiddleMan).values()) {
+            let exImKeys = groupByMiddleMan[middleman];
+
+            for(let exImKeyTriple of exImKeys.values()) {
+                let split = exImKeyTriple.split("|");
+                let tradeKeys = [];
+                
+                let first = split[0];
+                let third = split[2];
+
+                if(groupByExIm.hasOwnProperty(first+"|"+middleman)) {
+
+                    for(let tradeFirst of groupByExIm[first+"|"+middleman].values()) {
+                        let firstYear = tradeFirst.Year;
+
+                        if(groupByExIm.hasOwnProperty(middleman+"|"+third)) {
+                            let tradeSeconds = groupByExIm[middleman+"|"+third].filter(e => (e.Year === firstYear || e.Year === firstYear+1));
+                            if(tradeSeconds.length>0) {
+                                let tradeKey = Object.values(tradeFirst).join("").replaceSpecialCharacters();
+                                if(!tradeKeys.includes(tradeKey)) {
+                                    pushOrCreate(traderoutes, exImKeyTriple, tradeFirst);
+                                    tradeKeys.push(tradeKey);
+                                }
+                            }    
+
+                            for(let trade of tradeSeconds.values()) {
+                                let tradeKey = Object.values(trade).join("").replaceSpecialCharacters();
+                                if(!tradeKeys.includes(tradeKey)) {
+                                    pushOrCreate(traderoutes, exImKeyTriple, trade);
+                                    tradeKeys.push(tradeKey);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        console.log(traderoutes);*/
 
         let returnData = [];
 
@@ -120,8 +180,7 @@ function getTimelineThreatsDataFromSpecies(speciesObject) {
                                 e.consAssCategory = split.map(e => e.charAt()).join("");
                             }
                         }
-
-                        return { year: year, scope: e.bgciScope, count: count++, threatened: e.threatened, consAssCategory: e.consAssCategory, text: e.consAssCategory, type: "threat" };
+                        return { year: year, scope: e.bgciScope, count: count++, threatened: e.threatened, consAssCategory: e.consAssCategory, text: e.consAssCategory, type: "threat", reference: e.reference };
                     }
                 ));
             }
@@ -135,7 +194,11 @@ function getTimelineThreatsDataFromSpecies(speciesObject) {
 
 let index = 0;
 //let colorString = colorBrewerScheme8Qualitative.map(e => '<div style="display:inline-block; width:20px; height:20px; background-color:' + e + '">' + (index++) + '</div>');
-let colorString = Object.keys(iucnColors).map(e => '<div style="display:inline-block; width:30px; height:20px; background-color:' + iucnColors[e].bg + '; color: '+iucnColors[e].fg+'">' + e + '</div>');
+let colorString = Object.keys(iucnColors).map(e => '<div style="display:inline-block; width:30px; height:20px; background-color:' + iucnColors[e].bg + '; color: ' + iucnColors[e].fg + '">' + e + '</div>');
+
+let getIucnColor = function(d) {
+    return iucnColors[d.text] ? iucnColors[d.text].bg : "";
+};
 
 $.get("timelinedata.json", function(tradeData) {
 
@@ -155,8 +218,6 @@ $.get("timelinedata.json", function(tradeData) {
 
         tradeData[speciesName].timeTrade = data;
         tradeData[speciesName].timeListing = listingData;
-
-        console.log(speciesName, iucnData);
 
         tradeData[speciesName].timeIUCN = iucnData;
         tradeData[speciesName].timeThreat = threatData;
@@ -178,6 +239,8 @@ $.get("timelinedata.json", function(tradeData) {
 
         tradeData[speciesName].allCircleData = allCircleData;
         tradeData[speciesName].timeExtent = extent;
+
+        /*break;*/
     }
 
     let yearDiff = maxYear - minYear;
@@ -193,6 +256,7 @@ $.get("timelinedata.json", function(tradeData) {
         .style("border-width", "2px")
         .style("border-radius", "5px")
         .style("padding", "5px")
+        .style("max-width", "250px")
 
     // Three function that change the tooltip when user hover / move / leave a cell
     var mouseover = function(d) {
@@ -200,11 +264,34 @@ $.get("timelinedata.json", function(tradeData) {
             .style("opacity", 1)
     }
     var mousemove = function(d) {
-        var parentOffset = $(this).closest(".visWrapper").offset();
+        var parentOffset = $(this).closest("svg").offset();
+
+        let htmlText = "";
+        let leftAdd = 0;
+        let topAdd = 0;
+
+        switch (d.type) {
+            case "trade":
+                htmlText = "Amount of trades: " + d.count + " in " + d.year;
+                topAdd = 25;
+                break;
+            case "iucn":
+                htmlText = d.year + " : " + d.category;
+                leftAdd = parseInt(d3.select(this).attr("x"));
+                break;
+            case "threat":
+                htmlText = d.year + " : " + d.consAssCategory + " | " + d.threatened + " | " + d.scope + " | " + d.reference;
+                leftAdd = parseInt(d3.select(this).attr("x"));
+                break;
+            default:
+                // statements_def
+                break;
+        }
+
         Tooltip
-            .html("Amount of trades: " + d.count + " in " + d.year)
-            .style("left", (d3.mouse(this)[0] + 85) + "px")
-            .style("top", (parentOffset.top + d3.mouse(this)[1]) + 35 + "px")
+            .html(htmlText)
+            .style("left", (leftAdd + d3.mouse(this)[0] + 85) + "px")
+            .style("top", (parentOffset.top + d3.mouse(this)[1]) + 10 + topAdd + "px")
     }
     var mouseleave = function(d) {
         Tooltip
@@ -359,21 +446,21 @@ $.get("timelinedata.json", function(tradeData) {
             let maxCount = 0;
 
             /*            $("#"+id+"IUCN").append("<defs>\
-            			    <linearGradient id='myGradient' gradientTransform='rotate(90)'>\
-            			      <stop offset='5%'  stop-color='gold' />\
-            			      <stop offset='95%' stop-color='red' />\
-            			    </linearGradient\
-            			  </defs>");*/
+                            <linearGradient id='myGradient' gradientTransform='rotate(90)'>\
+                              <stop offset='5%'  stop-color='gold' />\
+                              <stop offset='95%' stop-color='red' />\
+                            </linearGradient\
+                          </defs>");*/
 
             svgIUCN = d3.select("#" + id + "IUCN");
 
             svgIUCN
                 .style("display", "block");
 
-/*                <linearGradient id="myGradient" gradientTransform="rotate(90)">
-      <stop offset="5%"  stop-color="gold" />
-      <stop offset="95%" stop-color="red" />
-    </linearGradient>*/
+            /*                <linearGradient id="myGradient" gradientTransform="rotate(90)">
+                  <stop offset="5%"  stop-color="gold" />
+                  <stop offset="95%" stop-color="red" />
+                </linearGradient>*/
 
             // Define the gradient
             var gradient = svgIUCN.append("svg:defs")
@@ -402,7 +489,7 @@ $.get("timelinedata.json", function(tradeData) {
             let rect = g.append("rect")
                 .attr("width", width)
                 .attr("height", ((maxCount + 1) * 2 * radius + 1))
-            .attr("fill", 'url(#gradient)')
+                .attr("fill", 'url(#gradient)')
             //.style("fill", "url(#mainGradient)")
             /*.style("stroke", "black")*/
             //.style("fill", "url(#myGradient)");
@@ -412,13 +499,20 @@ $.get("timelinedata.json", function(tradeData) {
 
             elemEnter = elem.enter()
                 .append("g")
+                .attr("class", "noselect")
                 .attr("transform", function(d) {
                     let count = yearCount(d.year, circleYearCountIUCN);
                     maxCount = Math.max(maxCount, count);
                     rect.attr("height", ((maxCount + 1) * 2 * radius + 1));
                     svgIUCN.attr("height", ((maxCount + 1) * 2 * radius + 1));
                     return "translate(" + x(Number(d.year)) + "," + (radius * 2 * count) + ")"
-                });
+                })
+                .attr("x", function(d) {
+                    return x(Number(d.year));
+                })
+                .on("mouseover", mouseover)
+                .on("mousemove", mousemove)
+                .on("mouseleave", mouseleave);
 
             let text = g.append("text")
                 .attr("transform", "translate(-5," + ((maxCount + 1) * 2 * radius + 1) / 2 + ")")
@@ -437,13 +531,7 @@ $.get("timelinedata.json", function(tradeData) {
                 .attr("cy", function(d) {
                     return radius;
                 })
-                .style("fill", function(d) {
-                    switch (d.type) {
-                        case "iucn":
-                            return iucnColors[d.code] ? iucnColors[d.code].bg : "";
-                            break;
-                    }
-                });
+                .style("fill", getIucnColor);
 
             elemEnter.append("text")
                 .attr("class", "circleLabel noselect")
@@ -507,13 +595,20 @@ $.get("timelinedata.json", function(tradeData) {
 
             elemEnter = elem.enter()
                 .append("g")
+                .attr("class", "noselect")
                 .attr("transform", function(d) {
                     let count = yearCount(d.year, circleYearCountThreats);
                     maxCount = Math.max(maxCount, count);
                     rect.attr("height", ((maxCount + 1) * 2 * radius + 1));
                     svgThreat.attr("height", ((maxCount + 1) * 2 * radius + 1));
                     return "translate(" + x(Number(d.year)) + "," + (radius * 2 * count) + ")"
-                });
+                })
+                .attr("x", function(d) {
+                    return x(Number(d.year));
+                })
+                .on("mouseover", mouseover)
+                .on("mousemove", mousemove)
+                .on("mouseleave", mouseleave);
 
             let text = g.append("text")
                 .attr("transform", "translate(-5," + ((maxCount + 1) * 2 * radius + 1) / 2 + ")")
@@ -522,15 +617,10 @@ $.get("timelinedata.json", function(tradeData) {
                 .style("font-size", "9")
                 .text("Threats");
 
-            let getIucnColor = function(d) {
-            	if(d.type === "threat")
-            		return iucnColors[d.text] ? iucnColors[d.text].bg : "";
-            };
-
             //let radius = (height - y(1)) / 2;
             elemEnter
-            .filter(d => d.scope === "Global")
-            .append("circle")
+                .filter(d => d.scope === "Global")
+                .append("circle")
                 .attr("class", "pinpoint")
                 .attr("r", radius)
                 .attr("cx", function(d) {
@@ -542,12 +632,12 @@ $.get("timelinedata.json", function(tradeData) {
                 .style("fill", getIucnColor);
 
             elemEnter
-            .filter(d => d.scope !== "Global")
-            .append("rect")
+                .filter(d => d.scope !== "Global")
+                .append("rect")
                 .attr("class", "pinpoint")
-                .attr("width", Math.sqrt(2*(radius*radius)))
-                .attr("height", Math.sqrt(2*(radius*radius)))
-                .attr("transform", "translate("+(x.bandwidth() / 2)+",0) rotate(45)")
+                .attr("width", Math.sqrt(2 * (radius * radius)))
+                .attr("height", Math.sqrt(2 * (radius * radius)))
+                .attr("transform", "translate(" + (x.bandwidth() / 2) + ",0) rotate(45)")
                 .style("fill", getIucnColor);
 
             elemEnter.append("text")
@@ -557,10 +647,9 @@ $.get("timelinedata.json", function(tradeData) {
                     return x.bandwidth() / 2;
                 })
                 .attr("y", function(d) {
-                	console.log(d.scope);
                     return radius;
                 })
-                .style("font-size", radius-1)
+                .style("font-size", radius - 1)
                 .style("font-family", d => d.type === "listingHistory" ? "serif" : "sans-serif");
 
         }
