@@ -1,181 +1,181 @@
 :root {
-    --main: rgba(45, 188, 233, 1);
-    --highlight: rgba(251, 176, 59, 1);
-    --black: rgba(45, 49, 66, 1);
-    --gray: rgba(191, 192, 192, 1);
-    --lightgray: rgba(255, 255, 255, 1);
+  --main: rgba(45, 188, 233, 1);
+  --highlight: rgba(251, 176, 59, 1);
+  --black: rgba(45, 49, 66, 1);
+  --gray: rgba(191, 192, 192, 1);
+  --lightgray: rgba(255, 255, 255, 1);
 }
 
 html {
-    width: 100%;
+  width: 100%;
 }
 
 body {
-    padding: 20px;
-    width: 100%;
+  padding: 20px;
+  width: 100%;
 }
 
 .select-wrapper {
-    margin: 5px;
+  margin: 5px;
 }
 
 .label {
-    display: inline-block;
-    font-weight: bold;
+  display: inline-block;
+  font-weight: bold;
 }
 
 .array-wrapper {
-    padding: 5px;
-    width: 33%;
-    border: 1px grey solid;
+  padding: 5px;
+  width: 33%;
+  border: 1px grey solid;
 }
 
 table,
 th,
 tr {
-    border: solid 1px gray;
+  border: solid 1px gray;
 }
 
 .scroll {
-    height: 100%;
-    width: 100%;
-    /**/
-    margin: 0;
-    padding: 0;
-    overflow: auto;
+  height: 100%;
+  width: 100%;
+  /**/
+  margin: 0;
+  padding: 0;
+  overflow: auto;
 }
 
 table {
-    width: 100%
+  width: 100%;
 }
 
 td {
-    width: 25%;
+  width: 25%;
 }
 
 .tableCell {
-    width: 25%;
-    height: 8em;
-    display: table-cell;
+  width: 25%;
+  height: 8em;
+  display: table-cell;
 }
 
 .tableHead {
-    height: 1em;
-    width: 25%;
+  height: 1em;
+  width: 25%;
 }
 
 img {
-    width: 300px;
+  width: 300px;
 }
 
 #mapid {
-    height: 80vh;
-    width: 80vw;
+  height: 80vh;
+  width: 80vw;
 }
 
 .leaflet-control-layers-group {
-    padding-left: 2px;
-    padding-right: 2px;
-    padding-top: 2px;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 2px;
 }
 
-.leaflet-control-layers-group>label {
-    margin-bottom: 1px;
+.leaflet-control-layers-group > label {
+  margin-bottom: 1px;
 }
 
 .leaflet-div-icon {
-    border: none;
-    background-color: transparent;
+  border: none;
+  background-color: transparent;
 }
 
 .clusterIcon {
-    /*width: 22px;
+  /*width: 22px;
   height: 22px;*/
-    width: 2em;
-    height: 2em;
-    border-radius: 50%;
-    text-align: center;
-    vertical-align: middle;
-    border-style: solid;
-    border-width: 1px;
-    line-height: 1.9em;
-    box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.2);
+  width: 2em;
+  height: 2em;
+  border-radius: 50%;
+  text-align: center;
+  vertical-align: middle;
+  border-style: solid;
+  border-width: 1px;
+  line-height: 1.9em;
+  box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.2);
 }
 
 .container {
-    width: 49vw;
-    display: inline-block;
-    margin: 0;
-    padding: 0;
-    position: relative;
+  width: 49vw;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  position: relative;
 }
 
 #map {
-    margin: 0;
-    padding: 0;
-    display: inline-block;
-    width: 100%;
-    height: 500px;
+  margin: 0;
+  padding: 0;
+  display: inline-block;
+  width: 100%;
+  height: 500px;
 }
 
 #map2 {
-    display: inline-block;
-    width: 100%;
-    height: 500px;
+  display: inline-block;
+  width: 100%;
+  height: 500px;
 }
 
 #legend {
-    position: absolute;
-    top: 3px;
-    right: 3px;
-    margin: 10px;
-    padding: 5px;
-    border-radius: 5px;
-    z-index: 100;
-    font-size: 1em;
-    font-family: sans-serif;
-    width: 165px;
-    background: rgba(255, 255, 255, 0.6);
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  margin: 10px;
+  padding: 5px;
+  border-radius: 5px;
+  z-index: 100;
+  font-size: 1em;
+  font-family: sans-serif;
+  width: 165px;
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .legendheading {
-    position: relative;
-    height: 25px;
-    padding: 5px 2px 0px 2px;
-    font-size: larger;
-    font-weight: bold;
+  position: relative;
+  height: 25px;
+  padding: 5px 2px 0px 2px;
+  font-size: larger;
+  font-weight: bold;
 }
 
 .legenditem {
-    padding: 2px;
-    margin-bottom: 2px;
+  padding: 2px;
+  margin-bottom: 2px;
 }
 
 /*Marker clusters*/
 .marker-cluster-pie g.arc {
-    fill-opacity: 0.5;
+  fill-opacity: 0.5;
 }
 
 .marker-cluster-pie-label {
-    font-size: 14px;
-    font-weight: bold;
-    font-family: sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: sans-serif;
 }
 
 .cluster-pie {
-    /*  -webkit-filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
+  /*  -webkit-filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
   filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));*/
-    -webkit-filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.2)) brightness(1.05);
-    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.2)) brightness(1.05);
+  -webkit-filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.2)) brightness(1.05);
+  filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.2)) brightness(1.05);
 }
 
 .cluster-pie.text {
-    filter: none;
+  filter: none;
 }
 
 /*Markers*/
 .marker {
-    /*    width: 18px;
+  /*    width: 18px;
     height: 18px;
     border-width: 2px;
     border-radius: 10px;
@@ -193,75 +193,79 @@ img {
 }*/
 
 .marker div {
-    text-align: center;
-    font-size: 14px;
-    font-weight: bold;
-    font-family: sans-serif;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: sans-serif;
 }
 
 /*Popup*/
 .map-popup span.heading {
-    display: block;
-    font-size: 1.2em;
-    font-weight: bold;
+  display: block;
+  font-size: 1.2em;
+  font-weight: bold;
 }
 
 .map-popup span.attribute {
-    display: block;
+  display: block;
 }
 
 .map-popup span.label {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .noselect {
-    -webkit-touch-callout: none;
-    /* iOS Safari */
-    -webkit-user-select: none;
-    /* Safari */
-    -khtml-user-select: none;
-    /* Konqueror HTML */
-    -moz-user-select: none;
-    /* Firefox */
-    -ms-user-select: none;
-    /* Internet Explorer/Edge */
-    user-select: none;
-    /* Non-prefixed version, currently
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
 }
 
 .blur {
-    filter: url('#dropshadow');
+  filter: url("#dropshadow");
 }
 
 .stroke {
-    filter: url('#strokeshadow');
+  filter: url("#strokeshadow");
 }
 
 .arcgroup {
-    paint-order: stroke;
+  paint-order: stroke;
 }
 
-.subarc>path {
-    stroke: rgb(95, 77, 73)
+.subarc > path {
+  stroke: rgb(95, 77, 73);
 }
 
 .arrayView {
-    margin-bottom: 1em;
+  margin-bottom: 1em;
 }
 
 .circleLabel {
-    text-anchor: middle;
-    dominant-baseline: central;
-    fill: white;
-    font-family: serif;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: white;
+  font-family: serif;
 }
 
 .visWrapper {
-    position: relative;
+  position: relative;
 }
 
 svg {
-    vertical-align: top;
+  vertical-align: top;
 }
 
+.timelineHeader {
+  margin-top: 10px;
+  font-size: small;
+}
