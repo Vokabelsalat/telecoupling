@@ -52,7 +52,7 @@ const {
   getSpeciesJustGenus,
 } = require("./routes/species");
 /*const {addPlayerPage, addPlayer, deletePlayer, editPlayer, editPlayerPage} = require('./routes/player');*/
-const port = 5050;
+const port = 8080;
 
 // create connection to database
 // the mysql.createConnection function takes in a configuration object which contains host, user, password and the database name.
