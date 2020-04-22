@@ -341,7 +341,7 @@ let collapseTimelines = () => {
   }
 };
 
-$.get("timelinedata2.json", function (tradeData) {
+$.get("timelinedata.json", function (tradeData) {
   $("#page-wrapper").append("<div>").append(colorString.join(""));
   $("#page-wrapper")
     .append("<div>")
