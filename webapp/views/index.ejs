@@ -16,23 +16,23 @@
         let sciName = this.scientificName;
 
         let collect = false;
-        if(
+        if (
             !getOrCreate(
-               getOrCreate(collectedData, material, {}), "iucn", {}).hasOwnProperty(sciName)
+                getOrCreate(collectedData, material, {}), "iucn", {}).hasOwnProperty(sciName)
         ) {
-                collect = true;
+            collect = true;
         }
 
-        if(data) {
-            data.forEach( function(element, index) {
+        if (data) {
+            data.forEach(function (element, index) {
                 $tableRow.find(".iucnCol").first().find(".scroll").first()
-                .append(" &#8226;" + element.year + " " + element.code);
+                    .append(" &#8226;" + element.year + " " + element.code);
 
-                if(collect) {
+                if (collect) {
                     pushOrCreate(
                         getOrCreate(
-                            getOrCreate(collectedData, material, {}), 
-                            "iucn", {}), 
+                            getOrCreate(collectedData, material, {}),
+                            "iucn", {}),
                         sciName, element);
                 }
             });
@@ -45,15 +45,15 @@
         data = JSON.parse(data);
         let taxonKey = data.taxonKey;
 
-        $.post( "/queryGBIF/"+taxonKey, (result) => {
+        $.post("/queryGBIF/" + taxonKey, (result) => {
             result = JSON.parse(result);
             let image = "";
             let text = "";
             let coordinates = [];
-            for(let entry of result.values()) {
-                if(image === "" && entry.hasOwnProperty("media")) {
+            for (let entry of result.values()) {
+                if (image === "" && entry.hasOwnProperty("media")) {
                     let filter = entry["media"].filter(e => e.format.includes("image"));
-                    if(filter.length > 0) {
+                    if (filter.length > 0) {
                         image = filter[0].identifier;
                         /*for(let ident of filter.values()) {
                             $tableRow.find(".imageCol").first().find(".scroll").first().append("<img style='margin-bottom:20px' width='200px' src='"+ image +"'/>");
@@ -63,8 +63,8 @@
 
                 text += entry.datasetName ? "&#8226; " + entry.datasetName + ", " : "";
 
-                if(entry.decimalLatitude !== undefined && entry.decimalLongitude !== undefined) {
-                    if(entry.decimalLatitude !== 0 && entry.decimalLongitude !== 0) {
+                if (entry.decimalLatitude !== undefined && entry.decimalLongitude !== undefined) {
+                    if (entry.decimalLatitude !== 0 && entry.decimalLongitude !== 0) {
                         coordinates.push([entry.decimalLatitude, entry.decimalLongitude]);
                     }
                 }
@@ -73,151 +73,164 @@
             let map = new BGCIMap("mapid");
             map.addTreeCoordinates(treeName, coordinates);
 
-            if(image !== "") {
-                $tableRow.find(".imageCol").first().find(".scroll").first().append("<img src='"+ image +"'/>");
+            if (image !== "") {
+                $tableRow.find(".imageCol").first().find(".scroll").first().append("<img src='" + image + "'/>");
             }
 
-            if(text !== "") {
+            if (text !== "") {
                 $tableRow.find(".gbifCol").first().find(".scroll").first().append(text);
             }
         });
     }
 
-    function getMainPart(instruments, selectedMainPart=null) {
-         $.post( "/getMainPart/"+instruments , function( data ) {
+    function getMainPart(instruments, selectedMainPart = null) {
+        $.post("/getMainPart/" + instruments, function (data) {
             data = JSON.parse(data);
             let mainPartSelect = $("#mainPartSelect");
             mainPartSelect.closest(".select-wrapper").css("display", "block");
             mainPartSelect.html("");
-            mainPartSelect.html(data.map(e => (selectedMainPart != null && selectedMainPart === e.Main_part ? "<option selected='true'>" : "<option>")+e.Main_part+"</option>"));
+            mainPartSelect.html(data.map(e => (selectedMainPart != null && selectedMainPart === e.Main_part ? "<option selected='true'>" : "<option>") + e.Main_part + "</option>"));
             mainPartSelect.attr("instruments", instruments);
 
-            if(selectedMainPart) {
+            if (selectedMainPart) {
                 func2($("#mainPartSelect"));
             }
         });
     }
 
-    d3.selection.prototype.moveToFront = function() {
-      this.each(function(){
-        this.parentNode.appendChild(this);
-      });
+    d3.selection.prototype.moveToFront = function () {
+        this.each(function () {
+            this.parentNode.appendChild(this);
+        });
     };
 
     function clearTable() {
         $(".tableRow").not(".tableHead").remove();
     }
 
-    function func1(e, selectedMainPart=null) {
+    function func1(e, selectedMainPart = null) {
         let instruments = $(e).val();
         getMainPart(instruments, selectedMainPart);
     }
 
-/*    function queryIUCNBulk(indata, index, callback) {
-         $.post( "/queryIUCN/"+indata[index]["species"], 
-            function(data) {
-                if(index < indata.length-1) {
-                    queryIUCNBulk(indata, index+1, callback);
+    /*    function queryIUCNBulk(indata, index, callback) {
+             $.post( "/queryIUCN/"+indata[index]["species"], 
+                function(data) {
+                    if(index < indata.length-1) {
+                        queryIUCNBulk(indata, index+1, callback);
+                    }
+                    callback(data);
                 }
-                callback(data);
-            }
-        );       
-    }*/
+            );       
+        }*/
 
     function getTradeInBulk(names, index, callback) {
-        $.post( "/getTrade/"+names[index], function(resData) {
-            if(resData.length > 0) {
+        $.post("/getTrade/" + names[index], function (resData) {
+            if (resData.length > 0) {
                 callback(resData);
             }
-            else if(index+1 < names.length) {
-                getTradeInBulk(names, index+1, callback);                
+            else if (index + 1 < names.length) {
+                getTradeInBulk(names, index + 1, callback);
             }
         });
     }
 
     function getIUCNInBulk(names, index, callback) {
-        $.post( "/queryIUCN/"+names[index], function(resData) {
-            if(resData.length > 0) {
+        $.post("/queryIUCN/" + names[index], function (resData) {
+            if (resData.length > 0) {
                 callback(resData);
             }
-            else if(index+1 < names.length) {
-                getIUCNInBulk(names, index+1, callback);                
+            else if (index + 1 < names.length) {
+                getIUCNInBulk(names, index + 1, callback);
             }
         });
     }
 
     function getListingsInBulk(names, index, callback) {
-        $.post( "/getSpecies/"+names[index], function(resData) {
-            if(resData.length > 0) {
+        $.post("/getSpecies/" + names[index], function (resData) {
+            if (resData.length > 0) {
                 callback(resData);
             }
-            else if(index+1 < names.length) {
-                getListingsInBulk(names, index+1, callback);                
+            else if (index + 1 < names.length) {
+                getListingsInBulk(names, index + 1, callback);
             }
         });
     }
 
     function getListingHistoryInBulk(names, index, callback) {
-        $.post( "/getListingHistory/"+names[index], function(resData) {
-            if(resData.length > 0) {
+        $.post("/getListingHistory/" + names[index], function (resData) {
+            if (resData.length > 0) {
                 callback(resData);
             }
-            else if(index+1 < names.length) {
-                getListingHistoryInBulk(names, index+1, callback);                
+            else if (index + 1 < names.length) {
+                getListingHistoryInBulk(names, index + 1, callback);
             }
         });
     }
 
     function getTreeSearchInBulk(names, index, callback) {
-        $.post( "/queryTreeSearchSpeciesWithSciName/"+names[index], function(resData) {
-            if(resData.length > 0) {
+        $.post("/queryTreeSearchSpeciesWithSciName/" + names[index], function (resData) {
+            if (resData.length > 0) {
                 callback(resData);
             }
-            else if(index+1 < names.length) {
-                getTreeSearchInBulk(names, index+1, callback);                
+            else if (index + 1 < names.length) {
+                getTreeSearchInBulk(names, index + 1, callback);
             }
         });
     }
 
     function getThreatSearchInBulk(names, index, callback) {
-        $.post( "/queryThreatSearchWithSciName/"+names[index], function(resData) {
-            if(resData.length > 0) {
-                callback(resData);
+        $.post("/queryThreatSearchWithSciName/" + names[index], function (resData) {
+            if (resData.length > 0) {
+
+                for (let entry of resData.values()) {
+                    if (entry.reference === "NationalRL_0915" || entry.reference === "National Red List") {
+                        $.post("/queryCountriesForNationalRedList", {bgciUrl: entry.bgciUrl}, function(result) {
+                            entry.countries = result;
+                            callback([entry]);
+                        });
+                    }
+                    else {
+                        callback([entry]);
+                    }
+                }
+
+                /* callback(resData); */
             }
-            else if(index+1 < names.length) {
-                getThreatSearchInBulk(names, index+1, callback);                
+            else if (index + 1 < names.length) {
+                getThreatSearchInBulk(names, index + 1, callback);
             }
         });
     }
 
-/*    function processSpecies(scientificName, material, $tableRow) {
-        if(!done.hasOwnProperty("trade")) {
-            $.post( "/getTrade/"+element, function(resData) {
-                if(resData.length > 0) {
-                    done["trade"] = true;
-                }
-
-                let bound = appendTrade.bind({"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: element});
-
-                bound(resData);
-            });
-        }
-    } */
+    /*    function processSpecies(scientificName, material, $tableRow) {
+            if(!done.hasOwnProperty("trade")) {
+                $.post( "/getTrade/"+element, function(resData) {
+                    if(resData.length > 0) {
+                        done["trade"] = true;
+                    }
+    
+                    let bound = appendTrade.bind({"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: element});
+    
+                    bound(resData);
+                });
+            }
+        } */
 
     function func2(e) {
         let mainPart = $(e).val();
         clearTable();
-        $.post( "/getMaterial/"+$("#instrumentsSelect").val()+"/"+mainPart, function( data ) {
+        $.post("/getMaterial/" + $("#instrumentsSelect").val() + "/" + mainPart, function (data) {
             let materialArray = $("#materialArray");
             materialArray.css("display", "inline-block");
 
             let table = $("#resultTable");
 
-            for(let scientificNameAndMaterial of data.map(e => [e.Genus.trim()+ (e.Species.trim() !== "" ? " "+e.Species.trim() : ""), e]).values()) {
-                pushOrCreate(getOrCreate(collectedData, scientificNameAndMaterial[0], {}), "material",scientificNameAndMaterial[1])
+            for (let scientificNameAndMaterial of data.map(e => [e.Genus.trim() + (e.Species.trim() !== "" ? " " + e.Species.trim() : ""), e]).values()) {
+                pushOrCreate(getOrCreate(collectedData, scientificNameAndMaterial[0], {}), "material", scientificNameAndMaterial[1])
             }
 
-            for(let scientificName of Object.keys(collectedData)) {
+            for (let scientificName of Object.keys(collectedData)) {
 
                 let materials = collectedData[scientificName].material;
 
@@ -235,11 +248,11 @@
                     <td><div class='tableCell bgciThreatCol'><div class='scroll'/></div></td>\
                 </tr>");
 
-                $tableRow.find(".materialCol").first().append("<b>"+scientificName+"</b><br>");
+                $tableRow.find(".materialCol").first().append("<b>" + scientificName + "</b><br>");
 
                 let firstMaterial = null;
-                for(let material of materials.values()) {
-                    if(!firstMaterial) {
+                for (let material of materials.values()) {
+                    if (!firstMaterial) {
                         firstMaterial = material;
                     }
 
@@ -248,105 +261,105 @@
                 }
 
                 let justGenus = null;
-                if(firstMaterial["Species"].trim() === "") {
+                if (firstMaterial["Species"].trim() === "") {
                     justGenus = scientificName.trim();
                 }
 
-                if(justGenus) {
-                    $.post( "/getTradeByGenus/"+justGenus, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName}));
+                if (justGenus) {
+                    $.post("/getTradeByGenus/" + justGenus, $.proxy(appendTrade, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName }));
 
                     $.post("/queryGBIFspeciesByGenus/" + justGenus,
-                        function(genusKey) {
-                            $.post("/queryGBIFchildren/" + genusKey,function(res) {
-                                    let boundAppend = appendSpecies.bind({"tableRow": $tableRow, material: scientificName});
-                                    boundAppend(res);
+                        function (genusKey) {
+                            $.post("/queryGBIFchildren/" + genusKey, function (res) {
+                                let boundAppend = appendSpecies.bind({ "tableRow": $tableRow, material: scientificName });
+                                boundAppend(res);
 
-                                res.forEach( function(element, index) {
-                                        $.post("/queryGBIFsynonyms/"+element["speciesKey"], 
-                                            function(syns) {
-                                                let boundFunc = appendSynonyms.bind({"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: element["species"]});
-                                                boundFunc(syns);
-                                            }
-                                        );
+                                res.forEach(function (element, index) {
+                                    $.post("/queryGBIFsynonyms/" + element["speciesKey"],
+                                        function (syns) {
+                                            let boundFunc = appendSynonyms.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: element["species"] });
+                                            boundFunc(syns);
+                                        }
+                                    );
                                 });
 
                                 let boundFunc = appendIUCN.bind(
-                                {"tableRow": $tableRow, material: scientificName, scientificName: scientificName}
+                                    { "tableRow": $tableRow, material: scientificName, scientificName: scientificName }
                                 );
 
                                 getIUCNInBulk(res.map(e => e["species"]), 0, boundFunc);
                             });
                         });
 
-                    $.post( "/getSpeciesJustGenus/"+justGenus, $.proxy(appendListings, {"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName}));
+                    $.post("/getSpeciesJustGenus/" + justGenus, $.proxy(appendListings, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName }));
 
 
-                    $.post( "/queryBGCITreeSearchByGenus/"+justGenus,
-                        $.proxy(appendBGCITreeSearch, {"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName})
+                    $.post("/queryBGCITreeSearchByGenus/" + justGenus,
+                        $.proxy(appendBGCITreeSearch, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName })
                     );
 
-                    $.post( "/queryBGCIThreatSearchByGenus/"+justGenus,
-                        $.proxy(appendThreatSearch, {"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName})
+                    $.post("/queryBGCIThreatSearchByGenus/" + justGenus,
+                        $.proxy(appendThreatSearch, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName })
                     );
                 }
-// ###############################################################
-// ####################### SINGLE SPECIES! #######################
-// ###############################################################
+                // ###############################################################
+                // ####################### SINGLE SPECIES! #######################
+                // ###############################################################
                 else {
-                    $.post("/queryGBIFspecies/" + scientificName, function(data) {
+                    $.post("/queryGBIFspecies/" + scientificName, function (data) {
                         let speciesKey = data["speciesKey"];
 
-                        let boundAppend = appendSpecies.bind({"tableRow": $tableRow, material: scientificName});
+                        let boundAppend = appendSpecies.bind({ "tableRow": $tableRow, material: scientificName });
                         boundAppend([data]);
 
                         let allNames = [data["species"]];
 
-                        $.post("/queryGBIFsynonyms/"+speciesKey, 
-                            function(syns) {
+                        $.post("/queryGBIFsynonyms/" + speciesKey,
+                            function (syns) {
                                 syns = syns.filter(e => (e["canonicalName"] !== undefined && (e.taxonomicStatus === "SYNONYM" || e.taxonomicStatus === "HOMOTYPIC_SYNONYM")));
-        
-                                syns.forEach( function(element, index) {
+
+                                syns.forEach(function (element, index) {
                                     pushOrCreate(getOrCreate(getOrCreate(collectedData, scientificName, {}), "synonyms", {}), element["species"
-                                            ], element);
+                                    ], element);
                                 });
 
-                                let boundFunc = appendSynonyms.bind({"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"]});
+                                let boundFunc = appendSynonyms.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
                                 boundFunc(syns);
 
-                                for(let newSyn of syns.values()) {
-                                    if(!allNames.includes(newSyn.canonicalName)) {
+                                for (let newSyn of syns.values()) {
+                                    if (!allNames.includes(newSyn.canonicalName)) {
                                         allNames.push(newSyn.canonicalName);
                                     }
                                 }
 
                                 //######### Trade #########
-                                let appendTradeBound = appendTrade.bind({"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"]});
+                                let appendTradeBound = appendTrade.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
 
                                 getTradeInBulk(allNames, 0, appendTradeBound);
 
                                 //######### Listings #########
-                                let appendListingsBound = appendListings.bind({"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"]});
+                                let appendListingsBound = appendListings.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
 
 
                                 getListingsInBulk(allNames, 0, appendListingsBound);
 
                                 //######### ListingHistory #########
-                                let appendListingHistoryBound = appendListingHistory.bind({"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"]});
+                                let appendListingHistoryBound = appendListingHistory.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
 
                                 getListingHistoryInBulk(allNames, 0, appendListingHistoryBound);
 
                                 //######### IUCN #########
-                                let appendIUCNBound = appendIUCN.bind({"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"]});
+                                let appendIUCNBound = appendIUCN.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
 
                                 getIUCNInBulk(allNames, 0, appendIUCNBound);
 
                                 //######### TreeSearch #########
-                                let appendTreeSearchBound = appendBGCITreeSearch.bind({"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"]});
+                                let appendTreeSearchBound = appendBGCITreeSearch.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
 
                                 getTreeSearchInBulk(allNames, 0, appendTreeSearchBound);
 
                                 //######### ThreatSearch #########
-                                let appendThreatSearchBound = appendThreatSearch.bind({"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"]});
+                                let appendThreatSearchBound = appendThreatSearch.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
 
                                 getThreatSearchInBulk(allNames, 0, appendThreatSearchBound);
                             }
@@ -359,64 +372,64 @@
                 console.log(collectedData);
             }
 
-/*            console.log(collectedData);
-            for(let material of data.values()) {
-                let $tableRow = $("<tr class='tableRow'>\
-                    <td><div class='tableCell materialCol'/></td>\
-                    <td><div class='tableCell speciesCol'><div class='scroll'/></div></td>\
-                    <td><div class='tableCell synonymCol'/></td>\
-                    <td><div class='tableCell tradeCol'><div class='scroll'/></div></td>\
-                    <td><div class='tableCell gbifCol'><div class='scroll'/></div></td>\
-                    <td><div class='tableCell imageCol'><div class='scroll'/></div></td></td>\
-                    <td><div class='tableCell iucnCol'><div class='scroll'/></div></td>\
-                    <td><div class='tableCell bgciCol'><div class='scroll'/></div></td>\
-                    <td><div class='tableCell bgciThreatCol'><div class='scroll'/></div></td>\
-                </tr>");
-                //<td><div class='tableCell imageCol'><div style='max-width: 200px; height:8em' class='scroll'/></div></td>\
-                let materialView = createArrayView(material, "Trade_name");
-                $tableRow.find(".materialCol").first().append(materialView[0]);
-
-                let scientificName = null, justGenus = false;
-                if(material["Species"].trim() === "") {
-                    if(material["Genus"].trim().includes("spp.")) {
-                        justGenus = true;
-                        scientificName = material["Genus"].trim()
-                    }
-                }
-                else {
-                    scientificName = material["Genus"].trim() + " " + material["Species"].trim();
-                }*/
-
-              /*  if(justGenus) {
-                    $.post( "/getSpeciesJustGenus/"+material["Genus"].trim().replace("spp.", "").trim(), $.proxy(appendSpecies, {tableRow: $tableRow, material: scientificName}));
-
-                    $.post( "/getTrade/"+scientificName, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName}));
-                }*/
-/*                else {
-                    $.post( "/getSpecies/"+material["Genus"]+"/"+material["Species"], $.proxy(appendSpecies, {tableRow: $tableRow, material: scientificName}));
-
-                    $.post("/queryGBIFspecies/"+ scientificName, function(data) {
-                        if(data !== undefined) {
-
-                            //appendGBIF(data).bind({"tableRow": $tableRow, "treeName": scientificName});
-
-                            data = JSON.parse(data);
-
-                            if(data.hasOwnProperty("speciesKey")) {
-                                let taxon = data["speciesKey"];
-
-                                $.post("/getGBIFsynonyms/"+ taxon, 
-                                    $.proxy(appendSynonyms, {"tableRow": $tableRow, "scientificName": scientificName, material:scientificName}));
+            /*            console.log(collectedData);
+                        for(let material of data.values()) {
+                            let $tableRow = $("<tr class='tableRow'>\
+                                <td><div class='tableCell materialCol'/></td>\
+                                <td><div class='tableCell speciesCol'><div class='scroll'/></div></td>\
+                                <td><div class='tableCell synonymCol'/></td>\
+                                <td><div class='tableCell tradeCol'><div class='scroll'/></div></td>\
+                                <td><div class='tableCell gbifCol'><div class='scroll'/></div></td>\
+                                <td><div class='tableCell imageCol'><div class='scroll'/></div></td></td>\
+                                <td><div class='tableCell iucnCol'><div class='scroll'/></div></td>\
+                                <td><div class='tableCell bgciCol'><div class='scroll'/></div></td>\
+                                <td><div class='tableCell bgciThreatCol'><div class='scroll'/></div></td>\
+                            </tr>");
+                            //<td><div class='tableCell imageCol'><div style='max-width: 200px; height:8em' class='scroll'/></div></td>\
+                            let materialView = createArrayView(material, "Trade_name");
+                            $tableRow.find(".materialCol").first().append(materialView[0]);
+            
+                            let scientificName = null, justGenus = false;
+                            if(material["Species"].trim() === "") {
+                                if(material["Genus"].trim().includes("spp.")) {
+                                    justGenus = true;
+                                    scientificName = material["Genus"].trim()
+                                }
                             }
-                        }
-                    });
+                            else {
+                                scientificName = material["Genus"].trim() + " " + material["Species"].trim();
+                            }*/
 
-                    $.post( "/queryIUCN/"+scientificName, 
-                        $.proxy(appendIUCN, {"tableRow": $tableRow, material: scientificName, scientificName: scientificName})
-                    );
+            /*  if(justGenus) {
+                  $.post( "/getSpeciesJustGenus/"+material["Genus"].trim().replace("spp.", "").trim(), $.proxy(appendSpecies, {tableRow: $tableRow, material: scientificName}));
 
-                    $.post( "/getTrade/"+scientificName, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName}));
-                }*/
+                  $.post( "/getTrade/"+scientificName, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName}));
+              }*/
+            /*                else {
+                                $.post( "/getSpecies/"+material["Genus"]+"/"+material["Species"], $.proxy(appendSpecies, {tableRow: $tableRow, material: scientificName}));
+            
+                                $.post("/queryGBIFspecies/"+ scientificName, function(data) {
+                                    if(data !== undefined) {
+            
+                                        //appendGBIF(data).bind({"tableRow": $tableRow, "treeName": scientificName});
+            
+                                        data = JSON.parse(data);
+            
+                                        if(data.hasOwnProperty("speciesKey")) {
+                                            let taxon = data["speciesKey"];
+            
+                                            $.post("/getGBIFsynonyms/"+ taxon, 
+                                                $.proxy(appendSynonyms, {"tableRow": $tableRow, "scientificName": scientificName, material:scientificName}));
+                                        }
+                                    }
+                                });
+            
+                                $.post( "/queryIUCN/"+scientificName, 
+                                    $.proxy(appendIUCN, {"tableRow": $tableRow, material: scientificName, scientificName: scientificName})
+                                );
+            
+                                $.post( "/getTrade/"+scientificName, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName}));
+                            }*/
 
             /*    $.post( "/queryTreeSearchSpeciesWithSciName/"+scientificName, 
                     $.proxy(appendBGCI, {"tableRow": $tableRow, "treeName": scientificName})
@@ -431,58 +444,58 @@
         });
     }
 </script>
-<% if (instruments.length > 0) {%> 
-    <div class="orchester-wrapper">
-        <svg id="selectchartSVG" style="border: solid 1px gray">
-             <!-- <filter id="dropshadow" x="-2" y="-2" width="200" height="200">
+<% if (instruments.length > 0) {%>
+<div class="orchester-wrapper">
+    <svg id="selectchartSVG" style="border: solid 1px gray">
+        <!-- <filter id="dropshadow" x="-2" y="-2" width="200" height="200">
               <feGaussianBlur  stdDeviation="1"/>
               <feDropShadow stdDeviation="3.0"/>
             </filter> -->
-            <g id="wrapper">
-                <g id="selectchart"></g>
-            </g>
-        </svg>
-    </div>
-    <div class="select-wrapper">
-        <div class="label">Instruments:</div>
-        <select id="instrumentsSelect" onchange="<%= 'func1(this);' %>">  
-            <% instruments.forEach((instrument, index) => { %>
-                <% if (selectedinstrument == instrument.Instruments) { %>
-                    <option selected="selected"><%= instrument.Instruments %></option>
-                    <script type="text/javascript">func1($("#instrumentsSelect"), "<%= selectedMainPart %>");</script> 
-                <% } else{ %>
-                    <option><%= instrument.Instruments %>%></option>
-                <% } %>
-            <%})%>
-        </select>
-    </div>
-    <div class="select-wrapper" style="display: none;">
-        <div class="label">Main Parts:</div>
-        <select id="mainPartSelect" onchange="<%= 'func2(this);' %>">  
-        </select>
-    </div>
-    <div id="mainpartSelectWrapper">
-        <svg id="selectmainpartSVG" style="border: solid 1px gray; display: none; margin-bottom: 20px">
-             <!-- <filter id="dropshadow" x="-2" y="-2" width="200" height="200">
+        <g id="wrapper">
+            <g id="selectchart"></g>
+        </g>
+    </svg>
+</div>
+<div class="select-wrapper">
+    <div class="label">Instruments:</div>
+    <select id="instrumentsSelect" onchange="<%= 'func1(this);' %>">
+        <% instruments.forEach((instrument, index) => { %>
+        <% if (selectedinstrument == instrument.Instruments) { %>
+        <option selected="selected"><%= instrument.Instruments %></option>
+        <script type="text/javascript">func1($("#instrumentsSelect"), "<%= selectedMainPart %>");</script>
+        <% } else{ %>
+        <option><%= instrument.Instruments %>%></option>
+        <% } %>
+        <%})%>
+    </select>
+</div>
+<div class="select-wrapper" style="display: none;">
+    <div class="label">Main Parts:</div>
+    <select id="mainPartSelect" onchange="<%= 'func2(this);' %>">
+    </select>
+</div>
+<div id="mainpartSelectWrapper">
+    <svg id="selectmainpartSVG" style="border: solid 1px gray; display: none; margin-bottom: 20px">
+        <!-- <filter id="dropshadow" x="-2" y="-2" width="200" height="200">
               <feGaussianBlur  stdDeviation="1"/>
               <feDropShadow stdDeviation="3.0"/>
             </filter> -->
-        </svg>
-    </div>
-    <table id="resultTable">
-  <tr class="tableRow tableHead">
-    <th>Material</th>
-    <th>Species</th>
-    <th>Listings</th>
-    <th>ListingHistory</th>
-    <th>Synonyms</th>
-    <th>Trade</th>
-    <th>GBIF</th>
-    <th>Image</th>
-    <th>IUCN Categories</th>
-    <th>TreeSearch</th>
-    <th>ThreatSearch</th>
-  </tr>
+    </svg>
+</div>
+<table id="resultTable">
+    <tr class="tableRow tableHead">
+        <th>Material</th>
+        <th>Species</th>
+        <th>Listings</th>
+        <th>ListingHistory</th>
+        <th>Synonyms</th>
+        <th>Trade</th>
+        <th>GBIF</th>
+        <th>Image</th>
+        <th>IUCN Categories</th>
+        <th>TreeSearch</th>
+        <th>ThreatSearch</th>
+    </tr>
 </table>
 
 <div id="mapid"></div>
@@ -491,8 +504,8 @@
 
     let padding = 20;
 
-    var svgWidth = parseInt($(window).width()) - 2*padding;
-    var svgHeight = parseInt(window.innerHeight) - 2*padding;
+    var svgWidth = parseInt($(window).width()) - 2 * padding;
+    var svgHeight = parseInt(window.innerHeight) - 2 * padding;
 
     d3.select("#selectchartSVG").attr("width", svgWidth).attr("height", svgHeight);
 
@@ -505,31 +518,31 @@
     var svg_group = d3.select("#selectchart");
 
     function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-      var angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
+        var angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
 
-      return {
-        x: centerX + (radius * Math.cos(angleInRadians)),
-        y: centerY + (radius * Math.sin(angleInRadians))
-      };
+        return {
+            x: centerX + (radius * Math.cos(angleInRadians)),
+            y: centerY + (radius * Math.sin(angleInRadians))
+        };
     }
 
     function getStartAndEnd(path) {
         try {
             let split = path.split(" ");
-            return {start: {x: parseInt(split[1]), y: parseInt(split[2])}, end: {x: parseInt(split[9]), y: parseInt(split[10])}};
+            return { start: { x: parseInt(split[1]), y: parseInt(split[2]) }, end: { x: parseInt(split[9]), y: parseInt(split[10]) } };
             // statements
-        } catch(e) {
+        } catch (e) {
             console.log(e);
             return null;
         }
     }
 
-    function getAngle( x1, y1, x2, y2 ) {
-        
+    function getAngle(x1, y1, x2, y2) {
+
         var dx = x1 - x2,
             dy = y1 - y2;
-        
-        return (-1) * (Math.atan2(dy,dx) * 180 / Math.PI - 180);
+
+        return (-1) * (Math.atan2(dy, dx) * 180 / Math.PI - 180);
     }
 
     function getDistance(x1, y1, x2, y2) {
@@ -537,12 +550,12 @@
         return Math.sqrt(sum);
     }
 
-    function describeArc(x, y, radius, startAngle, endAngle, direction = 0, withoutM = false){
+    function describeArc(x, y, radius, startAngle, endAngle, direction = 0, withoutM = false) {
 
         var start = polarToCartesian(x, y, radius, endAngle);
         var end = polarToCartesian(x, y, radius, startAngle);
 
-        if(direction === 0) {
+        if (direction === 0) {
             let tmp = start;
             start = end;
             end = tmp;
@@ -550,25 +563,25 @@
 
         var largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
 
-        if(withoutM) {
+        if (withoutM) {
             var d = [
-                "L", start.x, start.y, 
+                "L", start.x, start.y,
                 "A", radius, radius, 0, largeArcFlag, direction, end.x, end.y
-            ].join(" ");    
+            ].join(" ");
         }
         else {
             var d = [
-                "M", start.x, start.y, 
+                "M", start.x, start.y,
                 "A", radius, radius, 0, largeArcFlag, direction, end.x, end.y
-            ].join(" ");    
+            ].join(" ");
         }
-        
 
-        return d;       
+
+        return d;
     }
 
     function describeLine(x, y, endX, endY, withoutM) {
-        if(withoutM)
+        if (withoutM)
             return ["L", endX, endY].join(" ");
         else
             return ["M", x, y, "L", endX, endY].join(" ");
@@ -610,7 +623,7 @@
                 break;
         }
 
-        return {group, filename, rotation};
+        return { group, filename, rotation };
     }
 
     function calcArcLength(r, strokewidth, textlength, angle) {
@@ -618,16 +631,16 @@
     }
 
     function getParent(sel) {
-        return sel.select(function() { return this.parentNode; });
+        return sel.select(function () { return this.parentNode; });
     }
 
     function bindMouseOver(element, callback) {
-        if(!touchDisplay) {
+        if (!touchDisplay) {
             element.on("mouseover", callback);
         }
-    } 
+    }
 
-    let mouseover = function(d) {
+    let mouseover = function (d) {
         let sel = d3.select(this);
         sel.select(".arc").style("stroke", "rgb(95, 77, 73)").style("stroke-opacity", 0.70).style("stroke-width", 2).style("stroke-linejoin", "round");
         //getParent(sel).moveToFront();
@@ -635,25 +648,25 @@
         /*d3.select(this).classed("blur", true);*/
     };
 
-    let mouseout = function(d)  {
+    let mouseout = function (d) {
         /*d3.select(this).classed("blur", false);*/
         let path = d3.select(this).select("#" + d3.select(this).attr("id").replace("arcgroup", "") + "path");
         path.style("stroke", path.attr("origStroke")).style("stroke-opacity", 1.0).style("stroke-width", path.attr("origStrokeWidth")).style("stroke-linejoin", "miter");
     };
 
     function reset() {
-            d3.select("#backButton").style("display", "none");
+        d3.select("#backButton").style("display", "none");
 
-            bindMouseOver(d3.selectAll('g.arcgroup:not(.subarc)'), mouseover);
+        bindMouseOver(d3.selectAll('g.arcgroup:not(.subarc)'), mouseover);
 
-            selectchart.selectAll(".subarc").style("display", "none").transition().duration(animationTime/5).style("opacity", 0.0);
-            selectchart.selectAll(".text").style("opacity", 1.0);
-            selectchart.selectAll(".icon").style("opacity", 1.0);
+        selectchart.selectAll(".subarc").style("display", "none").transition().duration(animationTime / 5).style("opacity", 0.0);
+        selectchart.selectAll(".text").style("opacity", 1.0);
+        selectchart.selectAll(".icon").style("opacity", 1.0);
 
-            zoomAndRotate(selectchart, true);
+        zoomAndRotate(selectchart, true);
     }
 
-    function zoomAndRotate(path, center=false) {
+    function zoomAndRotate(path, center = false) {
         var bbox = path.node().getBBox();
 
         let startEnd = getStartAndEnd(path.attr("d"));
@@ -662,7 +675,7 @@
 
         let angle = 0.0, distance = 0, toBeScaled = 0;
 
-        if(startEnd && strokewidth) {
+        if (startEnd && strokewidth) {
 
             //distance = getDistance(startEnd.start.x, startEnd.start.y, startEnd.end.x, startEnd.end.y); //+ strokewidth / 2;
             distance = bbox.height;
@@ -677,80 +690,80 @@
             toBeScaled = (svgHeight / 1.5) / distance;
         }
 
-        var cx=bbox.x+(bbox.width/2),
-            cy=bbox.y+(bbox.height/2);   // finding center of element
+        var cx = bbox.x + (bbox.width / 2),
+            cy = bbox.y + (bbox.height / 2);   // finding center of element
 
         let differenceToCenterX = positionX - cx;
         let differenceToCenterY = positionY - cy;
 
-   /*     d3.select("#selectchart").append("rect")
-        .style("fill", "blue")
-        .attr("width", 3)
-        .attr("height", 3)
-        .attr("x", cx-1)
-        .attr("y", cy-1);*/
+        /*     d3.select("#selectchart").append("rect")
+             .style("fill", "blue")
+             .attr("width", 3)
+             .attr("height", 3)
+             .attr("x", cx-1)
+             .attr("y", cy-1);*/
 
-/*        d3.select("#selectchart").append("rect")
-        .style("fill", "red")
-        .attr("width", 3)
-        .attr("height", 3)
-        .attr("x", svgWidth/2-1)
-        .attr("y", svgHeight/2-1);*/
+        /*        d3.select("#selectchart").append("rect")
+                .style("fill", "red")
+                .attr("width", 3)
+                .attr("height", 3)
+                .attr("x", svgWidth/2-1)
+                .attr("y", svgHeight/2-1);*/
 
-/*        if(isSafari) {
-            container.transition().duration(animationTime).attr('transform', 'translate('+ (cx) + ' ' + (cy) +') scale('+ toBeScaled + ' ' + toBeScaled +') rotate('+angle+') translate('+ (-cx) + ' ' + (-cy) +')');
-        }
-        else {
-            container.style("transform-box", "fill-box").style("transform-origin", "center").transition().duration(animationTime).attr('transform', 'scale('+ toBeScaled + ' ' + toBeScaled +') rotate('+angle+') translate('+ (differenceToCenterX) + ' ' + (differenceToCenterY) +')');
-        }*/
+        /*        if(isSafari) {
+                    container.transition().duration(animationTime).attr('transform', 'translate('+ (cx) + ' ' + (cy) +') scale('+ toBeScaled + ' ' + toBeScaled +') rotate('+angle+') translate('+ (-cx) + ' ' + (-cy) +')');
+                }
+                else {
+                    container.style("transform-box", "fill-box").style("transform-origin", "center").transition().duration(animationTime).attr('transform', 'scale('+ toBeScaled + ' ' + toBeScaled +') rotate('+angle+') translate('+ (differenceToCenterX) + ' ' + (differenceToCenterY) +')');
+                }*/
 
         let box = container.node().getBBox();
-        let boxCenterX = box.x+(box.width/2);
-        let boxCenterY = box.y+(box.height);
+        let boxCenterX = box.x + (box.width / 2);
+        let boxCenterY = box.y + (box.height);
 
         let rotateCenterX = positionX;
         let rotateCenterY = positionY;
 
-/*         d3.select("#selectchart").append("rect")
-        .style("fill", "red")
-        .attr("width", 3)
-        .attr("height", 3)
-        .attr("x", rotateCenterX-1)
-        .attr("y", rotateCenterY-1);
+        /*         d3.select("#selectchart").append("rect")
+                .style("fill", "red")
+                .attr("width", 3)
+                .attr("height", 3)
+                .attr("x", rotateCenterX-1)
+                .attr("y", rotateCenterY-1);
+        
+                 d3.select("#selectchart").append("rect")
+                .style("fill", "purple")
+                .attr("width", 3)
+                .attr("height", 3)
+                .attr("x", differenceToCenterX)
+                .attr("y", differenceToCenterY);*/
 
-         d3.select("#selectchart").append("rect")
-        .style("fill", "purple")
-        .attr("width", 3)
-        .attr("height", 3)
-        .attr("x", differenceToCenterX)
-        .attr("y", differenceToCenterY);*/
-
-        var saclestr=toBeScaled+','+toBeScaled;
-        var tx=-cx*(toBeScaled-1);
-        var ty=-cy*(toBeScaled-1);                        
-        var translatestr=tx+','+ty;
+        var saclestr = toBeScaled + ',' + toBeScaled;
+        var tx = -cx * (toBeScaled - 1);
+        var ty = -cy * (toBeScaled - 1);
+        var translatestr = tx + ',' + ty;
 
         svg_group.transition().duration(animationTime).attr("transform", "\
-            translate("+translatestr+") scale("+saclestr+") \
+            translate("+ translatestr + ") scale(" + saclestr + ") \
             ");
 
-            //translate(" + differenceToCenterX + " " + differenceToCenterY + ") \
-            //rotate("+angle+" "+cx+" "+cy+") \
+        //translate(" + differenceToCenterX + " " + differenceToCenterY + ") \
+        //rotate("+angle+" "+cx+" "+cy+") \
 
-/*         d3.select("svg").append("rect")
-        .style("fill", "lime")
-        .attr("width", 3)
-        .attr("height", 3)
-        .attr("x", positionX-1)
-        .attr("y", positionY-1);*/
+        /*         d3.select("svg").append("rect")
+                .style("fill", "lime")
+                .attr("width", 3)
+                .attr("height", 3)
+                .attr("x", positionX-1)
+                .attr("y", positionY-1);*/
     }
 
     function appendSelectArc(dst, id, text, color, strokewidth, x, y, width, start, end, direction, fontSize, classStr = "") {
         let group = dst.append("g")
-        .style("cursor", "pointer")
-        .attr("id", id + "arcgroup")
-        .attr("name", name)
-        .attr("class", "arcgroup");
+            .style("cursor", "pointer")
+            .attr("id", id + "arcgroup")
+            .attr("name", name)
+            .attr("class", "arcgroup");
 
         let upper = describeArc(x, y, width + strokewidth / 2, start, end, direction);
         let lower = describeArc(x, y, width - strokewidth / 2, start, end, 0, true);
@@ -762,35 +775,35 @@
         ].join(" ");
 
         let path = group.append("path")
-        .style("fill", color)
-        .style("stroke", "rgb(95, 77, 73)")
-        .attr("origStroke", "rgb(95, 77, 73)")
-        .style("stroke-width", "0.5")
-        .attr("origStrokeWidth", "0.5")
-        .attr("id", id + "path")
-        .attr("class", "arc")
-        .attr("start", start)
-        .attr("end", end)
-        .attr("radius", width)
-        .attr("name", text)
-        .attr("arcwidth", strokewidth)
-        .attr("d", pathstr);
+            .style("fill", color)
+            .style("stroke", "rgb(95, 77, 73)")
+            .attr("origStroke", "rgb(95, 77, 73)")
+            .style("stroke-width", "0.5")
+            .attr("origStrokeWidth", "0.5")
+            .attr("id", id + "path")
+            .attr("class", "arc")
+            .attr("start", start)
+            .attr("end", end)
+            .attr("radius", width)
+            .attr("name", text)
+            .attr("arcwidth", strokewidth)
+            .attr("d", pathstr);
 
         path.classed(classStr, true);
 
         let groupAndFile;
-        if(!classStr.includes("subarc")) {
+        if (!classStr.includes("subarc")) {
             groupAndFile = getGroupFileAndRotationFromID(id);
             let instrumentGroup = groupAndFile.group;
 
             width = width + 10;
 
-            $.post( "/group/"+instrumentGroup, function( data ) {
+            $.post("/group/" + instrumentGroup, function (data) {
                 data = JSON.parse(data);
 
                 let lowerAmount = false;
                 let newstroke;
-                if(data.length <= 4) {
+                if (data.length <= 4) {
                     lowerAmount = true;
                     newstroke = strokewidth / (data.length + 1);
                 }
@@ -799,218 +812,218 @@
                 }
 
 
-                data = data.map(e => e.Instruments).sort((a,b) => {
+                data = data.map(e => e.Instruments).sort((a, b) => {
                     return b.length - a.length;
                 });
 
                 let startRadius = width - 10 + strokewidth / 2 - newstroke / 2;
 
-                let newId = (text+instrumentGroup).replaceSpecialCharacters();
-                appendSelectArc(group, 
-                    newId, 
-                    text, 
-                    color, 
-                    (lowerAmount ? newstroke : newstroke * 2), 
-                    positionX, 
-                    positionY, 
-                    (lowerAmount ? startRadius : startRadius - (newstroke / 2)), 
-                    start, 
+                let newId = (text + instrumentGroup).replaceSpecialCharacters();
+                appendSelectArc(group,
+                    newId,
+                    text,
+                    color,
+                    (lowerAmount ? newstroke : newstroke * 2),
+                    positionX,
+                    positionY,
+                    (lowerAmount ? startRadius : startRadius - (newstroke / 2)),
+                    start,
                     end, 1, 10, "subarc heading");
-                d3.select("#"+newId+"text").style("text-decoration", "underline");
+                d3.select("#" + newId + "text").style("text-decoration", "underline");
 
-/*                    d3.select("#"+newId).transition().duration(animationTime * 1.5).style("opacity", 1.0);
-                d3.select("#"+newId+"textPath").transition().duration(animationTime * 1.5).style("opacity", 1.0).style("text-decoration", "underline");
-*/
-                if(data.length === 0) {
+                /*                    d3.select("#"+newId).transition().duration(animationTime * 1.5).style("opacity", 1.0);
+                                d3.select("#"+newId+"textPath").transition().duration(animationTime * 1.5).style("opacity", 1.0).style("text-decoration", "underline");
+                */
+                if (data.length === 0) {
                     group.on("click", null);
                 }
 
 
-                if(lowerAmount) {
+                if (lowerAmount) {
                     startRadius += newstroke;
                 }
 
-                for(let i = 0; i < data.length; i++) {
+                for (let i = 0; i < data.length; i++) {
                     name = data[i];
-                    if(name.trim() === "") {
+                    if (name.trim() === "") {
                         name = "General";
                     }
 
-                    newId = (name+instrumentGroup).replaceSpecialCharacters();
-                    appendSelectArc(group, newId, name, "hsl(0, 100%, "+getRandomInt(40,90)+"%)", newstroke, positionX, positionY, startRadius - (newstroke) * (i+2), start, end, 1, 
+                    newId = (name + instrumentGroup).replaceSpecialCharacters();
+                    appendSelectArc(group, newId, name, "hsl(0, 100%, " + getRandomInt(40, 90) + "%)", newstroke, positionX, positionY, startRadius - (newstroke) * (i + 2), start, end, 1,
                         Math.min(newstroke - 1, 7), "subarc");
 
-                   /* d3.select("#"+newId).transition().duration(animationTime * 1.5).style("opacity", 1.0);
-                    d3.select("#"+newId+"textPath").transition().duration(animationTime * 1.5).style("opacity", 1.0);*/
+                    /* d3.select("#"+newId).transition().duration(animationTime * 1.5).style("opacity", 1.0);
+                     d3.select("#"+newId+"textPath").transition().duration(animationTime * 1.5).style("opacity", 1.0);*/
                 }
             });
         }
 
 
         let pathForText = dst.append("path")
-        .style("fill", "none")
-        .style("stroke", "none")
-        .attr("id", id+"pathfortext")
-        .attr("class", "arcTextPath")
-        .attr("start", start)
-        .attr("end", end)
-        .attr("radius", width)
-        .attr("name", text)
-        .attr("d", describeArc(x, y, width, start, end, direction));
+            .style("fill", "none")
+            .style("stroke", "none")
+            .attr("id", id + "pathfortext")
+            .attr("class", "arcTextPath")
+            .attr("start", start)
+            .attr("end", end)
+            .attr("radius", width)
+            .attr("name", text)
+            .attr("d", describeArc(x, y, width, start, end, direction));
 
         let textElement = group
-        .append("text")
-        .attr("id", id + "text")
-        .attr("class", classStr ? classStr + " text" : "text");
-        
+            .append("text")
+            .attr("id", id + "text")
+            .attr("class", classStr ? classStr + " text" : "text");
+
         let textPath = textElement.append("textPath")
-        .style("dominant-baseline", "central")
-        .attr("class", "textonpath noselect")
-        .attr("xlink:href", "#"+ id+"pathfortext")
-        .attr("font-size", fontSize) 
-        .attr("text-anchor", "middle")
-        .attr("startOffset", "50%")
-        .attr("id", id + "textPath")
-        .text(text);
+            .style("dominant-baseline", "central")
+            .attr("class", "textonpath noselect")
+            .attr("xlink:href", "#" + id + "pathfortext")
+            .attr("font-size", fontSize)
+            .attr("text-anchor", "middle")
+            .attr("startOffset", "50%")
+            .attr("id", id + "textPath")
+            .text(text);
 
         textElement.classed(classStr, true);
 
-        if(classStr.includes("subarc")) {
+        if (classStr.includes("subarc")) {
             textElement.style("opacity", "0.0").style("display", "none");
             path.style("opacity", "0.0").style("stroke", "none").attr("origStroke", "none").style("display", "none");
             group.classed("subarc", true);
 
             bindMouseOver(group, mouseover);
             group.on("mouseout", mouseout)
-            .on("click", function(d) {
-                let value = d3.select(this).attr("name");
-                //func1($("#instrumentsSelect"), d3.select(this).attr("name"));
-                $("#instrumentsSelect").val(value).change();
+                .on("click", function (d) {
+                    let value = d3.select(this).attr("name");
+                    //func1($("#instrumentsSelect"), d3.select(this).attr("name"));
+                    $("#instrumentsSelect").val(value).change();
 
-                if(value.trim() === "String instrument bow") {
+                    if (value.trim() === "String instrument bow") {
 
-                    $.get("stringinstrumentbow.svg", function(data){
-                        let svg =  d3.select("#selectmainpartSVG");
+                        $.get("stringinstrumentbow.svg", function (data) {
+                            let svg = d3.select("#selectmainpartSVG");
 
-                        svg
-                        .attr("width", svgWidth)
-                        .attr("height", svgHeight)
-                        .style("display", "block");
+                            svg
+                                .attr("width", svgWidth)
+                                .attr("height", svgHeight)
+                                .style("display", "block");
 
-                        var svgNode = d3.select(data.documentElement).select("g");
-                        svg.append(() => svgNode.node()) ; 
+                            var svgNode = d3.select(data.documentElement).select("g");
+                            svg.append(() => svgNode.node());
 
-                        //scale it to the height of svg window
-                        let bbox = svgNode.node().getBBox();
+                            //scale it to the height of svg window
+                            let bbox = svgNode.node().getBBox();
 
-                        let largest = Math.max(bbox.width, bbox.height);
-                        let smallest = Math.min(bbox.width, bbox.height);
+                            let largest = Math.max(bbox.width, bbox.height);
+                            let smallest = Math.min(bbox.width, bbox.height);
 
-                        let scale = (svgWidth  - 2 * padding) / largest;
-                        svgNode.attr("transform", "translate(" + (largest * scale + padding) +" " + padding +") rotate(90) scale("+ scale +")");
+                            let scale = (svgWidth - 2 * padding) / largest;
+                            svgNode.attr("transform", "translate(" + (largest * scale + padding) + " " + padding + ") rotate(90) scale(" + scale + ")");
 
-                        svg
-                        .attr("height", smallest * scale + padding * 2);
+                            svg
+                                .attr("height", smallest * scale + padding * 2);
 
-                        svgNode.selectAll("path")
-                        .style("cursor", "pointer")
-                        .attr("origFill", function(d) {
-                            return d3.select(this).style("fill");
-                        })
-                        .on("click", function() {
-                            let sel = d3.select(this);
-                            svgNode.selectAll("path").style("opacity", 0.2).classed("selected", false).style("fill", function(d) {
-                                return d3.select(this).attr("origFill");
-                            });
-                            sel.style("opacity", 1.0).style("fill", "var(--highlight)").classed("selected", true);
-                            $("#mainPartSelect").val(d3.select(this).select("title").text()).change();
-                        })
-                        .on("mouseover", function() {
-                             let sel = d3.select(this);
-                             svgNode.selectAll("path:not(.selected)").style("opacity", 0.2);
-                             sel.style("opacity", 1.0);
-                        })
-                        .on("mouseout", function() {
-                            let sel = d3.select(this);
-                            if(d3.selectAll("path.selected").size() === 0) {
-                                svgNode.selectAll("path:not(.selected)").style("opacity", 1.0);
-                            }
-                            else {
-                                svgNode.selectAll("path:not(.selected)").style("opacity", 0.2);   
-                            }
+                            svgNode.selectAll("path")
+                                .style("cursor", "pointer")
+                                .attr("origFill", function (d) {
+                                    return d3.select(this).style("fill");
+                                })
+                                .on("click", function () {
+                                    let sel = d3.select(this);
+                                    svgNode.selectAll("path").style("opacity", 0.2).classed("selected", false).style("fill", function (d) {
+                                        return d3.select(this).attr("origFill");
+                                    });
+                                    sel.style("opacity", 1.0).style("fill", "var(--highlight)").classed("selected", true);
+                                    $("#mainPartSelect").val(d3.select(this).select("title").text()).change();
+                                })
+                                .on("mouseover", function () {
+                                    let sel = d3.select(this);
+                                    svgNode.selectAll("path:not(.selected)").style("opacity", 0.2);
+                                    sel.style("opacity", 1.0);
+                                })
+                                .on("mouseout", function () {
+                                    let sel = d3.select(this);
+                                    if (d3.selectAll("path.selected").size() === 0) {
+                                        svgNode.selectAll("path:not(.selected)").style("opacity", 1.0);
+                                    }
+                                    else {
+                                        svgNode.selectAll("path:not(.selected)").style("opacity", 0.2);
+                                    }
+                                });
                         });
-                    });
-                 }
-                 else {
-                    d3.select("#selectmainpartSVG").selectAll("*").remove();
-                 }
-                
-                scrollTo("#instrumentsSelect");
-            });
+                    }
+                    else {
+                        d3.select("#selectmainpartSVG").selectAll("*").remove();
+                    }
+
+                    scrollTo("#instrumentsSelect");
+                });
 
         }
         else {
             let pathForIcon = dst.append("path")
-            .style("fill", "none")
-            .style("stroke", "none")
-            .attr("id", id+"textpathIcon")
-            .attr("d", describeArc(x, y, width-25, start, end, direction));
+                .style("fill", "none")
+                .style("stroke", "none")
+                .attr("id", id + "textpathIcon")
+                .attr("d", describeArc(x, y, width - 25, start, end, direction));
 
             let textElementForIcon = group
-            .append("text")
-            .attr("id", id + "textIcon")
-            .attr("class", classStr ? classStr + " text" : "text");
-            
+                .append("text")
+                .attr("id", id + "textIcon")
+                .attr("class", classStr ? classStr + " text" : "text");
+
             let textPathForIcon = textElementForIcon.append("textPath")
-            .style("dominant-baseline", "central")
-            .style("opacity", "0.0")
-            .style("fill-opacity", "0.0")
-            .attr("class", "textonpath noselect")
-            .attr("xlink:href", "#"+ id+"textpathIcon")
-            .attr("font-size", 1) 
-            .attr("text-anchor", "middle")
-            .attr("startOffset", "50%")
-            .attr("id", id + "textPathIcon")
-            .text("m");
+                .style("dominant-baseline", "central")
+                .style("opacity", "0.0")
+                .style("fill-opacity", "0.0")
+                .attr("class", "textonpath noselect")
+                .attr("xlink:href", "#" + id + "textpathIcon")
+                .attr("font-size", 1)
+                .attr("text-anchor", "middle")
+                .attr("startOffset", "50%")
+                .attr("id", id + "textPathIcon")
+                .text("m");
 
             /*.style("opacity", "0.0")
             .style("fill-opacity", "0.0")*/
             let filename = groupAndFile.filename;
             let rot = groupAndFile.rotation;
 
-            if(filename !== "") {
-                $.get("/" + filename, function(data){
+            if (filename !== "") {
+                $.get("/" + filename, function (data) {
                     let textBox = textPathForIcon.node().getBBox();
                     var svgNode = d3.select(data.documentElement).select("g");
-                    group.append(() => svgNode.node()) ; 
+                    group.append(() => svgNode.node());
                     let iconBox = svgNode.node().getBBox();
 
                     let scale = 20 / iconBox.height;
 
-                    let transX = (textBox.x-((iconBox.width*scale)/2) + textBox.width / 2);
+                    let transX = (textBox.x - ((iconBox.width * scale) / 2) + textBox.width / 2);
                     let transY = (textBox.y + textBox.height);
 
-                    let angle = (start+((end - start)/2) - 360) % 180;
+                    let angle = (start + ((end - start) / 2) - 360) % 180;
 
-                    if(rot != 0) {
+                    if (rot != 0) {
                         angle += rot;
                     }
 
-                    cx=iconBox.x+(iconBox.width/2);
-                    cy=iconBox.y+(iconBox.height/2);
+                    cx = iconBox.x + (iconBox.width / 2);
+                    cy = iconBox.y + (iconBox.height / 2);
 
-                    var saclestr=scale+','+scale;
-                    var tx=-cx*(scale-1);
-                    var ty=-cy*(scale-1);                        
-                    var translatestr=tx+','+ty;
+                    var saclestr = scale + ',' + scale;
+                    var tx = -cx * (scale - 1);
+                    var ty = -cy * (scale - 1);
+                    var translatestr = tx + ',' + ty;
 
                     svgNode.classed("icon", true);
 
                     svgNode.attr("transform", "\
-                        translate("+(textBox.x) + " " + (textBox.y) + ") \
-                        rotate("+angle+") \
-                        scale("+scale+") \
-                        translate("+(-cx) + " " + (-cy) + ") \
+                        translate("+ (textBox.x) + " " + (textBox.y) + ") \
+                        rotate("+ angle + ") \
+                        scale("+ scale + ") \
+                        translate("+ (-cx) + " " + (-cy) + ") \
                     ");
                 });
             }
@@ -1018,7 +1031,7 @@
             group.moveToFront();
         }
 
-        if(classStr.includes("heading")) {
+        if (classStr.includes("heading")) {
             group.on("mouseover", null);
             group.on("mouseout", null);
             group.on("click", null);
@@ -1027,39 +1040,39 @@
     }
 
     let backButton = d3.select("#selectchartSVG")
-    .append("g")
-    .attr("id", "backButton")
-    .attr("transform", "translate("+padding+ " " + 10 +")")
-    .style("cursor", "pointer")
-    .style("display", "none")
-    .on("mouseover", function(e) {
-        d3.select(this).select("path").style("stroke", "rgb(95, 77, 73)").style("stroke-opacity", 0.70).style("stroke-width", 2).style("stroke-linejoin", "round").style("fill", "var(--highlight)");
-    })
-    .on("mouseout", function(e) {
-      d3.select(this).select("path").style("stroke", "var(--black)").style("stroke-opacity", 1).style("stroke-width", 0.5).style("stroke-linejoin", "miter").style("fill", "var(--main)");
-    })
-    .on("click", reset);
+        .append("g")
+        .attr("id", "backButton")
+        .attr("transform", "translate(" + padding + " " + 10 + ")")
+        .style("cursor", "pointer")
+        .style("display", "none")
+        .on("mouseover", function (e) {
+            d3.select(this).select("path").style("stroke", "rgb(95, 77, 73)").style("stroke-opacity", 0.70).style("stroke-width", 2).style("stroke-linejoin", "round").style("fill", "var(--highlight)");
+        })
+        .on("mouseout", function (e) {
+            d3.select(this).select("path").style("stroke", "var(--black)").style("stroke-opacity", 1).style("stroke-width", 0.5).style("stroke-linejoin", "miter").style("fill", "var(--main)");
+        })
+        .on("click", reset);
 
     let backPath = backButton.append("path")
-    .attr("d", "m 5 0 l 40 0 l 0 25 l -40 0 l -15 -12.5 z")
-    .style("fill", "var(--main)")
-    .style("stroke", "black")
-    .style("stroke-width", 0.5);
+        .attr("d", "m 5 0 l 40 0 l 0 25 l -40 0 l -15 -12.5 z")
+        .style("fill", "var(--main)")
+        .style("stroke", "black")
+        .style("stroke-width", 0.5);
 
     let pathForText = backButton.append("path")
-    .attr("d", "m 5 12.5 l 40 0")
-    .attr("id", "backPathForText");
+        .attr("d", "m 5 12.5 l 40 0")
+        .attr("id", "backPathForText");
 
     let backText = backButton
-    .append("text")
-    .append("textPath")
-    .attr("xlink:href", "#backPathForText")
-    .style("line-height", "1em")
-    .style("stroke", "var(--black)")
-    .style("fill", "var(--black)")
-    .style("dominant-baseline", "middle")
-    .attr("class", "textonpath noselect")
-    .text("Back");
+        .append("text")
+        .append("textPath")
+        .attr("xlink:href", "#backPathForText")
+        .style("line-height", "1em")
+        .style("stroke", "var(--black)")
+        .style("fill", "var(--black)")
+        .style("dominant-baseline", "middle")
+        .attr("class", "textonpath noselect")
+        .text("Back");
 
     let selectchart = d3.select("#selectchart");
 
@@ -1069,64 +1082,65 @@
 
     let margin = 1;
 
-    appendSelectArc(selectchart, "keyboard", "Keyboard", "hsl(0, 100%, "+getRandomInt(40,90)+"%)", 70, positionX, positionY, 140, 300-margin, 270, 1, 12);
-    appendSelectArc(selectchart, "percussion", "Percussion", "hsl(0, 100%, "+getRandomInt(40,90)+"%)", 70, positionX, positionY, 140, 330-margin, 300, 1, 12);
-    appendSelectArc(selectchart, "woodwinds", "Woodwinds", "hsl(0, 100%, "+getRandomInt(40,90)+"%)", 70, positionX, positionY, 140, 390, 330, 1, 12);
-    appendSelectArc(selectchart, "brasses", "Brasses", "hsl(0, 100%, "+getRandomInt(40,90)+"%)", 70, positionX, positionY, 140, 420, 390+margin, 1, 12);
-    appendSelectArc(selectchart, "plucked", "Plucked", "hsl(0, 100%, "+getRandomInt(40,90)+"%)", 70, positionX, positionY, 140, 450, 420+margin, 1, 12);
-    appendSelectArc(selectchart, "streicher", "Strings", "hsl(0, 100%, "+getRandomInt(40,90)+"%)", 90, positionX, positionY, 60-margin*2, 90, 270, 1, 12);
-/*
-    appendSelectArc(selectchart, "streicher", "Strings", "#FFC914", 90, positionX, positionY, 60-margin*5, 90, 270, 1, 12);
-    appendSelectArc(selectchart, "percussion", "Percussion", "#DD1C1A", 70, positionX, positionY, 140, 330-margin, 300+margin, 1, 12);
-    appendSelectArc(selectchart, "woodwinds", "Woodwinds", "#008DD5", 70, positionX, positionY, 140, 390-margin, 330+margin, 1, 12);
-    appendSelectArc(selectchart, "plucked", "Plucked", "#A4036F", 70, positionX, positionY, 140, 450, 420+margin, 1, 12);
-    appendSelectArc(selectchart, "keyboard", "Keyboard", "#14CC88", 70, positionX, positionY, 140, 300-margin, 270, 1, 12);
-    appendSelectArc(selectchart, "brasses", "Brasses", "#85D845", 70, positionX, positionY, 140, 420-margin, 390+margin, 1, 12);
-*/
+    appendSelectArc(selectchart, "keyboard", "Keyboard", "hsl(0, 100%, " + getRandomInt(40, 90) + "%)", 70, positionX, positionY, 140, 300 - margin, 270, 1, 12);
+    appendSelectArc(selectchart, "percussion", "Percussion", "hsl(0, 100%, " + getRandomInt(40, 90) + "%)", 70, positionX, positionY, 140, 330 - margin, 300, 1, 12);
+    appendSelectArc(selectchart, "woodwinds", "Woodwinds", "hsl(0, 100%, " + getRandomInt(40, 90) + "%)", 70, positionX, positionY, 140, 390, 330, 1, 12);
+    appendSelectArc(selectchart, "brasses", "Brasses", "hsl(0, 100%, " + getRandomInt(40, 90) + "%)", 70, positionX, positionY, 140, 420, 390 + margin, 1, 12);
+    appendSelectArc(selectchart, "plucked", "Plucked", "hsl(0, 100%, " + getRandomInt(40, 90) + "%)", 70, positionX, positionY, 140, 450, 420 + margin, 1, 12);
+    appendSelectArc(selectchart, "streicher", "Strings", "hsl(0, 100%, " + getRandomInt(40, 90) + "%)", 90, positionX, positionY, 60 - margin * 2, 90, 270, 1, 12);
+    /*
+        appendSelectArc(selectchart, "streicher", "Strings", "#FFC914", 90, positionX, positionY, 60-margin*5, 90, 270, 1, 12);
+        appendSelectArc(selectchart, "percussion", "Percussion", "#DD1C1A", 70, positionX, positionY, 140, 330-margin, 300+margin, 1, 12);
+        appendSelectArc(selectchart, "woodwinds", "Woodwinds", "#008DD5", 70, positionX, positionY, 140, 390-margin, 330+margin, 1, 12);
+        appendSelectArc(selectchart, "plucked", "Plucked", "#A4036F", 70, positionX, positionY, 140, 450, 420+margin, 1, 12);
+        appendSelectArc(selectchart, "keyboard", "Keyboard", "#14CC88", 70, positionX, positionY, 140, 300-margin, 270, 1, 12);
+        appendSelectArc(selectchart, "brasses", "Brasses", "#85D845", 70, positionX, positionY, 140, 420-margin, 390+margin, 1, 12);
+    */
     let selected = false;
     let offset = 500;
     let offsetScale = 3.0;
 
-    container.attr("transform", "translate(0 "+ -svg_group.node().getBBox().height/2 +")");
+    container.attr("transform", "translate(0 " + -svg_group.node().getBBox().height / 2 + ")");
     zoomAndRotate(selectchart, true);
 
     bindMouseOver(d3.selectAll('g.arcgroup'), mouseover);
     d3.selectAll('g.arcgroup:not(.subarc)')
-    .on("mouseout", mouseout)
-    .on("click", function(d) {
+        .on("mouseout", mouseout)
+        .on("click", function (d) {
 
-        let id = d3.select(this).attr("id").replace("arcgroup", "");
+            let id = d3.select(this).attr("id").replace("arcgroup", "");
 
-        let clickedgroup = d3.select(this);
-        let path = clickedgroup.select("#" + id + "path");
-        let icon = clickedgroup.select(".icon");
+            let clickedgroup = d3.select(this);
+            let path = clickedgroup.select("#" + id + "path");
+            let icon = clickedgroup.select(".icon");
 
-        d3.select("#backButton").style("display", "block");
+            d3.select("#backButton").style("display", "block");
 
-        bindMouseOver(d3.selectAll('g.arcgroup:not(.subarc)'), mouseover);
+            bindMouseOver(d3.selectAll('g.arcgroup:not(.subarc)'), mouseover);
 
-        clickedgroup.on("mouseover", null);
+            clickedgroup.on("mouseover", null);
 
-        selectchart.selectAll(".subarc").style("display", "none").transition().duration(animationTime/5).style("opacity", 0.0);
-        selectchart.selectAll(".text").style("opacity", 1.0); //.transition().duration(animationTime/2)
-        selectchart.selectAll(".icon").style("opacity", 1.0);
+            selectchart.selectAll(".subarc").style("display", "none").transition().duration(animationTime / 5).style("opacity", 0.0);
+            selectchart.selectAll(".text").style("opacity", 1.0); //.transition().duration(animationTime/2)
+            selectchart.selectAll(".icon").style("opacity", 1.0);
 
-        icon.style("opacity", "0.0");
-        d3.select("#"+id+"text").style("display", "initial").style("opacity", 0.0);
-        clickedgroup.selectAll(".subarc").style("display", "initial").transition().duration(animationTime/5).style("opacity", 1.0);
+            icon.style("opacity", "0.0");
+            d3.select("#" + id + "text").style("display", "initial").style("opacity", 0.0);
+            clickedgroup.selectAll(".subarc").style("display", "initial").transition().duration(animationTime / 5).style("opacity", 1.0);
 
-        setTimeout(function() {
-            zoomAndRotate(path);
-        });
-        }, animationTime/1.5);
+            setTimeout(function () {
+                zoomAndRotate(path);
+            });
+        }, animationTime / 1.5);
 
 
-   
+
 
 </script>
 
 <% } %>
- 
+
 </div>
 </body>
+
 </html>

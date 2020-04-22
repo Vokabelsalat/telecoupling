@@ -1,12 +1,27 @@
 console.log("RUNNING");
 
+function getRoutes(origTade, allTrades) {
+  let routes = {};
+  let origKey = Object.values(origTade).join("").replaceSpecialCharacters();
+  for (let trade of allTrades) {
+    if (origTrade.Importer === trade.Exporter) {
+      if (origTade.Year === trade.Year) {
+        console.log(origTrade, trade);
+      }
+    }
+  }
+}
+
 function getTimelineTradeDataFromSpecies(speciesObject) {
+  console.log(speciesObject);
+
   if (speciesObject.hasOwnProperty("trade")) {
     //subkeys
     let sciName =
-      speciesObject.material[0].Genus.trim() +
-      " " +
-      speciesObject.material[0].Species.trim();
+      speciesObject.material[0].Genus.trim() + " " + speciesObject.material[0].Species.trim();
+
+    let trades = [];
+    let groupedBySource = {};
 
     let groupedByYear = {};
     let groupByExIm = {};
@@ -14,66 +29,80 @@ function getTimelineTradeDataFromSpecies(speciesObject) {
       let tradeArray = speciesObject["trade"][subkey];
       for (let trade of tradeArray.values()) {
         let year = trade.Year;
+        trades.push(trade);
         pushOrCreate(groupedByYear, year.toString(), trade);
+        pushOrCreate(groupedBySource, trade.Source, trade);
         pushOrCreate(groupByExIm, trade.Exporter + "|" + trade.Importer, trade);
       }
     }
 
-    /*        console.log(sciName);
-                console.log(groupByExIm);
+    console.log(
+      trades.filter((e) => e.Source === "W"),
+      trades.length
+    );
 
-                let groupByMiddleMan = {};
+    console.log(groupedBySource);
 
-                for(let exImKey of Object.keys(groupByExIm).values()) {
-                    for(let exImKeySecond of Object.keys(groupByExIm).values()) {
-                        if(exImKey !== exImKeySecond && exImKey.split("|")[1] === exImKeySecond.split("|")[0]) {
-                            pushOrCreate(groupByMiddleMan, exImKey.split("|")[1], exImKey+"|"+exImKeySecond.split("|")[1]);
-                        }
-                    }
-                }*/
+    console.log(sciName);
+    console.log(groupByExIm);
 
-    /*console.log(groupByMiddleMan);*/
+    let groupByMiddleMan = {};
 
-    /*let traderoutes = {};
-        
-        for(let middleman of Object.keys(groupByMiddleMan).values()) {
-            let exImKeys = groupByMiddleMan[middleman];
-
-            for(let exImKeyTriple of exImKeys.values()) {
-                let split = exImKeyTriple.split("|");
-                let tradeKeys = [];
-                
-                let first = split[0];
-                let third = split[2];
-
-                if(groupByExIm.hasOwnProperty(first+"|"+middleman)) {
-
-                    for(let tradeFirst of groupByExIm[first+"|"+middleman].values()) {
-                        let firstYear = tradeFirst.Year;
-
-                        if(groupByExIm.hasOwnProperty(middleman+"|"+third)) {
-                            let tradeSeconds = groupByExIm[middleman+"|"+third].filter(e => (e.Year === firstYear || e.Year === firstYear+1));
-                            if(tradeSeconds.length>0) {
-                                let tradeKey = Object.values(tradeFirst).join("").replaceSpecialCharacters();
-                                if(!tradeKeys.includes(tradeKey)) {
-                                    pushOrCreate(traderoutes, exImKeyTriple, tradeFirst);
-                                    tradeKeys.push(tradeKey);
-                                }
-                            }    
-
-                            for(let trade of tradeSeconds.values()) {
-                                let tradeKey = Object.values(trade).join("").replaceSpecialCharacters();
-                                if(!tradeKeys.includes(tradeKey)) {
-                                    pushOrCreate(traderoutes, exImKeyTriple, trade);
-                                    tradeKeys.push(tradeKey);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+    for (let exImKey of Object.keys(groupByExIm).values()) {
+      for (let exImKeySecond of Object.keys(groupByExIm).values()) {
+        if (exImKey !== exImKeySecond && exImKey.split("|")[1] === exImKeySecond.split("|")[0]) {
+          pushOrCreate(
+            groupByMiddleMan,
+            exImKey.split("|")[1],
+            exImKey + "|" + exImKeySecond.split("|")[1]
+          );
         }
-        console.log(traderoutes);*/
+      }
+    }
+
+    console.log(groupByMiddleMan);
+
+    let traderoutes = {};
+
+    for (let middleman of Object.keys(groupByMiddleMan).values()) {
+      let exImKeys = groupByMiddleMan[middleman];
+
+      for (let exImKeyTriple of exImKeys.values()) {
+        let split = exImKeyTriple.split("|");
+        let tradeKeys = [];
+
+        let first = split[0];
+        let third = split[2];
+
+        if (groupByExIm.hasOwnProperty(first + "|" + middleman)) {
+          for (let tradeFirst of groupByExIm[first + "|" + middleman].values()) {
+            let firstYear = tradeFirst.Year;
+
+            if (groupByExIm.hasOwnProperty(middleman + "|" + third)) {
+              let tradeSeconds = groupByExIm[middleman + "|" + third].filter(
+                (e) => e.Year === firstYear || e.Year === firstYear + 1
+              );
+              if (tradeSeconds.length > 0) {
+                let tradeKey = Object.values(tradeFirst).join("").replaceSpecialCharacters();
+                if (!tradeKeys.includes(tradeKey)) {
+                  pushOrCreate(traderoutes, exImKeyTriple, tradeFirst);
+                  tradeKeys.push(tradeKey);
+                }
+              }
+
+              for (let trade of tradeSeconds.values()) {
+                let tradeKey = Object.values(trade).join("").replaceSpecialCharacters();
+                if (!tradeKeys.includes(tradeKey)) {
+                  pushOrCreate(traderoutes, exImKeyTriple, trade);
+                  tradeKeys.push(tradeKey);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    console.log(traderoutes);
 
     let returnData = [];
 
@@ -251,6 +280,7 @@ function getTimelineThreatsDataFromSpecies(speciesObject) {
               consAssCategoryOrig: e.consAssCategoryOrig,
               type: "threat",
               reference: e.reference,
+              countries: e.countries,
             };
           })
         );
@@ -311,7 +341,7 @@ let collapseTimelines = () => {
   }
 };
 
-$.get("timelinedata.json", function (tradeData) {
+$.get("timelinedata2.json", function (tradeData) {
   $("#page-wrapper").append("<div>").append(colorString.join(""));
   $("#page-wrapper")
     .append("<div>")
@@ -405,7 +435,8 @@ $.get("timelinedata.json", function (tradeData) {
           " | " +
           d.scope +
           " | " +
-          d.reference;
+          d.reference +
+          (d.countries ? " | " + d.countries : "");
         leftAdd = parseInt(d3.select(this).attr("x"));
         break;
       default:
@@ -438,9 +469,7 @@ $.get("timelinedata.json", function (tradeData) {
 
   x.domain(xDomain);
 
-  $("#page-wrapper").append(
-    '<svg id="overAllSvg" width="' + initWidth + '" height="' + 30 + '">'
-  );
+  $("#page-wrapper").append('<svg id="overAllSvg" width="' + initWidth + '" height="' + 30 + '">');
   let overAllSvgG = d3
     .select("#overAllSvg")
     .style("display", "none")
@@ -457,14 +486,10 @@ $.get("timelinedata.json", function (tradeData) {
 
     let id = "timeline" + speciesName.replaceSpecialCharacters();
 
-    $("#page-wrapper").append(
-      '<div id="' + id + 'Wrapper" class="visWrapper">'
-    );
+    $("#page-wrapper").append('<div id="' + id + 'Wrapper" class="visWrapper">');
     let $wrapper = $("#" + id + "Wrapper");
     $wrapper.append(
-      "<div class='visHeader'><div class='timelineHeader'>" +
-        speciesName +
-        "</div></div>"
+      "<div class='visHeader'><div class='timelineHeader'>" + speciesName + "</div></div>"
     );
     $wrapper.append("<div class='visContent'>");
     let $visContent = $($wrapper).find(".visContent").first();
@@ -488,9 +513,7 @@ $.get("timelinedata.json", function (tradeData) {
     //########### BUILDING CHART ###########
     var svg = d3.select("#" + id);
 
-    let g = svg
-      .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    let g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     var y = d3.scaleLinear().rangeRound([height, 0]);
 
@@ -572,9 +595,7 @@ $.get("timelinedata.json", function (tradeData) {
         return radius;
       })
       .style("font-size", radius + 2)
-      .style("font-family", (d) =>
-        d.type === "listingHistory" ? "serif" : "sans-serif"
-      );
+      .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif"));
 
     g.append("g")
       .attr("transform", "translate(0," + (data.length > 0 ? height : 0) + ")")
@@ -675,9 +696,7 @@ $.get("timelinedata.json", function (tradeData) {
         .attr("stop-color", "gray")
         .attr("stop-opacity", 0.2);
 
-      g = svgIUCN
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + 0 + ")");
+      g = svgIUCN.append("g").attr("transform", "translate(" + margin.left + "," + 0 + ")");
 
       let rect = g
         .append("rect")
@@ -700,13 +719,7 @@ $.get("timelinedata.json", function (tradeData) {
           maxCount = Math.max(maxCount, count);
           rect.attr("height", (maxCount + 1) * 2 * radius + 1);
           svgIUCN.attr("height", (maxCount + 1) * 2 * radius + 1);
-          return (
-            "translate(" +
-            x(Number(d.year)) +
-            "," +
-            (radius * 2 * count + 1) +
-            ")"
-          );
+          return "translate(" + x(Number(d.year)) + "," + (radius * 2 * count + 1) + ")";
         })
         .attr("x", function (d) {
           return x(Number(d.year));
@@ -717,10 +730,7 @@ $.get("timelinedata.json", function (tradeData) {
 
       let text = g
         .append("text")
-        .attr(
-          "transform",
-          "translate(-5," + ((maxCount + 1) * 2 * radius + 1) / 2 + ")"
-        )
+        .attr("transform", "translate(-5," + ((maxCount + 1) * 2 * radius + 1) / 2 + ")")
         .style("text-anchor", "end")
         .style("dominant-baseline", "central")
         .style("font-size", "9")
@@ -758,9 +768,7 @@ $.get("timelinedata.json", function (tradeData) {
         })
         .style("font-size", radius)
         .style("fill", getIucnColorForeground)
-        .style("font-family", (d) =>
-          d.type === "listingHistory" ? "serif" : "sans-serif"
-        );
+        .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif"));
     }
 
     // ############# THREATS #############
@@ -768,11 +776,7 @@ $.get("timelinedata.json", function (tradeData) {
       let circleYearCountThreats = {};
 
       let $threatSvg = $visContent.append(
-        '<svg id="' +
-          id +
-          'Threat" width="960" height="' +
-          (2 * radius + 1) +
-          '">'
+        '<svg id="' + id + 'Threat" width="960" height="' + (2 * radius + 1) + '">'
       );
       maxCount = 0;
       svgThreat = d3.select("#" + id + "Threat");
@@ -805,9 +809,7 @@ $.get("timelinedata.json", function (tradeData) {
         .attr("stop-color", "gray")
         .attr("stop-opacity", 0.2);
 
-      g = svgThreat
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + 0 + ")");
+      g = svgThreat.append("g").attr("transform", "translate(" + margin.left + "," + 0 + ")");
 
       rect = g
         .append("rect")
@@ -830,9 +832,7 @@ $.get("timelinedata.json", function (tradeData) {
           maxCount = Math.max(maxCount, count);
           rect.attr("height", (maxCount + 1) * 2 * radius + 1);
           svgThreat.attr("height", (maxCount + 1) * 2 * radius + 1);
-          return (
-            "translate(" + x(Number(d.year)) + "," + radius * 2 * count + ")"
-          );
+          return "translate(" + x(Number(d.year)) + "," + radius * 2 * count + ")";
         })
         .attr("x", function (d) {
           return x(Number(d.year));
@@ -843,10 +843,7 @@ $.get("timelinedata.json", function (tradeData) {
 
       let text = g
         .append("text")
-        .attr(
-          "transform",
-          "translate(-5," + ((maxCount + 1) * 2 * radius + 1) / 2 + ")"
-        )
+        .attr("transform", "translate(-5," + ((maxCount + 1) * 2 * radius + 1) / 2 + ")")
         .style("text-anchor", "end")
         .style("dominant-baseline", "central")
         .style("font-size", "9")
@@ -896,9 +893,7 @@ $.get("timelinedata.json", function (tradeData) {
         })
         .style("font-size", radius - 1)
         .style("fill", getIucnColorForeground)
-        .style("font-family", (d) =>
-          d.type === "listingHistory" ? "serif" : "sans-serif"
-        );
+        .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif"));
     }
   }
 });
