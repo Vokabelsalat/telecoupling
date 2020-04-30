@@ -14,7 +14,7 @@ let colorString = Object.keys(iucnColors).map(
 );
 
 let zoomLevel = 0;
-let maxZoomLevel = 2;
+let maxZoomLevel = 1;
 
 let setZoomLevel = (setValue) => {
   zoomTimelines(setValue - zoomLevel);
@@ -27,34 +27,18 @@ let zoomTimelines = (add) => {
 
   switch (zoomLevel) {
     case 0:
-      /* $(".visWrapper").css("display", "table-row");*/
-      $(".visHeader").css("border-top", "1px solid black");
-      $(".visContent").css("border-top", "1px solid black");
-      $(".visHeader").css("border-bottom", "1px solid black");
-      $(".visContent").css("border-bottom", "1px solid black");
-      $(".tradeTimeline").hide();
-      $(".visContent").css("display", "table-cell");
-      $(".visHeader").css("display", "table-cell");
-      $(".visHeader").css("vertical-align", "middle");
-      $(".visHeader").css("width", "150px");
-      $(".timelineHeader").css("margin-top", "0");
-      $("#overAllSvg").css("margin-left", "150px");
-      $("#overAllSvg").css("display", "block");
-      $("#overAllSvg").show();
+      collapseTimelines(true)
       break;
     case 1:
-      collapseTimelines(true);
+      collapseTimelines(false);
       break;
     case 2:
-      collapseTimelines(false);
       break;
     default:
       break;
   }
 
   $("#zoomLevel").text((zoomLevel + 1) + "/" + (maxZoomLevel + 1));
-  console.log("ZOOM", zoomLevel);
-
 }
 
 let collapsed = false;
@@ -703,6 +687,32 @@ $.get("timelinedata.json", function (tradeData) {
 
       svgThreat.style("display", "block");
 
+      // Define the gradient
+      var gradient = svgThreat
+        .append("svg:defs")
+        .append("svg:linearGradient")
+        .attr("gradientTransform", "rotate(90)")
+        .attr("id", "gradient");
+
+      // Define the gradient colors
+      gradient
+        .append("svg:stop")
+        .attr("offset", "0%")
+        .attr("stop-color", "white")
+        .attr("stop-opacity", 1);
+
+      gradient
+        .append("svg:stop")
+        .attr("offset", "25%")
+        .attr("stop-color", "white")
+        .attr("stop-opacity", 0.1);
+
+      gradient
+        .append("svg:stop")
+        .attr("offset", "95%")
+        .attr("stop-color", "gray")
+        .attr("stop-opacity", 0.2);
+
       g = svgThreat.append("g").attr("transform", "translate(" + margin.left + "," + 0 + ")");
 
       rect = g
@@ -724,14 +734,9 @@ $.get("timelinedata.json", function (tradeData) {
         .attr("transform", function (d) {
           let count = yearCount(d.year, circleYearCountThreats);
           maxCount = Math.max(maxCount, count);
-          if (zoomLevel > 0) {
-            rect.attr("height", (maxCount + 1) * 2 * radius + 1);
-            svgThreat.attr("height", (maxCount + 1) * 2 * radius + 1);
-            return "translate(" + x(Number(d.year)) + "," + radius * 2 * count + ")";
-          }
-          else {
-            return "translate(" + (x(Number(d.year)) + (count - 1) * 3) + "," + 0 + ")";
-          }
+          rect.attr("height", (maxCount + 1) * 2 * radius + 1);
+          svgThreat.attr("height", (maxCount + 1) * 2 * radius + 1);
+          return "translate(" + x(Number(d.year)) + "," + radius * 2 * count + ")";
         })
         .attr("x", function (d) {
           return x(Number(d.year));
@@ -742,7 +747,7 @@ $.get("timelinedata.json", function (tradeData) {
 
       let text = g
         .append("text")
-        .attr("transform", "translate(-5," + (svgThreat.attr("height") / 2) + ")")
+        .attr("transform", "translate(-5," + ((maxCount + 1) * 2 * radius + 1) / 2 + ")")
         .style("text-anchor", "end")
         .style("dominant-baseline", "central")
         .style("font-size", "9")
