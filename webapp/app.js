@@ -59,8 +59,8 @@ const port = 8080;
 const db = mysql.createConnection(database.databaseConfig);
 global.variables = variables.variables;
 
-let rawdata = fs.readFileSync("./public/locations.json");
-global.musicalChairsLocations = JSON.parse(rawdata);
+/* let rawdata = fs.readFileSync("./public/locations.json");
+global.musicalChairsLocations = JSON.parse(rawdata); */
 
 // connect to database
 db.connect((err) => {

@@ -5,25 +5,33 @@ colorBrewerScheme14Qualitative = ['rgb(141,211,199)', 'rgb(255,255,179)', 'rgb(1
 watermarkColorSheme = ["rgb(0, 119, 68)", "rgb(188, 174, 70)", "rgb(157, 196, 85)", "rgb(34, 106, 90)", "rgb(0, 103, 115)", "rgb(136, 180, 149)", "rgb(234, 157, 64)", "rgb(247, 208, 66)", "rgb(114, 191, 179)", "rgb(191, 157, 117)", "rgb(188, 213, 148)", "rgb(210, 37, 49)", "rgb(217, 117, 96)", "rgb(212, 29, 113"];
 
 iucnColors = {
-    "EX": {bg: "rgb(0,0,0)", fg: "rgb(255,255,255)"},
-    "EW": {bg: "rgb(84,35,68)", fg: "rgb(255,255,255)"},
-    "RE": {bg: "rgb(155,79,150)", fg: "rgb(255,255,255)"},
-    "CR": {bg: "rgb(216,29,4)", fg: "rgb(255,255,255)"},
-    "EN": {bg: "rgb(252,127,63)", fg: "rgb(255,255,255)"},
-    "VU": {bg: "rgb(249,232,18)", fg: "rgb(0,0,0)"},
-    "NT": {bg: "rgb(204,226,37)", fg: "rgb(0,0,0)"},
-    "LC": {bg: "rgb(97,198,89)", fg: "rgb(0,0,0)"},
-    "DD": {bg: "rgb(209,209,198)", fg: "rgb(0,0,0)"},
-    "NA": {bg: "rgb(193,181,165)", fg: "rgb(0,0,0)"},
-    "NE": {bg: "rgb(255,255,255)", fg: "rgb(0,0,0)"}
+    "EX": { bg: "rgb(0,0,0)", fg: "rgb(255,255,255)" },
+    "EW": { bg: "rgb(84,35,68)", fg: "rgb(255,255,255)" },
+    "RE": { bg: "rgb(155,79,150)", fg: "rgb(255,255,255)" },
+    "CR": { bg: "rgb(216,29,4)", fg: "rgb(255,255,255)" },
+    "EN": { bg: "rgb(252,127,63)", fg: "rgb(255,255,255)" },
+    "VU": { bg: "rgb(249,232,18)", fg: "rgb(0,0,0)" },
+    "NT": { bg: "rgb(204,226,37)", fg: "rgb(0,0,0)" },
+    "LC": { bg: "rgb(97,198,89)", fg: "rgb(0,0,0)" },
+    "DD": { bg: "rgb(209,209,198)", fg: "rgb(0,0,0)" },
+    "NA": { bg: "rgb(193,181,165)", fg: "rgb(0,0,0)" },
+    "NE": { bg: "rgb(255,255,255)", fg: "rgb(0,0,0)" }
 };
 
-String.prototype.replaceAll = function(search, replacement) {
+let dangerColorMap = {
+    "EX": { bg: "rgba(214, 0, 3, 1)", fg: "rgb(255,255,255)" },
+    "TH": { bg: "rgb(252,127,63)", fg: "rgb(255,255,255)" },
+    "PT": { bg: "rgb(249,232,18)", fg: "rgb(0,0,0)" },
+    "nT": { bg: "rgb(97,198,89)", fg: "rgb(0,0,0)" },
+    "DD": { bg: "rgb(209,209,198)", fg: "rgb(0,0,0)" }
+};
+
+String.prototype.replaceAll = function (search, replacement) {
     var target = this;
     return target.replace(new RegExp(search, 'g'), replacement);
 };
 
-String.prototype.replaceSpecialCharacters = function(search, replacement) {
+String.prototype.replaceSpecialCharacters = function (search, replacement) {
     var target = this;
     return target.replace(/[ &\/\\#,+()$~%.'":*?<>{}]/g, '_');
 };

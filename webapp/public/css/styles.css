@@ -269,3 +269,21 @@ svg {
   margin-top: 10px;
   font-size: small;
 }
+
+#legends {
+  position: fixed;
+  z-index: 9999;
+  top: 9px;
+}
+
+#page-wrapper {
+  margin-top: 90px;
+}
+
+.inline {
+  display: inline-block;
+}
+
+button {
+  cursor: pointer;
+}

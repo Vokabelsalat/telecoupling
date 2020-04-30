@@ -52,3 +52,24 @@ Wie schaffen wir ein Maß an Bedrohung für die Instrumenten und Instrumentengru
 Die Menge der Instrumente sollte eine Rolle spielen, um eine relative Bedrohung auszudrücken.
 Wir vereinfachen es, also betrachten nur eine Geige und ein Kontrabass in der Gruppe der Streicher
 Wir ignorieren vielleicht auch die Gewichte und Relationen 
+
+
+Unterschied zwsichen legalem und illegalem Handel
+wir sollten Filtern
+Source -> "I"
+Purpose und Source sollte nach "Commercial Use" gefiltert werden "T"
+Kategorie "W" ist wild und bedroht deshalb vermutlich am ehesten die Art
+Kategorie "A" ist künstlich angebaut und deshalb fast irrelevant
+Kategorie "D" ist künstlich angebaut und deshalb fast irrelevant
+Kategorie "O" ist vor der Listung, deshalb ist es auch 
+Kategorie "Y" ähnlich wie "A"
+
+Tiere:
+D ist A für Tiere
+C kommen für Tiere hinzu
+
+
+- Farben zusammenfassen nach bedrohungen in 4 Kategorien
+- Cites als extra Zeile
+- Lokale Assesements zusammenfassen?
+    - verschiedene Modi für das Aggregieren anbieten -> Duchschnitt, Maximum, Minimum, maximale Abweichung
