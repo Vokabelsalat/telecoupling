@@ -274,6 +274,8 @@ svg {
   position: fixed;
   z-index: 9999;
   top: 9px;
+  background-color: white;
+  border: solid 1px black
 }
 
 #page-wrapper {
