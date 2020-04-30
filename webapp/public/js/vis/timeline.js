@@ -207,6 +207,10 @@ $.get("timelinedata.json", function (tradeData) {
           htmlText = "Amount of trades: " + d.count + " in " + d.year;
           topAdd = 25;
           break;
+        case "listingHistory":
+          htmlText = d.year + " : Appendix " + d.appendix;
+          leftAdd = parseInt(d3.select(this).attr("x"));
+          break;
         case "iucn":
           htmlText = d.year + " : " + d.category;
           leftAdd = parseInt(d3.select(this).attr("x"));
