@@ -1,0 +1,16 @@
+{
+    "name": "telecoupling",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "concurrently": "^5.1.0"
+    },
+    "scripts": {
+        "buildfrontend": "cd frontend && npm install",
+        "buildbackend": "cd backend && npm install",
+        "frontend": "cd frontend && npm start",
+        "backend": "cd backend && npm start",
+        "start": "concurrently \"npm run frontend\" \"npm run backend\"",
+        "build": "npm install && npm run buildbackend && npm run buildfrontend"
+    }
+}

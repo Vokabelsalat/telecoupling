@@ -116,3 +116,11 @@ webapp/node_modules/
 webapp/import/data/
 
 variables.js
+
+data/CITES_Species.csv
+
+data/material.csv
+
+*.csv
+
+*.sql

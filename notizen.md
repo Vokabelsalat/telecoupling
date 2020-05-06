@@ -70,6 +70,10 @@ C kommen für Tiere hinzu
 
 
 - Farben zusammenfassen nach bedrohungen in 4 Kategorien
+    + welche Farbskalen? 
 - Cites als extra Zeile
 - Lokale Assesements zusammenfassen?
     - verschiedene Modi für das Aggregieren anbieten -> Duchschnitt, Maximum, Minimum, maximale Abweichung
+
+Stiffness / Modulus of Elsticity / Young's Modulus, Specific Gravity, Density sind die wichtigsten Holzeigenschaften
+
