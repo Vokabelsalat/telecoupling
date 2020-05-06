@@ -166,7 +166,7 @@ function getTimelineIUCNDataFromSpecies(speciesObject) {
     }
 }
 
-function getTimelineTradeDataFromSpecies(speciesObject) {
+function getTimelineTradeDataFromSpecies(speciesObject, sourceColorMap) {
     console.log(speciesObject);
 
     if (speciesObject.hasOwnProperty("trade")) {
