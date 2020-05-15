@@ -77,3 +77,14 @@ C kommen für Tiere hinzu
 
 Stiffness / Modulus of Elsticity / Young's Modulus, Specific Gravity, Density sind die wichtigsten Holzeigenschaften
 
+
+
+Die nomentklatur sagt uns, welche Hölzer eigentlich wirklich im Holzmarkt verfügbar sind, das sagt uns mehr über die tatsächlichen Alternativen zu Hölzern (was ist praktisch möglich oder nur theoretisch)
+ -> wir könnten die Alternativen filtern, nach theoretischen oder praktischen Alternativen
+
+
+Karte neben den lokalen Threats, um zu sehen welche Länder die regionalen Assesments gemacht haben
+Die Bäume sollten noch leicht saturiert hinterlegt werden, um eine Einschätzung unserer Bedrohung darzustellen
+Die Cites Leiste muss noch versteckt werden, wenn sie keine Einträge enthält
+Schwarze Kästchen, um die Elemente der Legende herum einzeichnen
+Die Farben und Bedrohungen sollten im besten Fall nicht gleichgesetzt werden mit der Einschätzung zu den Alternativen, da dies ein weiterer ausgelagerter Schritt ist
