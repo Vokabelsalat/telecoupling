@@ -249,8 +249,7 @@ export class TimelineDatagenerator {
 
         if (speciesObject.hasOwnProperty("trade")) {
             //subkeys
-            let sciName =
-                speciesObject.material[0].Genus.trim() + " " + speciesObject.material[0].Species.trim();
+            //let sciName = speciesObject.material[0].Genus.trim() + " " + speciesObject.material[0].Species.trim();
 
             let trades = [];
 

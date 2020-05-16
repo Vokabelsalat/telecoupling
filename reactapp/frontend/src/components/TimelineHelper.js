@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { getOrCreate } from '../utils/utils'
+import { getOrCreate, dangerColorMap, sourceToDangerMap } from '../utils/utils'
 import { getIucnColor, getIucnColorForeground } from '../utils/timelineUtils'
 
 class D3Timeline {
@@ -8,9 +8,11 @@ class D3Timeline {
         this.data = param.data;
         this.sourceColorMap = param.sourceColorMap;
         this.domainYears = param.domainYears;
+        this.zoomLevel = param.zoomLevel;
+        this.speciesName = param.speciesName;
 
         this.initWidth = 960;
-        this.initHeight = 70;
+        this.initHeight = 100;
 
         this.margin = {
             top: 10,
@@ -29,21 +31,241 @@ class D3Timeline {
     }
 
     clearAndReset() {
-        d3.select("#" + this.id + " > *").remove();
-        d3.select("#" + this.id)
+        d3.selectAll("#" + this.id + " > *").remove();
+
+        let content = d3.select("#" + this.id);
+
+        let speciesNameDiv = content
+            .append("div")
+            .attr("class", "speciesNameDiv")
+            .text(this.speciesName);
+
+        this.wrapper = content
+            .append("div")
+            .attr("id", this.id + "wrapper");
+
+        switch (this.zoomLevel) {
+            case 0:
+                this.wrapper
+                    .style("display", "table-cell")
+                    .style("border-top", "1px solid var(--black)")
+
+                speciesNameDiv
+                    .style("display", "table-cell")
+                    .style("vertical-align", "middle")
+                    .style("border-top", "1px solid var(--black)")
+                    .style("width", "150px");
+                break;
+            default:
+                this.wrapper.style("display", "block");
+                speciesNameDiv
+                    .style("display", "block");
+                break;
+        }
+
+        /* d3.select("#" + this.id)
             .append("svg")
-            .attr("class", "citesTrade")
-            .attr("height", this.initHeight)
+            .attr("height", 30)
             .attr("width", this.initWidth)
+            .style("display", "block"); */
+    }
+
+    appendCitesTrade(tradeData, groupedBySource) {
+
+        let svgCITESTrade = this.wrapper
+            .append("svg")
+            .attr("id", this.id + "Trade")
+            .attr("width", this.initWidth)
+            .attr("height", this.height)
             .style("display", "block");
+
+        svgCITESTrade.style("display", "block");
+
+        let g = svgCITESTrade.append("g").attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
+
+        let sortedSources = Object.keys(groupedBySource).sort(
+            (a, b) => groupedBySource[b].length - groupedBySource[a].length
+        );
+
+        let yearPlus = {};
+
+        for (let source of sortedSources.values()) {
+
+            let lineColor = dangerColorMap[sourceToDangerMap[source]] ? dangerColorMap[sourceToDangerMap[source]].bg : dangerColorMap["DD"].bg;
+
+            let filteredData = {};
+
+            for (let yearData of tradeData.values()) {
+                getOrCreate(filteredData, yearData.year.toString(), {
+                    trades: yearData.trades.filter((e) => e.Source === source),
+                    year: yearData.year,
+                    source: source,
+                });
+            }
+
+            /* c
+            onsole.log("filtered", filteredData); */
+
+            g.append("path")
+                .datum(Object.values(filteredData))
+                .attr("fill", lineColor)
+                .attr("origFill", lineColor)
+                .attr("stroke", "none")
+                /* .attr("stroke-width", 1) */
+                .attr(
+                    "d",
+                    d3
+                        .area()
+                        .x((d) => { return this.x(d.year) + this.x.bandwidth() / 2; })
+                        .y0((d) => {
+                            return this.y(getOrCreate(yearPlus, d.year.toString(), 0));
+                        })
+                        .y1((d) => {
+                            let oldValue = getOrCreate(yearPlus, d.year.toString(), 0);
+                            let count = d.trades.length;
+                            yearPlus[d.year.toString()] = count + oldValue;
+                            let yValue = this.y(count + oldValue);
+                            d.yValue = yValue;
+                            return yValue;
+                        })
+                )
+            /* .on("mouseover", mouseover)
+            .on("mousemove", mousemove)
+            .on("mouseleave", mouseleave); */
+        }
+    }
+
+    appendCites(listingData) {
+        let circleYearCountIUCN = {};
+
+        let svgCITES = this.wrapper
+            .append("svg")
+            .attr("id", this.id + "Cites")
+            .attr("width", this.initWidth)
+            .attr("height", 2 * this.radius)
+            .style("display", "block");
+
+        let maxCount = 0;
+
+        svgCITES.style("display", "block");
+
+        let g = svgCITES.append("g").attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
+
+        let rect = g
+            .append("rect")
+            .attr("width", this.width)
+            .attr("height", (maxCount + 1) * 2 * this.radius + 1)
+            .attr("fill", "none")
+            .attr("stroke", "gray");
+        //.style("fill", "url(#mainGradient)")
+        /*.style("stroke", "black")*/
+        //.style("fill", "url(#myGradient)");
+
+        let elem = g.selectAll("g myCircleText").data(listingData);
+
+        let elemEnter = elem
+            .enter()
+            .append("g")
+            .attr("class", "noselect")
+            .attr("transform", function (d) {
+                let count = this.yearCount(d.year, circleYearCountIUCN);
+                maxCount = Math.max(maxCount, count);
+                rect.attr("height", (maxCount + 1) * 2 * this.radius + 1);
+                svgCITES.attr("height", (maxCount + 1) * 2 * this.radius + 1);
+                return "translate(" + this.x(Number(d.year)) + "," + (this.radius * 2 * count + 1) + ")";
+            }.bind(this))
+            .attr("x", function (d) {
+                return this.x(Number(d.year));
+            }.bind(this))/* 
+            .on("mouseover", mouseover)
+            .on("mousemove", mousemove)
+            .on("mouseleave", mouseleave);
+ */
+        g
+            .append("text")
+            .attr("transform", "translate(-5," + ((maxCount + 1) * 2 * this.radius + 1) / 2 + ")")
+            .style("text-anchor", "end")
+            .style("dominant-baseline", "central")
+            .style("font-size", "9")
+            .text("CITES");
+
+        //let radius = (height - y(1)) / 2;
+        elemEnter
+            .append("rect")
+            .attr("class", "pinarea")
+            .attr("height", 2 * this.radius)
+            /* .attr("width", function (d) {
+              return width - x(Number(d.year));
+            }) */
+            .attr("width", function (d) {
+                return this.width - this.x(Number(d.year));
+            }.bind(this))
+            /*.attr("r", radius)*/
+            /*.attr("cx", function(d) {
+                                return x.bandwidth() / 2;
+                            })
+                            .attr("cy", function(d) {
+                                return radius;
+                            })*/
+            .style("fill", function (d) {
+                switch (d.type) {
+                    case "listingHistory":
+                        switch (d.appendix) {
+                            case "I":
+                                return getIucnColor({ text: "CR" });
+                            case "II":
+                                return getIucnColor({ text: "EN" });
+                            case "III":
+                                return getIucnColor({ text: "NT" });
+                            default:
+                                break;
+                        }
+                        break;
+                }
+            })
+            .style("stroke", "gray");
+
+        elemEnter
+            .append("text")
+            .attr("class", "circleLabel noselect")
+            .text(function (d) {
+                return d.text;
+            })
+            .attr("x", function (d) {
+                return this.x.bandwidth() / 2;
+            }.bind(this))
+            .attr("y", function (d) {
+                return this.radius;
+            }.bind(this))
+            .style("font-size", this.radius)
+            .attr("width", function (d) {
+                return this.width - this.x(Number(d.year));
+            }.bind(this))
+            .style("fill", function (d) {
+                switch (d.type) {
+                    case "listingHistory":
+                        switch (d.appendix) {
+                            case "I":
+                                return getIucnColorForeground({ text: "CR" });
+                            case "II":
+                                return getIucnColorForeground({ text: "EN" });
+                            case "III":
+                                return getIucnColorForeground({ text: "NT" });
+                            default:
+                                break;
+                        }
+                        break;
+                }
+            })
+            .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif"));
     }
 
     appendIUCN(iucnData) {
         // ############# IUCN #############
         let circleYearCountIUCN = {};
 
-        let content = d3.select("#" + this.id);
-        let svgIUCN = content.append("svg")
+        let svgIUCN = this.wrapper
+            .append("svg")
             .attr("id", this.id + "IUCN")
             .attr("width", this.initWidth)
             .attr("height", 2 * this.radius)
@@ -83,7 +305,7 @@ class D3Timeline {
         .on("mousemove", mousemove)
         .on("mouseleave", mouseleave); */
 
-        let text = g
+        g
             .append("text")
             .attr("transform", "translate(-5," + ((maxCount + 1) * 2 * this.radius + 1) / 2 + ")")
             .style("text-anchor", "end")
@@ -126,7 +348,118 @@ class D3Timeline {
             .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif"));
     }
 
+    appendThreats(threatData) {
+        // ############# THREATS #############
+        let circleYearCountThreats = {};
+
+        let svgThreat = this.wrapper
+            .append("svg")
+            .attr("id", this.id + "Threat")
+            .attr("width", this.initWidth)
+            .attr("height", 2 * this.radius);
+
+        let maxCount = 0;
+
+        svgThreat.style("display", "block");
+
+        let g = svgThreat.append("g").attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
+
+        let rect = g
+            .append("rect")
+            .attr("width", this.width)
+            .attr("height", (maxCount + 1) * 2 * this.radius + 1)
+            .style("border", "1px solid black")
+            .style("border-top", "none")
+            .style("fill", "none")
+            .style("stroke", "gray");
+
+        let elem = g.selectAll("g myCircleText").data(threatData);
+
+        let elemEnter = elem
+            .enter()
+            .append("g")
+            .attr("class", "noselect")
+            .attr("transform", function (d) {
+                let count = this.yearCount(d.year, circleYearCountThreats);
+                maxCount = Math.max(maxCount, count);
+                rect.attr("height", (maxCount + 1) * 2 * this.radius + 1);
+                svgThreat.attr("height", (maxCount + 1) * 2 * this.radius + 1);
+                return "translate(" + this.x(Number(d.year)) + "," + this.radius * 2 * count + ")";
+            }.bind(this))
+            .attr("x", function (d) {
+                return this.x(Number(d.year));
+            }.bind(this))
+        /*            .on("mouseover", mouseover)
+                   .on("mousemove", mousemove)
+                   .on("mouseleave", mouseleave); */
+
+        let text = g
+            .append("text")
+            .attr("transform", "translate(-5," + ((maxCount + 1) * 2 * this.radius + 1) / 2 + ")")
+            .style("text-anchor", "end")
+            .style("dominant-baseline", "central")
+            .style("font-size", "9")
+            .text("Threats");
+
+        //let radius = (height - y(1)) / 2;
+        elemEnter
+            .filter((d) => d.scope === "Global")
+            .append("rect")
+            .attr("class", "pinarea")
+            .attr("height", 2 * this.radius)
+            .attr("width", function (d) {
+                return this.width - this.x(Number(d.year));
+            }.bind(this))
+            /*.attr("r", radius)*/
+            /*.attr("cx", function(d) {
+                                return x.bandwidth() / 2;
+                            })
+                            .attr("cy", function(d) {
+                                return radius;
+                            })*/
+            /* .style("fill", getIucnColor) */
+            .style("fill", (d) => {
+                return dangerColorMap[d.danger].bg;
+            })
+            .style("stroke", "gray");
+
+        elemEnter
+            .filter((d) => d.scope !== "Global")
+            .append("rect")
+            .attr("class", "pinpoint")
+            .attr("width", Math.sqrt(2 * (this.radius * this.radius)))
+            .attr("height", Math.sqrt(2 * (this.radius * this.radius)))
+            .attr("transform", "translate(" + this.x.bandwidth() / 2 + ",0) rotate(45)")
+            /* .style("fill", getIucnColor) */
+            .style("fill", (d) => {
+                return dangerColorMap[d.danger].bg;
+            })
+            .style("stroke-width", "0.5")
+            .style("stroke", "gray");
+
+        elemEnter
+            .append("text")
+            .attr("class", "circleLabel noselect")
+            .text(function (d) {
+                return d.text;
+            })
+            .attr("x", function (d) {
+                return this.x.bandwidth() / 2;
+            }.bind(this))
+            .attr("y", function (d) {
+                return this.radius;
+            }.bind(this))
+            .style("font-size", this.radius - 1)
+            /* .style("fill", getIucnColorForeground) */
+            .style("fill", (d) => {
+                return dangerColorMap[d.danger].fg;
+            })
+            .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif"));
+    }
+
     paint() {
+        console.log(this.zoomLevel);
+
         this.clearAndReset();
 
         let [data, groupedBySource] = this.data.timeTrade;
@@ -164,15 +497,31 @@ class D3Timeline {
             .attr("transform", "translate(0," + (data.length > 0 ? this.height : 0) + ")")
             .call(d3.axisBottom(this.x));
 
+        if (this.zoomLevel > 0 && data.length >= 2) {
+            this.appendCitesTrade(data, groupedBySource);
+        }
+
+        if (this.data.timeListing.length) {
+            this.appendCites(this.data.timeListing);
+        }
+
         if (this.data.timeIUCN.length) {
             this.appendIUCN(this.data.timeIUCN);
         }
 
+        if (this.data.timeThreat.length) {
+            this.appendThreats(this.data.timeThreat);
+        }
     }
 }
 
-const draw = (input) => {
-    new D3Timeline(input);
-};
+const TimelineHelper = {
+    draw: (input) => {
+        new D3Timeline(input);
+    },
+    reset: (id) => {
+        d3.selectAll("#" + id + " > *").remove();
+    }
+}
 
-export default draw;
+export default TimelineHelper;

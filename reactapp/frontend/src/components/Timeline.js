@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import drawTimeline from './TimelineHelper';
+import TimelineHelper from './TimelineHelper';
 import '../utils/utils';
 
 class Timeline extends Component {
@@ -7,9 +7,6 @@ class Timeline extends Component {
         super(props);
         this.state = {
             id: this.props.speciesName.replaceSpecialCharacters() + "TimelineVis",
-            data: this.props.data,
-            sourceColorMap: this.props.sourceColorMap,
-            domainYears: this.props.domainYears
         };
     }
 
@@ -20,11 +17,11 @@ class Timeline extends Component {
     } */
 
     componentDidMount() {
-        drawTimeline({ id: this.state.id, data: this.state.data, sourceColorMap: this.state.sourceColorMap, domainYears: this.state.domainYears });
+        TimelineHelper.draw({ id: this.state.id, data: this.props.data, sourceColorMap: this.props.sourceColorMap, domainYears: this.props.domainYears, zoomLevel: this.props.zoomLevel, speciesName: this.props.speciesName });
     }
 
     componentDidUpdate() {
-        drawTimeline({ id: this.state.id, data: this.state.data, sourceColorMap: this.state.sourceColorMap, domainYears: this.state.domainYears });
+        TimelineHelper.draw({ id: this.state.id, data: this.props.data, sourceColorMap: this.props.sourceColorMap, domainYears: this.props.domainYears, zoomLevel: this.props.zoomLevel, speciesName: this.props.speciesName });
     }
 
     render() {

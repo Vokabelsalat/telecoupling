@@ -10,8 +10,6 @@ class TimelineView extends Component {
         let generator = new TimelineDatagenerator();
         generator.processData(timelinedata);
 
-        console.log("CREATING STATE!");
-
         this.state = {
             zoomLevel: 0,
             maxZoomLevel: 1,
@@ -46,6 +44,9 @@ class TimelineView extends Component {
     render() {
         console.log(this.state.sourceColorMap);
 
+        console.log("TIMELINEVIEW", this.state.zoomLevel);
+
+
         return (
             <div>
                 <h1>TimelineView</h1>
@@ -60,10 +61,12 @@ class TimelineView extends Component {
                     Object.keys(this.state.data).map(e => {
                         return (
                             <Timeline
+                                key={e + "timeline"}
                                 data={this.state.data[e]}
                                 speciesName={e}
                                 sourceColorMap={this.state.sourceColorMap}
                                 domainYears={this.state.domainYears}
+                                zoomLevel={this.state.zoomLevel}
                             />
                         )
                     })
