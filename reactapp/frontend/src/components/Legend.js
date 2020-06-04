@@ -17,7 +17,7 @@ class Legend extends Component {
 
     render() {
         return (
-            <div>
+            <div style={{ textAlign: "center" }}>
                 {(Object.keys(iucnColors).map(e => {
                     let style = {
                         display: "inline-block",
@@ -35,7 +35,7 @@ class Legend extends Component {
                 }))
                 }
 
-                < div > {this.props.zoomLevel} / {this.props.maxZoomLevel}</div >
+                < div > {this.props.zoomLevel + 1} / {this.props.maxZoomLevel + 1}</div >
                 <button onClick={this.props.onZoomOut}>-</button>
                 <button onClick={this.props.onZoom}>+</button>
             </div >

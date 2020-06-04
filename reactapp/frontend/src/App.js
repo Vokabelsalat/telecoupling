@@ -14,6 +14,11 @@ class App extends Component {
     return (
       <div className="App" >
         <TimelineView />
+        <div
+          key="tooltip"
+          id="tooltip"
+          className="tooltip">
+        </div>
       </div>
     );
   }

@@ -7,10 +7,6 @@
 }
 
 
-.App {
-  text-align: center;
-}
-
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -343,4 +339,16 @@ button {
   text-align: start;
   font-size: small;
   margin-top: 15px;
+}
+
+.tooltip {
+  background-color: white;
+  position: absolute;
+  border: solid;
+  border-width: 2px;
+  border-radius: 5px;
+  padding: 5px;
+  max-width: 250px;
+  font-size: 12px;
+  display: none;
 }

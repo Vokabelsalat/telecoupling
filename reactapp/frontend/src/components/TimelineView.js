@@ -12,7 +12,7 @@ class TimelineView extends Component {
 
         this.state = {
             zoomLevel: 0,
-            maxZoomLevel: 1,
+            maxZoomLevel: 2,
             sourceColorMap: generator.getSourceColorMap(),
             data: generator.getData(),
             domainYears: generator.getDomainYears()
@@ -42,14 +42,8 @@ class TimelineView extends Component {
     }
 
     render() {
-        console.log(this.state.sourceColorMap);
-
-        console.log("TIMELINEVIEW", this.state.zoomLevel);
-
-
         return (
             <div>
-                <h1>TimelineView</h1>
                 <Legend
                     onZoom={() => this.onZoom(1)}
                     onZoomOut={() => this.onZoom(-1)}
@@ -57,6 +51,14 @@ class TimelineView extends Component {
                     maxZoomLevel={this.state.maxZoomLevel}
                 />
                 <br />
+                <Timeline
+                    key={"scaleTop" + "timeline"}
+                    data={null}
+                    speciesName={"scaleTop"}
+                    sourceColorMap={this.state.sourceColorMap}
+                    domainYears={this.state.domainYears}
+                    zoomLevel={this.state.zoomLevel}
+                />
                 <div> {
                     Object.keys(this.state.data).map(e => {
                         return (
@@ -71,6 +73,14 @@ class TimelineView extends Component {
                         )
                     })
                 } </div>
+                <Timeline
+                    key={"scaleBottom" + "timeline"}
+                    data={null}
+                    speciesName={"scaleBottom"}
+                    sourceColorMap={this.state.sourceColorMap}
+                    domainYears={this.state.domainYears}
+                    zoomLevel={this.state.zoomLevel}
+                />
             </div>
         );
     }

@@ -88,3 +88,21 @@ Die Bäume sollten noch leicht saturiert hinterlegt werden, um eine Einschätzun
 Die Cites Leiste muss noch versteckt werden, wenn sie keine Einträge enthält
 Schwarze Kästchen, um die Elemente der Legende herum einzeichnen
 Die Farben und Bedrohungen sollten im besten Fall nicht gleichgesetzt werden mit der Einschätzung zu den Alternativen, da dies ein weiterer ausgelagerter Schritt ist
+
+
+
+Projektgespräch mit Daniel:
+Prozesse und Projekte der mitarbeitenden Firmen, werden digitalisiert
+Interesse der Wirtschaft, an solch einem System?
+Auch Partner außerhalb von Sachsen könnten teilnehmen
+Silke hat schon gute Kontakte an der Hand, jedoch geht es dann um einen speziellen Fokus
+Die Firmen haben bereits Kontakte zu Aufbauprojekten in Madagascar zum Schutz der Hölzer, jedoch haben diese auch riesige Holzlager, sodass die Nachfolgegenerationen eigentlich schon mit komplett gefüllten Lagern versorgt sind
+Wir sollten vermutlich diesen Verein mit einbeziehen, welcher auch Mitglieder in Sachsen hat
+Ein anderes Projekt mit Fokus auf BWL vom Fraunhofer, könnte Einblicke und Erkenntnisse aus dem Welthandel bieten
+Ein Jahr könnte für mich als Finanzierung rumkommen, dies wäre dann Kostenneutral für die Partnerfirmen
+
+Projektgespräch mit Focht, Daniel und Udo:
+Politik?
+Einfluss von Focht? Daniel scheint ein gutes Auge darauf zu haben
+Zusammenarbeit mit Köln und Dänemark?
+
