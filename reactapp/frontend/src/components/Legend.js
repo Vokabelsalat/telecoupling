@@ -38,6 +38,15 @@ class Legend extends Component {
                 < div > {this.props.zoomLevel + 1} / {this.props.maxZoomLevel + 1}</div >
                 <button onClick={this.props.onZoomOut}>-</button>
                 <button onClick={this.props.onZoom}>+</button>
+                <br />
+                <select
+                    value={this.props.pieStyle}
+                    onChange={(event) => {
+                        this.props.onPieStyle(event.target.value);
+                    }}>
+                    <option value="pie">Pies</option>
+                    <option value="bar">Bars</option>
+                </select>
             </div >
         );
     }

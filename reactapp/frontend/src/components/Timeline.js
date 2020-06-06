@@ -17,11 +17,29 @@ class Timeline extends Component {
     } */
 
     componentDidMount() {
-        TimelineHelper.draw({ id: this.state.id, data: this.props.data, sourceColorMap: this.props.sourceColorMap, domainYears: this.props.domainYears, zoomLevel: this.props.zoomLevel, speciesName: this.props.speciesName });
+        TimelineHelper.draw({
+            id: this.state.id,
+            data: this.props.data,
+            sourceColorMap: this.props.sourceColorMap,
+            domainYears: this.props.domainYears,
+            zoomLevel: this.props.zoomLevel,
+            speciesName: this.props.speciesName,
+            maxPerYear: this.props.maxPerYear,
+            pieStyle: this.props.pieStyle
+        });
     }
 
     componentDidUpdate() {
-        TimelineHelper.draw({ id: this.state.id, data: this.props.data, sourceColorMap: this.props.sourceColorMap, domainYears: this.props.domainYears, zoomLevel: this.props.zoomLevel, speciesName: this.props.speciesName });
+        TimelineHelper.draw({
+            id: this.state.id,
+            data: this.props.data,
+            sourceColorMap: this.props.sourceColorMap,
+            domainYears: this.props.domainYears,
+            zoomLevel: this.props.zoomLevel,
+            speciesName: this.props.speciesName,
+            maxPerYear: this.props.maxPerYear,
+            pieStyle: this.props.pieStyle
+        });
     }
 
     render() {

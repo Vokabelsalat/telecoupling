@@ -10,13 +10,19 @@ class TimelineView extends Component {
         let generator = new TimelineDatagenerator();
         generator.processData(timelinedata);
 
+        let tmpdata = generator.getData();
+        let maxPerYear = Math.max(...Object.values(tmpdata).map(e => e.timeThreat.length > 0 ? e.timeThreat[0].maxPerYear : 0));
+
         this.state = {
             zoomLevel: 0,
             maxZoomLevel: 2,
             sourceColorMap: generator.getSourceColorMap(),
-            data: generator.getData(),
-            domainYears: generator.getDomainYears()
+            data: tmpdata,
+            maxPerYear: maxPerYear,
+            domainYears: generator.getDomainYears(),
+            pieStyle: "bar"
         };
+
     }
 
     /*     callAPI() {
@@ -41,6 +47,14 @@ class TimelineView extends Component {
         this.setZoomLevel(zoomLevel);
     }
 
+    setPieStyle(setValue) {
+        this.setState({ pieStyle: setValue });
+    }
+
+    onPieStyle(style) {
+        this.setPieStyle(style);
+    }
+
     render() {
         return (
             <div>
@@ -49,10 +63,12 @@ class TimelineView extends Component {
                     onZoomOut={() => this.onZoom(-1)}
                     zoomLevel={this.state.zoomLevel}
                     maxZoomLevel={this.state.maxZoomLevel}
+                    onPieStyle={this.onPieStyle.bind(this)}
+                    pieStyle={this.state.pieStyle}
                 />
                 <br />
                 <Timeline
-                    key={"scaleTop" + "timeline"}
+                    key={"scaleToptimeline"}
                     data={null}
                     speciesName={"scaleTop"}
                     sourceColorMap={this.state.sourceColorMap}
@@ -69,12 +85,14 @@ class TimelineView extends Component {
                                 sourceColorMap={this.state.sourceColorMap}
                                 domainYears={this.state.domainYears}
                                 zoomLevel={this.state.zoomLevel}
+                                maxPerYear={this.state.maxPerYear}
+                                pieStyle={this.state.pieStyle}
                             />
                         )
                     })
                 } </div>
                 <Timeline
-                    key={"scaleBottom" + "timeline"}
+                    key={"scaleBottomtimeline"}
                     data={null}
                     speciesName={"scaleBottom"}
                     sourceColorMap={this.state.sourceColorMap}

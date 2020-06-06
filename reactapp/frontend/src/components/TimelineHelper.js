@@ -10,6 +10,9 @@ class D3Timeline {
         this.domainYears = param.domainYears;
         this.zoomLevel = param.zoomLevel;
         this.speciesName = param.speciesName;
+        this.maxPerYear = param.maxPerYear;
+
+        this.pieStyle = param.pieStyle;
 
         this.initWidth = 960;
         this.initHeight = 100;
@@ -238,6 +241,8 @@ class D3Timeline {
                                 break;
                         }
                         break;
+                    default:
+                        break;
                 }
             })
             .style("stroke", "gray");
@@ -272,6 +277,8 @@ class D3Timeline {
                                 default:
                                     break;
                             }
+                            break;
+                        default:
                             break;
                     }
                 })
@@ -414,8 +421,7 @@ class D3Timeline {
             .on("mousemove", this.mousemove)
             .on("mouseleave", this.mouseleave);
 
-        let text = g
-            .append("text")
+        g.append("text")
             .attr("transform", "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")")
             .style("text-anchor", "end")
             .style("dominant-baseline", "central")
@@ -483,7 +489,7 @@ class D3Timeline {
         let rowHeight = 2 * this.radius + 1;
         let strokeWidth = 0.5;
 
-        let circleYearCountThreats = {};
+        // let circleYearCountThreats = {};
 
         let svgThreat = this.wrapper
             .append("svg")
@@ -497,15 +503,13 @@ class D3Timeline {
 
         let g = svgThreat.append("g").attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
 
-        let rect = g
-            .append("rect")
+        g.append("rect")
             .attr("width", this.width)
             .attr("height", rowHeight)
             .style("fill", "none")
             .style("stroke", "grey");
 
-        let text = g
-            .append("text")
+        g.append("text")
             .attr("transform", "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")")
             .style("text-anchor", "end")
             .style("dominant-baseline", "central")
@@ -526,6 +530,9 @@ class D3Timeline {
                 );
             }
         }
+
+        console.log("data", piedData);
+
 
         // Compute the position of each group on the pie:
         var pie = d3.pie()
@@ -602,6 +609,145 @@ class D3Timeline {
             })
             .attr("stroke", "var(--black)")
             .style("stroke-width", strokeWidth + "px");
+    }
+
+    appendThreatBars(threatData) {
+        // ############# THREATS #############
+        let rowHeight = 2 * this.radius + 1;
+        let strokeWidth = 0.5;
+
+        // let circleYearCountThreats = {};
+
+        let svgThreat = this.wrapper
+            .append("svg")
+            .attr("id", this.id + "Threat")
+            .attr("width", this.initWidth)
+            .attr("height", rowHeight);
+
+        let maxCount = 0;
+
+        svgThreat.style("display", "block");
+
+        let g = svgThreat.append("g").attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
+
+        g.append("rect")
+            .attr("width", this.width)
+            .attr("height", rowHeight)
+            .style("fill", "none")
+            .style("stroke", "grey");
+
+        g.append("text")
+            .attr("transform", "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")")
+            .style("text-anchor", "end")
+            .style("dominant-baseline", "central")
+            .style("font-size", "9")
+            .text("Threats");
+
+        let piedData = {};
+        for (let threat of threatData.values()) {
+            if (threat.scope !== "Global") {
+                pushOrCreate(
+                    getOrCreate(piedData, threat.year.toString(), {
+                        year: threat.year.toString(),
+                        type: "threatpie",
+                        data: {}
+                    }).data,
+                    threat.danger,
+                    threat
+                );
+            }
+        }
+
+        let barScale = d3.scaleLinear()
+            .domain([0, this.maxPerYear])
+            .range([this.x.bandwidth(), 0]);
+
+        piedData = Object.values(piedData);
+
+        let elem = g.selectAll("wayne").data(threatData);
+
+        let elemEnter = elem
+            .enter()
+            .append("g")
+            .attr("class", "noselect")
+            .attr("transform", function (d) {
+                return "translate(" + (this.x(parseInt(d.year)) + this.x.bandwidth() / 2) + "," + (-strokeWidth) + ")";
+            }.bind(this))
+            .attr("x", function (d) {
+                return this.x(parseInt(d.year)) + this.x.bandwidth() / 2;
+            }.bind(this))
+            .on("mouseover", this.mouseover)
+            .on("mousemove", this.mousemove)
+            .on("mouseleave", this.mouseleave);
+
+
+        elemEnter
+            .filter((d) => {
+                return d.scope === "Global"
+            })
+            .append("rect")
+            .attr("class", "pinarea")
+            .attr("height", rowHeight + 2 * strokeWidth)
+            .attr("width", function (d) {
+                return this.width - this.x(Number(d.year));
+            }.bind(this))
+            .style("fill", (d) => {
+                return dangerColorMap[d.danger].bg;
+            })
+            .style("stroke-width", strokeWidth + "px")
+            .style("stroke", "gray");
+
+        elem = g.selectAll("g myCircleText").data(piedData);
+
+        strokeWidth = 0.5;
+
+        elemEnter = elem
+            .enter()
+            .append("g")
+            .attr("class", "noselect")
+            .attr("transform", function (d) {
+                return "translate(" + (this.x(parseInt(d.year)) + this.x.bandwidth() / 2) + "," + 0 + ")";
+            }.bind(this))
+            .attr("x", function (d) {
+                return this.x(parseInt(d.year)) + this.x.bandwidth() / 2;
+            }.bind(this))
+            .on("mouseover", this.mouseover)
+            .on("mousemove", this.mousemove)
+            .on("mouseleave", this.mouseleave);
+
+        elemEnter
+            .selectAll('whatever')
+            .data(function (d) {
+                let data = {};
+                Object.keys(dangerColorMap).forEach((key, i) => {
+                    data[key] = d.data.hasOwnProperty(key) ? d.data[key].length : 0;
+                });
+                var stackedData = d3.stack()
+                    .keys(Object.keys(dangerColorMap))
+                    ([data]);
+                return stackedData;
+            })
+            .enter()
+            .append("rect")
+            .attr("width", (d) => {
+                return barScale(d[0][0]) - barScale(d[0][1]);
+            })
+            .attr("height", rowHeight)
+            .attr("x", function (d) {
+                return this.x.bandwidth() + 3 * strokeWidth - barScale(d[0][0]);
+            }.bind(this))
+            .attr('fill', function (d) {
+                return dangerColorMap[d.key].bg;
+            })
+            .attr("stroke", "none")
+
+        elemEnter
+            .append("rect")
+            .attr("width", this.x.bandwidth() + 2 * strokeWidth)
+            .attr("height", rowHeight - 2 * strokeWidth)
+            .attr("transform", "translate(" + 3 * strokeWidth + "," + strokeWidth + ")")
+            .style("fill", "none")
+            .style("stroke", "grey");
     }
 
     mouseover(d) {
@@ -703,7 +849,7 @@ class D3Timeline {
 
         this.y = d3.scaleLinear().rangeRound([this.height, 0]);
 
-        var circleYearCount = {};
+        // var circleYearCount = {};
 
         if (this.data) {
             let [data, groupedBySource] = this.data.timeTrade;
@@ -739,7 +885,16 @@ class D3Timeline {
 
             if (this.data.timeThreat.length) {
                 if (this.zoomLevel === 0) {
-                    this.appendThreatPies(this.data.timeThreat);
+                    switch (this.pieStyle) {
+                        case "pie":
+                            this.appendThreatPies(this.data.timeThreat);
+                            break;
+                        case "bar":
+                            this.appendThreatBars(this.data.timeThreat);
+                            break;
+                        default:
+                            break;
+                    }
                 }
                 else {
                     this.appendThreats(this.data.timeThreat);

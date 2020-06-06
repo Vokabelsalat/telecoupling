@@ -85,6 +85,8 @@ export class TimelineDatagenerator {
                 if (year) pushOrCreate(groupedByYear, year.toString(), entry);
             }
 
+            let maxPerYear = Math.max(...Object.values(groupedByYear).map(e => e.length));
+
             let returnData = [];
 
             let years = Object.keys(groupedByYear).map((e) => parseInt(e));
@@ -128,6 +130,7 @@ export class TimelineDatagenerator {
                                 type: "threat",
                                 reference: e.reference,
                                 countries: e.countries,
+                                maxPerYear: maxPerYear
                             };
                         })
                     );
