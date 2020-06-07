@@ -20,7 +20,7 @@ class TimelineView extends Component {
             data: tmpdata,
             maxPerYear: maxPerYear,
             domainYears: generator.getDomainYears(),
-            pieStyle: "bar"
+            pieStyle: "ver"
         };
 
     }

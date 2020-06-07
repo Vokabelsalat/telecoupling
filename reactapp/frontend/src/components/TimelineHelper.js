@@ -725,6 +725,7 @@ class D3Timeline {
                 var stackedData = d3.stack()
                     .keys(Object.keys(dangerColorMap))
                     ([data]);
+
                 return stackedData;
             })
             .enter()
@@ -734,7 +735,7 @@ class D3Timeline {
             })
             .attr("height", rowHeight)
             .attr("x", function (d) {
-                return this.x.bandwidth() + 3 * strokeWidth - barScale(d[0][0]);
+                return this.x.bandwidth() + 4 * strokeWidth - barScale(d[0][0]);
             }.bind(this))
             .attr('fill', function (d) {
                 return dangerColorMap[d.key].bg;
@@ -748,6 +749,167 @@ class D3Timeline {
             .attr("transform", "translate(" + 3 * strokeWidth + "," + strokeWidth + ")")
             .style("fill", "none")
             .style("stroke", "grey");
+    }
+
+    appendThreatVerticalBars(threatData) {
+        // ############# THREATS #############
+        let localMaxPerYear = Math.max(...Object.values(threatData).map(e => e.maxPerYear));
+
+        let rowHeight = localMaxPerYear * 2 * this.radius + 1;
+        let strokeWidth = 0.5;
+
+        // let circleYearCountThreats = {};
+
+        let svgThreat = this.wrapper
+            .append("svg")
+            .attr("id", this.id + "Threat")
+            .attr("width", this.initWidth)
+            .attr("height", rowHeight);
+
+        let maxCount = 0;
+
+        svgThreat.style("display", "block");
+
+        let g = svgThreat.append("g").attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
+
+        g.append("rect")
+            .attr("width", this.width)
+            .attr("height", rowHeight)
+            .style("fill", "none")
+            .style("stroke", "grey");
+
+        g.append("text")
+            .attr("transform", "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")")
+            .style("text-anchor", "end")
+            .style("dominant-baseline", "central")
+            .style("font-size", "9")
+            .text("Threats");
+
+        let piedData = {};
+        for (let threat of threatData.values()) {
+            if (threat.scope !== "Global") {
+                pushOrCreate(
+                    getOrCreate(piedData, threat.year.toString(), {
+                        year: threat.year.toString(),
+                        type: "threatpie",
+                        data: {}
+                    }).data,
+                    threat.danger,
+                    threat
+                );
+            }
+        }
+
+        let barScale = d3.scaleLinear()
+            .domain([0, localMaxPerYear])
+            .range([rowHeight, 0]);
+
+        piedData = Object.values(piedData);
+
+        let elem = g.selectAll("wayne").data(threatData);
+
+        let elemEnter = elem
+            .enter()
+            .append("g")
+            .attr("class", "noselect")
+            .attr("transform", function (d) {
+                return "translate(" + (this.x(parseInt(d.year)) + this.x.bandwidth() / 2) + "," + (-strokeWidth) + ")";
+            }.bind(this))
+            .attr("x", function (d) {
+                return this.x(parseInt(d.year)) + this.x.bandwidth() / 2;
+            }.bind(this))
+            .on("mouseover", this.mouseover)
+            .on("mousemove", this.mousemove)
+            .on("mouseleave", this.mouseleave);
+
+
+        elemEnter
+            .filter((d) => {
+                return d.scope === "Global"
+            })
+            .append("rect")
+            .attr("class", "pinarea")
+            .attr("height", rowHeight + 2 * strokeWidth)
+            .attr("width", function (d) {
+                return this.width - this.x(Number(d.year));
+            }.bind(this))
+            .style("fill", (d) => {
+                return dangerColorMap[d.danger].bg;
+            })
+            .style("stroke-width", strokeWidth + "px")
+            .style("stroke", "gray");
+
+        elem = g.selectAll("g myCircleText").data(piedData);
+
+        strokeWidth = 0.5;
+
+        elemEnter = elem
+            .enter()
+            .append("g")
+            .attr("class", "noselect")
+            .attr("transform", function (d) {
+                return "translate(" + (this.x(parseInt(d.year))) + "," + 0 + ")";
+            }.bind(this))
+            .attr("x", function (d) {
+                return this.x(parseInt(d.year));
+            }.bind(this))
+            .on("mouseover", this.mouseover)
+            .on("mousemove", this.mousemove)
+            .on("mouseleave", this.mouseleave);
+
+        elemEnter
+            .selectAll('whatever')
+            .data(function (d) {
+                let data = {};
+                Object.keys(dangerColorMap).forEach((key, i) => {
+                    data[key] = d.data.hasOwnProperty(key) ? d.data[key].length : 0;
+                });
+                var stackedData = d3.stack()
+                    .keys(Object.keys(dangerColorMap))
+                    ([data]);
+
+                let newStackedData = [];
+                for (let entry of stackedData.values()) {
+                    if (entry[0].data[entry.key] > 1) {
+                        console.log(entry, entry[0].data[entry.key]);
+                        /* let newEntry = ; */
+                        for (let i = entry[0][0]; i < entry[0][1]; i++) {
+                            let newEntry = { 0: { 0: i, 1: i + 1, data: entry[0].data }, key: entry.key, index: entry.index };
+                            newStackedData.push(newEntry);
+                        }
+                    }
+                    else {
+                        newStackedData.push(entry);
+                    }
+                }
+
+                /* console.log(newStackedData); */
+
+                return newStackedData;
+            })
+            .enter()
+            .append("rect")
+            .attr("width", this.x.bandwidth() / 2)
+            .attr("height", (d) => {
+                return barScale(d[0][0]) - barScale(d[0][1]);
+            })
+            .attr("x", 2)
+            .attr("y", function (d) {
+                return barScale(d[0][1]);
+            }.bind(this))
+            .attr('fill', function (d) {
+                return dangerColorMap[d.key].bg;
+            })
+            .attr("stroke", "grey")
+            .attr("stroke-width", strokeWidth)
+
+        /* elemEnter
+            .append("rect")
+            .attr("width", this.x.bandwidth() / 2 + 2 * strokeWidth)
+            .attr("height", rowHeight - 2 * strokeWidth)
+            .attr("transform", "translate(" + 3 * strokeWidth + "," + strokeWidth + ")")
+            .style("fill", "none")
+            .style("stroke", "grey"); */
     }
 
     mouseover(d) {
@@ -891,6 +1053,9 @@ class D3Timeline {
                             break;
                         case "bar":
                             this.appendThreatBars(this.data.timeThreat);
+                            break;
+                        case "ver":
+                            this.appendThreatVerticalBars(this.data.timeThreat);
                             break;
                         default:
                             break;

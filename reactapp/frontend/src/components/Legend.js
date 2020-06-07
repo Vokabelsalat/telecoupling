@@ -46,6 +46,7 @@ class Legend extends Component {
                     }}>
                     <option value="pie">Pies</option>
                     <option value="bar">Bars</option>
+                    <option value="ver">Vertical Bars</option>
                 </select>
             </div >
         );
