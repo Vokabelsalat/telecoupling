@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import TimelineHelper from './TimelineHelper';
 import '../utils/utils';
+import { thresholdScott } from 'd3';
 
 class Timeline extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            id: this.props.speciesName.replaceSpecialCharacters() + "TimelineVis",
+            id: this.props.id,
+            zoomLevel: this.props.zoomLevel
         };
     }
 
@@ -16,16 +18,22 @@ class Timeline extends Component {
             .then(res => this.setState({ apiResponse: res }));
     } */
 
+    setZoomLevel(setValue) {
+        this.setState({ zoomLevel: setValue });
+    }
+
     componentDidMount() {
         TimelineHelper.draw({
             id: this.state.id,
             data: this.props.data,
             sourceColorMap: this.props.sourceColorMap,
             domainYears: this.props.domainYears,
-            zoomLevel: this.props.zoomLevel,
+            zoomLevel: this.state.zoomLevel,
+            setZoomLevel: this.setZoomLevel.bind(this),
             speciesName: this.props.speciesName,
             maxPerYear: this.props.maxPerYear,
-            pieStyle: this.props.pieStyle
+            pieStyle: this.props.pieStyle,
+            justTrade: this.props.justTrade
         });
     }
 
@@ -35,10 +43,12 @@ class Timeline extends Component {
             data: this.props.data,
             sourceColorMap: this.props.sourceColorMap,
             domainYears: this.props.domainYears,
-            zoomLevel: this.props.zoomLevel,
+            zoomLevel: this.state.zoomLevel,
+            setZoomLevel: this.setZoomLevel.bind(this),
             speciesName: this.props.speciesName,
             maxPerYear: this.props.maxPerYear,
-            pieStyle: this.props.pieStyle
+            pieStyle: this.props.pieStyle,
+            justTrade: this.props.justTrade
         });
     }
 

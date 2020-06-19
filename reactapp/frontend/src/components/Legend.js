@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { iucnColors } from '../utils/timelineUtils';
+import { dangerColorMap } from '../utils/utils';
 
 class Legend extends Component {
     /*     constructor(props) {
@@ -18,22 +19,43 @@ class Legend extends Component {
     render() {
         return (
             <div style={{ textAlign: "center" }}>
-                {(Object.keys(iucnColors).map(e => {
-                    let style = {
-                        display: "inline-block",
-                        width: "30px",
-                        height: "20px",
-                        backgroundColor: iucnColors[e].bg,
-                        color: iucnColors[e].fg
-                    };
-                    return (<div
-                        key={e}
-                        style={style}
-                    >
-                        {e}
-                    </div>);
-                }))
-                }
+                <div>
+                    {(Object.keys(iucnColors).map(e => {
+                        let style = {
+                            display: "inline-block",
+                            width: "30px",
+                            height: "20px",
+                            backgroundColor: iucnColors[e].bg,
+                            color: iucnColors[e].fg
+                        };
+                        return (<div
+                            key={e}
+                            style={style}
+                        >
+                            {e}
+                        </div>);
+                    }))
+                    }
+                </div>
+
+                <div>
+                    {(Object.keys(dangerColorMap).map(e => {
+                        let style = {
+                            display: "inline-block",
+                            width: "30px",
+                            height: "20px",
+                            backgroundColor: dangerColorMap[e].bg,
+                            color: dangerColorMap[e].fg
+                        };
+                        return (<div
+                            key={e}
+                            style={style}
+                        >
+                            {e}
+                        </div>);
+                    }))
+                    }
+                </div>
 
                 < div > {this.props.zoomLevel + 1} / {this.props.maxZoomLevel + 1}</div >
                 <button onClick={this.props.onZoomOut}>-</button>

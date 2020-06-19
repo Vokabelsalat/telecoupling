@@ -4,13 +4,15 @@ import { getIucnColor, getIucnColorForeground } from '../utils/timelineUtils'
 
 class D3Timeline {
     constructor(param) {
-        this.id = param.id;
+        this.id = this.justTrade === true ? param.id + "JustTrade" : param.id;
         this.data = param.data;
         this.sourceColorMap = param.sourceColorMap;
         this.domainYears = param.domainYears;
         this.zoomLevel = param.zoomLevel;
+        this.setZoomLevel = param.setZoomLevel;
         this.speciesName = param.speciesName;
         this.maxPerYear = param.maxPerYear;
+        this.justTrade = param.justTrade;
 
         this.pieStyle = param.pieStyle;
 
@@ -48,7 +50,8 @@ class D3Timeline {
             .attr("id", this.id + "wrapper");
 
         switch (this.zoomLevel) {
-            case 0:
+            //case 0:
+            default:
                 this.wrapper
                     .style("display", "table-cell")
                     .style("border-top", "1px solid var(--black)")
@@ -60,11 +63,11 @@ class D3Timeline {
                     .style("font-size", 9 + "px")
                     .style("width", "150px");
                 break;
-            default:
-                this.wrapper.style("display", "block");
-                speciesNameDiv
-                    .style("display", "block");
-                break;
+            /*  default:
+                 this.wrapper.style("display", "block");
+                 speciesNameDiv
+                     .style("display", "block");
+                 break; */
         }
 
         if (this.id.toLowerCase().includes("scale")) {
@@ -74,7 +77,17 @@ class D3Timeline {
             }
         }
         else {
-            speciesNameDiv.text(this.speciesName);
+            speciesNameDiv
+                .text(this.speciesName)
+                .style("cursor", "pointer")
+                .on("click", () => {
+                    if (this.zoomLevel === 0) {
+                        this.setZoomLevel(2);
+                    }
+                    else {
+                        this.setZoomLevel(0);
+                    }
+                })
         }
 
 
@@ -86,7 +99,7 @@ class D3Timeline {
             .style("display", "block"); */
     }
 
-    appendCitesTrade(tradeData, groupedBySource) {
+    appendCitesTradeStacked(tradeData, groupedBySource) {
 
         let svgCITESTrade = this.wrapper
             .append("svg")
@@ -126,7 +139,7 @@ class D3Timeline {
                 .datum(Object.values(filteredData))
                 .attr("fill", lineColor)
                 .attr("origFill", lineColor)
-                .attr("stroke", "none")
+                .attr("stroke", "grey")
                 /* .attr("stroke-width", 1) */
                 .attr(
                     "d",
@@ -149,6 +162,32 @@ class D3Timeline {
                 .on("mousemove", this.mousemove)
                 .on("mouseleave", this.mouseleave);
         }
+    }
+
+    appendCitesTrade(tradeData, groupedBySource) {
+
+        let svgCITESTrade = this.wrapper
+            .append("svg")
+            .attr("id", this.id + "Trade")
+            .attr("width", this.initWidth)
+            .attr("height", this.height)
+            .style("display", "block");
+
+        svgCITESTrade.style("display", "block");
+
+        let g = svgCITESTrade.append("g").attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
+
+        g.append("path")
+            .datum(Object.values(tradeData))
+            .attr("fill", "none")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 1.5)
+            .attr("d", d3.line()
+                .x(function (d) {
+                    return this.x(d.year) + this.x.bandwidth() / 2
+                }.bind(this))
+                .y(function (d) { return this.y(d.count) }.bind(this))
+            );
     }
 
     appendCites(listingData) {
@@ -454,8 +493,8 @@ class D3Timeline {
             .filter((d) => d.scope !== "Global")
             .append("rect")
             .attr("class", "pinpoint")
-            .attr("width", Math.sqrt(rowHeight * rowHeight * 2))
-            .attr("height", Math.sqrt(rowHeight * rowHeight * 2))
+            .attr("width", Math.sqrt(rowHeight / 2 * rowHeight / 2 * 2))
+            .attr("height", Math.sqrt(rowHeight / 2 * rowHeight / 2 * 2))
             .attr("transform", "translate(" + this.x.bandwidth() / 2 + ",0) rotate(45)")
             /* .style("fill", getIucnColor) */
             .style("fill", (d) => {
@@ -871,8 +910,6 @@ class D3Timeline {
                 let newStackedData = [];
                 for (let entry of stackedData.values()) {
                     if (entry[0].data[entry.key] > 1) {
-                        console.log(entry, entry[0].data[entry.key]);
-                        /* let newEntry = ; */
                         for (let i = entry[0][0]; i < entry[0][1]; i++) {
                             let newEntry = { 0: { 0: i, 1: i + 1, data: entry[0].data }, key: entry.key, index: entry.index };
                             newStackedData.push(newEntry);
@@ -882,9 +919,6 @@ class D3Timeline {
                         newStackedData.push(entry);
                     }
                 }
-
-                /* console.log(newStackedData); */
-
                 return newStackedData;
             })
             .enter()
@@ -944,8 +978,6 @@ class D3Timeline {
                     topAdd = 25;
                 } else { */
 
-        console.log(d);
-
         switch (d.type) {
             case "trade":
                 htmlText = "Amount of trades: " + d.count + " in " + d.year;
@@ -977,6 +1009,7 @@ class D3Timeline {
                 htmlText = d.year +
                     "<br>" +
                     Object.keys(d.data).map(key => d.data[key][0].threatened + " (" + d.data[key].length + ") " + d.data[key].filter(e => e.countries !== undefined).map(e => e.countries).join(", ")).join("<br>");
+                leftAdd = parseInt(d3.select(this).attr("x"));
                 break;
             default:
                 // statements_def
@@ -999,6 +1032,10 @@ class D3Timeline {
 
         this.width = this.initWidth - this.margin.left - this.margin.right;
         this.height = this.initHeight - this.margin.top - this.margin.bottom;
+
+        if (this.zoomLevel === 0 && this.justTrade === true) {
+            this.height = this.height / 2.5;
+        }
 
         let yearDiff = this.domainYears.maxYear - this.domainYears.minYear;
         let xDomain = Array(yearDiff + 1)
@@ -1023,46 +1060,53 @@ class D3Timeline {
                 }),
             ]);
 
-            if (this.zoomLevel > 0) {
-                this.radius = Math.ceil(Math.min(this.x.bandwidth() / 2 - 5, this.height / 2));
-                this.fontSize = this.radius;
-            }
-            else {
-                this.radius = Math.ceil(Math.min(this.x.bandwidth() / 6, this.height / 2));
-                this.fontSize = 9;
-            }
-
-
-            if (this.zoomLevel > 0 && data.length >= 2) {
-                this.appendCitesTrade(data, groupedBySource);
-            }
-
-            if (this.data.timeListing.length) {
-                this.appendCites(this.data.timeListing);
-            }
-
-            if (this.data.timeIUCN.length) {
-                this.appendIUCN(this.data.timeIUCN);
-            }
-
-            if (this.data.timeThreat.length) {
-                if (this.zoomLevel === 0) {
-                    switch (this.pieStyle) {
-                        case "pie":
-                            this.appendThreatPies(this.data.timeThreat);
-                            break;
-                        case "bar":
-                            this.appendThreatBars(this.data.timeThreat);
-                            break;
-                        case "ver":
-                            this.appendThreatVerticalBars(this.data.timeThreat);
-                            break;
-                        default:
-                            break;
-                    }
+            if (this.justTrade === true) {
+                if (this.zoomLevel > 0) {
+                    this.appendCitesTradeStacked(data, groupedBySource);
                 }
                 else {
-                    this.appendThreats(this.data.timeThreat);
+                    this.appendCitesTrade(data, groupedBySource);
+                }
+            }
+            else {
+
+                if (this.zoomLevel > 0) {
+                    this.radius = Math.ceil(Math.min(this.x.bandwidth() / 2 - 5, this.height / 2));
+                    this.fontSize = this.radius;
+                }
+                else {
+                    this.radius = Math.ceil(Math.min(this.x.bandwidth() / 6, this.height / 2));
+                    this.fontSize = 9;
+                }
+
+
+                if (this.data.timeListing.length) {
+                    this.appendCites(this.data.timeListing);
+                }
+
+                if (this.data.timeIUCN.length) {
+                    this.appendIUCN(this.data.timeIUCN);
+                }
+
+                if (this.data.timeThreat.length) {
+                    if (this.zoomLevel === 0) {
+                        switch (this.pieStyle) {
+                            case "pie":
+                                this.appendThreatPies(this.data.timeThreat);
+                                break;
+                            case "bar":
+                                this.appendThreatBars(this.data.timeThreat);
+                                break;
+                            case "ver":
+                                this.appendThreatVerticalBars(this.data.timeThreat);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    else {
+                        this.appendThreats(this.data.timeThreat);
+                    }
                 }
             }
         }

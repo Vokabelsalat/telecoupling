@@ -36,8 +36,8 @@ module.exports = {
     sourceToDangerMap: {
         "I": "EX",
         "W": "TH",
-        "A": "PT",
-        "O": "PT",
+        "A": "nT",
+        "O": "nT",
         "D": "PT",
         "Y": "PT",
         "U": "DD"

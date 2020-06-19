@@ -105,4 +105,34 @@ Projektgespräch mit Focht, Daniel und Udo:
 Politik?
 Einfluss von Focht? Daniel scheint ein gutes Auge darauf zu haben
 Zusammenarbeit mit Köln und Dänemark?
+Der Hauptantragssteller sollte in Sachsen ansässig sein
+Externe Projektpartner können auch von außen kommen            
 
+
+Visualisierung:
+Darstellung der Pies sollten eventuell als Stacked Bar Charts geändert werden
+entweder Horizontal oder vertikal abtragen
+Die Zeitleiste kann noch deutlich schmaler werden, dafür aber in der Höhe gewinnen, vielleicht tragen wir dort mehr ab
+Sortierungen der Holzarten:
+    Ranking anhand von Bedrohungsstati
+Farbe oder Beginn des Balkens beim Highlighten hervorheben
+Die Datenpunkte sind aktuell noch scheinbar zwischen den Jahren
+Wie kommen wir an lokal regulierte Daten heran?
+    lokale Holzeinschränkungen?
+
+
+
+Horizontale Zentrierung der einzelnen Kästchen
+Rand nur um das gesamte Konstrukt
+Einschätzungen beim Zoomen anzeigen
+Ermöglichen wir den Vergleich? 
+    dieser ist in den Listungen und Assesments nicht so wichtig, wie beim Handel
+Handel in einer Extra Darstellung
+Sortierung anhand von Cites, dann IUCN
+Logische Treenung von Listung und Handel
+
+Bessere Darstellung der Handelsdaten?
+    Vielleicht erlaubt man hier auch eine Art von Zoom
+
+Verschiedene Zommstufen könnten auch verschiedene Farbskalen auslösen
+    auch dies könnte bei der IUCN umgesetzt werden
