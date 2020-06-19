@@ -124,3 +124,5 @@ data/material.csv
 *.csv
 
 *.sql
+
+reactapp/frontend/src/components/telecouplingreact.code-workspace
