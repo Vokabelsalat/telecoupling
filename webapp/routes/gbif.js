@@ -10,8 +10,8 @@ module.exports = {
             data: {
                 "name": word
             }
-        }, function(err, res, data) {
-            if(data) {
+        }, function (err, res, data) {
+            if (data) {
                 let conf = data["confidence"];
                 if (conf > 80) {
                     outerRes.json(data);
@@ -52,7 +52,7 @@ module.exports = {
                 "limit": 300,
                 /*"hasCoordinate": true*/
             }
-        }, function(err, res, data) {
+        }, function (err, res, data) {
             let count = data["count"];
             let pages = Math.ceil(count / 300);
 
@@ -83,7 +83,7 @@ module.exports = {
                             "limit": 300,
                             "offset": offset
                         }
-                    }, function(err, res, data) {
+                    }, function (err, res, data) {
                         wait.pop();
 
                         results.push(...(data.results));
@@ -109,13 +109,13 @@ module.exports = {
                 data: {
                     "genus": genus
                 }
-            }, function(err, res, data) {
-                if(data.hasOwnProperty("genusKey")) {
+            }, function (err, res, data) {
+                if (data.hasOwnProperty("genusKey")) {
                     let genusKey = data["genusKey"];
                     outerRes.end(genusKey.toString());
                 }
                 else {
-                    outerRes.end();   
+                    outerRes.end();
                 }
             });
         } else {
@@ -135,12 +135,12 @@ module.exports = {
                 data: {
                     limit: 1000
                 }
-            }, function(err, res, data) {
-                if(data.hasOwnProperty("results")) {
+            }, function (err, res, data) {
+                if (data.hasOwnProperty("results")) {
                     outerRes.json(data["results"]);
                 }
                 else {
-                    outerRes.end();   
+                    outerRes.end();
                 }
             });
         } else {
@@ -156,21 +156,21 @@ module.exports = {
             request({
                 url: 'http://api.gbif.org/v1/species/' + taxonKey + '/synonyms',
                 method: 'GET',
-                json: true,
                 data: {
                     limit: 1000
                 }
-            }, function(err, res, data) {
-                if(data) {
-                    if(data.hasOwnProperty("results")) {
+            }, function (err, res, data) {
+                if (data) {
+                    data = JSON.parse(data);
+                    if (data.hasOwnProperty("results")) {
                         outerRes.json(data["results"]);
                     }
                     else {
-                        outerRes.end();   
+                        outerRes.end();
                     }
                 }
                 else {
-                    outerRes.end();   
+                    outerRes.end();
                 }
             });
         } else {

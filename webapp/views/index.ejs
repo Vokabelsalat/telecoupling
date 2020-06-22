@@ -92,9 +92,7 @@
             mainPartSelect.html(data.map(e => (selectedMainPart != null && selectedMainPart === e.Main_part ? "<option selected='true'>" : "<option>") + e.Main_part + "</option>"));
             mainPartSelect.attr("instruments", instruments);
 
-            if (selectedMainPart) {
-                func2($("#mainPartSelect"));
-            }
+            func2($("#mainPartSelect"));
         });
     }
 
@@ -185,7 +183,7 @@
 
                 for (let entry of resData.values()) {
                     if (entry.reference === "NationalRL_0915" || entry.reference === "National Red List") {
-                        $.post("/queryCountriesForNationalRedList", {bgciUrl: entry.bgciUrl}, function(result) {
+                        $.post("/queryCountriesForNationalRedList", { bgciUrl: entry.bgciUrl }, function (result) {
                             entry.countries = result;
                             callback([entry]);
                         });
@@ -220,14 +218,23 @@
     function func2(e) {
         let mainPart = $(e).val();
         clearTable();
-        $.post("/getMaterial/" + $("#instrumentsSelect").val() + "/" + mainPart, function (data) {
+        $.post("/getAllMaterials", function (data) {
             let materialArray = $("#materialArray");
             materialArray.css("display", "inline-block");
 
             let table = $("#resultTable");
 
             for (let scientificNameAndMaterial of data.map(e => [e.Genus.trim() + (e.Species.trim() !== "" ? " " + e.Species.trim() : ""), e]).values()) {
-                pushOrCreate(getOrCreate(collectedData, scientificNameAndMaterial[0], {}), "material", scientificNameAndMaterial[1])
+                let tmpObj = getOrCreate(collectedData, scientificNameAndMaterial[0], {});
+                if (tmpObj["material"] === undefined) {
+                    tmpObj["material"] = [scientificNameAndMaterial[1]];
+                }
+                else {
+                    if (!tmpObj["material"].map(e => e["Trade_name"]).includes(scientificNameAndMaterial[1]["Trade_name"])) {
+                        tmpObj["material"].push(scientificNameAndMaterial[1]);
+                    }
+                }
+                collectedData[scientificNameAndMaterial[0]] = tmpObj;
             }
 
             for (let scientificName of Object.keys(collectedData)) {
@@ -266,7 +273,9 @@
                 }
 
                 if (justGenus) {
-                    $.post("/getTradeByGenus/" + justGenus, $.proxy(appendTrade, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName }));
+                    if (!collectedData[scientificName].hasOwnProperty("trade") || collectedData[scientificName]["trade"].length === 0) {
+                        $.post("/getTradeByGenus/" + justGenus, $.proxy(appendTrade, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName }));
+                    }
 
                     $.post("/queryGBIFspeciesByGenus/" + justGenus,
                         function (genusKey) {
@@ -275,32 +284,41 @@
                                 boundAppend(res);
 
                                 res.forEach(function (element, index) {
-                                    $.post("/queryGBIFsynonyms/" + element["speciesKey"],
-                                        function (syns) {
-                                            let boundFunc = appendSynonyms.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: element["species"] });
-                                            boundFunc(syns);
-                                        }
-                                    );
+                                    setTimeout(() => {
+                                        $.post("/queryGBIFsynonyms/" + element["speciesKey"],
+                                            function (syns) {
+                                                let boundFunc = appendSynonyms.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: element["species"] });
+                                                boundFunc(syns);
+                                            }
+                                        );
+                                    }, 5000);
                                 });
 
                                 let boundFunc = appendIUCN.bind(
                                     { "tableRow": $tableRow, material: scientificName, scientificName: scientificName }
                                 );
 
-                                getIUCNInBulk(res.map(e => e["species"]), 0, boundFunc);
+                                if (!collectedData[scientificName].hasOwnProperty("iucn") || collectedData[scientificName]["iucn"].length === 0) {
+                                    getIUCNInBulk(res.map(e => e["species"]), 0, boundFunc);
+                                }
                             });
                         });
 
-                    $.post("/getSpeciesJustGenus/" + justGenus, $.proxy(appendListings, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName }));
+                    if (!collectedData[scientificName].hasOwnProperty("listings") || collectedData[scientificName]["listings"].length === 0) {
+                        $.post("/getSpeciesJustGenus/" + justGenus, $.proxy(appendListings, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName }));
+                    }
 
+                    if (!collectedData[scientificName].hasOwnProperty("trees") || collectedData[scientificName]["trees"].length === 0) {
+                        $.post("/queryBGCITreeSearchByGenus/" + justGenus,
+                            $.proxy(appendBGCITreeSearch, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName })
+                        );
+                    }
 
-                    $.post("/queryBGCITreeSearchByGenus/" + justGenus,
-                        $.proxy(appendBGCITreeSearch, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName })
-                    );
-
-                    $.post("/queryBGCIThreatSearchByGenus/" + justGenus,
-                        $.proxy(appendThreatSearch, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName })
-                    );
+                    if (!collectedData[scientificName].hasOwnProperty("threats") || collectedData[scientificName]["threats"].length === 0) {
+                        $.post("/queryBGCIThreatSearchByGenus/" + justGenus,
+                            $.proxy(appendThreatSearch, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName })
+                        );
+                    }
                 }
                 // ###############################################################
                 // ####################### SINGLE SPECIES! #######################
@@ -314,56 +332,67 @@
 
                         let allNames = [data["species"]];
 
-                        $.post("/queryGBIFsynonyms/" + speciesKey,
-                            function (syns) {
-                                syns = syns.filter(e => (e["canonicalName"] !== undefined && (e.taxonomicStatus === "SYNONYM" || e.taxonomicStatus === "HOMOTYPIC_SYNONYM")));
+                        setTimeout(() => {
+                            $.post("/queryGBIFsynonyms/" + speciesKey,
+                                function (syns) {
+                                    syns = syns.filter(e => (e["canonicalName"] !== undefined && (e.taxonomicStatus === "SYNONYM" || e.taxonomicStatus === "HOMOTYPIC_SYNONYM")));
 
-                                syns.forEach(function (element, index) {
-                                    pushOrCreate(getOrCreate(getOrCreate(collectedData, scientificName, {}), "synonyms", {}), element["species"
-                                    ], element);
-                                });
+                                    syns.forEach(function (element, index) {
+                                        pushOrCreate(getOrCreate(getOrCreate(collectedData, scientificName, {}), "synonyms", {}), element["species"
+                                        ], element);
+                                    });
 
-                                let boundFunc = appendSynonyms.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
-                                boundFunc(syns);
+                                    let boundFunc = appendSynonyms.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
+                                    boundFunc(syns);
 
-                                for (let newSyn of syns.values()) {
-                                    if (!allNames.includes(newSyn.canonicalName)) {
-                                        allNames.push(newSyn.canonicalName);
+                                    for (let newSyn of syns.values()) {
+                                        if (!allNames.includes(newSyn.canonicalName)) {
+                                            allNames.push(newSyn.canonicalName);
+                                        }
+                                    }
+
+                                    //######### Trade #########
+                                    let appendTradeBound = appendTrade.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
+
+                                    if (!collectedData[scientificName].hasOwnProperty("trade") || collectedData[scientificName]["trade"].length === 0) {
+                                        getTradeInBulk(allNames, 0, appendTradeBound);
+                                    }
+
+                                    //######### Listings #########
+                                    let appendListingsBound = appendListings.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
+
+                                    getListingsInBulk(allNames, 0, appendListingsBound);
+
+                                    //######### ListingHistory #########
+                                    let appendListingHistoryBound = appendListingHistory.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
+
+                                    if (!collectedData[scientificName].hasOwnProperty("listing") || collectedData[scientificName]["listing"].length === 0) {
+                                        getListingHistoryInBulk(allNames, 0, appendListingHistoryBound);
+                                    }
+
+                                    //######### IUCN #########
+                                    let appendIUCNBound = appendIUCN.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
+
+                                    if (!collectedData[scientificName].hasOwnProperty("iucn") || collectedData[scientificName]["iucn"].length === 0) {
+                                        getIUCNInBulk(allNames, 0, appendIUCNBound);
+                                    }
+
+                                    //######### TreeSearch #########
+                                    let appendTreeSearchBound = appendBGCITreeSearch.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
+
+                                    if (!collectedData[scientificName].hasOwnProperty("trees") || collectedData[scientificName]["trees"].length === 0) {
+                                        getTreeSearchInBulk(allNames, 0, appendTreeSearchBound);
+                                    }
+
+                                    //######### ThreatSearch #########
+                                    let appendThreatSearchBound = appendThreatSearch.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
+
+                                    if (!collectedData[scientificName].hasOwnProperty("threat") || collectedData[scientificName]["threat"].length === 0) {
+                                        getThreatSearchInBulk(allNames, 0, appendThreatSearchBound);
                                     }
                                 }
-
-                                //######### Trade #########
-                                let appendTradeBound = appendTrade.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
-
-                                getTradeInBulk(allNames, 0, appendTradeBound);
-
-                                //######### Listings #########
-                                let appendListingsBound = appendListings.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
-
-
-                                getListingsInBulk(allNames, 0, appendListingsBound);
-
-                                //######### ListingHistory #########
-                                let appendListingHistoryBound = appendListingHistory.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
-
-                                getListingHistoryInBulk(allNames, 0, appendListingHistoryBound);
-
-                                //######### IUCN #########
-                                let appendIUCNBound = appendIUCN.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
-
-                                getIUCNInBulk(allNames, 0, appendIUCNBound);
-
-                                //######### TreeSearch #########
-                                let appendTreeSearchBound = appendBGCITreeSearch.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
-
-                                getTreeSearchInBulk(allNames, 0, appendTreeSearchBound);
-
-                                //######### ThreatSearch #########
-                                let appendThreatSearchBound = appendThreatSearch.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
-
-                                getThreatSearchInBulk(allNames, 0, appendThreatSearchBound);
-                            }
-                        );
+                            );
+                        }, 5000);
 
                     });
                 }
@@ -402,7 +431,7 @@
 
             /*  if(justGenus) {
                   $.post( "/getSpeciesJustGenus/"+material["Genus"].trim().replace("spp.", "").trim(), $.proxy(appendSpecies, {tableRow: $tableRow, material: scientificName}));
-
+ 
                   $.post( "/getTrade/"+scientificName, $.proxy(appendTrade, {"tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName}));
               }*/
             /*                else {
@@ -434,11 +463,11 @@
             /*    $.post( "/queryTreeSearchSpeciesWithSciName/"+scientificName, 
                     $.proxy(appendBGCI, {"tableRow": $tableRow, "treeName": scientificName})
                 );
-
+ 
                 $.post( "/queryThreatSearchWithSciName/"+scientificName, 
                     $.proxy(appendThreatSearch, {"tableRow": $tableRow})
                 );
-
+ 
                 table.append($tableRow);
             }*/
         });

@@ -15,6 +15,7 @@ const {
   getHomePage,
   getMainPart,
   getMaterial,
+  getAllMaterials,
   getSynonyms,
   queryIUCN,
   requestMapboxToken,
@@ -92,6 +93,7 @@ app.get("/timeline", getTimeline);
 app.post("/group/:selectedGroup", getInstrumentsFromGroup);
 app.post("/getMainPart/:instruments", getMainPart);
 app.post("/getMaterial/:instruments/:mainPart", getMaterial);
+app.post("/getAllMaterials", getAllMaterials);
 app.post("/getSpecies/:scientificName", getSpecies);
 app.post("/getSpeciesJustGenus/:genus", getSpeciesJustGenus);
 app.post("/getSynonyms/:word", getSynonyms);

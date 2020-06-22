@@ -39,6 +39,11 @@ module.exports = {
             res.json(rows);
         });
     },
+    getAllMaterials: (req, res) => {
+        knex.select("Trade_name", "Family", "Genus", "Species", "Main_part", "Subpart", "CITES_regulation").from("materials").limit(10).offset(0).then(rows => {
+            res.json(rows);
+        });
+    },
     getSynonyms: (req, res) => {
         let word = req.params.word;
         //let query = knex.raw("select DISTINCT `FullName`, `NomenclatureNote` from `listinghistory` where `NomenclatureNote` LIKE '%synonym%'");
@@ -69,12 +74,12 @@ module.exports = {
                 request({
                     url: encodeURI('https://apiv3.iucnredlist.org/api/v3/species/history/name/' + species + '?token=58238783dc4a815f380f9cc8e36fc01e468db5672e464f8411bb4f323a4c7c94'),
                     method: 'GET',
-                }, function(err, res, data) {
+                }, function (err, res, data) {
                     try {
                         data = JSON.parse(data);
                         let results = data["result"];
-                        results.forEach(function(element, index) {
-                            knex('iucnCache').insert({ "Scientific Name": species, "year": element["year"], "code": element["code"], "category": element["category"] }).then(result => {});
+                        results.forEach(function (element, index) {
+                            knex('iucnCache').insert({ "Scientific Name": species, "year": element["year"], "code": element["code"], "category": element["category"] }).then(result => { });
                         });
 
                         outerRes.json(results);
@@ -82,7 +87,7 @@ module.exports = {
                         if (e instanceof SyntaxError) {
                             outerRes.end(data);
                         }
-                        else {
+                        else {
                             console.error(e);
                             outerRes.end();
                         }
