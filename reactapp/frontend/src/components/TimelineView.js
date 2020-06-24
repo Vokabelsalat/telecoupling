@@ -7,6 +7,7 @@ import timelinedata from '../data/timelinedata.json'
 class TimelineView extends Component {
     constructor(props) {
         super(props);
+
         let generator = new TimelineDatagenerator();
         generator.processData(timelinedata);
 

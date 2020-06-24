@@ -15,7 +15,6 @@ module.exports = {
             obj[key] = [value];
         }
         return obj;
-
     },
     getOrCreate: (obj, key, set) => {
         if (obj.hasOwnProperty(key)) {
@@ -31,7 +30,6 @@ module.exports = {
         "possibly threatened": "PT",
         "not threatened": "nT",
         "data deficient": "DD"
-
     },
     sourceToDangerMap: {
         "I": "EX",
