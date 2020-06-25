@@ -215,6 +215,26 @@
             }
         } */
 
+    function save() {
+        console.log("SAVE!", Object.keys(collectedData).length);
+        let file = new Blob([JSON.stringify(collectedData, null, 4)], { type: "application/json" });
+        let filename = "crawledData.json";
+        if (window.navigator.msSaveOrOpenBlob) // IE10+
+            window.navigator.msSaveOrOpenBlob(file, filename);
+        else { // Others
+            let a = document.createElement("a"),
+                url = URL.createObjectURL(file);
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function () {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 0);
+        }
+    }
+
     function func2(e) {
         let mainPart = $(e).val();
         clearTable();
@@ -236,6 +256,7 @@
                 }
                 collectedData[scientificNameAndMaterial[0]] = tmpObj;
             }
+            console.log(collectedData, Object.keys(collectedData).length);
 
             for (let scientificName of Object.keys(collectedData)) {
 
@@ -526,6 +547,7 @@
         <th>ThreatSearch</th>
     </tr>
 </table>
+<button onclick="save()">SAVE</button>
 
 <div id="mapid"></div>
 
