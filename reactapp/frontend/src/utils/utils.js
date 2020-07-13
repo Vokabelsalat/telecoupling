@@ -8,6 +8,11 @@ String.prototype.replaceSpecialCharacters = function (search, replacement) {
 };
 
 module.exports = {
+    scaleValue(value, from, to) {
+        var scale = (to[1] - to[0]) / (from[1] - from[0]);
+        var capped = Math.min(from[1], Math.max(from[0], value)) - from[0];
+        return ~~(capped * scale + to[0]);
+    },
     pushOrCreate: (obj, key, value) => {
         if (Object.keys(obj).includes(key)) {
             obj[key].push(value);
@@ -24,6 +29,11 @@ module.exports = {
             return obj[key];
         }
     },
+    getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min)) + min;
+    },
     threatenedToDangerMap: {
         "extinct": "EX",
         "threatened": "TH",
@@ -39,6 +49,19 @@ module.exports = {
         "D": "PT",
         "Y": "PT",
         "U": "DD"
+    },
+    iucnToDangerMap: {
+        "EX": "EX",
+        "EW": "EX",
+        "RE": "EX",
+        "CR": "TH",
+        "EN": "TH",
+        "VU": "PT",
+        "NT": "nT",
+        "LC": "nT",
+        "DD": "DD",
+        "NA": "DD",
+        "NE": "DD"
     },
     dangerColorMap: {
         "EX": { bg: "rgba(214, 0, 3, 1)", fg: "rgb(255,255,255)" },

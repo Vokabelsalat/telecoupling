@@ -136,3 +136,10 @@ Bessere Darstellung der Handelsdaten?
 
 Verschiedene Zommstufen könnten auch verschiedene Farbskalen auslösen
     auch dies könnte bei der IUCN umgesetzt werden
+
+
+Eventuell die verschiedenen Handelsarten getrennt nebeneinander aufzeigen
+Karte für alles
+und die Karte für die lokalen Assesments
+
+Verknüpfung eines Instruments zu den Ursprungsorten und verwendeten Materialien

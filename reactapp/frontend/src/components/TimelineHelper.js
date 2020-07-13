@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { getOrCreate, dangerColorMap, sourceToDangerMap, pushOrCreate } from '../utils/utils'
+import { getOrCreate, dangerColorMap, sourceToDangerMap, iucnToDangerMap, pushOrCreate } from '../utils/utils'
 import { getIucnColor, getIucnColorForeground } from '../utils/timelineUtils'
 
 class D3Timeline {
@@ -394,7 +394,12 @@ class D3Timeline {
                             .attr("cy", function(d) {
                                 return radius;
                             })*/
-            .style("fill", getIucnColor)
+            .style("fill", this.zoomLevel === 0 ?
+                (d) => {
+                    let iucnToDanger = iucnToDangerMap[d.text] !== undefined ? iucnToDangerMap[d.text] : "NE";
+                    return dangerColorMap[iucnToDanger].bg;
+                }
+                : getIucnColor)
             .style("stroke", "gray");
 
         if (this.zoomLevel > 0) {
@@ -569,9 +574,6 @@ class D3Timeline {
                 );
             }
         }
-
-        console.log("data", piedData);
-
 
         // Compute the position of each group on the pie:
         var pie = d3.pie()
@@ -1038,6 +1040,7 @@ class D3Timeline {
         }
 
         let yearDiff = this.domainYears.maxYear - this.domainYears.minYear;
+
         let xDomain = Array(yearDiff + 1)
             .fill()
             .map((_, i) => this.domainYears.minYear - 1 + i + 1);

@@ -1,91 +1,82 @@
 import React, { Component } from 'react';
-import { getOrCreate, pushOrCreate } from '../utils/utils';
+import { getOrCreate, pushOrCreate, scaleValue } from '../utils/utils';
 
 import statdata from "../data/statdata.json";
 
-/* import data1 from "../data/crawledData2.json";
-import data2 from "../data/crawledData3.json";
-import data3 from "../data/crawledData4.json";
-import data4 from "../data/crawledData5.json";
-import data5 from "../data/crawledData6.json";
-import data6 from "../data/crawledData7.json"; */
-/* import data7 from "../data/crawledData8.json";
-import data8 from "../data/crawledData9.json";
-import data9 from "../data/crawledData10.json";
-import data10 from "../data/crawledData11.json"; */
-/* import data11 from "../data/crawledData12.json";
-import data12 from "../data/crawledData13.json"; */
-/* import data13 from "../data/crawledData14.json";
-import data14 from "../data/crawledData15.json"; 
-import data15 from "../data/crawledData16.json";
-import data16 from "../data/crawledData17.json";
-import data17 from "../data/crawledData18.json";*/
-/* import data18 from "../data/crawledData19.json";
-import data19 from "../data/crawledData20.json"; */
-/* import data20 from "../data/crawledData21.json";
-import data21 from "../data/crawledData22.json"; */
-import data22 from "../data/crawledData23.json";
-import data23 from "../data/crawledData24.json";
+/* import data1 from "../data/crawledDataNew1.json";
+import data2 from "../data/crawledDataNew2.json";
+import data3 from "../data/crawledDataNew3.json";
+ */
+import data1 from "../data/crawledDataNew4.json";
+import data2 from "../data/crawledDataNew5.json";
+import data3 from "../data/crawledDataNew6.json";
+
+/* import data1 from "../data/crawledDataNew7.json";
+import data2 from "../data/crawledDataNew8.json";
+import data3 from "../data/crawledDataNew9.json"; */
+
+/* import data1 from "../data/crawledDataNew10.json";
+import data2 from "../data/crawledDataNew11.json";
+import data3 from "../data/crawledDataNew12.json"; */
+
+/* import data1 from "../data/crawledDataNew13.json";
+import data2 from "../data/crawledDataNew14.json";
+import data3 from "../data/crawledDataNew15.json"; */
+
+/* import data1 from "../data/crawledDataNew16.json";
+import data2 from "../data/crawledDataNew17.json";
+import data3 from "../data/crawledDataNew18.json"; */
+
+/* import data1 from "../data/crawledDataNew19.json";
+import data2 from "../data/crawledDataNew20.json"; */
 
 class Statistics extends Component {
     constructor(props) {
         super(props);
 
-        /* for (let name of Object.keys(eval("data1")).values()) {
-            console.log(name);
-        } */
-
-        this.statistics = statdata.statistics;
         this.statdata = statdata.statdata;
+        this.statistics = statdata.statistics;
 
-        this.state = {
-            testdata: {
-                /* ...data1,
-                ...data2,
-                ...data3, */
-                /* ...data4,
-                ...data5,
-                ...data6, */
-                /* ...data7,
-                ...data8,
-                ...data9,
-                ...data10 */
-                /* ...data11,
-                ...data12, */
-                /* ...data13,
-                ...data14, */
-                /*                 ...data15,
-                                ...data16,
-                                ...data17,  */
-                /* ...data18,
-                ...data19, */
-                /* ...data20,
-                ...data21, */
-                ...data22,
-                ...data23,
-            }
+        this.hasRendered = false;
+
+        this.species = [];
+
+        this.testdata = {
+            ...data1,
+            ...data2,
+            ...data3
         };
     }
 
     countSpecies() {
-        this.statistics.count = Object.keys(this.state.testdata).length;
+        for (let species of Object.keys(this.testdata).values()) {
+            let oldObj = this.testdata[species];
+            let newSpecies = species.trim();
+            if (!Object.keys(this.statdata).includes(newSpecies)) {
+                this.species.push(newSpecies);
+            }
+            delete this.testdata[species];
+            this.testdata[newSpecies] = oldObj;
+        }
     }
 
     countThreats() {
-        for (let species of Object.keys(this.state.testdata).values()) {
-            if (this.state.testdata[species].threats) {
-                getOrCreate(this.statdata, species, { threatCount: 0 }).threatCount = this.state.testdata[species].threats.length;
-                this.statistics.threatCount = this.statistics.threatCount + this.state.testdata[species].threats.length;
+        for (let species of this.species.values()) {
+            if (this.testdata[species].threats) {
+                getOrCreate(this.statdata, species, { threatCount: 0 }).threatCount = this.testdata[species].threats.length;
+                this.statistics.threatCount = this.statistics.threatCount + this.testdata[species].threats.length;
 
-                for (let threat of this.state.testdata[species].threats.values()) {
-                    pushOrCreate(this.statistics.threatCats, threat.consAssCategory, {
-                        threatened: threat.threatened,
-                        consAssCategory: threat.consAssCategory,
-                        bgciUrl: threat.bgciUrl,
-                        reference: threat.reference,
-                        taxonName: threat.taxonName,
-                        threatId: threat.threatId,
-                    });
+                for (let threat of this.testdata[species].threats.values()) {
+                    if (threat.consAssCategory != null) {
+                        pushOrCreate(this.statistics.threatCats, threat.consAssCategory, {
+                            threatened: threat.threatened,
+                            consAssCategory: threat.consAssCategory,
+                            bgciUrl: threat.bgciUrl,
+                            reference: threat.reference,
+                            taxonName: threat.taxonName,
+                            threatId: threat.threatId
+                        });
+                    }
                 }
             }
             else {
@@ -93,22 +84,31 @@ class Statistics extends Component {
             }
         }
 
-        for (let cat of Object.keys(this.statistics.threatCats).values()) {
-            this.statistics.threatCatsCount[cat] = this.statistics.threatCats[cat].length;
-        }
+        if (this.species.length > 0) {
+            for (let cat of Object.keys(this.statistics.threatCats).values()) {
+                this.statistics.threatCatsCount[cat] = this.statistics.threatCatsCount[cat] !== undefined ? this.statistics.threatCatsCount[cat] + this.statistics.threatCats[cat].length : this.statistics.threatCats[cat].length;
+            }
 
-        this.statistics.threatCatsCountSorted = Object.keys(this.statistics.threatCatsCount).sort((a, b) => (this.statistics.threatCatsCount[b] - this.statistics.threatCatsCount[a]));
+            this.statistics.threatCatsCountSorted = Object.keys(this.statistics.threatCatsCount).sort((a, b) => (this.statistics.threatCatsCount[b] - this.statistics.threatCatsCount[a]));
+        }
+        this.statistics.threatCountSorted = Object.keys(this.statdata).sort((a, b) => (this.statdata[b].threatCount - this.statdata[a].threatCount));
     }
 
     countTrades() {
-        for (let species of Object.keys(this.state.testdata).values()) {
-            if (this.state.testdata[species].trade) {
-                for (let innerspecies of Object.keys(this.state.testdata[species].trade)) {
-                    getOrCreate(this.statdata, species, { tradeCount: 0 }).tradeCount = this.state.testdata[species].trade[innerspecies].length;
-                    this.statistics.tradeCount = this.statistics.tradeCount + this.state.testdata[species].trade[innerspecies].length;
+        for (let species of this.species.values()) {
+            if (this.testdata[species].trade && Object.keys(this.testdata[species].trade).length > 0) {
+                for (let innerspecies of Object.keys(this.testdata[species].trade)) {
+                    if (Array.isArray(this.testdata[species].trade[innerspecies])) {
+                        getOrCreate(this.statdata, species, { tradeCount: 0 }).tradeCount = this.testdata[species].trade[innerspecies].length;
+                        this.statistics.tradeCount = this.statistics.tradeCount + this.testdata[species].trade[innerspecies].length;
 
-                    for (let trade of this.state.testdata[species].trade[innerspecies].values()) {
-                        pushOrCreate(this.statistics.tradeUnits, trade.Unit, trade);
+                        for (let trade of this.testdata[species].trade[innerspecies].values()) {
+                            pushOrCreate(this.statistics.tradeUnits, trade.Unit, trade);
+                            pushOrCreate(this.statistics.tradeQuants, trade.Unit, trade.Quantity);
+                        }
+                    }
+                    else {
+                        getOrCreate(this.statdata, species, { tradeCount: 0 }).tradeCount = 0;
                     }
                 }
             }
@@ -117,26 +117,39 @@ class Statistics extends Component {
             }
         }
 
-        for (let cat of Object.keys(this.statistics.tradeUnits).values()) {
-            this.statistics.tradeUnitsCount[cat] = this.statistics.tradeUnits[cat].length;
+        if (this.species.length > 0) {
+            for (let cat of Object.keys(this.statistics.tradeUnits).values()) {
+                this.statistics.tradeUnitsCount[cat] = this.statistics.tradeUnitsCount[cat] !== undefined ? this.statistics.tradeUnitsCount[cat] + this.statistics.tradeUnits[cat].length : this.statistics.tradeUnits[cat].length;
+                this.statistics.tradeUnitsSum[cat] = this.statistics.tradeQuants[cat].reduce((accumulator, currentValue) => accumulator + currentValue);
+            }
+
+            this.statistics.tradeUnitsCountSorted = Object.keys(this.statistics.tradeUnitsCount).sort((a, b) => (parseInt(this.statistics.tradeUnitsCount[b]) - parseInt(this.statistics.tradeUnitsCount[a])));
+
+            this.statistics.tradeSpeciesCountSorted = Object.keys(this.statdata).sort((a, b) => {
+                return parseInt(this.statdata[b].tradeCount) - parseInt(this.statdata[a].tradeCount);
+            });
         }
-
-        this.statistics.tradeUnitsCountSorted = Object.keys(this.statistics.tradeUnitsCount).sort((a, b) => (this.statistics.tradeUnitsCount[b] - this.statistics.tradeUnitsCount[a]));
-
-        this.statistics.tradeSpeciesCountSorted = Object.keys(this.statdata).sort((a, b) => (this.statdata[b].tradeCount - this.statdata[a].tradeCount));
-
     }
 
     render() {
-        this.countSpecies();
-        this.countThreats();
-        this.countTrades();
-
+        if (this.hasRendered === false) {
+            this.countSpecies();
+            this.countThreats();
+            this.countTrades();
+            this.hasRendered = true;
+        }
+        console.log(this.testdata);
         return (
             <div>
                 <button onClick={() => {
-                    this.statistics.threatCats = [];
-                    this.statistics.tradeUnits = [];
+                    for (let cat of Object.keys(this.statistics.tradeUnits).values()) {
+                        this.statistics.tradeUnits[cat] = [this.statistics.tradeUnits[cat][0]];
+                    }
+
+                    for (let cat of Object.keys(this.statistics.threatCats).values()) {
+                        this.statistics.threatCats[cat] = [this.statistics.threatCats[cat][0]];
+                    }
+
                     let file = new Blob([JSON.stringify({ statdata: this.statdata, statistics: this.statistics }, null, 4)], { type: "application/json" });
                     let filename = "statdata.json";
                     if (window.navigator.msSaveOrOpenBlob) // IE10+
@@ -154,42 +167,125 @@ class Statistics extends Component {
                         }, 0);
                     }
                 }}>SAVE</button>
-
-                <h2>Species ({Object.keys(this.statdata).length})</h2>
-                {
-                    Object.keys(this.statdata).map(key => {
-                        return (<div key={key + "species"}>
-                            {key}
-                        </div>);
-                    })
-                }
-                <h2>Statistics</h2>
-                <h3>Threats ({this.statistics.threatCount}):</h3>
-                {
-                    this.statistics.threatCatsCountSorted.map(key => {
-                        return (<div key={key + "threats"}>
-                            {key}: {this.statistics.threatCatsCount[key]}
-                        </div>);
-                    })
-                }
-                <h3>Trades ({this.statistics.tradeCount}):</h3>
-                <h4>Units:</h4>
-                {
-                    this.statistics.tradeUnitsCountSorted.map(key => {
-                        return (<div key={key + "trades"}>
-                            {key}: {this.statistics.tradeUnitsCount[key]}
-                        </div>);
-                    })
-                }
-                <h4>Species:</h4>
-                {
-                    this.statistics.tradeSpeciesCountSorted.map(key => {
-                        return (<div key={key + "tradeSpecies"}>
-                            {key}: {this.statdata[key].tradeCount}
-                        </div>);
-                    })
-                }
-            </div>
+                <div>
+                    <div className="column">
+                        <h2>Species ({Object.keys(this.species).length}) ({Object.keys(this.statdata).length})</h2>
+                        {
+                            Object.keys(this.statdata).map(key => {
+                                return (<div key={key + "species"}>
+                                    <div key={key + "header"}>{key}</div>
+                                </div>);
+                            })
+                        }
+                    </div>
+                </div>
+                <div>
+                    <h2>Threats</h2>
+                    <div className="column">
+                        <h3>Categories ({this.statistics.threatCount}):</h3>
+                        {
+                            this.statistics.threatCatsCountSorted.map(key => {
+                                return (
+                                    <div
+                                        key={key + "threats"}
+                                        className="statrow" >
+                                        <div className="statleft">
+                                            <div className="statbar"
+                                                style={{
+                                                    width:
+                                                        scaleValue(
+                                                            this.statistics.threatCatsCount[key],
+                                                            [0, this.statistics.threatCatsCount[this.statistics.threatCatsCountSorted[0]]],
+                                                            [0, 200]
+                                                        )
+                                                }}>
+                                            </div>
+                                        </div>
+                                        {key}: {this.statistics.threatCatsCount[key]}
+                                    </div>
+                                );
+                            })
+                        }
+                    </div>
+                    <div className="column">
+                        <h3>Threats ({this.statistics.threatCount}):</h3>
+                        {
+                            this.statistics.threatCountSorted.map(key => {
+                                return (
+                                    <div
+                                        key={key + "threats"}
+                                        className="statrow" >
+                                        <div className="statleft">
+                                            <div className="statbar"
+                                                style={{
+                                                    width:
+                                                        scaleValue(
+                                                            this.statdata[key].threatCount,
+                                                            [0, this.statdata[this.statistics.threatCountSorted[0]].threatCount],
+                                                            [0, 200]
+                                                        )
+                                                }}>
+                                            </div>
+                                        </div>
+                                        {key}: {this.statdata[key].threatCount}
+                                    </div>
+                                );
+                            })
+                        }
+                    </div>
+                </div>
+                <div>
+                    <h2>Trades</h2>
+                    <div className="column">
+                        <h3>Units: ({this.statistics.tradeCount}):</h3>
+                        {
+                            this.statistics.tradeUnitsCountSorted.map(key => {
+                                return (<div
+                                    key={key + "trades"}
+                                    className="statrow" >
+                                    <div className="statleft" style={{ width: 500 }}>
+                                        <div className="statbar"
+                                            style={{
+                                                width:
+                                                    scaleValue(
+                                                        this.statistics.tradeUnitsCount[key],
+                                                        [0, this.statistics.tradeUnitsCount[this.statistics.tradeUnitsCountSorted[0]]],
+                                                        [0, 500]
+                                                    )
+                                            }}>
+                                        </div>
+                                    </div>
+                                    {key}: {this.statistics.tradeUnitsCount[key]}
+                                </div>);
+                            })
+                        }
+                    </div>
+                    <div className="column">
+                        <h3>Trade Species ({this.statistics.tradeCount}):</h3>
+                        {
+                            this.statistics.tradeSpeciesCountSorted.map(key => {
+                                return (<div
+                                    className="statrow"
+                                    key={key + "tradeSpecies"}>
+                                    <div className="statleft" style={{ width: 500 }}>
+                                        <div className="statbar"
+                                            style={{
+                                                width:
+                                                    scaleValue(
+                                                        this.statdata[key].tradeCount,
+                                                        [0, this.statdata[this.statistics.tradeSpeciesCountSorted[0]].tradeCount],
+                                                        [0, 500]
+                                                    )
+                                            }}>
+                                        </div>
+                                    </div>
+                                    {key}: {this.statdata[key].tradeCount}
+                                </div>);
+                            })
+                        }
+                    </div>
+                </div>
+            </div >
         );
     }
 }

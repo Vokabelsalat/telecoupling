@@ -5,84 +5,6 @@
 
     let collectedData = {};
 
-    /*function appendSpecies(data) {
-        let $tableRow = $(this.tableRow);
-    }*/
-
-    function appendIUCN(data) {
-
-        let $tableRow = $(this.tableRow);
-        let material = this.material;
-        let sciName = this.scientificName;
-
-        let collect = false;
-        if (
-            !getOrCreate(
-                getOrCreate(collectedData, material, {}), "iucn", {}).hasOwnProperty(sciName)
-        ) {
-            collect = true;
-        }
-
-        if (data) {
-            data.forEach(function (element, index) {
-                $tableRow.find(".iucnCol").first().find(".scroll").first()
-                    .append(" &#8226;" + element.year + " " + element.code);
-
-                if (collect) {
-                    pushOrCreate(
-                        getOrCreate(
-                            getOrCreate(collectedData, material, {}),
-                            "iucn", {}),
-                        sciName, element);
-                }
-            });
-        }
-    }
-
-    function appendGBIF(data) {
-        let $tableRow = $(this.tableRow);
-        let treeName = this.treeName;
-        data = JSON.parse(data);
-        let taxonKey = data.taxonKey;
-
-        $.post("/queryGBIF/" + taxonKey, (result) => {
-            result = JSON.parse(result);
-            let image = "";
-            let text = "";
-            let coordinates = [];
-            for (let entry of result.values()) {
-                if (image === "" && entry.hasOwnProperty("media")) {
-                    let filter = entry["media"].filter(e => e.format.includes("image"));
-                    if (filter.length > 0) {
-                        image = filter[0].identifier;
-                        /*for(let ident of filter.values()) {
-                            $tableRow.find(".imageCol").first().find(".scroll").first().append("<img style='margin-bottom:20px' width='200px' src='"+ image +"'/>");
-                        }*/
-                    }
-                }
-
-                text += entry.datasetName ? "&#8226; " + entry.datasetName + ", " : "";
-
-                if (entry.decimalLatitude !== undefined && entry.decimalLongitude !== undefined) {
-                    if (entry.decimalLatitude !== 0 && entry.decimalLongitude !== 0) {
-                        coordinates.push([entry.decimalLatitude, entry.decimalLongitude]);
-                    }
-                }
-            }
-
-            let map = new BGCIMap("mapid");
-            map.addTreeCoordinates(treeName, coordinates);
-
-            if (image !== "") {
-                $tableRow.find(".imageCol").first().find(".scroll").first().append("<img src='" + image + "'/>");
-            }
-
-            if (text !== "") {
-                $tableRow.find(".gbifCol").first().find(".scroll").first().append(text);
-            }
-        });
-    }
-
     function getMainPart(instruments, selectedMainPart = null) {
         $.post("/getMainPart/" + instruments, function (data) {
             data = JSON.parse(data);
@@ -185,7 +107,7 @@
 
                 for (let entry of resData.values()) {
                     if (entry.reference === "NationalRL_0915" || entry.reference === "National Red List") {
-                        $.post("/queryCountriesForNationalRedList", {bgciUrl: entry.bgciUrl}, function(result) {
+                        $.post("/queryCountriesForNationalRedList", { bgciUrl: entry.bgciUrl }, function (result) {
                             entry.countries = result;
                             callback([entry]);
                         });

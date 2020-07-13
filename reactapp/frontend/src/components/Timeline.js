@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import TimelineHelper from './TimelineHelper';
 import '../utils/utils';
-import { thresholdScott } from 'd3';
 
 class Timeline extends Component {
     constructor(props) {
@@ -11,12 +10,6 @@ class Timeline extends Component {
             zoomLevel: this.props.zoomLevel
         };
     }
-
-    /* callAPI() {
-        fetch("http://localhost:9000/api")
-            .then(res => res.text())
-            .then(res => this.setState({ apiResponse: res }));
-    } */
 
     setZoomLevel(setValue) {
         this.setState({ zoomLevel: setValue });

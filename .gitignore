@@ -151,3 +151,6 @@ reactapp/frontend/src/data/crawledData23.json
 reactapp/frontend/src/data/crawledData24.json
 reactapp/frontend/src/data/statdata_large.json
 reactapp/frontend/src/data/statdata.json
+reactapp/frontend/public/species/
+reactapp/backend/public/species/
+reactapp/frontend/src/data/

@@ -59,16 +59,19 @@ export class TimelineDatagenerator {
 
             let dataextent = extent(domainYears);
 
-            this.minYear = Math.min(this.minYear, dataextent[0]);
-            this.maxYear = Math.max(this.maxYear, dataextent[1]);
+            if (dataextent[0] !== undefined) {
+                this.minYear = Math.min(this.minYear, dataextent[0]);
+            }
+
+            if (dataextent[1] !== undefined) {
+                this.maxYear = Math.max(this.maxYear, dataextent[1]);
+            }
 
             tradeData[speciesName].allCircleData = allCircleData;
             tradeData[speciesName].timeExtent = dataextent;
 
             this.data = tradeData;
         }
-        console.log("FINISHED PROCESSING DATA");
-
         return this.data;
     }
 
@@ -122,10 +125,10 @@ export class TimelineDatagenerator {
                                 year: year,
                                 scope: e.bgciScope,
                                 count: count++,
-                                threatened: e.threatened,
+                                threatened: e.threatened.trim(),
                                 consAssCategory: e.consAssCategory,
-                                text: e.threatened ? threatenedToDangerMap[e.threatened.toLowerCase()] : null,
-                                danger: e.threatened ? threatenedToDangerMap[e.threatened.toLowerCase()] : null,
+                                text: e.threatened.trim() ? threatenedToDangerMap[e.threatened.trim().toLowerCase()] : null,
+                                danger: e.threatened.trim() ? threatenedToDangerMap[e.threatened.trim().toLowerCase()] : null,
                                 consAssCategoryOrig: e.consAssCategoryOrig,
                                 type: "threat",
                                 reference: e.reference,
