@@ -154,3 +154,7 @@ reactapp/frontend/src/data/statdata.json
 reactapp/frontend/public/species/
 reactapp/backend/public/species/
 reactapp/frontend/src/data/
+reactapp/frontend/public/capitals.geo.json
+reactapp/frontend/public/countries10m.geo.json
+reactapp/frontend/public/hotspots_2011_polygons-2.json
+reactapp/frontend/public/Terrestrial_Ecoregions_World-4.json
