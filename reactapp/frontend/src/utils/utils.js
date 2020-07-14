@@ -8,6 +8,24 @@ String.prototype.replaceSpecialCharacters = function (search, replacement) {
 };
 
 module.exports = {
+    serializeXmlNode(xmlNode) {
+        if (typeof window.XMLSerializer != "undefined") {
+            return (new window.XMLSerializer()).serializeToString(xmlNode);
+        } else if (typeof xmlNode.xml != "undefined") {
+            return xmlNode.xml;
+        }
+        return "";
+    },
+    rgbToRGBA(rgbString, alpha) {
+        try {
+            // statements
+            return rgbString.replace(")", "," + alpha + ")");
+        } catch (e) {
+            // statements
+            /*console.log(e);*/
+            return rgbString;
+        }
+    },
     scaleValue(value, from, to) {
         var scale = (to[1] - to[0]) / (from[1] - from[0]);
         var capped = Math.min(from[1], Math.max(from[0], value)) - from[0];

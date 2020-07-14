@@ -17,27 +17,26 @@
     return [arrayStr + "</div>", id];
   }
 
-  function appendListings(data) {
-    let $tableRow = $(this.tableRow);
-    let material = this.material;
-    let origScientificName = this.scientificName;
+  let $tableRow = $(this.tableRow);
+  let material = this.material;
+  let origScientificName = this.scientificName;
 
-    if (data) {
-      data.forEach(function (element, index) {
-        getOrCreate(
-          getOrCreate(getOrCreate(collectedData, material, {}), "listings", {}),
-          element["Scientific Name"],
-          element
-        );
+  if (data) {
+    data.forEach(function (element, index) {
+      getOrCreate(
+        getOrCreate(getOrCreate(collectedData, material, {}), "listings", {}),
+        element["Scientific Name"],
+        element
+      );
 
-        $tableRow
-          .find(".listingsCol")
-          .first()
-          .find(".scroll")
-          .first()
-          .append("&#8226; " + element["Scientific Name"] + " (" + element["Listing"] + ")<br>");
-      });
-    }
+      $tableRow
+        .find(".listingsCol")
+        .first()
+        .find(".scroll")
+        .first()
+        .append("&#8226; " + element["Scientific Name"] + " (" + element["Listing"] + ")<br>");
+    });
+  }
   }
 
   function appendListingHistory(data) {

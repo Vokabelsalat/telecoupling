@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Orchestra from './Orchestra';
 import DataTable from './DataTable';
 import TimelineView from "./TimelineView";
+import Map from "./Map";
 
 class Home extends Component {
     constructor(props) {
@@ -172,8 +173,8 @@ class Home extends Component {
                         className="tooltip">
                     </div>
                 </div>
-
                 }
+                <Map data={this.state.speciesData}></Map>
             </div >
         );
     }
