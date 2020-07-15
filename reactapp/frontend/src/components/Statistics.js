@@ -7,9 +7,9 @@ import statdata from "../data/statdata.json";
 import data2 from "../data/crawledDataNew2.json";
 import data3 from "../data/crawledDataNew3.json";
  */
-import data1 from "../data/crawledDataNew4.json";
+/* import data1 from "../data/crawledDataNew4.json";
 import data2 from "../data/crawledDataNew5.json";
-import data3 from "../data/crawledDataNew6.json";
+import data3 from "../data/crawledDataNew6.json"; */
 
 /* import data1 from "../data/crawledDataNew7.json";
 import data2 from "../data/crawledDataNew8.json";
@@ -42,9 +42,9 @@ class Statistics extends Component {
         this.species = [];
 
         this.testdata = {
-            ...data1,
-            ...data2,
-            ...data3
+            /*          ...data1,
+                     ...data2,
+                     ...data3 */
         };
     }
 
