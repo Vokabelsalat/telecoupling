@@ -32,6 +32,9 @@ class App extends Component {
       <div className="App" >
         <Router>
           <Switch>
+            <Route exact path="/statistics">
+              <Statistics />
+            </Route>
             <Route path="/:instrumentGroup/:instrument/:mainPart" component={HomeWithParams} />
             <Route path="/:instrumentGroup/:instrument" component={HomeWithParams} />
             <Route path="/:instrumentGroup" component={HomeWithParams} />
@@ -44,9 +47,6 @@ class App extends Component {
               id="tooltip"
               className="tooltip">
             </div>
-          </Route>
-          <Route exact path="/statistics">
-            <Statistics />
           </Route>
         </Router>
       </div>

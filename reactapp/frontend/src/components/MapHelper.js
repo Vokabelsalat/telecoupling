@@ -13,8 +13,6 @@ var biomes = ["Tropical & Subtropical Moist Broadleaf Forests", "Tropical & Subt
 class MapHelper {
     constructor(id) {
         if (!MapHelper.instance) {
-            console.log("create!");
-
             this._data = [];
             this._id = id;
             this.trees = {};
@@ -38,8 +36,6 @@ class MapHelper {
     }
 
     init() {
-        console.log("INITIS");
-
         this.mymap = L.map("mapid", {
             worldCopyJump: true
         }).setView([39.74739, -105], 2);
@@ -93,9 +89,8 @@ class MapHelper {
         fetch("/countries10m.geo.json")
             .then(res => res.json())
             .then(data => {
-                obj.countriesData = data;
 
-                console.log("countriesData", obj.countriesData);
+                obj.countriesData = data;
 
                 setTimeout(obj.processTreeQueue(), 10);
             });
@@ -165,8 +160,6 @@ class MapHelper {
                     }
                 });
 
-                console.log("hotSpots", hotSpots, data);
-
                 this.control.addOverlay(hotSpots, "Biodiversity Hot Spots", "Additional");
 
             }.bind(this))
@@ -228,8 +221,6 @@ class MapHelper {
                     }
                 });
 
-                console.log("eco", eco, data);
-
                 this.control.addOverlay(eco, "Terrestrial Ecoregions", "Additional");
             });
 
@@ -241,8 +232,6 @@ class MapHelper {
                 this.capitalsData.features.forEach(function (element, index) {
                     this.capitals[element.properties.iso2] = element;
                 }.bind(this));
-
-                console.log("capitals", data);
             });
     }
 

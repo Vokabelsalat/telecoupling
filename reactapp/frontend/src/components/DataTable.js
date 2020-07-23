@@ -8,7 +8,7 @@ class DataTable extends Component {
 
     render() {
         return (
-            <table id="datatableorchestra">
+            <table id="datatableorchestra" style={{ width: "90%" }}>
                 <thead>
                     <tr>
                         <td>Material</td>

@@ -124,6 +124,11 @@ img {
   width: 80vw;
 }
 
+.leaflet-control-layers {
+  max-height: 70vh;
+  overflow: auto;
+}
+
 .leaflet-control-layers-group {
   padding-left: 2px;
   padding-right: 2px;

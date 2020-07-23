@@ -5,8 +5,8 @@ import statdata from "../data/statdata.json";
 
 /* import data1 from "../data/crawledDataNew1.json";
 import data2 from "../data/crawledDataNew2.json";
-import data3 from "../data/crawledDataNew3.json";
- */
+import data3 from "../data/crawledDataNew3.json"; */
+
 /* import data1 from "../data/crawledDataNew4.json";
 import data2 from "../data/crawledDataNew5.json";
 import data3 from "../data/crawledDataNew6.json"; */
@@ -27,8 +27,8 @@ import data3 from "../data/crawledDataNew15.json"; */
 import data2 from "../data/crawledDataNew17.json";
 import data3 from "../data/crawledDataNew18.json"; */
 
-/* import data1 from "../data/crawledDataNew19.json";
-import data2 from "../data/crawledDataNew20.json"; */
+import data1 from "../data/crawledDataNew19.json";
+import data2 from "../data/crawledDataNew20.json";
 
 class Statistics extends Component {
     constructor(props) {
@@ -41,22 +41,36 @@ class Statistics extends Component {
 
         this.species = [];
 
+        this.speciesKeys = statdata.speciesKeys;
+
         this.testdata = {
-            /*          ...data1,
-                     ...data2,
-                     ...data3 */
+            ...data1,
+            ...data2,
+            /* ...data3 */
         };
     }
 
     countSpecies() {
         for (let species of Object.keys(this.testdata).values()) {
             let oldObj = this.testdata[species];
+
             let newSpecies = species.trim();
             if (!Object.keys(this.statdata).includes(newSpecies)) {
                 this.species.push(newSpecies);
             }
+
             delete this.testdata[species];
             this.testdata[newSpecies] = oldObj;
+        }
+    }
+
+    countSubspecies() {
+        for (let species of this.species.values()) {
+            if (this.testdata[species].species !== undefined) {
+                getOrCreate(this.statdata, species, { subspecies: 0 }).subspecies = Object.keys(this.testdata[species].species).length;
+
+                this.speciesKeys = [...new Set([...Object.values(this.testdata[species].species).map(e => e.speciesKey), ...this.speciesKeys])];
+            }
         }
     }
 
@@ -134,11 +148,11 @@ class Statistics extends Component {
     render() {
         if (this.hasRendered === false) {
             this.countSpecies();
+            this.countSubspecies();
             this.countThreats();
             this.countTrades();
             this.hasRendered = true;
         }
-        console.log(this.testdata);
         return (
             <div>
                 <button onClick={() => {
@@ -150,7 +164,7 @@ class Statistics extends Component {
                         this.statistics.threatCats[cat] = [this.statistics.threatCats[cat][0]];
                     }
 
-                    let file = new Blob([JSON.stringify({ statdata: this.statdata, statistics: this.statistics }, null, 4)], { type: "application/json" });
+                    let file = new Blob([JSON.stringify({ statdata: this.statdata, statistics: this.statistics, speciesKeys: this.speciesKeys }, null, 4)], { type: "application/json" });
                     let filename = "statdata.json";
                     if (window.navigator.msSaveOrOpenBlob) // IE10+
                         window.navigator.msSaveOrOpenBlob(file, filename);
@@ -169,7 +183,7 @@ class Statistics extends Component {
                 }}>SAVE</button>
                 <div>
                     <div className="column">
-                        <h2>Species ({Object.keys(this.species).length}) ({Object.keys(this.statdata).length})</h2>
+                        <h2>Species ({Object.keys(this.species).length}) ({Object.keys(this.statdata).length}) ({this.speciesKeys.length})</h2>
                         {
                             Object.keys(this.statdata).map(key => {
                                 return (<div key={key + "species"}>

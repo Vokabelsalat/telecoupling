@@ -28,7 +28,17 @@ class Map extends Component {
                     element.TSGeolinks.map(processEntry);
                 });
 
+                console.log(species, countries);
+
                 this.MapHelper.addTreeCountries(species, countries);
+
+                fetch("/Eucalyptus_bancroftii.json")
+                    .then(res => res.json())
+                    .then(data => {
+                        let coordinates = data.map(entry => {
+                            return [];
+                        });
+                    })
             }
         }
     }
