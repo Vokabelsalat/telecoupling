@@ -83,7 +83,7 @@ class Home extends Component {
     }
 
     fetchSpeciesTrades(species) {
-        fetch("http://localhost:3000/species/" + species.replaceSpecialCharacters() + "_trades.json")
+        fetch("http://localhost:3000/data/" + species.replaceSpecialCharacters() + "_trades.json")
             .then(res => {
                 return res.json();
             })
@@ -99,7 +99,7 @@ class Home extends Component {
     }
 
     fetchSpeciesThreats(species) {
-        fetch("http://localhost:3000/species/" + species.replaceSpecialCharacters() + "_threats.json")
+        fetch("http://localhost:3000/data/" + species.replaceSpecialCharacters() + "_threats.json")
             .then(res => {
                 return res.json();
             })
@@ -115,7 +115,7 @@ class Home extends Component {
     }
 
     fetchSpeciesData(species) {
-        fetch("http://localhost:3000/species/" + species.replaceSpecialCharacters() + ".json")
+        fetch("http://localhost:3000/data/" + species.replaceSpecialCharacters() + ".json")
             .then(res => {
                 return res.json();
             })

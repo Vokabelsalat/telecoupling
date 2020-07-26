@@ -27,8 +27,8 @@ import data3 from "../data/crawledDataNew15.json"; */
 import data2 from "../data/crawledDataNew17.json";
 import data3 from "../data/crawledDataNew18.json"; */
 
-import data1 from "../data/crawledDataNew19.json";
-import data2 from "../data/crawledDataNew20.json";
+/* import data1 from "../data/crawledDataNew19.json";
+import data2 from "../data/crawledDataNew20.json"; */
 
 class Statistics extends Component {
     constructor(props) {
@@ -44,8 +44,8 @@ class Statistics extends Component {
         this.speciesKeys = statdata.speciesKeys;
 
         this.testdata = {
-            ...data1,
-            ...data2,
+            /*  ...data1,
+             ...data2, */
             /* ...data3 */
         };
     }

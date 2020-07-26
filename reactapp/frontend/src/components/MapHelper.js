@@ -86,7 +86,7 @@ class MapHelper {
 
         stramen.addTo(obj.mymap);
 
-        fetch("/countries10m.geo.json")
+        fetch("/data/countries10m.geo.json")
             .then(res => res.json())
             .then(data => {
 
@@ -123,7 +123,7 @@ class MapHelper {
             console.log(locationMapping);
         });*/
 
-        fetch("/hotspots_2011_polygons-2.json")
+        fetch("/data/hotspots_2011_polygons-2.json")
             .then(res => res.json())
             .then(function (data) {
                 function filterByType(feature) {
@@ -164,7 +164,7 @@ class MapHelper {
 
             }.bind(this))
 
-        fetch("/Terrestrial_Ecoregions_World-4.json")
+        fetch("/data/Terrestrial_Ecoregions_World-4.json")
             .then(res => res.json())
             .then(data => {
                 function filterByEco(feature) {
@@ -224,7 +224,7 @@ class MapHelper {
                 this.control.addOverlay(eco, "Terrestrial Ecoregions", "Additional");
             });
 
-        fetch("/capitals.geo.json")
+        fetch("/data/capitals.geo.json")
             .then(res => res.json())
             .then(data => {
                 this.capitalsData = data;

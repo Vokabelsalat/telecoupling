@@ -14,8 +14,6 @@ class Map extends Component {
         this.MapHelper = new MapHelper("mapid");
 
         for (let species of Object.keys(this.props.data).values()) {
-            console.log(species, this.props.data[species]);
-
 
             if (this.props.data[species].hasOwnProperty("trees")) {
                 let countries = [];
@@ -28,17 +26,15 @@ class Map extends Component {
                     element.TSGeolinks.map(processEntry);
                 });
 
-                console.log(species, countries);
-
                 this.MapHelper.addTreeCountries(species, countries);
 
-                fetch("/Eucalyptus_bancroftii.json")
+                /* fetch("/Eucalyptus_bancroftii.json")
                     .then(res => res.json())
                     .then(data => {
                         let coordinates = data.map(entry => {
                             return [];
                         });
-                    })
+                    }) */
             }
         }
     }
