@@ -3,7 +3,8 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
-        "concurrently": "^5.1.0"
+        "concurrently": "^5.1.0",
+        "leaflet.markercluster": "^1.4.1"
     },
     "scripts": {
         "buildfrontend": "cd frontend && npm install",

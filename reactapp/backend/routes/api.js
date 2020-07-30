@@ -36,6 +36,22 @@ router.get("/getMainParts/:instruments", (req, res) => {
     });
 });
 
+router.post("/getTreeOccurrences/species", (req, res) => {
+    let speciesKeys = req.body;
+
+    knex.select().from("treeOccurrences").whereIn('speciesKey', speciesKeys).then(rows => {
+        res.json(rows);
+    });
+});
+
+router.get("/getTreeOccurrences/genus/:genus", (req, res) => {
+    let genus = req.params.genus;
+    knex.select().from("treeOccurrences").where({ "genus": genus }).then(rows => {
+        res.json(rows);
+    });
+});
+
+
 router.put("/writeJSONFile", (req, res) => {
     console.log("BODY", req.body);
 

@@ -115,6 +115,7 @@ class Home extends Component {
     }
 
     fetchSpeciesData(species) {
+        let fetchSpeciesOccurrencesBound = this.fetchSpeciesOccurrences.bind(this);
         fetch("http://localhost:3000/data/" + species.replaceSpecialCharacters() + ".json")
             .then(res => {
                 return res.json();
@@ -123,11 +124,72 @@ class Home extends Component {
                 let newSpeciesData = { ...this.state.speciesData };
 
                 newSpeciesData[species] = data;
+
+                setTimeout(fetchSpeciesOccurrencesBound(species, data.species));
+
                 this.setStateAsync({
                     ...this.state,
                     speciesData: newSpeciesData
                 });
             }.bind(this));
+    }
+
+    fetchSpeciesOccurrences(species, speciesObject) {
+        console.log("TRY TO FETCH", species, speciesObject);
+
+        let callback = function (data) {
+            let coordinates = data.map(entry => {
+                return [parseInt(entry.decimalLatitude), parseInt(entry.decimalLongitude)];
+            });
+
+            let newSpeciesData = { ...this.state.speciesOccurrences };
+
+            newSpeciesData[species] = coordinates;
+            this.setStateAsync({
+                speciesOccurrences: newSpeciesData
+            });
+        }.bind(this);
+
+        if (species.includes(" ")) {
+            let speciesKeys = Object.values(speciesObject).map(entry => entry.speciesKey);
+            console.log("speciesKeys", speciesKeys);
+
+            fetch("http://localhost:9000/api/getTreeOccurrences/species", {
+                body: JSON.stringify(speciesKeys),
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(res => {
+                    return res.json();
+                })
+                .then(data => {
+                    console.log("Data", species, data);
+                    callback(data);
+                })
+        }
+        else {
+            fetch("http://localhost:9000/api/getTreeOccurrences/genus/" + species)
+                .then(res => {
+                    return res.json();
+                })
+                .then(data => {
+                    /* map.treeCoordinates[species] = data;
+
+                    let coordinates = data.map(entry => {
+                        return [parseInt(entry.decimalLatitude), parseInt(entry.decimalLongitude)];
+                    });
+
+                    if (coordinates.length > 0) {
+                        mapHelper.addTreeCoordinates(species, coordinates);
+                    }
+
+                    setTimeout(boundCallback, 5); */
+                    console.log("Just Genus", species, data);
+                    callback(data);
+                })
+        }
     }
 
     setSpecies(species) {
@@ -137,8 +199,8 @@ class Home extends Component {
 
         for (let spec of species.values()) {
             this.fetchSpeciesData(spec);
-            /*             this.fetchSpeciesTrades(spec);
-                        this.fetchSpeciesThreats(spec); */
+            this.fetchSpeciesTrades(spec);
+            this.fetchSpeciesThreats(spec);
         }
     }
 
@@ -163,8 +225,9 @@ class Home extends Component {
                     }
                 </select>
                 <DataTable data={this.state.speciesData}
-                    /* threatData={this.state.speciesThreats}
-                    tradeData={this.state.speciesTrades} */></DataTable>
+                    threatData={this.state.speciesThreats}
+                    tradeData={this.state.speciesTrades}
+                ></DataTable>
                 {Object.keys(this.state.speciesData).length > 0 && <div>
                     <TimelineView data={this.state.speciesData} />
                     <div
@@ -174,7 +237,10 @@ class Home extends Component {
                     </div>
                 </div>
                 }
-                <Map data={this.state.speciesData}></Map>
+                <Map
+                    data={this.state.speciesData}
+                    coordinates={this.state.speciesOccurrences}
+                ></Map>
             </div >
         );
     }

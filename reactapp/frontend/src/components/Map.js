@@ -5,12 +5,17 @@ import '../utils/utils';
 class Map extends Component {
     constructor(props) {
         super(props);
+
+        this.treeCoordinates = {};
+        this.treeCoordinateQueue = [];
+
         this.state = {
             id: this.props.id,
         };
     }
 
     init() {
+        this.treeCoordinateQueue = [];
         this.MapHelper = new MapHelper("mapid");
 
         for (let species of Object.keys(this.props.data).values()) {
@@ -27,14 +32,14 @@ class Map extends Component {
                 });
 
                 this.MapHelper.addTreeCountries(species, countries);
+            }
 
-                /* fetch("/Eucalyptus_bancroftii.json")
-                    .then(res => res.json())
-                    .then(data => {
-                        let coordinates = data.map(entry => {
-                            return [];
-                        });
-                    }) */
+            let mapHelper = this.MapHelper;
+
+            if (this.props.coordinates !== undefined &&
+                this.props.coordinates.hasOwnProperty(species) &&
+                this.props.coordinates[species].length > 0) {
+                mapHelper.addTreeCoordinates(species, this.props.coordinates[species]);
             }
         }
     }

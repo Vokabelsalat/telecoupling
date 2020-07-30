@@ -393,3 +393,8 @@ button {
 .dataTableText {
   margin-right: 5px;
 }
+
+.leaflet-div-icon {
+  background: none !important;
+  border: none  !important;
+}
