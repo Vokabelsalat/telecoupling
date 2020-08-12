@@ -135,8 +135,6 @@ class Home extends Component {
     }
 
     fetchSpeciesOccurrences(species, speciesObject) {
-        console.log("TRY TO FETCH", species, speciesObject);
-
         let callback = function (data) {
             let coordinates = data.map(entry => {
                 return [parseInt(entry.decimalLatitude), parseInt(entry.decimalLongitude)];
@@ -152,8 +150,6 @@ class Home extends Component {
 
         if (species.includes(" ")) {
             let speciesKeys = Object.values(speciesObject).map(entry => entry.speciesKey);
-            console.log("speciesKeys", speciesKeys);
-
             fetch("http://localhost:9000/api/getTreeOccurrences/species", {
                 body: JSON.stringify(speciesKeys),
                 method: "POST",
@@ -165,7 +161,6 @@ class Home extends Component {
                     return res.json();
                 })
                 .then(data => {
-                    console.log("Data", species, data);
                     callback(data);
                 })
         }
@@ -186,7 +181,6 @@ class Home extends Component {
                     }
 
                     setTimeout(boundCallback, 5); */
-                    console.log("Just Genus", species, data);
                     callback(data);
                 })
         }
@@ -229,7 +223,11 @@ class Home extends Component {
                     tradeData={this.state.speciesTrades}
                 ></DataTable>
                 {Object.keys(this.state.speciesData).length > 0 && <div>
-                    <TimelineView data={this.state.speciesData} />
+                    <TimelineView
+                        data={this.state.speciesData}
+                        threatData={this.state.speciesThreats}
+                        tradeData={this.state.speciesTrades}
+                    />
                     <div
                         key="tooltip"
                         id="tooltip"

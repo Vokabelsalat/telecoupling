@@ -31,7 +31,6 @@ class MapHelper {
             /* this.initTest(); */
         }
         else {
-            console.log("GET");
         }
 
         return MapHelper.instance;

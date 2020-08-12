@@ -26,12 +26,22 @@ export class TimelineDatagenerator {
         return { minYear: this.minYear, maxYear: this.maxYear };
     }
 
-    processData(tradeData) {
+    processData(tradeData, i_threatData, i_tradeData) {
 
         //########### CREATING DATA ###########
 
         for (let speciesName of Object.keys(tradeData).values()) {
             let speciesObject = tradeData[speciesName];
+
+            if (i_tradeData !== undefined && i_tradeData.hasOwnProperty(speciesName)) {
+                let tradeArray = i_tradeData[speciesName];
+                speciesObject.trade = tradeArray;
+            }
+
+            if (i_threatData !== undefined && i_threatData.hasOwnProperty(speciesName)) {
+                let threatArray = i_threatData[speciesName];
+                speciesObject.threats = threatArray;
+            }
 
             let [data, groupedBySource] = this.getTimelineTradeDataFromSpecies(speciesObject);
             let listingData = this.getTimelineListingDataFromSpecies(speciesObject);
@@ -81,7 +91,7 @@ export class TimelineDatagenerator {
     /* ############## HELPER FUNCTIONS ############## */
 
     getTimelineThreatsDataFromSpecies(speciesObject) {
-        if (speciesObject.hasOwnProperty("threats")) {
+        if (speciesObject.hasOwnProperty("threats") && Array.isArray(speciesObject.threats)) {
             let groupedByYear = {};
             for (let entry of speciesObject["threats"].values()) {
                 let year = entry.assessmentYear;

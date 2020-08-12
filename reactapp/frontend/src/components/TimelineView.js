@@ -33,7 +33,7 @@ class TimelineView extends Component {
 
     create() {
         let generator = new TimelineDatagenerator();
-        generator.processData(this.props.data);
+        generator.processData(this.props.data, this.props.threatData, this.props.tradeData);
 
         let tmpdata = generator.getData();
         let reducer = (accumulator, currentValue) => { return accumulator + currentValue.length; };

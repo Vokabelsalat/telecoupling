@@ -113,7 +113,7 @@ class DataTable extends Component {
                                                                                             </span>
                                                                                         )
                                                                                         ) : "") */
-                                            (this.props.data[key].threats !== undefined ? this.props.data[key].threats.map((e, i) => (
+                                            (this.props.data[key].threats !== undefined && Array.isArray(this.props.data[key].threats) ? this.props.data[key].threats.map((e, i) => (
                                                 <span key={i}>
                                                     <div>
                                                         &#8226; {e.consAssCategory} - {e.assessmentYear} - {e.threatened} - {e.reference} - {(e.countries ? " - " + e.countries : "")}

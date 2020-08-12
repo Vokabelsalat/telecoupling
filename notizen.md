@@ -145,7 +145,7 @@ und die Karte für die lokalen Assesments
 Verknüpfung eines Instruments zu den Ursprungsorten und verwendeten Materialien
 
 
-#Meeting
+#Meeting mit Silke
 Zusammenfassung der Species im Genus => HeatMap (in Zeitleiste UND Karte) und Icicle Plot (erstmal eine Sortierung)
 
 Die Länder der lokalen Threats sollten wieder aufgeschlüsselt werden
@@ -154,4 +154,8 @@ Länder  Kategorie   Comment ("Reginal Status")  Criteria Used   Kürzel Interpr
 
 HeatMap kann nciht nur für die Zusammenfassung in der Zeitleiste verwendet werden, sondenr auch auf einer Karte für einen ganzen Genus (auch die globalen Threats, da die Unterarten, ja nicht überall auf der Welt vorkommen)
 
-=> Daniel 
+#Meeting mit Daniel und Silke (30.07.)
+Verschneiden der Geolocations eventuell in der Datenbank machen
+=> Auf jeden Fall Vorberechnung
+
+Species in der Zeitleist vielleicht nach Gegrafie aggregieren (6 Kontinente)
