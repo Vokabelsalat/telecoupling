@@ -166,6 +166,12 @@
         });
     }
 
+    function getListingHistoryByGenus(genus, callback) {
+        $.post("/getListingHistoryByGenus/" + genus, function (resData) {
+            callback(resData);
+        });
+    }
+
     function getTreeSearchInBulk(names, index, callback) {
         $.post("/queryTreeSearchSpeciesWithSciName/" + names[index], function (resData) {
             if (resData.length > 0) {
@@ -236,9 +242,13 @@
     }
 
     function func2(e) {
+        let instrument = $("#instrumentsSelect").val();
         let mainPart = $(e).val();
         clearTable();
-        $.post("/getAllMaterials", function (data) {
+        $.post("/getAllSpecies", function (data) {
+
+            //$.post("/getAllMaterials", function (data) {
+            /* $.post(`/getMaterial/${instrument}/${mainPart}`, function (data) { */
             let materialArray = $("#materialArray");
             materialArray.css("display", "inline-block");
 
@@ -284,8 +294,8 @@
                         firstMaterial = material;
                     }
 
-                    let materialView = createArrayView(material, "Trade_name", ["Trade_name", "Main_part", "Subpart"]);
-                    $tableRow.find(".materialCol").first().append(materialView[0]);
+                    /* let materialView = createArrayView(material, "Trade_name", ["Trade_name", "Main_part", "Subpart"]);
+                    $tableRow.find(".materialCol").first().append(materialView[0]); */
                 }
 
                 let justGenus = null;
@@ -325,8 +335,18 @@
                             });
                         });
 
-                    if (!collectedData[scientificName].hasOwnProperty("listings") || collectedData[scientificName]["listings"].length === 0) {
+                    if (!collectedData[scientificName].hasOwnProperty("listing") || collectedData[scientificName]["listing"].length === 0) {
                         $.post("/getSpeciesJustGenus/" + justGenus, $.proxy(appendListings, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName }));
+                    }
+
+                    //######### ListingHistory #########
+                    let appendListingHistoryBound = appendListingHistory.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName });
+
+                    if (!collectedData[scientificName].hasOwnProperty("listingHistory") || collectedData[scientificName]["listingHistory"].length === 0) {
+                        /* getListingHistoryByGenus(scientificName, (data) => {
+                            console.log("HERE DATA", data);
+                        }); */
+                        getListingHistoryByGenus(scientificName, appendListingHistoryBound);
                     }
 
                     if (!collectedData[scientificName].hasOwnProperty("trees") || collectedData[scientificName]["trees"].length === 0) {
@@ -387,7 +407,7 @@
                                     //######### ListingHistory #########
                                     let appendListingHistoryBound = appendListingHistory.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
 
-                                    if (!collectedData[scientificName].hasOwnProperty("listing") || collectedData[scientificName]["listing"].length === 0) {
+                                    if (!collectedData[scientificName].hasOwnProperty("listingHistory") || collectedData[scientificName]["listingHistory"].length === 0) {
                                         getListingHistoryInBulk(allNames, 0, appendListingHistoryBound);
                                     }
 

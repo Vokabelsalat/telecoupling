@@ -40,7 +40,12 @@ module.exports = {
         });
     },
     getAllMaterials: (req, res) => {
-        knex.select("Trade_name", "Family", "Genus", "Species", "Main_part", "Subpart", "CITES_regulation").from("materials").limit(10).offset(0).then(rows => {
+        knex.select("Trade_name", "Family", "Genus", "Species", "Main_part", "Subpart", "CITES_regulation").from("materials").limit(20).offset(0).then(rows => {
+            res.json(rows);
+        });
+    },
+    getAllSpecies: (req, res) => {
+        knex.distinct('Genus', 'Species').from("materials").limit(20).offset(140).then(rows => {
             res.json(rows);
         });
     },
