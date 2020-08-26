@@ -45,7 +45,7 @@ module.exports = {
         });
     },
     getAllSpecies: (req, res) => {
-        knex.distinct('Genus', 'Species').from("materials").limit(20).offset(140).then(rows => {
+        knex.distinct('Genus', 'Species').from("materials").limit(20).offset(0).then(rows => {
             res.json(rows);
         });
     },

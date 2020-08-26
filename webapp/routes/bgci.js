@@ -60,6 +60,7 @@ module.exports = {
     https
       .get(bgciUrl.replace("http", "https"), (resp) => {
         let data = "";
+        let retElement = {};
 
         // A chunk of data has been recieved.
         resp.on("data", (chunk) => {
@@ -84,11 +85,40 @@ module.exports = {
             } else {
               if (child.nodeType === 3) {
                 let countries = child.rawText;
-                outerRes.end(countries);
+                retElement.countries = countries;
               }
             }
           }
-          outerRes.end();
+
+          for (let child of root.querySelector("#content").childNodes.values()) {
+            for (let subchild of child.childNodes.values()) {
+              if (subchild.tagName === "div") {
+                for (let subsubchild of subchild.childNodes.values()) {
+                  let filteredStatus = subsubchild.childNodes.filter(
+                    (e) => e.rawText.trim() === "Regional Status"
+                  );
+                  if (filteredStatus.length > 0) {
+                    for (let ps of subchild.querySelectorAll("p").values()) {
+                      let entries = ps.childNodes.map(e => e.rawText);
+                      retElement.regionalStatus = entries;
+                    }
+                  }
+
+                  let filteredCrit = subsubchild.childNodes.filter(
+                    (e) => e.rawText.trim() === "Criteria Used"
+                  );
+                  if (filteredCrit.length > 0) {
+                    for (let ps of subchild.querySelectorAll("p").values()) {
+                      let entries = ps.childNodes.map(e => e.rawText);
+                      retElement.criteriaUsed = entries;
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          outerRes.json(retElement);
         });
       })
       .on("error", (err) => {
