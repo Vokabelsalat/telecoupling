@@ -24,9 +24,37 @@ class TimelineView extends Component {
         this.create();
     }
 
+    compareObjects(objA, objB) {
+        let keysA = Object.keys(objA).sort();
+        let keysB = Object.keys(objB).sort();
+        if (JSON.stringify(keysA) !==
+            JSON.stringify(keysB)) {
+            return false;
+        }
+        else {
+            for (let key of keysA.values()) {
+                let valueA = objA[key];
+
+                if (Array.isArray(valueA)) {
+                    if (valueA.length !== objB[key]) {
+                        return false;
+                    }
+                }
+                else {
+                    if (
+                        JSON.stringify(Object.keys(valueA).sort()) !==
+                        JSON.stringify(Object.keys(objB[key]).sort())
+                    ) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     componentDidUpdate(prevProps) {
-        if (JSON.stringify(Object.keys(prevProps.data).sort()) !==
-            JSON.stringify(Object.keys(this.props.data).sort())) {
+        if (this.compareObjects(prevProps.data, this.props.data) === false) {
             this.create();
         }
     }

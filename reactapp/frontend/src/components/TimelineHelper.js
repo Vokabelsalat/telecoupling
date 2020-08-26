@@ -1082,7 +1082,6 @@ class D3Timeline {
                     this.fontSize = 9;
                 }
 
-
                 if (this.data.timeListing.length) {
                     this.appendCites(this.data.timeListing);
                 }

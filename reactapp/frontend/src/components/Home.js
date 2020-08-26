@@ -116,7 +116,7 @@ class Home extends Component {
 
     fetchSpeciesData(species) {
         let fetchSpeciesOccurrencesBound = this.fetchSpeciesOccurrences.bind(this);
-        fetch("http://localhost:3000/data/" + species.replaceSpecialCharacters() + ".json")
+        fetch("http://localhost:3000/data/" + species.trim().replaceSpecialCharacters() + ".json")
             .then(res => {
                 return res.json();
             })
@@ -199,6 +199,7 @@ class Home extends Component {
     }
 
     render() {
+        console.log("SPECIES DATA", this.state.speciesData);
         return (
             <div>
                 <Orchestra id="orchestraVis"
@@ -218,10 +219,10 @@ class Home extends Component {
                         )
                     }
                 </select>
-                <DataTable data={this.state.speciesData}
+                {/* <DataTable data={this.state.speciesData}
                     threatData={this.state.speciesThreats}
                     tradeData={this.state.speciesTrades}
-                ></DataTable>
+                ></DataTable> */}
                 {Object.keys(this.state.speciesData).length > 0 && <div>
                     <TimelineView
                         data={this.state.speciesData}
@@ -235,10 +236,10 @@ class Home extends Component {
                     </div>
                 </div>
                 }
-                <Map
+                {/* <Map
                     data={this.state.speciesData}
                     coordinates={this.state.speciesOccurrences}
-                ></Map>
+                ></Map> */}
             </div >
         );
     }
