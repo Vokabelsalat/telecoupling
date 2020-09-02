@@ -8,7 +8,7 @@ const request = require("ajax-request");
 global.request = request;
 const app = express();
 const database = require("./database.js");
-const variables = require("./variables.js");
+//const variables = require("./variables.js");
 const utils = require("./public/js/utils.js");
 
 const {
@@ -59,7 +59,7 @@ const port = 8080;
 // create connection to database
 // the mysql.createConnection function takes in a configuration object which contains host, user, password and the database name.
 const db = mysql.createConnection(database.databaseConfig);
-global.variables = variables.variables;
+//global.variables = variables.variables;
 
 /* let rawdata = fs.readFileSync("./public/locations.json");
 global.musicalChairsLocations = JSON.parse(rawdata); */

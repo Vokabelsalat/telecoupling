@@ -22,7 +22,7 @@
     let material = this.material;
     let origScientificName = this.scientificName;
 
-    if (data) {
+    if (data && Array.isArray(data)) {
       data.forEach(function (element, index) {
         getOrCreate(
           getOrCreate(getOrCreate(collectedData, material, {}), "listings", {}),
@@ -45,7 +45,7 @@
     let material = this.material;
     let origScientificName = this.scientificName;
 
-    if (data) {
+    if (data && Array.isArray(data)) {
       data.forEach(function (element, index) {
         pushOrCreate(getOrCreate(collectedData, material, {}), "listingHistory", element);
 
@@ -64,7 +64,7 @@
     let material = this.material;
     let origScientificName = this.scientificName;
 
-    if (data) {
+    if (data && Array.isArray(data)) {
       data = data.filter(
         (e) => e.taxonomicStatus === "ACCEPTED" || e.status === "ACCEPTED" || e.status === "SYNONYM"
       );
@@ -174,7 +174,7 @@
 
         $col.append("<b>" + element.taxon + ":</b><br>");
         $col.append(element.TSGeolinks.map(processEntry).join("<br>") + "<br>");
-        map.addTreeCountries(treeName, [...new Set(countries)]);
+       // map.addTreeCountries(treeName, [...new Set(countries)]);
       });
     }
   }

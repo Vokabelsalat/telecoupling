@@ -71,46 +71,51 @@ module.exports = {
         resp.on("end", () => {
           const root = parse(data);
           let isCountry = false;
-          for (let child of root.querySelector("#search_generic_border").childNodes.values()) {
-            if (isCountry === false) {
-              if (child.tagName === "strong") {
-                let countryElements = child.childNodes.filter(
-                  (e) => e.nodeType === 3 && e.rawText === "Country:"
-                );
 
-                if (countryElements.length > 0) {
-                  isCountry = true;
+          if(root.querySelector("#search_generic_border")) {
+            for (let child of root.querySelector("#search_generic_border").childNodes) {
+              if (isCountry === false) {
+                if (child.tagName === "strong") {
+                  let countryElements = child.childNodes.filter(
+                    (e) => e.nodeType === 3 && e.rawText === "Country:"
+                  );
+
+                  if (countryElements.length > 0) {
+                    isCountry = true;
+                  }
                 }
-              }
-            } else {
-              if (child.nodeType === 3) {
-                let countries = child.rawText;
-                retElement.countries = countries;
+              } else {
+                if (child.nodeType === 3) {
+                  let countries = child.rawText;
+                  retElement.countries = countries;
+                }
               }
             }
           }
-
-          for (let child of root.querySelector("#content").childNodes.values()) {
-            for (let subchild of child.childNodes.values()) {
-              if (subchild.tagName === "div") {
-                for (let subsubchild of subchild.childNodes.values()) {
-                  let filteredStatus = subsubchild.childNodes.filter(
-                    (e) => e.rawText.trim() === "Regional Status"
-                  );
-                  if (filteredStatus.length > 0) {
-                    for (let ps of subchild.querySelectorAll("p").values()) {
-                      let entries = ps.childNodes.map(e => e.rawText);
-                      retElement.regionalStatus = entries;
+        
+          if(root.querySelector("#content")) {
+            for (let child of root.querySelector("#content").childNodes) {
+              for (let subchild of child.childNodes) {
+                if (subchild.tagName === "div") {
+                  for (let subsubchild of subchild.childNodes) {
+                    let filteredStatus = subsubchild.childNodes.filter(
+                      (e) => e.rawText.trim() === "Regional Status"
+                    );
+                    if (filteredStatus.length > 0) {
+                      for (let ps of subchild.querySelectorAll("p")) {
+                        let entries = ps.childNodes.map(e => e.rawText);
+                        retElement.regionalStatus = entries;
+                      }
                     }
-                  }
 
-                  let filteredCrit = subsubchild.childNodes.filter(
-                    (e) => e.rawText.trim() === "Criteria Used"
-                  );
-                  if (filteredCrit.length > 0) {
-                    for (let ps of subchild.querySelectorAll("p").values()) {
-                      let entries = ps.childNodes.map(e => e.rawText);
-                      retElement.criteriaUsed = entries;
+                    let filteredCrit = subsubchild.childNodes.filter(
+                      (e) => e.rawText.trim() === "Criteria Used"
+                    );
+                    if (filteredCrit.length > 0) {
+                      for (let ps of subchild.querySelectorAll("p")) {
+                        let entries = ps.childNodes.map(e => e.rawText);
+                        retElement.criteriaUsed = entries;
+                      }
                     }
                   }
                 }

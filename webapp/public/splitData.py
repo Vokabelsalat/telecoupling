@@ -64,7 +64,8 @@ with open('threatcountries.json', 'w') as outfile:
 wfile = open("localThreats.csv", "w")
 wfile.write(u"%s;%s;%s;%s;%s;%s;%s\n" % ("Land", "Kategorie", "Kriterium", "Regionaler Status", "Kommentar", "Interpretierter Status", "URL"))
 for land in threatcountries:
-	wfile.write(u"%s;%s;%s;%s;%s;%s;%s\n" % (land, "", "", "", "", "", ""))
+	writeString = "%s;%s;%s;%s;%s;%s;%s\n" % (land, "", "", "", "", "", "")
+	wfile.write(writeString.encode("utf8"))
 	for cat in threatcountries[land]:
 		writeString = "%s;%s;%s;%s;%s;%s;%s\n" % ("", cat, threatcountries[land][cat]["criteriaUsed"], threatcountries[land][cat]["regionalStatus"], threatcountries[land][cat]["comment"], threatcountries[land][cat]["interpreted"], threatcountries[land][cat]["url"])
 		wfile.write(writeString.encode("utf8"))

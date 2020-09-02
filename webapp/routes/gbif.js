@@ -110,7 +110,7 @@ module.exports = {
                     "genus": genus
                 }
             }, function (err, res, data) {
-                if (data.hasOwnProperty("genusKey")) {
+                if (data !== null && data !== undefined && data.hasOwnProperty("genusKey")) {
                     let genusKey = data["genusKey"];
                     outerRes.end(genusKey.toString());
                 }
@@ -136,7 +136,7 @@ module.exports = {
                     limit: 1000
                 }
             }, function (err, res, data) {
-                if (data.hasOwnProperty("results")) {
+                if (data !== null && data !== undefined && data.hasOwnProperty("results")) {
                     outerRes.json(data["results"]);
                 }
                 else {
@@ -162,7 +162,7 @@ module.exports = {
             }, function (err, res, data) {
                 if (data) {
                     data = JSON.parse(data);
-                    if (data.hasOwnProperty("results")) {
+                    if (data !== null && data !== undefined && data.hasOwnProperty("results")) {
                         outerRes.json(data["results"]);
                     }
                     else {

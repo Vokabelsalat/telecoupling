@@ -163,7 +163,7 @@ class BGCIMap {
                 }
             });
 
-            this.control.addOverlay(hotSpots, "Biodiversity Hot Spots", "Additional");
+            //this.control.addOverlay(hotSpots, "Biodiversity Hot Spots", "Additional");
 
         }.bind(this));
 
@@ -222,7 +222,7 @@ class BGCIMap {
                 }
             });
 
-            this.control.addOverlay(eco, "Terrestrial Ecoregions", "Additional");
+            //this.control.addOverlay(eco, "Terrestrial Ecoregions", "Additional");
 
         }.bind(this));
 
