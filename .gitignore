@@ -2361,3 +2361,4 @@ data/newCrawledData/crawledData (38).json
 reactapp/frontend/public/data/Dactylopius_coccus_trades Kopie.json
 reactapp/frontend/node_modules/*
 reactapp/backend/node_modules/*
+node_modules/*
