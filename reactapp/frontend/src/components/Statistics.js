@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { getOrCreate, pushOrCreate, scaleValue } from '../utils/utils';
 
-import statdata from "../data/statdata.json";
+//import statdata from "../data/statdata.json";
 
 /* import data1 from "../data/crawledDataNew1.json";
 import data2 from "../data/crawledDataNew2.json";
@@ -29,6 +29,9 @@ import data3 from "../data/crawledDataNew18.json"; */
 
 /* import data1 from "../data/crawledDataNew19.json";
 import data2 from "../data/crawledDataNew20.json"; */
+
+
+let statdata = {"statdata": {}, "statistics": {}};
 
 class Statistics extends Component {
     constructor(props) {
