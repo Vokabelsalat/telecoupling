@@ -159,3 +159,11 @@ Verschneiden der Geolocations eventuell in der Datenbank machen
 => Auf jeden Fall Vorberechnung
 
 Species in der Zeitleist vielleicht nach Gegrafie aggregieren (6 Kontinente)
+
+
+Wenn der Genus gelistet wurde, nehmen wir diesen als Hintergrund und die anderen Überlagern dieses als Highlight darauf
+Man könnte die Füllung der Rechtecke saturieren und den Rahmen ausmalen mit der jeweiligen Farbe
+Gleiche Bars werden Gruppiert und zusammengefasst
+Was wird dort eigentlich gemalt? Ich sollte noch nach den Species unterscheiden
+Lokale Assesments werden für die einzelnen Arten zusammengefasst und lassen sich wiederum aufzeigen durch erneutes Zoomen
+Lebensraum der Arten sollen in der Karte ersichtlich sein, darin könnte man dann die lokalen Assesments und die Gloabel abbilden

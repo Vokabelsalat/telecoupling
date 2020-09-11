@@ -29,6 +29,14 @@ router.get("/getMaterial/:instruments/:mainPart", (req, res) => {
     });
 });
 
+router.get("/getTestMaterial", (req, res) => {
+
+    knex.select("Trade_name", "Family", "Genus", "Species", "Main_part", "Subpart", "CITES_regulation").from("materials").where({ "Genus": "Dalbergia", "Species": " " }).orWhere({ "Genus": "Paubrasilia", "Species": "Echinata" }).then(rows => {
+        res.json(rows);
+    });
+});
+
+
 router.get("/getMainParts/:instruments", (req, res) => {
     let instruments = req.params.instruments;
     knex.select("Main_part").from("materials").where({ "Instruments": instruments }).whereNot({ "Main_part": "" }).groupBy("Main_part").then(rows => {

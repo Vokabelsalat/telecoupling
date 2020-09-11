@@ -190,7 +190,50 @@ class D3Timeline {
             );
     }
 
-    appendCites(listingData) {
+    appendCitesHeatMap(listingData) {
+        let listingHeatMap = {};
+
+        let yearCount = {};
+        for(let entry of listingData) {
+            let year = entry.year.toString();
+            pushOrCreate(getOrCreate(listingHeatMap, year, {}), entry.appendix, entry);
+            pushOrCreate(yearCount, year, 1);
+        }
+
+        let heatMapData = [];
+        let maxKeyPrevious = null;
+        let maxValuePrevious = null;
+
+        let maxSpecies = Math.max(...Object.values(yearCount).map(e => e.length));
+
+        for(let year of Object.keys(listingHeatMap).sort((a, b) => parseInt(a) - parseInt(b))) {
+            let yearData = listingHeatMap[year.toString()];
+            let push = true;
+
+            let maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
+            let maxValue = yearData[maxKey];
+
+            if(maxKeyPrevious !== null) {
+                if(maxValue.length < maxValuePrevious.length) {
+                    maxKey = maxKeyPrevious;
+                    maxValue = maxValuePrevious;
+                    push = false;
+                }
+            }
+
+            maxKeyPrevious = maxKey;
+            maxValuePrevious = maxValue;
+            
+            let tmp = maxValue[0];
+
+            tmp.opacity = maxValue.length / maxSpecies;
+
+            if(push)
+                heatMapData.push(tmp);
+        }
+
+        listingData = heatMapData;
+
         let circleYearCountIUCN = {};
 
         let rowHeight = 2 * this.radius + 1;
@@ -252,7 +295,8 @@ class D3Timeline {
         elemEnter
             .append("rect")
             .attr("class", "pinarea")
-            .attr("height", rowHeight)
+            .attr("height", rowHeight-2)
+            .attr("y", 1)
             /* .attr("width", function (d) {
               return width - x(Number(d.year));
             }) */
@@ -266,7 +310,8 @@ class D3Timeline {
                             .attr("cy", function(d) {
                                 return radius;
                             })*/
-            .style("fill", function (d) {
+            .style("stroke-width", 1)
+            .style("stroke", function (d) {
                 switch (d.type) {
                     case "listingHistory":
                         switch (d.appendix) {
@@ -284,7 +329,25 @@ class D3Timeline {
                         break;
                 }
             })
-            .style("stroke", "gray");
+            .style("fill-opacity", (d) => d.opacity)
+            .style("fill", function (d) {
+                switch (d.type) {
+                    case "listingHistory":
+                        switch (d.appendix) {
+                            case "I":
+                                return getIucnColor({ text: "CR" });
+                            case "II":
+                                return getIucnColor({ text: "EN" });
+                            case "III":
+                                return getIucnColor({ text: "NT" });
+                            default:
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            });
 
         if (this.zoomLevel > 0) {
             elemEnter
@@ -322,6 +385,241 @@ class D3Timeline {
                     }
                 })
                 .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif"));
+        }
+    }
+
+    appendCites(listingData) {
+
+        let speciesListing = {};
+        
+        let listingKeys = [];
+        let newListingData = [];
+        
+        let genusListing = null;
+        for(let listing of listingData.sort((a,b) => parseInt(a.year)-parseInt(b.year))) {
+            let push = true;
+            let name = `${listing.genus} ${listing.species}`.trim();
+
+            if(listing.rank === "GENUS") {
+                genusListing = name;
+                push = false;
+            }
+
+            let listingKey = `${listing.year}${listing.appendix}${listing.genus}${listing.species}`;
+            listing.sciName = name;
+            if(speciesListing.hasOwnProperty(name)) {
+                if(!listingKeys.includes(listingKey)) {
+                    speciesListing[name].push(listing);
+                    if(push) {
+                        newListingData.push(listing);
+                    }
+                }
+            }
+            else {
+                speciesListing[name] = [listing];
+                if(push) {
+                    newListingData.push(listing);
+                }
+            }
+
+            listingKeys.push(listingKey);
+        }
+        
+        
+        let speciesCount = Object.keys(speciesListing).length;
+        
+        if(genusListing) {
+            speciesCount -= 1;
+        }
+
+        console.log(speciesListing, newListingData);
+
+        let speciesNamesSorted = Object.keys(speciesListing)
+        .filter(key => key !== genusListing)
+        .sort((a, b) => {
+            return Math.min(...speciesListing[a].map(e => parseInt(e.year))) - Math.min(...speciesListing[b].map(e => parseInt(e.year)))
+        });
+
+        let circleYearCountIUCN = {};
+        
+        let rowHeight = 2 * this.radius + 1;
+
+        let svgCITES = this.wrapper
+            .append("svg")
+            .attr("id", this.id + "Cites")
+            .attr("width", this.initWidth)
+            .attr("height", (speciesCount) * rowHeight)
+            .style("display", "block");
+
+        let maxCount = 0;
+
+        svgCITES.style("display", "block");
+
+        let g = svgCITES.append("g")
+        .attr("transform", "translate(" + this.margin.left + "," + 0 + ")")
+        .attr("height", (speciesCount) * rowHeight);
+
+        let rect = g
+            .append("rect")
+            .attr("width", this.width)
+            .attr("height", (speciesCount) * rowHeight)
+            .attr("stroke", "gray")
+            .style("fill", "none");/*  */
+        //.style("fill", "url(#mainGradient)")
+        /*.style("stroke", "black")*/
+        //.style("fill", "url(#myGradient)");
+
+        
+        appendCitesRects.bind(this)(newListingData);
+            if(genusListing) {
+                appendCitesRects.bind(this)(speciesListing[genusListing]);
+            }
+
+        function appendCitesRects(lData) {
+            let elem = g.selectAll("g myCircleText").data(lData);
+
+            let elemEnter = elem
+                .enter()
+                .append("g")
+                .attr("class", "noselect")
+                .attr("transform", function (d) {
+                    let rowNum = speciesNamesSorted.indexOf(d.sciName);
+                    let count = this.yearCount(d.year, circleYearCountIUCN);
+                    maxCount = Math.max(maxCount, count);
+                    return "translate(" + (this.x(Number(d.year)) + this.x.bandwidth() / 2) + "," + (rowHeight * rowNum) + ")";
+                }.bind(this))
+                .attr("x", function (d) {
+                    return this.x(Number(d.year) + this.x.bandwidth() / 2);
+                }.bind(this))
+                .on("mouseover", this.mouseover)
+                .on("mousemove", this.mousemove)
+                .on("mouseleave", this.mouseleave);
+
+            g
+                .append("text")
+                .attr("transform", "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")")
+                .style("text-anchor", "end")
+                .style("dominant-baseline", "central")
+                .style("font-size", "9")
+                .text("CITES");
+
+            
+            //let radius = (height - y(1)) / 2;
+            elemEnter
+                .append("rect")
+                .attr("class", "pinarea")
+                .attr("height", (d) => d.rank === "GENUS" ? (speciesCount + 1) * rowHeight : rowHeight)
+                /* .attr("width", function (d) {
+                return width - x(Number(d.year));
+                }) */
+                .attr("width", function (d) {
+                    return this.width - this.x(Number(d.year));
+                }.bind(this))
+                /*.attr("r", radius)*/
+                /*.attr("cx", function(d) {
+                                    return x.bandwidth() / 2;
+                                })
+                                .attr("cy", function(d) {
+                                    return radius;
+                                })*/
+                //.style("fill-opacity", (d) => d.rank === "GENUS" ? 0.5 : 1.0)
+                .style("fill", function (d) {
+                    switch (d.type) {
+                        case "listingHistory":
+                            if(d.rank !== "GENUS") {
+                                switch (d.appendix) {
+                                    case "I":
+                                        return getIucnColor({ text: "CR" });
+                                    case "II":
+                                        return getIucnColor({ text: "EN" });
+                                    case "III":
+                                        return getIucnColor({ text: "NT" });
+                                    default:
+                                        break;
+                                }
+                            }
+                            else {
+                                return "transparent";
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                })
+                .style("stroke", function(d) {
+                    switch (d.type) {
+                        case "listingHistory":
+                            if(d.rank === "GENUS") {
+                                switch (d.appendix) {
+                                    case "I":
+                                        return getIucnColor({ text: "CR" });
+                                    case "II":
+                                        return getIucnColor({ text: "EN" });
+                                    case "III":
+                                        return getIucnColor({ text: "NT" });
+                                    default:
+                                        break;
+                                }
+                            }
+                            else {
+                                return "gray";
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }).style("stroke-width", function(d) {
+                    switch (d.type) {
+                        case "listingHistory":
+                            if(d.rank === "GENUS") {
+                               return 3;
+                            }
+                            else {
+                                return 1;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                });
+
+            if (this.zoomLevel > 0) {
+                elemEnter
+                    .append("text")
+                    .attr("class", "circleLabel noselect")
+                    .text(function (d) {
+                        return d.text;
+                    })
+                    .attr("x", function (d) {
+                        return this.x.bandwidth() / 2;
+                    }.bind(this))
+                    .attr("y", function (d) {
+                        return this.radius;
+                    }.bind(this))
+                    .style("font-size", this.radius)
+                    .attr("width", function (d) {
+                        return this.width - this.x(Number(d.year));
+                    }.bind(this))
+                    .style("fill", function (d) {
+                        switch (d.type) {
+                            case "listingHistory":
+                                switch (d.appendix) {
+                                    case "I":
+                                        return getIucnColorForeground({ text: "CR" });
+                                    case "II":
+                                        return getIucnColorForeground({ text: "EN" });
+                                    case "III":
+                                        return getIucnColorForeground({ text: "NT" });
+                                    default:
+                                        break;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    })
+                    .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif"));
+            }
         }
     }
 
@@ -986,7 +1284,7 @@ class D3Timeline {
                 topAdd = 25;
                 break;
             case "listingHistory":
-                htmlText = d.year + " : Appendix " + d.appendix;
+                htmlText = d.sciName + "<br>" + d.year + " : Appendix " + d.appendix;
                 leftAdd = parseInt(d3.select(this).attr("x"));
                 break;
             case "iucn":
@@ -1083,7 +1381,12 @@ class D3Timeline {
                 }
 
                 if (this.data.timeListing.length) {
-                    this.appendCites(this.data.timeListing);
+                        if(this.zoomLevel > 0) {
+                            this.appendCites(this.data.timeListing);
+                        }
+                        else {
+                            this.appendCitesHeatMap(this.data.timeListing);
+                        }
                 }
 
                 if (this.data.timeIUCN.length) {

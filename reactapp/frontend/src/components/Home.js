@@ -67,7 +67,8 @@ class Home extends Component {
 
     fetchAndSetSpecies() {
         if (this.state.mainPart !== "") {
-            fetch("http://localhost:9000/api/getMaterial/" + this.state.instrument + "/" + this.state.mainPart)
+            //fetch("http://localhost:9000/api/getMaterial/" + this.state.instrument + "/" + this.state.mainPart)
+            fetch("http://localhost:9000/api/getTestMaterial")
                 .then(res => res.json())
                 .then(data => {
                     this.setSpecies(
@@ -95,15 +96,19 @@ class Home extends Component {
                     ...this.state,
                     speciesTrades: newSpeciesData
                 });
-            }.bind(this));
+            }.bind(this))
+            /*.catch((error) => {
+                console.log(`Couldn't find file ${species.trim().replaceSpecialCharacters()}"_trades.json`);
+            });*/
     }
 
     fetchSpeciesThreats(species) {
         fetch("http://localhost:3000/data/" + species.replaceSpecialCharacters() + "_threats.json")
-            .then(res => {
-                return res.json();
-            })
-            .then(function (data) {
+        .then(res => {
+            return res.json();   
+        })
+        .then(function (data) {
+            if(data) {
                 let newSpeciesData = { ...this.state.speciesThreats };
 
                 newSpeciesData[species] = data;
@@ -111,27 +116,35 @@ class Home extends Component {
                     ...this.state,
                     speciesThreats: newSpeciesData
                 });
-            }.bind(this));
+            }
+            }.bind(this))
+            /*.catch((error) => {
+                console.log(`Couldn't find file ${species.trim().replaceSpecialCharacters()}_threats.json`);
+            });*/
     }
 
     fetchSpeciesData(species) {
         let fetchSpeciesOccurrencesBound = this.fetchSpeciesOccurrences.bind(this);
         fetch("http://localhost:3000/data/" + species.trim().replaceSpecialCharacters() + ".json")
-            .then(res => {
-                return res.json();
-            })
+            .then(res => res.json())
             .then(function (data) {
-                let newSpeciesData = { ...this.state.speciesData };
+                if(data) {
+                    
+                    let newSpeciesData = { ...this.state.speciesData };
 
-                newSpeciesData[species] = data;
+                    newSpeciesData[species] = data;
 
-                setTimeout(fetchSpeciesOccurrencesBound(species, data.species));
+                    setTimeout(fetchSpeciesOccurrencesBound(species, data.species));
 
-                this.setStateAsync({
-                    ...this.state,
-                    speciesData: newSpeciesData
-                });
-            }.bind(this));
+                    this.setStateAsync({
+                        ...this.state,
+                        speciesData: newSpeciesData
+                    });
+                }
+            }.bind(this))
+            /*.catch((error) => {
+                console.log(`Couldn't find file ${species.trim().replaceSpecialCharacters()}.json`);
+            });*/
     }
 
     fetchSpeciesOccurrences(species, speciesObject) {
@@ -191,7 +204,7 @@ class Home extends Component {
 
         this.setStateAsync({ speciesData: {}, species: species });
 
-        for (let spec of species.values()) {
+        for (let spec of species) {
             this.fetchSpeciesData(spec);
             this.fetchSpeciesTrades(spec);
             this.fetchSpeciesThreats(spec);

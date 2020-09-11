@@ -30,7 +30,7 @@ export class TimelineDatagenerator {
 
         //########### CREATING DATA ###########
 
-        for (let speciesName of Object.keys(tradeData).values()) {
+        for (let speciesName of Object.keys(tradeData)) {
             let speciesObject = tradeData[speciesName];
 
             if (i_tradeData !== undefined && i_tradeData.hasOwnProperty(speciesName)) {
@@ -183,6 +183,9 @@ export class TimelineDatagenerator {
                                 text: e["Appendix"],
                                 count: count++,
                                 type: "listingHistory",
+                                rank: e["RankName"],
+                                genus: e["Genus"],
+                                species: e["Species"]
                             };
                         })
                     );
@@ -198,9 +201,9 @@ export class TimelineDatagenerator {
         if (speciesObject.hasOwnProperty("iucn")) {
             //subkeys
             let groupedByYear = {};
-            for (let subkey of Object.keys(speciesObject["iucn"]).values()) {
+            for (let subkey of Object.keys(speciesObject["iucn"])) {
                 let tradeArray = speciesObject["iucn"][subkey];
-                for (let iucn of tradeArray.values()) {
+                for (let iucn of tradeArray) {
                     let year = iucn.year;
                     pushOrCreate(groupedByYear, year.toString(), iucn);
                 }
@@ -272,7 +275,7 @@ export class TimelineDatagenerator {
             let groupedByYear = {};
             let groupByExIm = {};
             let groupedBySource = {};
-            for (let subkey of Object.keys(speciesObject["trade"]).values()) {
+            for (let subkey of Object.keys(speciesObject["trade"])) {
                 let tradeArray = speciesObject["trade"][subkey];
                 for (let trade of tradeArray.values()) {
                     let year = trade.Year;
