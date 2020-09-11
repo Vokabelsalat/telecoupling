@@ -30,7 +30,7 @@ for index in range(1,9):
 								threatcats[threat["consAssCategory"].strip()] = threat["bgciUrl"]
 
 						if "countries" in threat:
-							country = "".join(threat["countries"])
+							country = threat["countries"].strip()
 							if country not in threatcountries:
 								threatcountries[country] = {}
 

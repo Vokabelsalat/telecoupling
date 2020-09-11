@@ -190,7 +190,9 @@
                 for (let entry of resData.values()) {
                     if (entry.reference === "NationalRL_0915" || entry.reference === "National Red List") {
                         $.post("/queryCountriesForNationalRedList", { bgciUrl: entry.bgciUrl }, function (result) {
-                            entry.countries = result;
+                            for (let keyname of Object.keys(result).values()) {
+                                entry[keyname] = result[keyname];
+                            }
                             callback([entry]);
                         });
                     }
@@ -363,13 +365,17 @@
 
                     //OLD ABOVE
 
-                    let appendThreatSearchAndFetchForCountries = (data) => {
+                    function appendThreatSearchAndFetchForCountries(data) {
+                        console.log("FUNCTION", this);
+
                         let appendThreatSearchBound = appendThreatSearch.bind({ "tableRow": $(this.tableRow), "treeName": this.scientificName, material: this.material, scientificName: this.scientificName });
 
                         for (let entry of data.values()) {
                             if (entry.reference === "NationalRL_0915" || entry.reference === "National Red List") {
                                 $.post("/queryCountriesForNationalRedList", { bgciUrl: entry.bgciUrl }, function (result) {
-                                    entry.countries = result;
+                                    for (let keyname of Object.keys(result).values()) {
+                                        entry[keyname] = result[keyname];
+                                    }
                                     appendThreatSearchBound([entry]);
                                 });
                             }
@@ -452,35 +458,10 @@
                                     }
 
                                     //######### ThreatSearch #########
-                                    /* let appendThreatSearchBound = appendThreatSearch.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
+                                    let appendThreatSearchBound = appendThreatSearch.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
 
                                     if (!collectedData[scientificName].hasOwnProperty("threat") || collectedData[scientificName]["threat"].length === 0) {
                                         getThreatSearchInBulk(allNames, 0, appendThreatSearchBound);
-                                    } */
-
-                                    //OLD ABOVE
-                                    let appendThreatSearchAndFetchForCountries = (data) => {
-                                        let appendThreatSearchBound = appendThreatSearch.bind({ "tableRow": $(this.tableRow), "treeName": this.scientificName, material: this.material, scientificName: this.scientificName });
-
-                                        for (let entry of data.values()) {
-                                            if (entry.reference === "NationalRL_0915" || entry.reference === "National Red List") {
-                                                $.post("/queryCountriesForNationalRedList", { bgciUrl: entry.bgciUrl }, function (result) {
-                                                    entry.countries = result;
-                                                    appendThreatSearchBound([entry]);
-                                                });
-                                            }
-                                            else {
-                                                appendThreatSearchBound([entry]);
-                                            }
-                                        }
-                                    };
-
-                                    let appendThreatSearchAndFetchForCountriesBound = appendThreatSearchAndFetchForCountries.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName });
-
-                                    if (!collectedData[scientificName].hasOwnProperty("threats") || collectedData[scientificName]["threats"].length === 0) {
-                                        $.post("/queryBGCIThreatSearchByGenus/" + justGenus,
-                                            $.proxy(appendThreatSearchAndFetchForCountriesBound)
-                                        );
                                     }
                                 }
                             );

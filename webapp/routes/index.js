@@ -45,9 +45,12 @@ module.exports = {
         });
     },
     getAllSpecies: (req, res) => {
-        knex.distinct('Genus', 'Species').from("materials").limit(20).offset(0).then(rows => {
+        knex.distinct('Genus', 'Species').from("materials").limit(20).offset(140).then(rows => {
             res.json(rows);
         });
+        /* knex.distinct('Genus', 'Species').from("materials").where({ "Genus": "Salix", "Species": " " }).limit(20).offset(0).then(rows => {
+            res.json(rows);
+        }); */
     },
     getSynonyms: (req, res) => {
         let word = req.params.word;

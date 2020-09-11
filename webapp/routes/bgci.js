@@ -136,6 +136,9 @@ module.exports = {
       let genus = split[0];
       let species = split[1];
 
+      console.log("URL", "https://data.bgci.org/threatsearch/genus/" + genus + "/species/" + species);
+
+
       request(
         {
           url: "https://data.bgci.org/threatsearch/genus/" + genus + "/species/" + species,
