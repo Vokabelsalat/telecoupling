@@ -21,6 +21,7 @@ function getIucnColorForeground(d) {
     return iucnColors[d.text] ? iucnColors[d.text].fg : iucnColors["NE"].fg;
 };
 
+module.exports.iucnCategoriesSorted = ["EX", "EW", "RE", "CR", "EN", "A", "E", "VU", "V", "NT", "LC", "nT", "DD", "NA", "NE"];
 module.exports.iucnColors = iucnColors;
 module.exports.getIucnColor = getIucnColor;
 module.exports.getIucnColorForeground = getIucnColorForeground;

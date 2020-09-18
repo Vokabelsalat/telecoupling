@@ -167,3 +167,35 @@ Gleiche Bars werden Gruppiert und zusammengefasst
 Was wird dort eigentlich gemalt? Ich sollte noch nach den Species unterscheiden
 Lokale Assesments werden für die einzelnen Arten zusammengefasst und lassen sich wiederum aufzeigen durch erneutes Zoomen
 Lebensraum der Arten sollen in der Karte ersichtlich sein, darin könnte man dann die lokalen Assesments und die Gloabel abbilden
+
+#Meeting (11.9.)
+
+Was gibt es jetzt noch bei den lokalen Threats zu tun?
+
+Was sagen wir zu Heatmap?
+    Wie machen wir es mit den Pies (lokalen Threats) in der Heatmap?
+    Wie fein aufgelöst soll die Heatmap sein?
+    Wie machen wir es mit den Genus-weiten Einschätzungen im Vergleich zu den der einzelnen Spezies?
+
+Ich sollte alle Threats auflisten, bei denen kein Land zu finden war
+
+Globale und nicht global
+
+IUCN muss aus den Threats herausgefiltert werden
+IUCN muss ich erstmal richtig crawlen :/
+
+
+die species in einem genus sollten alle zur prozentualen Darstellung beitragen nicht nur die species die gelistet sind
+
+wir sollten unterschiedliche darstellungen für genus und species verwenden und diese untereinander darstellen
+Spezies sollte kursiv geschrieben werden
+
+Instrument aus den einzelnen Bauteilen bauen und dabei die Materialien mit den entsprechenden Scores auswählen
+
+Wie generien wir den Score für ein Material? Heatmaps für die einzlenen Timeline einträge, aber wie machen wir es mit den übergreifenden Kategorien?
+
+Die Darstellung der Objekte als Explosionszeichnung als Startpunkt für eine Suche 
+
+Erstmal nur die globalen Assesments beachten
+bei Demand die details und lokalen threats anzeigen
+für die zusammenfassung verschiedene metriken anbieten

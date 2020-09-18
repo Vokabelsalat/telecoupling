@@ -1,6 +1,6 @@
 import * as d3 from "d3";
-import { getOrCreate, dangerColorMap, sourceToDangerMap, iucnToDangerMap, pushOrCreate } from '../utils/utils'
-import { getIucnColor, getIucnColorForeground } from '../utils/timelineUtils'
+import { getOrCreate, dangerColorMap, sourceToDangerMap, iucnToDangerMap, pushOrCreate, dangerSorted } from '../utils/utils'
+import { getIucnColor, getIucnColorForeground, iucnCategoriesSorted } from '../utils/timelineUtils'
 
 class D3Timeline {
     constructor(param) {
@@ -194,7 +194,7 @@ class D3Timeline {
         let listingHeatMap = {};
 
         let yearCount = {};
-        for(let entry of listingData) {
+        for (let entry of listingData) {
             let year = entry.year.toString();
             pushOrCreate(getOrCreate(listingHeatMap, year, {}), entry.appendix, entry);
             pushOrCreate(yearCount, year, 1);
@@ -206,15 +206,15 @@ class D3Timeline {
 
         let maxSpecies = Math.max(...Object.values(yearCount).map(e => e.length));
 
-        for(let year of Object.keys(listingHeatMap).sort((a, b) => parseInt(a) - parseInt(b))) {
+        for (let year of Object.keys(listingHeatMap).sort((a, b) => parseInt(a) - parseInt(b))) {
             let yearData = listingHeatMap[year.toString()];
             let push = true;
 
             let maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
             let maxValue = yearData[maxKey];
 
-            if(maxKeyPrevious !== null) {
-                if(maxValue.length < maxValuePrevious.length) {
+            if (maxKeyPrevious !== null) {
+                if (maxValue.length < maxValuePrevious.length) {
                     maxKey = maxKeyPrevious;
                     maxValue = maxValuePrevious;
                     push = false;
@@ -223,12 +223,12 @@ class D3Timeline {
 
             maxKeyPrevious = maxKey;
             maxValuePrevious = maxValue;
-            
+
             let tmp = maxValue[0];
 
             tmp.opacity = maxValue.length / maxSpecies;
 
-            if(push)
+            if (push)
                 heatMapData.push(tmp);
         }
 
@@ -264,7 +264,6 @@ class D3Timeline {
 
         let elem = g.selectAll("g myCircleText").data(listingData);
 
-
         let elemEnter = elem
             .enter()
             .append("g")
@@ -292,10 +291,24 @@ class D3Timeline {
             .text("CITES");
 
         //let radius = (height - y(1)) / 2;
+
         elemEnter
             .append("rect")
             .attr("class", "pinarea")
-            .attr("height", rowHeight-2)
+            .attr("height", rowHeight - 2)
+            .attr("y", 1)
+            /* .attr("width", function (d) {
+              return width - x(Number(d.year));
+            }) */
+            .attr("width", function (d) {
+                return this.width - this.x(Number(d.year));
+            }.bind(this))
+            .style("fill", "white");
+
+        elemEnter
+            .append("rect")
+            .attr("class", "pinarea")
+            .attr("height", rowHeight - 2)
             .attr("y", 1)
             /* .attr("width", function (d) {
               return width - x(Number(d.year));
@@ -349,6 +362,466 @@ class D3Timeline {
                 }
             });
 
+        /*  if (this.zoomLevel > 0) {
+             elemEnter
+                 .append("text")
+                 .attr("class", "circleLabel noselect")
+                 .text(function (d) {
+                     return d.text;
+                 })
+                 .attr("x", function (d) {
+                     return this.x.bandwidth() / 2;
+                 }.bind(this))
+                 .attr("y", function (d) {
+                     return this.radius;
+                 }.bind(this))
+                 .style("font-size", this.radius)
+                 .attr("width", function (d) {
+                     return this.width - this.x(Number(d.year));
+                 }.bind(this))
+                 .style("fill", function (d) {
+                     switch (d.type) {
+                         case "listingHistory":
+                             switch (d.appendix) {
+                                 case "I":
+                                     return getIucnColorForeground({ text: "CR" });
+                                 case "II":
+                                     return getIucnColorForeground({ text: "EN" });
+                                 case "III":
+                                     return getIucnColorForeground({ text: "NT" });
+                                 default:
+                                     break;
+                             }
+                             break;
+                         default:
+                             break;
+                     }
+                 })
+                 .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif")); 
+    }*/
+    }
+
+    appendCites(listingData) {
+
+        let speciesListing = {};
+
+        let listingKeys = [];
+        let newListingData = [];
+
+        let genusListing = null;
+        for (let listing of listingData.sort((a, b) => parseInt(a.year) - parseInt(b.year))) {
+            let push = true;
+            let name = `${listing.genus} ${listing.species}`.trim();
+
+            if (listing.rank === "GENUS") {
+                genusListing = name;
+                push = false;
+            }
+
+            let listingKey = `${listing.year}${listing.appendix}${listing.genus}${listing.species}`;
+            listing.sciName = name;
+            if (speciesListing.hasOwnProperty(name)) {
+                if (!listingKeys.includes(listingKey)) {
+                    speciesListing[name].push(listing);
+                    if (push) {
+                        newListingData.push(listing);
+                    }
+                }
+            }
+            else {
+                speciesListing[name] = [listing];
+                if (push) {
+                    newListingData.push(listing);
+                }
+            }
+
+            listingKeys.push(listingKey);
+        }
+
+
+        let speciesCount = Object.keys(speciesListing).length;
+
+        if (genusListing) {
+            speciesCount -= 1;
+        }
+
+        let speciesNamesSorted = Object.keys(speciesListing)
+            .filter(key => key !== genusListing)
+            .sort((a, b) => {
+                return Math.min(...speciesListing[b].map(e => parseInt(e.year))) - Math.min(...speciesListing[a].map(e => parseInt(e.year)))
+            });
+
+        let circleYearCountIUCN = {};
+
+        let rowHeight = this.radius + 1;
+
+        let svgCITES = this.wrapper
+            .append("svg")
+            .attr("id", this.id + "Cites")
+            .attr("width", this.initWidth)
+            .attr("height", (speciesCount) * rowHeight)
+            .style("display", "block");
+
+        let maxCount = 0;
+
+        svgCITES.style("display", "block");
+
+        let g = svgCITES.append("g")
+            .attr("transform", "translate(" + this.margin.left + "," + 0 + ")")
+            .attr("height", (speciesCount) * rowHeight);
+
+        let rect = g
+            .append("rect")
+            .attr("width", this.width)
+            .attr("height", (speciesCount) * rowHeight)
+            .attr("stroke", "gray")
+            .style("fill", "none");/*  */
+        //.style("fill", "url(#mainGradient)")
+        /*.style("stroke", "black")*/
+        //.style("fill", "url(#myGradient)");
+
+
+        appendCitesRects.bind(this)(newListingData);
+        if (genusListing) {
+            appendCitesRects.bind(this)(speciesListing[genusListing]);
+        }
+
+        g
+            .append("text")
+            .attr("transform", "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")")
+            .style("text-anchor", "end")
+            .style("dominant-baseline", "central")
+            .style("font-size", "9")
+            .text("CITES");
+
+        function appendCitesRects(lData) {
+            let elem = g.selectAll("g myCircleText").data(lData);
+
+            let elemEnter = elem
+                .enter()
+                .append("g")
+                .attr("class", "noselect")
+                .attr("transform", function (d) {
+                    let rowNum = speciesNamesSorted.indexOf(d.sciName);
+                    let count = this.yearCount(d.year, circleYearCountIUCN);
+                    maxCount = Math.max(maxCount, count);
+                    return "translate(" + (this.x(Number(d.year)) + this.x.bandwidth() / 2) + "," + (rowHeight * rowNum) + ")";
+                }.bind(this))
+                .attr("x", function (d) {
+                    return this.x(Number(d.year) + this.x.bandwidth() / 2);
+                }.bind(this))
+                .on("mouseover", this.mouseover)
+                .on("mousemove", this.mousemove)
+                .on("mouseleave", this.mouseleave);
+
+
+            //let radius = (height - y(1)) / 2;
+            elemEnter
+                .append("rect")
+                .attr("class", "pinarea")
+                .attr("height", (d) => d.rank === "GENUS" ? (speciesCount + 1) * rowHeight : rowHeight)
+                /* .attr("width", function (d) {
+                return width - x(Number(d.year));
+                }) */
+                .attr("width", function (d) {
+                    return this.width - this.x(Number(d.year));
+                }.bind(this))
+                /*.attr("r", radius)*/
+                /*.attr("cx", function(d) {
+                                    return x.bandwidth() / 2;
+                                })
+                                .attr("cy", function(d) {
+                                    return radius;
+                                })*/
+                //.style("fill-opacity", (d) => d.rank === "GENUS" ? 0.5 : 1.0)
+                .style("fill", function (d) {
+                    switch (d.type) {
+                        case "listingHistory":
+                            if (d.rank !== "GENUS") {
+                                switch (d.appendix) {
+                                    case "I":
+                                        return getIucnColor({ text: "CR" });
+                                    case "II":
+                                        return getIucnColor({ text: "EN" });
+                                    case "III":
+                                        return getIucnColor({ text: "NT" });
+                                    default:
+                                        break;
+                                }
+                            }
+                            else {
+                                svgCITES
+                                    .append('defs')
+                                    .append('pattern')
+                                    .attr('id', 'diagonalHatch')
+                                    .attr('patternUnits', 'userSpaceOnUse')
+                                    .attr('width', 14)
+                                    .attr('height', 24)
+                                    .attr("patternTransform", "rotate(45)")
+                                    .append('line')
+                                    .attr("x1", 0)
+                                    .attr("y", 0)
+                                    .attr("x2", 0)
+                                    .attr("y2", 24)
+                                    .attr("stroke", () => {
+                                        switch (d.appendix) {
+                                            case "I":
+                                                return getIucnColor({ text: "CR" });
+                                            case "II":
+                                                return getIucnColor({ text: "EN" });
+                                            case "III":
+                                                return getIucnColor({ text: "NT" });
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                    )
+                                    .attr('stroke-width', 2);
+
+                                return "url(#diagonalHatch)";
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                })
+                .style("stroke", function (d) {
+                    switch (d.type) {
+                        case "listingHistory":
+                            /*  if (d.rank === "GENUS") {
+                                 switch (d.appendix) {
+                                     case "I":
+                                         return getIucnColor({ text: "CR" });
+                                     case "II":
+                                         return getIucnColor({ text: "EN" });
+                                     case "III":
+                                         return getIucnColor({ text: "NT" });
+                                     default:
+                                         break;
+                                 }
+                             }
+                             else { */
+                            return "gray";
+                            /* } */
+                            break;
+                        default:
+                            break;
+                    }
+                }).style("stroke-width", function (d) {
+                    switch (d.type) {
+                        case "listingHistory":
+                            /*     if (d.rank === "GENUS") {
+                                    return 3;
+                                }
+                                else { */
+                            return 1;
+                            /* } */
+                            break;
+                        default:
+                            break;
+                    }
+                });
+
+            /* if (this.zoomLevel > 0) {
+                texts = elemEnter
+                    .append("text")
+                    .attr("class", "circleLabel noselect")
+                    .text(function (d) {
+                        return d.text;
+                    })
+                    .attr("x", function (d) {
+                        return this.x.bandwidth() / 2;
+                    }.bind(this))
+                    .attr("y", function (d) {
+                        return this.radius;
+                    }.bind(this))
+                    .style("font-size", this.radius)
+                    .attr("width", function (d) {
+                        return this.width - this.x(Number(d.year));
+                    }.bind(this))
+                    .style("fill", function (d) {
+                        switch (d.type) {
+                            case "listingHistory":
+                                switch (d.appendix) {
+                                    case "I":
+                                        return getIucnColorForeground({ text: "CR" });
+                                    case "II":
+                                        return getIucnColorForeground({ text: "EN" });
+                                    case "III":
+                                        return getIucnColorForeground({ text: "NT" });
+                                    default:
+                                        break;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    })
+                    .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif"));
+        }*/
+        }
+    }
+
+    appendIUCNHeatMap(iucnData) {
+        let iucnHeatMap = {};
+
+        let yearCount = {};
+        for (let entry of iucnData) {
+            let year = entry.year.toString();
+            pushOrCreate(getOrCreate(iucnHeatMap, year, {}), entry.code, entry);
+            pushOrCreate(yearCount, year, 1);
+        }
+
+        let heatMapData = [];
+        let maxKeyPrevious = null;
+        let maxValuePrevious = null;
+
+        let maxSpecies = Math.max(...Object.values(yearCount).map(e => e.length));
+
+        for (let year of Object.keys(iucnHeatMap).sort((a, b) => parseInt(a) - parseInt(b))) {
+            let yearData = iucnHeatMap[year.toString()];
+            let push = true;
+
+            let maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
+            let maxValue = yearData[maxKey];
+
+            /* if (maxKeyPrevious !== null) {
+                if (maxValue.length < maxValuePrevious.length) {
+                    maxKey = maxKeyPrevious;
+                    maxValue = maxValuePrevious;
+                    push = false;
+                }
+            } */
+
+            maxKeyPrevious = maxKey;
+            maxValuePrevious = maxValue;
+
+            let tmp = maxValue[0];
+
+            tmp.opacity = maxValue.length / maxSpecies;
+
+            if (push)
+                heatMapData.push(tmp);
+        }
+
+        let listingData = heatMapData;
+
+        let circleYearCountIUCN = {};
+
+        let rowHeight = 2 * this.radius + 1;
+
+        let svgCITES = this.wrapper
+            .append("svg")
+            .attr("id", this.id + "IUCN")
+            .attr("width", this.initWidth)
+            .attr("height", rowHeight)
+            .style("display", "block");
+
+        let maxCount = 0;
+
+        svgCITES.style("display", "block");
+
+        let g = svgCITES.append("g").attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
+
+
+        let rect = g
+            .append("rect")
+            .attr("width", this.width)
+            .attr("height", (maxCount + 1) * rowHeight)
+            .attr("fill", "none")
+            .attr("stroke", "gray");
+        //.style("fill", "url(#mainGradient)")
+        /*.style("stroke", "black")*/
+        //.style("fill", "url(#myGradient)");
+
+        let elem = g.selectAll("g myCircleText").data(listingData);
+
+
+        let elemEnter = elem
+            .enter()
+            .append("g")
+            .attr("class", "noselect")
+            .attr("transform", function (d) {
+                let count = this.yearCount(d.year, circleYearCountIUCN);
+                maxCount = Math.max(maxCount, count);
+                rect.attr("height", (maxCount + 1) * rowHeight);
+                svgCITES.attr("height", (maxCount + 1) * rowHeight);
+                return "translate(" + (this.x(Number(d.year)) + this.x.bandwidth() / 2) + "," + (rowHeight * count) + ")";
+            }.bind(this))
+            .attr("x", function (d) {
+                return this.x(Number(d.year) + this.x.bandwidth() / 2);
+            }.bind(this))
+            .on("mouseover", this.mouseover)
+            .on("mousemove", this.mousemove)
+            .on("mouseleave", this.mouseleave);
+
+        g
+            .append("text")
+            .attr("transform", "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")")
+            .style("text-anchor", "end")
+            .style("dominant-baseline", "central")
+            .style("font-size", "9")
+            .text("IUCN");
+
+        //let radius = (height - y(1)) / 2;
+        elemEnter
+            .append("rect")
+            .attr("class", "pinarea")
+            .attr("height", rowHeight - 2)
+            .attr("y", 1)
+            /* .attr("width", function (d) {
+              return width - x(Number(d.year));
+            }) */
+            .attr("width", function (d) {
+                return this.width - this.x(Number(d.year));
+            }.bind(this))
+            .style("fill", "white");
+        /*.attr("r", radius)*/
+        /*.attr("cx", function(d) {
+                            return x.bandwidth() / 2;
+                        })
+                        .attr("cy", function(d) {
+                            return radius;
+                        })*/
+
+
+        elemEnter
+            .append("rect")
+            .attr("class", "pinarea")
+            .attr("height", rowHeight - 2)
+            .attr("y", 1)
+            /* .attr("width", function (d) {
+              return width - x(Number(d.year));
+            }) */
+            .attr("width", function (d) {
+                return this.width - this.x(Number(d.year));
+            }.bind(this))
+            /*.attr("r", radius)*/
+            /*.attr("cx", function(d) {
+                                return x.bandwidth() / 2;
+                            })
+                            .attr("cy", function(d) {
+                                return radius;
+                            })*/
+            .style("stroke-width", 1)
+            .style("stroke", function (d) {
+                switch (d.type) {
+                    case "iucn":
+                        return getIucnColor(d);
+                    default:
+                        break;
+                }
+            })
+            .style("fill-opacity", (d) => d.opacity)
+            .style("fill", function (d) {
+                switch (d.type) {
+                    case "iucn":
+                        return getIucnColor(d);
+                    default:
+                        break;
+                }
+            });
+
         if (this.zoomLevel > 0) {
             elemEnter
                 .append("text")
@@ -388,65 +861,73 @@ class D3Timeline {
         }
     }
 
-    appendCites(listingData) {
+    appendIUCN(iucnData) {
 
         let speciesListing = {};
-        
+
         let listingKeys = [];
         let newListingData = [];
-        
-        let genusListing = null;
-        for(let listing of listingData.sort((a,b) => parseInt(a.year)-parseInt(b.year))) {
-            let push = true;
-            let name = `${listing.genus} ${listing.species}`.trim();
 
-            if(listing.rank === "GENUS") {
-                genusListing = name;
-                push = false;
-            }
+        for (let listing of iucnData.sort((a, b) => parseInt(a.year) - parseInt(b.year))) {
 
-            let listingKey = `${listing.year}${listing.appendix}${listing.genus}${listing.species}`;
-            listing.sciName = name;
-            if(speciesListing.hasOwnProperty(name)) {
-                if(!listingKeys.includes(listingKey)) {
-                    speciesListing[name].push(listing);
-                    if(push) {
-                        newListingData.push(listing);
-                    }
+            let listingKey = `${listing.year}${listing.code}${listing.sciName}`;
+            if (speciesListing.hasOwnProperty(listing.sciName)) {
+                if (!listingKeys.includes(listingKey)) {
+                    speciesListing[listing.sciName].push(listing);
+                    newListingData.push(listing);
                 }
             }
             else {
-                speciesListing[name] = [listing];
-                if(push) {
-                    newListingData.push(listing);
-                }
+                speciesListing[listing.sciName] = [listing];
+                newListingData.push(listing);
             }
 
             listingKeys.push(listingKey);
         }
-        
-        
-        let speciesCount = Object.keys(speciesListing).length;
-        
-        if(genusListing) {
-            speciesCount -= 1;
-        }
 
-        console.log(speciesListing, newListingData);
+        /*  for (let species of Object.keys(speciesListing)) {
+             speciesListing[species] = speciesListing[species].sort((a, b) => {
+                 if (a.year === b.year) {
+                     console.log(a, b, iucnCategoriesSorted.indexOf(a.code), iucnCategoriesSorted.indexOf(b.code));
+     
+                     if (iucnCategoriesSorted.indexOf(a.code) < iucnCategoriesSorted.indexOf(b.code)) {
+                         return false;
+                     }
+                     else {
+                         return true;
+                     }
+                 }
+                 else {
+                     return true;
+                 }
+             });
+         } */
+
+        let speciesCount = Object.keys(speciesListing).length;
 
         let speciesNamesSorted = Object.keys(speciesListing)
-        .filter(key => key !== genusListing)
-        .sort((a, b) => {
-            return Math.min(...speciesListing[a].map(e => parseInt(e.year))) - Math.min(...speciesListing[b].map(e => parseInt(e.year)))
-        });
+            .sort((a, b) => {
+                if (Math.min(...speciesListing[b].map(e => parseInt(e.year))) > Math.min(...speciesListing[a].map(e => parseInt(e.year)))) {
+                    return 1;
+                }
+                else if (Math.min(...speciesListing[b].map(e => parseInt(e.year))) < Math.min(...speciesListing[a].map(e => parseInt(e.year)))) {
+                    return -1;
+                }
+                else {
+                    if (iucnCategoriesSorted.indexOf(speciesListing[b][0].code) < 0) {
+                        console.log("HERE", speciesListing[b][0].code);
+                    }
+                    return iucnCategoriesSorted.indexOf(speciesListing[b][0].code) - iucnCategoriesSorted.indexOf(speciesListing[a][0].code);
+                }
+            });
 
         let circleYearCountIUCN = {};
-        
-        let rowHeight = 2 * this.radius + 1;
+
+        let rowHeight = this.radius + 1;
 
         let svgCITES = this.wrapper
             .append("svg")
-            .attr("id", this.id + "Cites")
+            .attr("id", this.id + "IUCN")
             .attr("width", this.initWidth)
             .attr("height", (speciesCount) * rowHeight)
             .style("display", "block");
@@ -456,24 +937,26 @@ class D3Timeline {
         svgCITES.style("display", "block");
 
         let g = svgCITES.append("g")
-        .attr("transform", "translate(" + this.margin.left + "," + 0 + ")")
-        .attr("height", (speciesCount) * rowHeight);
+            .attr("transform", "translate(" + this.margin.left + "," + 0 + ")")
+            .attr("height", (speciesCount) * rowHeight);
 
         let rect = g
             .append("rect")
             .attr("width", this.width)
             .attr("height", (speciesCount) * rowHeight)
             .attr("stroke", "gray")
-            .style("fill", "none");/*  */
-        //.style("fill", "url(#mainGradient)")
-        /*.style("stroke", "black")*/
-        //.style("fill", "url(#myGradient)");
+            .style("fill", "none");
 
-        
+
         appendCitesRects.bind(this)(newListingData);
-            if(genusListing) {
-                appendCitesRects.bind(this)(speciesListing[genusListing]);
-            }
+
+        g
+            .append("text")
+            .attr("transform", "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")")
+            .style("text-anchor", "end")
+            .style("dominant-baseline", "central")
+            .style("font-size", "9")
+            .text("IUCN");
 
         function appendCitesRects(lData) {
             let elem = g.selectAll("g myCircleText").data(lData);
@@ -495,149 +978,94 @@ class D3Timeline {
                 .on("mousemove", this.mousemove)
                 .on("mouseleave", this.mouseleave);
 
-            g
-                .append("text")
-                .attr("transform", "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")")
-                .style("text-anchor", "end")
-                .style("dominant-baseline", "central")
-                .style("font-size", "9")
-                .text("CITES");
 
-            
             //let radius = (height - y(1)) / 2;
             elemEnter
                 .append("rect")
                 .attr("class", "pinarea")
-                .attr("height", (d) => d.rank === "GENUS" ? (speciesCount + 1) * rowHeight : rowHeight)
-                /* .attr("width", function (d) {
-                return width - x(Number(d.year));
-                }) */
+                .attr("height", rowHeight)
                 .attr("width", function (d) {
                     return this.width - this.x(Number(d.year));
                 }.bind(this))
-                /*.attr("r", radius)*/
-                /*.attr("cx", function(d) {
-                                    return x.bandwidth() / 2;
-                                })
-                                .attr("cy", function(d) {
-                                    return radius;
-                                })*/
-                //.style("fill-opacity", (d) => d.rank === "GENUS" ? 0.5 : 1.0)
                 .style("fill", function (d) {
                     switch (d.type) {
-                        case "listingHistory":
-                            if(d.rank !== "GENUS") {
-                                switch (d.appendix) {
-                                    case "I":
-                                        return getIucnColor({ text: "CR" });
-                                    case "II":
-                                        return getIucnColor({ text: "EN" });
-                                    case "III":
-                                        return getIucnColor({ text: "NT" });
-                                    default:
-                                        break;
-                                }
-                            }
-                            else {
-                                return "transparent";
-                            }
-                            break;
+                        case "iucn":
+                            return getIucnColor(d);
                         default:
                             break;
                     }
                 })
-                .style("stroke", function(d) {
+                .style("stroke", function (d) {
                     switch (d.type) {
-                        case "listingHistory":
-                            if(d.rank === "GENUS") {
-                                switch (d.appendix) {
-                                    case "I":
-                                        return getIucnColor({ text: "CR" });
-                                    case "II":
-                                        return getIucnColor({ text: "EN" });
-                                    case "III":
-                                        return getIucnColor({ text: "NT" });
-                                    default:
-                                        break;
-                                }
-                            }
-                            else {
-                                return "gray";
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }).style("stroke-width", function(d) {
-                    switch (d.type) {
-                        case "listingHistory":
-                            if(d.rank === "GENUS") {
-                               return 3;
-                            }
-                            else {
-                                return 1;
-                            }
-                            break;
+                        case "iucn":
+                            return "gray";
                         default:
                             break;
                     }
                 });
-
-            if (this.zoomLevel > 0) {
-                elemEnter
-                    .append("text")
-                    .attr("class", "circleLabel noselect")
-                    .text(function (d) {
-                        return d.text;
-                    })
-                    .attr("x", function (d) {
-                        return this.x.bandwidth() / 2;
-                    }.bind(this))
-                    .attr("y", function (d) {
-                        return this.radius;
-                    }.bind(this))
-                    .style("font-size", this.radius)
-                    .attr("width", function (d) {
-                        return this.width - this.x(Number(d.year));
-                    }.bind(this))
-                    .style("fill", function (d) {
-                        switch (d.type) {
-                            case "listingHistory":
-                                switch (d.appendix) {
-                                    case "I":
-                                        return getIucnColorForeground({ text: "CR" });
-                                    case "II":
-                                        return getIucnColorForeground({ text: "EN" });
-                                    case "III":
-                                        return getIucnColorForeground({ text: "NT" });
-                                    default:
-                                        break;
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                    })
-                    .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif"));
-            }
         }
     }
 
-    appendIUCN(iucnData) {
-        // ############# IUCN #############
+    appendThreatHeatMapNew(threatData) {
+        let threatHeatMap = {};
+
+        let yearCount = {};
+        for (let entry of threatData) {
+            let year = entry.year.toString();
+            pushOrCreate(getOrCreate(threatHeatMap, year, {}), entry.threatened, entry);
+            pushOrCreate(yearCount, year, 1);
+        }
+
+        let heatMapData = [];
+        let maxKeyPrevious = null;
+        let maxValuePrevious = null;
+
+        let maxSpecies = Math.max(...Object.values(yearCount).map(e => e.length));
+
+        for (let year of Object.keys(threatHeatMap).sort((a, b) => parseInt(a) - parseInt(b))) {
+            let yearData = threatHeatMap[year.toString()];
+            let push = true;
+
+            let maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
+            let maxValue = yearData[maxKey];
+
+            /* if (maxKeyPrevious !== null) {
+                if (maxValue.length < maxValuePrevious.length) {
+                    maxKey = maxKeyPrevious;
+                    maxValue = maxValuePrevious;
+                    push = false;
+                }
+            } */
+
+            maxKeyPrevious = maxKey;
+            maxValuePrevious = maxValue;
+
+            let tmp = maxValue[0];
+
+            tmp.opacity = maxValue.length / maxSpecies;
+
+            if (push)
+                heatMapData.push(tmp);
+        }
+
+        let listingData = heatMapData;
+
         let circleYearCountIUCN = {};
+
         let rowHeight = 2 * this.radius + 1;
 
-        let svgIUCN = this.wrapper
+        let svgCITES = this.wrapper
             .append("svg")
-            .attr("id", this.id + "IUCN")
+            .attr("id", this.id + "THREATS")
             .attr("width", this.initWidth)
             .attr("height", rowHeight)
             .style("display", "block");
 
         let maxCount = 0;
 
-        let g = svgIUCN.append("g").attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
+        svgCITES.style("display", "block");
+
+        let g = svgCITES.append("g").attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
 
         let rect = g
             .append("rect")
@@ -649,7 +1077,8 @@ class D3Timeline {
         /*.style("stroke", "black")*/
         //.style("fill", "url(#myGradient)");
 
-        let elem = g.selectAll("g myCircleText").data(iucnData);
+        let elem = g.selectAll("g myCircleText").data(listingData);
+
 
         let elemEnter = elem
             .enter()
@@ -659,7 +1088,7 @@ class D3Timeline {
                 let count = this.yearCount(d.year, circleYearCountIUCN);
                 maxCount = Math.max(maxCount, count);
                 rect.attr("height", (maxCount + 1) * rowHeight);
-                svgIUCN.attr("height", (maxCount + 1) * rowHeight);
+                svgCITES.attr("height", (maxCount + 1) * rowHeight);
                 return "translate(" + (this.x(Number(d.year)) + this.x.bandwidth() / 2) + "," + (rowHeight * count) + ")";
             }.bind(this))
             .attr("x", function (d) {
@@ -674,33 +1103,69 @@ class D3Timeline {
             .attr("transform", "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")")
             .style("text-anchor", "end")
             .style("dominant-baseline", "central")
-            .style("font-size", this.fontSize)
-            .text("IUCN");
+            .style("font-size", "9")
+            .text("Threats");
 
         //let radius = (height - y(1)) / 2;
         elemEnter
             .append("rect")
             .attr("class", "pinarea")
-            .attr("height", rowHeight)
+            .attr("height", rowHeight - 2)
+            .attr("y", 1)
+            /* .attr("width", function (d) {
+              return width - x(Number(d.year));
+            }) */
             .attr("width", function (d) {
                 return this.width - this.x(Number(d.year));
-                /*.attr("r", radius)*/
             }.bind(this))
+            .style("fill", "white");
+        /*.attr("r", radius)*/
+        /*.attr("cx", function(d) {
+                            return x.bandwidth() / 2;
+                        })
+                        .attr("cy", function(d) {
+                            return radius;
+                        })*/
+
+
+        elemEnter
+            .append("rect")
+            .attr("class", "pinarea")
+            .attr("height", rowHeight - 2)
+            .attr("y", 1)
+            /* .attr("width", function (d) {
+              return width - x(Number(d.year));
+            }) */
+            .attr("width", function (d) {
+                return this.width - this.x(Number(d.year));
+            }.bind(this))
+            /*.attr("r", radius)*/
             /*.attr("cx", function(d) {
                                 return x.bandwidth() / 2;
                             })
                             .attr("cy", function(d) {
                                 return radius;
                             })*/
-            .style("fill", this.zoomLevel === 0 ?
-                (d) => {
-                    let iucnToDanger = iucnToDangerMap[d.text] !== undefined ? iucnToDangerMap[d.text] : "NE";
-                    return dangerColorMap[iucnToDanger].bg;
+            .style("stroke-width", 1)
+            .style("stroke", function (d) {
+                switch (d.type) {
+                    case "threat":
+                        return dangerColorMap[d.danger].bg;
+                    default:
+                        break;
                 }
-                : getIucnColor)
-            .style("stroke", "gray");
+            })
+            .style("fill-opacity", (d) => d.opacity)
+            .style("fill", function (d) {
+                switch (d.type) {
+                    case "threat":
+                        return dangerColorMap[d.danger].bg;
+                    default:
+                        break;
+                }
+            });
 
-        if (this.zoomLevel > 0) {
+        /* if (this.zoomLevel > 0) {
             elemEnter
                 .append("text")
                 .attr("class", "circleLabel noselect")
@@ -713,10 +1178,178 @@ class D3Timeline {
                 .attr("y", function (d) {
                     return this.radius;
                 }.bind(this))
-                .style("font-size", this.fontSize)
-                .style("fill", getIucnColorForeground)
+                .style("font-size", this.radius)
+                .attr("width", function (d) {
+                    return this.width - this.x(Number(d.year));
+                }.bind(this))
+                .style("fill", function (d) {
+                    switch (d.type) {
+                        case "threat":
+                            return dangerColorMap[d.danger].fg;
+                        default:
+                            break;
+                    }
+                })
                 .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif"));
+    }*/
+    }
+
+    appendThreatsWithSubSpecies(threatData) {
+
+        let speciesListing = {};
+
+        let newListingData = [];
+
+        for (let listing of threatData.sort((a, b) => parseInt(a.year) - parseInt(b.year))) {
+            let push = true;
+            let name = `${listing.genusSpecies}`.trim();
+
+            if (listing.scope !== "Global") {
+                push = false;
+            }
+
+            listing.sciName = name;
+            if (speciesListing.hasOwnProperty(name)) {
+                speciesListing[name].push(listing);
+                if (push) {
+                    newListingData.push(listing);
+                }
+            }
+            else {
+                speciesListing[name] = [listing];
+                if (push) {
+                    newListingData.push(listing);
+                }
+            }
         }
+
+        let speciesCount = Object.keys(speciesListing).length;
+
+        let speciesNamesSorted = Object.keys(speciesListing)
+            .sort((a, b) => {
+                if (Math.min(...speciesListing[b].map(e => parseInt(e.year))) > Math.min(...speciesListing[a].map(e => parseInt(e.year)))) {
+                    return 1;
+                }
+                else if (Math.min(...speciesListing[b].map(e => parseInt(e.year))) < Math.min(...speciesListing[a].map(e => parseInt(e.year)))) {
+                    return -1;
+                }
+                else {
+                    if (dangerSorted.indexOf(speciesListing[b][0].danger) < 0) {
+                        console.log("HERE", speciesListing[b][0].danger);
+                    }
+                    return dangerSorted.indexOf(speciesListing[b][0].danger) - dangerSorted.indexOf(speciesListing[a][0].danger);
+                }
+            });
+
+        threatData = newListingData;
+
+        // ############# THREATS #############
+        let circleYearCountThreats = {};
+        let rowHeight = 0.5 * this.radius + 1;
+
+        let svgThreat = this.wrapper
+            .append("svg")
+            .attr("id", this.id + "Threat")
+            .attr("width", this.initWidth)
+            .attr("height", (speciesCount) * rowHeight);
+
+        let maxCount = 0;
+
+        svgThreat.style("display", "block");
+
+        let g = svgThreat.append("g").attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
+
+        let rect = g
+            .append("rect")
+            .attr("width", this.width)
+            .attr("height", speciesCount * rowHeight)
+            .style("fill", "none")
+            .style("stroke", "gray");
+
+        let elem = g.selectAll("g myCircleText").data(threatData);
+
+        let elemEnter = elem
+            .enter()
+            .append("g")
+            .attr("class", "noselect")
+            .attr("transform", function (d) {
+                let rowNum = speciesNamesSorted.indexOf(d.genusSpecies);
+                let count = this.yearCount(d.year, circleYearCountThreats);
+                maxCount = Math.max(maxCount, count);
+                return "translate(" + (this.x(Number(d.year)) + this.x.bandwidth() / 2) + "," + (rowHeight * rowNum) + ")";
+                /* .attr("transform", function (d) {
+                    let count = this.yearCount(d.year, circleYearCountThreats);
+                    maxCount = Math.max(maxCount, count);
+                    rect.attr("height", (maxCount + 1) * rowHeight);
+                    svgThreat.attr("height", (maxCount + 1) * rowHeight);
+                    return "translate(" + (this.x(Number(d.year)) + this.x.bandwidth() / 2) + "," + rowHeight * count + ")"; */
+            }.bind(this))
+            .attr("x", function (d) {
+                return this.x(Number(d.year)) + this.x.bandwidth() / 2;
+            }.bind(this))
+            .on("mouseover", this.mouseover)
+            .on("mousemove", this.mousemove)
+            .on("mouseleave", this.mouseleave);
+
+        g.append("text")
+            .attr("transform", "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")")
+            .style("text-anchor", "end")
+            .style("dominant-baseline", "central")
+            .style("font-size", "9")
+            .text("Threats");
+
+        //let radius = (height - y(1)) / 2;
+        elemEnter
+            .filter((d) => d.scope === "Global")
+            .append("rect")
+            .attr("class", "pinarea")
+            .attr("height", rowHeight)
+            .attr("width", function (d) {
+                return this.width - this.x(Number(d.year));
+            }.bind(this))
+            /*.attr("r", radius)*/
+            /*.attr("cx", function(d) {
+                                return x.bandwidth() / 2;
+                            })
+                            .attr("cy", function(d) {
+                                return radius;
+                            })*/
+            /* .style("fill", getIucnColor) */
+            .style("fill", (d) => {
+                return dangerColorMap[d.danger].bg;
+            })
+            .style("stroke", "gray");
+
+        /* elemEnter
+            .filter((d) => d.scope !== "Global")
+            .append("rect")
+            .attr("class", "pinpoint")
+            .attr("width", Math.sqrt(rowHeight / 2 * rowHeight / 2 * 2))
+            .attr("height", Math.sqrt(rowHeight / 2 * rowHeight / 2 * 2))
+            .attr("transform", "translate(" + this.x.bandwidth() / 2 + ",0) rotate(45)")
+            .style("fill", (d) => {
+                return dangerColorMap[d.danger].bg;
+            })
+            .style("stroke-width", "0.5")
+            .style("stroke", "gray"); */
+
+        /*  elemEnter
+             .append("text")
+             .attr("class", "circleLabel noselect")
+             .text(function (d) {
+                 return d.text;
+             })
+             .attr("x", function (d) {
+                 return this.x.bandwidth() / 2;
+             }.bind(this))
+             .attr("y", function (d) {
+                 return this.radius;
+             }.bind(this))
+             .style("font-size", this.radius - 1)
+             .style("fill", (d) => {
+                 return dangerColorMap[d.danger].fg;
+             })
+             .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif"));*/
     }
 
     appendThreats(threatData) {
@@ -826,7 +1459,218 @@ class D3Timeline {
             .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif"));
     }
 
+    appendThreatHeatMap(threatData) {
+
+        let threatHeatMap = {};
+
+        let yearCount = {};
+        for (let entry of threatData) {
+            if (entry.scope === "Global") {
+                let year = entry.year.toString();
+                pushOrCreate(getOrCreate(threatHeatMap, year, {}), entry.threatened, entry);
+                pushOrCreate(yearCount, year, 1);
+            }
+        }
+
+        let heatMapData = [];
+        let maxKeyPrevious = null;
+        let maxValuePrevious = null;
+
+        let maxSpecies = Math.max(...Object.values(yearCount).map(e => e.length));
+
+        for (let year of Object.keys(threatHeatMap).sort((a, b) => parseInt(a) - parseInt(b))) {
+            let yearData = threatHeatMap[year.toString()];
+            let push = true;
+
+            let maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
+            let maxValue = yearData[maxKey];
+
+            if (maxKeyPrevious !== null) {
+                if (maxValue.length < maxValuePrevious.length) {
+                    maxKey = maxKeyPrevious;
+                    maxValue = maxValuePrevious;
+                    push = false;
+                }
+            }
+
+            maxKeyPrevious = maxKey;
+            maxValuePrevious = maxValue;
+
+            let tmp = maxValue[0];
+
+            tmp.opacity = maxValue.length / maxSpecies;
+
+            if (push)
+                heatMapData.push(tmp);
+        }
+
+        threatData = heatMapData;
+
+        // ############# THREATS #############
+        let rowHeight = 2 * this.radius + 1;
+        let strokeWidth = 0.5;
+
+        // let circleYearCountThreats = {};
+
+        let svgThreat = this.wrapper
+            .append("svg")
+            .attr("id", this.id + "Threat")
+            .attr("width", this.initWidth)
+            .attr("height", rowHeight);
+
+        let maxCount = 0;
+
+        svgThreat.style("display", "block");
+
+        let g = svgThreat.append("g").attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
+
+        g.append("rect")
+            .attr("width", this.width)
+            .attr("height", rowHeight)
+            .style("fill", "none")
+            .style("stroke", "grey");
+
+        g.append("text")
+            .attr("transform", "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")")
+            .style("text-anchor", "end")
+            .style("dominant-baseline", "central")
+            .style("font-size", "9")
+            .text("Threats");
+
+        let piedData = {};
+        for (let threat of threatData.values()) {
+            if (threat.scope !== "Global") {
+                pushOrCreate(
+                    getOrCreate(piedData, threat.year.toString(), {
+                        year: threat.year.toString(),
+                        type: "threatpie",
+                        data: {}
+                    }).data,
+                    threat.danger,
+                    threat
+                );
+            }
+        }
+
+        // Compute the position of each group on the pie:
+        var pie = d3.pie()
+            .value(function (d) {
+                return d.value.length;
+            });
+
+        piedData = Object.values(piedData);
+
+        let elem = g.selectAll("wayne").data(threatData);
+
+        let elemEnter = elem
+            .enter()
+            .append("g")
+            .attr("class", "noselect")
+            .attr("transform", function (d) {
+                return "translate(" + (this.x(parseInt(d.year)) + this.x.bandwidth() / 2) + "," + (-strokeWidth) + ")";
+            }.bind(this))
+            .attr("x", function (d) {
+                return this.x(parseInt(d.year)) + this.x.bandwidth() / 2;
+            }.bind(this))
+            .on("mouseover", this.mouseover)
+            .on("mousemove", this.mousemove)
+            .on("mouseleave", this.mouseleave);
+
+
+        elemEnter
+            .filter((d) => {
+                return d.scope === "Global"
+            })
+            .append("rect")
+            .attr("class", "pinarea")
+            .attr("height", rowHeight + 2 * strokeWidth)
+            .attr("width", function (d) {
+                return this.width - this.x(Number(d.year));
+            }.bind(this))
+            .style("fill", (d) => {
+                return dangerColorMap[d.danger].bg;
+            })
+            .style("fill-opacity", (d) => {
+                return d.opacity;
+            })
+            .style("stroke-width", strokeWidth + "px")
+            .style("stroke", "gray");
+
+        elemEnter
+            .append("rect")
+            .attr("class", "pinarea")
+            .attr("height", rowHeight - 2)
+            .attr("y", 1)
+            /* .attr("width", function (d) {
+              return width - x(Number(d.year));
+            }) */
+            .attr("width", function (d) {
+                return this.width - this.x(Number(d.year));
+            }.bind(this))
+            /*.attr("r", radius)*/
+            /*.attr("cx", function(d) {
+                                return x.bandwidth() / 2;
+                            })
+                            .attr("cy", function(d) {
+                                return radius;
+                            })*/
+            .style("stroke-width", 1)
+            .style("stroke", function (d) {
+                switch (d.type) {
+                    case "threat":
+                        return dangerColorMap[d.danger].bg;
+                    default:
+                        break;
+                }
+            })
+            .style("fill-opacity", (d) => d.opacity)
+            .style("fill", function (d) {
+                switch (d.type) {
+                    case "threat":
+                        return dangerColorMap[d.danger].bg;
+                    default:
+                        break;
+                }
+            });
+
+        /*  elem = g.selectAll("g myCircleText").data(piedData);
+ 
+         strokeWidth = 0.5;
+ 
+         elemEnter = elem
+             .enter()
+             .append("g")
+             .attr("class", "noselect")
+             .attr("transform", function (d) {
+                 return "translate(" + (this.x(parseInt(d.year)) + this.x.bandwidth() / 2) + "," + ((rowHeight) / 2) + ")";
+             }.bind(this))
+             .attr("x", function (d) {
+                 return this.x(parseInt(d.year)) + this.x.bandwidth() / 2;
+             }.bind(this))
+             .on("mouseover", this.mouseover)
+             .on("mousemove", this.mousemove)
+             .on("mouseleave", this.mouseleave);
+ 
+         elemEnter
+             .selectAll('whatever')
+             .data(function (d) {
+                 return pie(d3.entries(d.data));
+             })
+             .enter()
+             .append('path')
+             .attr('d', d3.arc()
+                 .innerRadius(0)
+                 .outerRadius(rowHeight / 2 - 0.5 * strokeWidth)
+             )
+             .attr('fill', function (d) {
+                 return dangerColorMap[d.data.key].bg;
+             })
+             .attr("stroke", "var(--black)")
+             .style("stroke-width", strokeWidth + "px"); */
+    }
+
     appendThreatPies(threatData) {
+
         // ############# THREATS #############
         let rowHeight = 2 * this.radius + 1;
         let strokeWidth = 0.5;
@@ -1254,6 +2098,9 @@ class D3Timeline {
         //var parentOffset = $(this).closest("svg").offset();
         var parentOffset = d3.select(d3.select(this).node().closest("svg")).node().getBoundingClientRect();
 
+        /* console.log(d3.event.pageX, d3.event); */
+
+
         let htmlText = "";
         let leftAdd = 0;
         let topAdd = 0;
@@ -1288,7 +2135,7 @@ class D3Timeline {
                 leftAdd = parseInt(d3.select(this).attr("x"));
                 break;
             case "iucn":
-                htmlText = d.year + " : " + d.category;
+                htmlText = d.sciName + "<br>" + d.year + " : " + d.category;
                 leftAdd = parseInt(d3.select(this).attr("x"));
                 break;
             case "threat":
@@ -1318,8 +2165,11 @@ class D3Timeline {
         /* } */
 
         d3.select(".tooltip").html(htmlText)
-            .style("left", leftAdd + d3.mouse(this)[0] + 85 + "px")
-            .style("top", parentOffset.top + d3.mouse(this)[1] + 10 + topAdd + "px");
+            /* .style("left", leftAdd + d3.mouse(this)[0] + 85 + "px")
+            .style("top", parentOffset.top + d3.mouse(this)[1] + 10 + topAdd + "px"); */
+            .style("left", (d3.event.pageX + 25) + "px")
+            .style("top", (d3.event.pageY + topAdd) + "px");
+
     }
 
     mouseleave(d) {
@@ -1381,23 +2231,29 @@ class D3Timeline {
                 }
 
                 if (this.data.timeListing.length) {
-                        if(this.zoomLevel > 0) {
-                            this.appendCites(this.data.timeListing);
-                        }
-                        else {
-                            this.appendCitesHeatMap(this.data.timeListing);
-                        }
+                    if (this.zoomLevel > 0) {
+                        this.appendCites(this.data.timeListing);
+                    }
+                    else {
+                        this.appendCitesHeatMap(this.data.timeListing);
+                    }
                 }
 
                 if (this.data.timeIUCN.length) {
-                    this.appendIUCN(this.data.timeIUCN);
+                    if (this.zoomLevel > 0) {
+                        this.appendIUCN(this.data.timeIUCN);
+                    }
+                    else {
+                        this.appendIUCNHeatMap(this.data.timeIUCN);
+                    }
                 }
 
                 if (this.data.timeThreat.length) {
                     if (this.zoomLevel === 0) {
                         switch (this.pieStyle) {
                             case "pie":
-                                this.appendThreatPies(this.data.timeThreat);
+                                //this.appendThreatPies(this.data.timeThreat);
+                                this.appendThreatHeatMap(this.data.timeThreat);
                                 break;
                             case "bar":
                                 this.appendThreatBars(this.data.timeThreat);
@@ -1410,7 +2266,8 @@ class D3Timeline {
                         }
                     }
                     else {
-                        this.appendThreats(this.data.timeThreat);
+                        //this.appendThreats(this.data.timeThreat);
+                        this.appendThreatsWithSubSpecies(this.data.timeThreat);
                     }
                 }
             }

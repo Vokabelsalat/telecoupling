@@ -97,30 +97,30 @@ class Home extends Component {
                     speciesTrades: newSpeciesData
                 });
             }.bind(this))
-            /*.catch((error) => {
-                console.log(`Couldn't find file ${species.trim().replaceSpecialCharacters()}"_trades.json`);
-            });*/
+        /*.catch((error) => {
+            console.log(`Couldn't find file ${species.trim().replaceSpecialCharacters()}"_trades.json`);
+        });*/
     }
 
     fetchSpeciesThreats(species) {
         fetch("http://localhost:3000/data/" + species.replaceSpecialCharacters() + "_threats.json")
-        .then(res => {
-            return res.json();   
-        })
-        .then(function (data) {
-            if(data) {
-                let newSpeciesData = { ...this.state.speciesThreats };
+            .then(res => {
+                return res.json();
+            })
+            .then(function (data) {
+                if (data) {
+                    let newSpeciesData = { ...this.state.speciesThreats };
 
-                newSpeciesData[species] = data;
-                this.setStateAsync({
-                    ...this.state,
-                    speciesThreats: newSpeciesData
-                });
-            }
+                    newSpeciesData[species] = data;
+                    this.setStateAsync({
+                        ...this.state,
+                        speciesThreats: newSpeciesData
+                    });
+                }
             }.bind(this))
-            /*.catch((error) => {
-                console.log(`Couldn't find file ${species.trim().replaceSpecialCharacters()}_threats.json`);
-            });*/
+        /*.catch((error) => {
+            console.log(`Couldn't find file ${species.trim().replaceSpecialCharacters()}_threats.json`);
+        });*/
     }
 
     fetchSpeciesData(species) {
@@ -128,8 +128,8 @@ class Home extends Component {
         fetch("http://localhost:3000/data/" + species.trim().replaceSpecialCharacters() + ".json")
             .then(res => res.json())
             .then(function (data) {
-                if(data) {
-                    
+                if (data) {
+
                     let newSpeciesData = { ...this.state.speciesData };
 
                     newSpeciesData[species] = data;
@@ -142,9 +142,9 @@ class Home extends Component {
                     });
                 }
             }.bind(this))
-            /*.catch((error) => {
-                console.log(`Couldn't find file ${species.trim().replaceSpecialCharacters()}.json`);
-            });*/
+        /*.catch((error) => {
+            console.log(`Couldn't find file ${species.trim().replaceSpecialCharacters()}.json`);
+        });*/
     }
 
     fetchSpeciesOccurrences(species, speciesObject) {

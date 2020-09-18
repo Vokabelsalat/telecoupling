@@ -131,6 +131,8 @@ export class TimelineDatagenerator {
                                     e.consAssCategory = "nT";
                                 }
                             }
+                            //console.log(e);
+
                             return {
                                 year: year,
                                 scope: e.bgciScope,
@@ -143,7 +145,8 @@ export class TimelineDatagenerator {
                                 type: "threat",
                                 reference: e.reference,
                                 countries: e.countries,
-                                maxPerYear: maxPerYear
+                                maxPerYear: maxPerYear,
+                                genusSpecies: e.genusSpecies
                             };
                         })
                     );
@@ -199,12 +202,14 @@ export class TimelineDatagenerator {
 
     getTimelineIUCNDataFromSpecies(speciesObject) {
         if (speciesObject.hasOwnProperty("iucn")) {
+
             //subkeys
             let groupedByYear = {};
             for (let subkey of Object.keys(speciesObject["iucn"])) {
                 let tradeArray = speciesObject["iucn"][subkey];
                 for (let iucn of tradeArray) {
                     let year = iucn.year;
+                    iucn.sciName = subkey;
                     pushOrCreate(groupedByYear, year.toString(), iucn);
                 }
             }
@@ -224,7 +229,33 @@ export class TimelineDatagenerator {
                 return index;
             };
 
-            for (let year = yearMin; year <= yearMax; year++) {
+            for (let year of Object.keys(groupedByYear)) {
+                let data = groupedByYear[year.toString()].map(e => {
+                    for (let cat of Object.keys(iucnColors)) {
+                        if (e.code.toLowerCase().includes(cat.toLowerCase())) {
+                            e.code = cat;
+                        }
+                    }
+
+                    if (e.code === "NT" && e.category.toLowerCase().includes("not")) {
+                        e.code = "nT";
+                    }
+
+                    return {
+                        year: year,
+                        code: e.code,
+                        text: e.code,
+                        category: e.category,
+                        /* count: count++, */
+                        type: "iucn",
+                        sciName: e.sciName
+                    };
+                });
+
+                returnData.push(...data);
+            }
+
+            /* for (let year = yearMin; year <= yearMax; year++) {
                 if (groupedByYear.hasOwnProperty(year.toString())) {
                     let count = 0;
                     let addData = groupedByYear[year.toString()].map((e) => {
@@ -245,6 +276,7 @@ export class TimelineDatagenerator {
                             category: e.category,
                             count: count++,
                             type: "iucn",
+                            sciName: e.sciName
                         };
                     });
 
@@ -257,7 +289,8 @@ export class TimelineDatagenerator {
                         break;
                     }
                 }
-            }
+            } */
+
             return returnData;
         } else {
             return [];

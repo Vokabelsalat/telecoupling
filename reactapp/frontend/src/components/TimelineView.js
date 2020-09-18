@@ -190,7 +190,7 @@ class TimelineView extends Component {
                         domainYears={this.state.domainYears}
                         zoomLevel={this.state.zoomLevel}
                     />
-                </div>
+                </div >
             );
         }
         else {
