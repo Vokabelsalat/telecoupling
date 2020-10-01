@@ -1,4 +1,4 @@
-import { iucnColors } from './timelineUtils';
+import { iucnColors, citesAppendixSorted } from './timelineUtils';
 import { pushOrCreate, getOrCreate, pushOrCreateWithoutDuplicates, threatenedToDangerMap, colorBrewerScheme8Qualitative } from './utils';
 import { timeParse, extent } from "d3";
 
@@ -174,10 +174,12 @@ export class TimelineDatagenerator {
         if (speciesObject.hasOwnProperty("listingHistory")) {
             var parseTime = timeParse("%d/%m/%Y");
             let groupedByYear = {};
+            let groupdBySpecies = {};
             for (let entry of speciesObject["listingHistory"].values()) {
                 let dateString = entry.EffectiveAt;
                 let date = parseTime(dateString);
                 let year = date.getFullYear();
+
                 pushOrCreate(groupedByYear, year.toString(), entry);
             }
 
@@ -226,6 +228,9 @@ export class TimelineDatagenerator {
 
                                     genusListings.push(returnElement);
                                 }
+                                else {
+                                    pushOrCreate(groupdBySpecies, (e.Genus + " " + e.Species).trim(), returnElement);
+                                }
 
                                 return returnElement;
                             })
@@ -236,6 +241,28 @@ export class TimelineDatagenerator {
             for (let gListing of genusListings) {
 
                 for (let species of Object.keys(speciesObject.species)) {
+
+                    if (groupdBySpecies[species]) {
+                        console.log(groupdBySpecies[species]);
+
+                        let filtered = groupdBySpecies[species].filter(e => {
+                            if (parseInt(e.year) <= parseInt(gListing.year)) {
+                                return true;
+                            }
+
+                            return false;
+                        });
+
+                        let sorted = filtered.sort((a, b) => parseInt(b.year) - parseInt(a.year));
+
+                        if (sorted.length > 0) {
+                            if (citesAppendixSorted.indexOf(sorted[0].appendix) < citesAppendixSorted.indexOf(gListing.appendix)) {
+                                continue;
+                            }
+                        }
+                    }
+
+
                     let isLocale = false;
                     let countries = null;
                     /* let annotation = null; */
