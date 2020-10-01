@@ -22,6 +22,8 @@ function getIucnColorForeground(d) {
 };
 
 module.exports.iucnCategoriesSorted = ["EX", "EW", "RE", "CR", "EN", "A", "E", "VU", "V", "NT", "LC", "nT", "DD", "NA", "NE"];
+//module.exports.iucnCategoriesSorted = ["EX", "EW", "RE", "CR", "EN", "VU", "V", "NT", "LC", "nT", "DD", "NA", "NE"];
+module.exports.citesAppendixSorted = ["I", "II", "III"];
 module.exports.iucnColors = iucnColors;
 module.exports.getIucnColor = getIucnColor;
 module.exports.getIucnColorForeground = getIucnColorForeground;

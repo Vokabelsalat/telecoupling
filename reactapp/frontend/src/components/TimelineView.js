@@ -16,6 +16,7 @@ class TimelineView extends Component {
             maxPerYear: 0,
             domainYears: [],
             pieStyle: "pie",
+            groupSame: true,
             sortedKeys: []
         };
     }
@@ -99,6 +100,14 @@ class TimelineView extends Component {
         this.setPieStyle(style);
     }
 
+    setGroupSame(setValue) {
+        this.setState({ groupSame: setValue });
+    }
+
+    onGroupSame(style) {
+        this.setGroupSame(style);
+    }
+
     render() {
         let renderTimelines = false;
         if (Number.isInteger(this.state.domainYears.minYear) && Number.isInteger(this.state.domainYears.maxYear)) {
@@ -117,6 +126,8 @@ class TimelineView extends Component {
                         maxZoomLevel={this.state.maxZoomLevel}
                         onPieStyle={this.onPieStyle.bind(this)}
                         pieStyle={this.state.pieStyle}
+                        groupSame={this.state.groupSame}
+                        onGroupSame={this.onGroupSame.bind(this)}
                     />
                     <br />
                     <Timeline
@@ -141,6 +152,7 @@ class TimelineView extends Component {
                                     zoomLevel={this.state.zoomLevel}
                                     maxPerYear={this.state.maxPerYear}
                                     pieStyle={this.state.pieStyle}
+                                    groupSame={this.state.groupSame}
                                     justTrade={true}
                                 />
                             )
@@ -177,6 +189,8 @@ class TimelineView extends Component {
                                     zoomLevel={this.state.zoomLevel}
                                     maxPerYear={this.state.maxPerYear}
                                     pieStyle={this.state.pieStyle}
+                                    groupSame={this.state.groupSame}
+                                    justGenus={e.trim().includes(" ") ? false : true}
                                 />
                             )
                         })

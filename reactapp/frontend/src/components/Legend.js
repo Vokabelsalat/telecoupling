@@ -70,6 +70,13 @@ class Legend extends Component {
                     <option value="bar">Bars</option>
                     <option value="ver">Vertical Bars</option>
                 </select>
+                <button style={{
+                    "marginLeft": "10px"
+                }} onClick={(event) => {
+                    this.props.onGroupSame(!this.props.groupSame);
+                }}>
+                    {this.props.groupSame ? "Group Same" : "Not"}
+                </button>
             </div >
         );
     }

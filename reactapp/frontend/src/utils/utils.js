@@ -39,6 +39,16 @@ module.exports = {
         }
         return obj;
     },
+    pushOrCreateWithoutDuplicates: (obj, key, value) => {
+        if (Object.keys(obj).includes(key)) {
+            if (obj[key].indexOf(value) < 0) {
+                obj[key].push(value);
+            }
+        } else {
+            obj[key] = [value];
+        }
+        return obj;
+    },
     getOrCreate: (obj, key, set) => {
         if (obj.hasOwnProperty(key)) {
             return obj[key];

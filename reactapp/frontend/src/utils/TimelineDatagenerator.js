@@ -1,5 +1,5 @@
 import { iucnColors } from './timelineUtils';
-import { pushOrCreate, getOrCreate, threatenedToDangerMap, colorBrewerScheme8Qualitative } from './utils';
+import { pushOrCreate, getOrCreate, pushOrCreateWithoutDuplicates, threatenedToDangerMap, colorBrewerScheme8Qualitative } from './utils';
 import { timeParse, extent } from "d3";
 
 export class TimelineDatagenerator {
@@ -159,6 +159,18 @@ export class TimelineDatagenerator {
     }
 
     getTimelineListingDataFromSpecies(speciesObject) {
+        console.log("OBJ", speciesObject);
+
+        let speciesCountries = {};
+        //Collect all countries
+        if (speciesObject.hasOwnProperty("trees")) {
+            for (let entry of speciesObject["trees"]) {
+                for (let geoEntry of entry["TSGeolinks"]) {
+                    pushOrCreateWithoutDuplicates(speciesCountries, entry.taxon, geoEntry.country);
+                }
+            }
+        }
+
         if (speciesObject.hasOwnProperty("listingHistory")) {
             var parseTime = timeParse("%d/%m/%Y");
             let groupedByYear = {};
@@ -175,25 +187,93 @@ export class TimelineDatagenerator {
             let yearMin = Math.min(...years);
             let yearMax = Math.max(...years);
 
+            let genusListings = [];
+
             for (let year = yearMin; year <= yearMax; year++) {
                 if (groupedByYear.hasOwnProperty(year.toString())) {
                     let count = 0;
                     returnData.push(
-                        ...groupedByYear[year.toString()].map((e) => {
-                            return {
-                                year: year,
-                                appendix: e["Appendix"],
-                                text: e["Appendix"],
-                                count: count++,
-                                type: "listingHistory",
-                                rank: e["RankName"],
-                                genus: e["Genus"],
-                                species: e["Species"]
-                            };
-                        })
+                        ...groupedByYear[year.toString()]
+                            .filter(e => e["ChangeType"] === "ADDITION")
+                            .map((e) => {
+                                let returnElement = {
+                                    year: year,
+                                    appendix: e["Appendix"],
+                                    text: e["Appendix"],
+                                    count: count++,
+                                    type: "listingHistory",
+                                    rank: e["RankName"],
+                                    genus: e["Genus"],
+                                    species: e["Species"]
+                                };
+
+                                if (e.hasOwnProperty("FullAnnotationEnglish")) {
+                                    returnElement["annotation"] = e["FullAnnotationEnglish"];
+                                }
+
+                                if (e["RankName"] === "GENUS") {
+                                    for (let anot of speciesObject.genusAnnotations) {
+                                        if (anot.listedPopulationsOfGenus.trim() !== "") {
+                                            if (returnElement.annotation.includes(anot.listedPopulationsOfGenus)) {
+                                                returnElement.countries = anot.listedPopulationsOfGenus;
+                                                returnElement.annotation = anot.FullAnnotationEnglish;
+                                            }
+                                            else {
+
+                                            }
+                                        }
+                                    }
+
+                                    genusListings.push(returnElement);
+                                }
+
+                                return returnElement;
+                            })
                     );
                 }
             }
+
+            for (let gListing of genusListings) {
+
+                for (let species of Object.keys(speciesObject.species)) {
+                    let isLocale = false;
+                    let countries = null;
+                    /* let annotation = null; */
+                    if (gListing.hasOwnProperty("countries")) {
+                        if (speciesCountries.hasOwnProperty(species)
+                            && speciesCountries[species].includes(gListing.countries)
+                            && speciesCountries[species].length === 1) {
+                            isLocale = true;
+                            countries = gListing.countries;
+                            /* annotation = gListing.; */
+                        }
+                    }
+                    else {
+                        isLocale = true;
+                    }
+
+                    if (isLocale) {
+                        let returnElement = {
+                            year: gListing.year,
+                            appendix: gListing["appendix"],
+                            text: gListing["text"],
+                            type: "listingHistory",
+                            rank: "SPECIESfromGENUS",
+                            genus: gListing["genus"],
+                            species: species.replace(gListing["genus"], "").trim()
+                        };
+
+                        if (countries)
+                            returnElement["countries"] = countries;
+
+                        if (gListing.hasOwnProperty("annotation"))
+                            returnElement["annotation"] = gListing["annotation"];
+
+                        returnData.push(returnElement);
+                    }
+                }
+            }
+
             return returnData;
         } else {
             return [];

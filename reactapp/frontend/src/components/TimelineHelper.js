@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { getOrCreate, dangerColorMap, sourceToDangerMap, iucnToDangerMap, pushOrCreate, dangerSorted } from '../utils/utils'
-import { getIucnColor, getIucnColorForeground, iucnCategoriesSorted } from '../utils/timelineUtils'
+import { getIucnColor, getIucnColorForeground, iucnCategoriesSorted, citesAppendixSorted } from '../utils/timelineUtils'
 
 class D3Timeline {
     constructor(param) {
@@ -13,8 +13,10 @@ class D3Timeline {
         this.speciesName = param.speciesName;
         this.maxPerYear = param.maxPerYear;
         this.justTrade = param.justTrade;
+        this.justGenus = param.justGenus;
 
         this.pieStyle = param.pieStyle;
+        this.groupSame = param.groupSame;
 
         this.initWidth = 960;
         this.initHeight = 100;
@@ -23,7 +25,7 @@ class D3Timeline {
             top: 10,
             right: 0,
             bottom: 20,
-            left: 50,
+            left: 100,
         };
 
         this.paint();
@@ -80,6 +82,8 @@ class D3Timeline {
             speciesNameDiv
                 .text(this.speciesName)
                 .style("cursor", "pointer")
+                .style("font-style", this.justGenus ? "" : "italic")
+                //.style("font-weight", this.justGenus ? "bold" : "")
                 .on("click", () => {
                     if (this.zoomLevel === 0) {
                         this.setZoomLevel(2);
@@ -288,7 +292,7 @@ class D3Timeline {
             .style("text-anchor", "end")
             .style("dominant-baseline", "central")
             .style("font-size", "9")
-            .text("CITES");
+            .text(this.justGenus && this.zoomLevel > 0 ? this.speciesName : "CITES");
 
         //let radius = (height - y(1)) / 2;
 
@@ -401,12 +405,18 @@ class D3Timeline {
     }*/
     }
 
-    appendCites(listingData) {
+    appendCites(listingData, synonymos = null, genusLine = false) {
 
         let speciesListing = {};
 
         let listingKeys = [];
         let newListingData = [];
+        let SPECIESfromGENUSfiltered = [];
+        let SPECIESfromGENUS = false;
+
+        let characteristicsMap = {};
+
+        let maxHeightScale = 5;
 
         let genusListing = null;
         for (let listing of listingData.sort((a, b) => parseInt(a.year) - parseInt(b.year))) {
@@ -418,7 +428,14 @@ class D3Timeline {
                 push = false;
             }
 
-            let listingKey = `${listing.year}${listing.appendix}${listing.genus}${listing.species}`;
+            if (listing.rank === "SPECIESfromGENUS") {
+                SPECIESfromGENUS = true;
+                /* push = false;
+                SPECIESfromGENUSfiltered.push(listing); */
+            }
+
+            let listingKey = `${listing.year}${listing.appendix}${listing.genus}${listing.species}${listing.countries}${listing.rank}`;
+            let characteristic = `${listing.year}${listing.appendix}${listing.countries}`;
             listing.sciName = name;
             if (speciesListing.hasOwnProperty(name)) {
                 if (!listingKeys.includes(listingKey)) {
@@ -426,6 +443,7 @@ class D3Timeline {
                     if (push) {
                         newListingData.push(listing);
                     }
+                    characteristicsMap[name][listing.year] = characteristic;
                 }
             }
             else {
@@ -433,11 +451,20 @@ class D3Timeline {
                 if (push) {
                     newListingData.push(listing);
                 }
+                characteristicsMap[name] = {};
+                characteristicsMap[name][listing.year] = characteristic;
             }
 
             listingKeys.push(listingKey);
         }
 
+        for (let key of Object.keys(characteristicsMap)) {
+            characteristicsMap[key] = Object.values(characteristicsMap[key]).join("");
+        }
+
+        let charCounting = Object.values(characteristicsMap).reduce(function (countMap, word) { countMap[word] = ++countMap[word] || 1; return countMap }, {});
+
+        let uniqueCharacteristics = Object.keys(charCounting).reverse();
 
         let speciesCount = Object.keys(speciesListing).length;
 
@@ -445,30 +472,93 @@ class D3Timeline {
             speciesCount -= 1;
         }
 
+        if (genusLine) {
+            speciesCount = 1;
+            speciesListing = {};
+
+            speciesListing[genusListing] = listingData;
+
+            newListingData = listingData;
+        }
+
+        let rowHeight = genusLine ? 2 * this.radius + 1 : this.radius + 1;
+
+        let heightMap = {};
+        if (this.groupSame) {
+            let charsAlready = [];
+            let newData = [];
+            let filteredSpecies = [];
+
+
+            for (let entry of newListingData) {
+                let char = characteristicsMap[entry.sciName];
+
+                if (!charsAlready.includes(char) || filteredSpecies.includes(entry.sciName)) {
+                    let charCount = charCounting[characteristicsMap[entry.sciName]];
+                    let heightScale = (charCount > 1 ? charCount : 0) / speciesCount;
+
+                    entry.heightScale = heightScale;
+
+                    newData.push(entry);
+                    filteredSpecies.push(entry.sciName);
+                    charsAlready.push(char);
+
+                    if (!Object.keys(heightMap).includes(char)) {
+                        heightMap[char] = heightScale;
+                    }
+                }
+            }
+
+            newListingData = newData;
+
+            this.heightScaleSum = Object.values(heightMap).reduce((prev, curr) => prev + curr);
+        }
+
+
         let speciesNamesSorted = Object.keys(speciesListing)
-            .filter(key => key !== genusListing)
+            .filter(key => key !== genusListing || genusLine)
             .sort((a, b) => {
                 return Math.min(...speciesListing[b].map(e => parseInt(e.year))) - Math.min(...speciesListing[a].map(e => parseInt(e.year)))
             });
 
+        /*  for (let speciesName of speciesNamesSorted) {
+             for (let syn of synonymos) {
+                 if (syn.includes(speciesName)) {
+                     if (speciesNamesSorted.includes(syn.filter(e => e !== speciesName)[0]))
+                         console.log("SYNDE!", syn, speciesName);
+                 }
+             }
+         } */
+
+
         let circleYearCountIUCN = {};
 
-        let rowHeight = this.radius + 1;
+        let svgHeight = 0;
+        if (this.groupSame) {
+            svgHeight = (uniqueCharacteristics.length + this.heightScaleSum * maxHeightScale) * rowHeight;
+        }
+        else {
+            svgHeight = speciesCount * rowHeight;
+        }
+
+        console.log("HEIGHT", svgHeight);
 
         let svgCITES = this.wrapper
             .append("svg")
-            .attr("id", this.id + "Cites")
+            .attr("id", this.id + "Cites" + genusLine)
             .attr("width", this.initWidth)
-            .attr("height", (speciesCount) * rowHeight)
+            .attr("height", svgHeight)
             .style("display", "block");
 
         let maxCount = 0;
 
         svgCITES.style("display", "block");
 
+        let defs = svgCITES.append("defs");
+
         let g = svgCITES.append("g")
             .attr("transform", "translate(" + this.margin.left + "," + 0 + ")")
-            .attr("height", (speciesCount) * rowHeight);
+            .attr("height", svgHeight);
 
         let rect = g
             .append("rect")
@@ -480,19 +570,74 @@ class D3Timeline {
         /*.style("stroke", "black")*/
         //.style("fill", "url(#myGradient)");
 
-
-        appendCitesRects.bind(this)(newListingData);
-        if (genusListing) {
-            appendCitesRects.bind(this)(speciesListing[genusListing]);
+        let keyData = [];
+        if (this.groupSame) {
+            let already = [];
+            let newData = [];
+            for (let entry of newListingData) {
+                if (!already.includes(entry.sciName)) {
+                    newData.push(entry);
+                    already.push(entry.sciName);
+                }
+            }
+            keyData = newData;
+        }
+        else {
+            keyData = Object.values(speciesListing).map(e => e[0]);
         }
 
-        g
+        g.selectAll("g myCircleText").data(keyData)
+            .enter()
             .append("text")
-            .attr("transform", "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")")
+            .attr("transform", (d) => {
+                let rowNum = 0;
+                if (this.groupSame) {
+                    rowNum = uniqueCharacteristics.indexOf(characteristicsMap[d.sciName]);
+                }
+                else {
+                    rowNum = speciesNamesSorted.indexOf(d.sciName);
+                }
+
+                let addY = 0;
+                for (let idx = 0; idx < rowNum; idx++) {
+                    addY += heightMap[uniqueCharacteristics[idx]];
+                }
+
+                let yPos = this.groupSame ? (rowHeight * rowNum + maxHeightScale * addY * rowHeight + (rowHeight + rowHeight * maxHeightScale * d.heightScale) / 2) : rowHeight * rowNum + (rowHeight / 2);
+
+                return "translate(-5," + yPos + ")";
+            })
             .style("text-anchor", "end")
             .style("dominant-baseline", "central")
             .style("font-size", "9")
-            .text("CITES");
+            .style("font-style", (d) => { return genusLine ? "" : "italic"; })
+            .text((d) => {
+                if (genusLine) {
+                    return d.genus;
+                }
+                else {
+                    if (this.groupSame) {
+                        let counting = charCounting[characteristicsMap[d.sciName]];
+
+                        if (counting === 1) {
+                            return d.species;
+                        }
+                        else {
+                            return counting;
+                        }
+                    }
+                    else {
+                        return d.species;
+                    }
+                }
+            });
+
+        appendCitesRects.bind(this)(newListingData);
+
+        /* if (SPECIESfromGENUS) {
+            console.log("speices", SPECIESfromGENUSfiltered);
+            appendCitesRects.bind(this)(SPECIESfromGENUSfiltered);
+        } */
 
         function appendCitesRects(lData) {
             let elem = g.selectAll("g myCircleText").data(lData);
@@ -502,10 +647,21 @@ class D3Timeline {
                 .append("g")
                 .attr("class", "noselect")
                 .attr("transform", function (d) {
-                    let rowNum = speciesNamesSorted.indexOf(d.sciName);
-                    let count = this.yearCount(d.year, circleYearCountIUCN);
-                    maxCount = Math.max(maxCount, count);
-                    return "translate(" + (this.x(Number(d.year)) + this.x.bandwidth() / 2) + "," + (rowHeight * rowNum) + ")";
+                    let rowNum = 0;
+                    if (this.groupSame) {
+                        rowNum = uniqueCharacteristics.indexOf(characteristicsMap[d.sciName]);
+                    }
+                    else {
+                        rowNum = speciesNamesSorted.indexOf(d.sciName);
+                    }
+
+                    let addY = 0;
+                    for (let idx = 0; idx < rowNum; idx++) {
+                        addY += heightMap[uniqueCharacteristics[idx]];
+                    }
+
+                    let yPos = this.groupSame ? (rowHeight * rowNum + maxHeightScale * addY * rowHeight) : rowHeight * rowNum;
+                    return "translate(" + (this.x(Number(d.year)) + this.x.bandwidth() / 2) + "," + yPos + ")";
                 }.bind(this))
                 .attr("x", function (d) {
                     return this.x(Number(d.year) + this.x.bandwidth() / 2);
@@ -514,12 +670,39 @@ class D3Timeline {
                 .on("mousemove", this.mousemove)
                 .on("mouseleave", this.mouseleave);
 
+            elemEnter
+                .append("rect")
+                .attr("class", "pinarea")
+                .attr("height", (d) => {
+                    if (d.rank === "GENUS") {
+                        return (speciesCount + 1) * rowHeight
+                    }
+                    else {
+                        let hei = this.groupSame ? rowHeight + (d.heightScale * maxHeightScale * rowHeight) : rowHeight;
+                        return hei;
+                    }
+                })
+                /* .attr("width", function (d) {
+                return width - x(Number(d.year));
+                }) */
+                .attr("width", function (d) {
+                    return this.width - this.x(Number(d.year));
+                }.bind(this))
+                .style("fill", "white");
 
             //let radius = (height - y(1)) / 2;
             elemEnter
                 .append("rect")
                 .attr("class", "pinarea")
-                .attr("height", (d) => d.rank === "GENUS" ? (speciesCount + 1) * rowHeight : rowHeight)
+                .attr("height", (d) => {
+                    if (d.rank === "GENUS") {
+                        return (speciesCount + 1) * rowHeight
+                    }
+                    else {
+                        let hei = this.groupSame ? rowHeight + (d.heightScale * maxHeightScale * rowHeight) : rowHeight;
+                        return hei;
+                    }
+                })
                 /* .attr("width", function (d) {
                 return width - x(Number(d.year));
                 }) */
@@ -537,7 +720,41 @@ class D3Timeline {
                 .style("fill", function (d) {
                     switch (d.type) {
                         case "listingHistory":
-                            if (d.rank !== "GENUS") {
+                            if (d.hasOwnProperty("countries")) {
+                                let id = "diagonalHatch" + d.appendix + "6";
+
+                                if (defs.select("#" + id).empty()) {
+                                    defs
+                                        .append('pattern')
+                                        .attr('id', id)
+                                        .attr('patternUnits', 'userSpaceOnUse')
+                                        .attr('width', 6)
+                                        .attr('height', 6)
+                                        .attr("patternTransform", "rotate(45)")
+                                        .append('line')
+                                        .attr("x1", 0)
+                                        .attr("y", 0)
+                                        .attr("x2", 0)
+                                        .attr("y2", 6)
+                                        .attr("stroke", () => {
+                                            switch (d.appendix) {
+                                                case "I":
+                                                    return getIucnColor({ text: "CR" });
+                                                case "II":
+                                                    return getIucnColor({ text: "EN" });
+                                                case "III":
+                                                    return getIucnColor({ text: "NT" });
+                                                default:
+                                                    break;
+                                            }
+                                        }
+                                        )
+                                        .attr('stroke-width', 6);
+                                }
+
+                                return "url(#" + id + ")";
+                            }
+                            else /* (d.rank === "SPECIES") */ {
                                 switch (d.appendix) {
                                     case "I":
                                         return getIucnColor({ text: "CR" });
@@ -548,37 +765,6 @@ class D3Timeline {
                                     default:
                                         break;
                                 }
-                            }
-                            else {
-                                svgCITES
-                                    .append('defs')
-                                    .append('pattern')
-                                    .attr('id', 'diagonalHatch')
-                                    .attr('patternUnits', 'userSpaceOnUse')
-                                    .attr('width', 14)
-                                    .attr('height', 24)
-                                    .attr("patternTransform", "rotate(45)")
-                                    .append('line')
-                                    .attr("x1", 0)
-                                    .attr("y", 0)
-                                    .attr("x2", 0)
-                                    .attr("y2", 24)
-                                    .attr("stroke", () => {
-                                        switch (d.appendix) {
-                                            case "I":
-                                                return getIucnColor({ text: "CR" });
-                                            case "II":
-                                                return getIucnColor({ text: "EN" });
-                                            case "III":
-                                                return getIucnColor({ text: "NT" });
-                                            default:
-                                                break;
-                                        }
-                                    }
-                                    )
-                                    .attr('stroke-width', 2);
-
-                                return "url(#diagonalHatch)";
                             }
                             break;
                         default:
@@ -915,7 +1101,7 @@ class D3Timeline {
                 }
                 else {
                     if (iucnCategoriesSorted.indexOf(speciesListing[b][0].code) < 0) {
-                        console.log("HERE", speciesListing[b][0].code);
+                        console.log("HERE", speciesListing[b][0].code, speciesListing[b][0]);
                     }
                     return iucnCategoriesSorted.indexOf(speciesListing[b][0].code) - iucnCategoriesSorted.indexOf(speciesListing[a][0].code);
                 }
@@ -2132,6 +2318,9 @@ class D3Timeline {
                 break;
             case "listingHistory":
                 htmlText = d.sciName + "<br>" + d.year + " : Appendix " + d.appendix;
+                if (d.hasOwnProperty("annotation")) {
+                    htmlText += "<br>" + d.annotation
+                }
                 leftAdd = parseInt(d3.select(this).attr("x"));
                 break;
             case "iucn":
@@ -2232,23 +2421,26 @@ class D3Timeline {
 
                 if (this.data.timeListing.length) {
                     if (this.zoomLevel > 0) {
-                        this.appendCites(this.data.timeListing);
+                        if (this.justGenus) {
+                            this.appendCites(this.data.timeListing.filter(e => e.rank === "GENUS"), null, true);
+                        }
+                        this.appendCites(this.data.timeListing, this.data.synonymos);
                     }
                     else {
                         this.appendCitesHeatMap(this.data.timeListing);
                     }
                 }
 
-                if (this.data.timeIUCN.length) {
+                /* if (this.data.timeIUCN.length) {
                     if (this.zoomLevel > 0) {
                         this.appendIUCN(this.data.timeIUCN);
                     }
                     else {
                         this.appendIUCNHeatMap(this.data.timeIUCN);
                     }
-                }
+                } */
 
-                if (this.data.timeThreat.length) {
+                /* if (this.data.timeThreat.length) {
                     if (this.zoomLevel === 0) {
                         switch (this.pieStyle) {
                             case "pie":
@@ -2269,7 +2461,7 @@ class D3Timeline {
                         //this.appendThreats(this.data.timeThreat);
                         this.appendThreatsWithSubSpecies(this.data.timeThreat);
                     }
-                }
+                } */
             }
         }
         else if (this.id.includes("scale")) {

@@ -26,7 +26,9 @@ class Timeline extends Component {
             speciesName: this.props.speciesName,
             maxPerYear: this.props.maxPerYear,
             pieStyle: this.props.pieStyle,
-            justTrade: this.props.justTrade
+            groupSame: this.props.groupSame,
+            justTrade: this.props.justTrade,
+            justGenus: this.props.justGenus
         });
     }
 
@@ -41,7 +43,9 @@ class Timeline extends Component {
             speciesName: this.props.speciesName,
             maxPerYear: this.props.maxPerYear,
             pieStyle: this.props.pieStyle,
-            justTrade: this.props.justTrade
+            groupSame: this.props.groupSame,
+            justTrade: this.props.justTrade,
+            justGenus: this.props.justGenus
         });
     }
 
