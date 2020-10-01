@@ -9,32 +9,22 @@
         let $tableRow = $(this.tableRow);
     }*/
 
-    function appendIUCN(data) {
+    function appendIUCN(data, name) {
 
         let $tableRow = $(this.tableRow);
         let material = this.material;
         let sciName = this.scientificName;
-
-        let collect = false;
-        if (
-            !getOrCreate(
-                getOrCreate(collectedData, material, {}), "iucn", {}).hasOwnProperty(sciName)
-        ) {
-            collect = true;
-        }
 
         if (data && Array.isArray(data)) {
             data.forEach(function (element, index) {
                 $tableRow.find(".iucnCol").first().find(".scroll").first()
                     .append(" &#8226;" + element.year + " " + element.code);
 
-                if (collect) {
-                    pushOrCreate(
-                        getOrCreate(
-                            getOrCreate(collectedData, material, {}),
-                            "iucn", {}),
-                        sciName, element);
-                }
+                pushOrCreate(
+                    getOrCreate(
+                        getOrCreate(collectedData, material, {}),
+                        "iucn", {}),
+                    name, element);
             });
         }
     }
@@ -127,18 +117,21 @@
             if (resData.length > 0) {
                 callback(resData);
             }
-            else if (index + 1 < names.length) {
+
+            if (index + 1 < names.length) {
                 getTradeInBulk(names, index + 1, callback);
             }
         });
     }
 
     function getIUCNInBulk(names, index, callback) {
+
         $.post("/queryIUCN/" + names[index], function (resData) {
             if (resData.length > 0) {
-                callback(resData);
+                callback(resData, names[index]);
             }
-            else if (index + 1 < names.length) {
+
+            if (index + 1 < names.length) {
                 getIUCNInBulk(names, index + 1, callback);
             }
         });
@@ -149,7 +142,8 @@
             if (resData.length > 0) {
                 callback(resData);
             }
-            else if (index + 1 < names.length) {
+
+            if (index + 1 < names.length) {
                 getListingsInBulk(names, index + 1, callback);
             }
         });
@@ -160,7 +154,8 @@
             if (resData.length > 0) {
                 callback(resData);
             }
-            else if (index + 1 < names.length) {
+
+            if (index + 1 < names.length) {
                 getListingHistoryInBulk(names, index + 1, callback);
             }
         });
@@ -177,8 +172,18 @@
             if (resData.length > 0) {
                 callback(resData);
             }
-            else if (index + 1 < names.length) {
+
+            if (index + 1 < names.length) {
                 getTreeSearchInBulk(names, index + 1, callback);
+            }
+        });
+    }
+
+    function getGBIFChildrenInBulk(genusKey, offset, callback) {
+        $.post("/queryGBIFchildren/" + genusKey + "/" + offset, function (res) {
+            callback(res.data);
+            if (res.endOfRecords !== true) {
+                getGBIFChildrenInBulk(genusKey, offset + 1000, callback);
             }
         });
     }
@@ -190,7 +195,7 @@
                 for (let entry of resData) {
                     if (entry.reference === "NationalRL_0915" || entry.reference === "National Red List") {
                         $.post("/queryCountriesForNationalRedList", { bgciUrl: entry.bgciUrl }, function (result) {
-                            for(let key of Object.keys(result)) {
+                            for (let key of Object.keys(result)) {
                                 entry[key] = result[key];
                             }
                             callback([entry]);
@@ -203,7 +208,8 @@
 
                 /* callback(resData); */
             }
-            else if (index + 1 < names.length) {
+
+            if (index + 1 < names.length) {
                 getThreatSearchInBulk(names, index + 1, callback);
             }
         });
@@ -310,13 +316,11 @@
                 if (justGenus) {
                     console.log("JUST GENUS", justGenus);
 
-                    if (!collectedData[scientificName].hasOwnProperty("trade") || collectedData[scientificName]["trade"].length === 0) {
-                        $.post("/getTradeByGenus/" + justGenus, $.proxy(appendTrade, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName }));
-                    }
+                    $.post("/getTradeByGenus/" + justGenus, $.proxy(appendTrade, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName }));
 
                     $.post("/queryGBIFspeciesByGenus/" + justGenus,
                         function (genusKey) {
-                            $.post("/queryGBIFchildren/" + genusKey, function (res) {
+                            let boundCallback = function (res) {
                                 let boundAppend = appendSpecies.bind({ "tableRow": $tableRow, material: scientificName });
                                 boundAppend(res);
 
@@ -335,31 +339,34 @@
                                     { "tableRow": $tableRow, material: scientificName, scientificName: scientificName }
                                 );
 
-                                if (!collectedData[scientificName].hasOwnProperty("iucn") || collectedData[scientificName]["iucn"].length === 0) {
-                                    getIUCNInBulk(res.map(e => e["species"]), 0, boundFunc);
-                                }
-                            });
+                                getIUCNInBulk(res.map(e => e["species"]), 0, boundFunc);
+                            };
+                            getGBIFChildrenInBulk(genusKey, 0, boundCallback);
                         });
 
-                    if (!collectedData[scientificName].hasOwnProperty("listing") || collectedData[scientificName]["listing"].length === 0) {
-                        $.post("/getSpeciesJustGenus/" + justGenus, $.proxy(appendListings, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName }));
-                    }
+                    $.post("/getSpeciesJustGenus/" + justGenus, $.proxy(appendListings, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName }));
+
+                    //######### GenusAnnotations #########
+                    $.post("/queryGenusAnnotations/" + justGenus, $.proxy(function (data) {
+                        for (let element of data) {
+                            pushOrCreate(
+                                getOrCreate(collectedData, justGenus, {}),
+                                "genusAnnotations",
+                                element);
+                        }
+                    }));
 
                     //######### ListingHistory #########
                     let appendListingHistoryBound = appendListingHistory.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName });
 
-                    if (!collectedData[scientificName].hasOwnProperty("listingHistory") || collectedData[scientificName]["listingHistory"].length === 0) {
-                        /* getListingHistoryByGenus(scientificName, (data) => {
-                            console.log("HERE DATA", data);
-                        }); */
-                        getListingHistoryByGenus(scientificName, appendListingHistoryBound);
-                    }
+                    /* getListingHistoryByGenus(scientificName, (data) => {
+                        console.log("HERE DATA", data);
+                    }); */
+                    getListingHistoryByGenus(scientificName, appendListingHistoryBound);
 
-                    if (!collectedData[scientificName].hasOwnProperty("trees") || collectedData[scientificName]["trees"].length === 0) {
-                        $.post("/queryBGCITreeSearchByGenus/" + justGenus,
-                            $.proxy(appendBGCITreeSearch, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName })
-                        );
-                    }
+                    $.post("/queryBGCITreeSearchByGenus/" + justGenus,
+                        $.proxy(appendBGCITreeSearch, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName })
+                    );
 
                     /* if (!collectedData[scientificName].hasOwnProperty("threats") || collectedData[scientificName]["threats"].length === 0) {
                         $.post("/queryBGCIThreatSearchByGenus/" + justGenus,
@@ -372,8 +379,7 @@
                     function appendThreatSearchAndFetchForCountries(data) {
                         let appendThreatSearchBound = appendThreatSearch.bind({ "tableRow": $(this.tableRow), "treeName": this.scientificName, material: this.material, scientificName: this.scientificName });
 
-                        for (let entry of data)
-                        {
+                        for (let entry of data) {
                             if (entry.reference === "NationalRL_0915" || entry.reference === "National Red List") {
                                 $.post("/queryCountriesForNationalRedList", { bgciUrl: entry.bgciUrl }, function (result) {
                                     entry.countries = result;
@@ -388,11 +394,11 @@
 
                     let appendThreatSearchAndFetchForCountriesBound = appendThreatSearchAndFetchForCountries.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName });
 
-                    if (!collectedData[scientificName].hasOwnProperty("threats") || collectedData[scientificName]["threats"].length === 0) {
-                        $.post("/queryBGCIThreatSearchByGenus/" + justGenus,
-                            $.proxy(appendThreatSearchAndFetchForCountriesBound)
-                        );
-                    }
+                    /* if (!collectedData[scientificName].hasOwnProperty("threats") || collectedData[scientificName]["threats"].length === 0) { */
+                    $.post("/queryBGCIThreatSearchByGenus/" + justGenus,
+                        $.proxy(appendThreatSearchAndFetchForCountriesBound)
+                    );
+                    /* } */
                 }
                 // ###############################################################
                 // ####################### SINGLE SPECIES! #######################
@@ -409,17 +415,17 @@
                         setTimeout(() => {
                             $.post("/queryGBIFsynonyms/" + speciesKey,
                                 function (syns) {
-                                    if(Array.isArray(syns)) {
+                                    if (Array.isArray(syns)) {
                                         syns = syns.filter(e => (e["canonicalName"] !== undefined && (e.taxonomicStatus === "SYNONYM" || e.taxonomicStatus === "HOMOTYPIC_SYNONYM")));
                                     }
                                     else {
                                         syns = [];
                                     }
 
-                                    syns.forEach(function (element, index) {
+                                    /* syns.forEach(function (element, index) {
                                         pushOrCreate(getOrCreate(getOrCreate(collectedData, scientificName, {}), "synonyms", {}), element["species"
                                         ], element);
-                                    });
+                                    }); */
 
                                     let boundFunc = appendSynonyms.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });
                                     boundFunc(syns);

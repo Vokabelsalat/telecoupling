@@ -125,6 +125,7 @@ module.exports = {
     queryGBIFchildren: (req, res) => {
 
         let genusKey = req.params.genusKey;
+        let offset = req.params.offset;
         let outerRes = res;
 
         if (genusKey) {
@@ -133,11 +134,14 @@ module.exports = {
                 method: 'GET',
                 json: true,
                 data: {
-                    limit: 1000
+                    limit: 1000,
+                    offset: offset
                 }
             }, function (err, res, data) {
                 if (data !== null && data !== undefined && data.hasOwnProperty("results")) {
-                    outerRes.json(data["results"]);
+
+                    let endOfRecords = data.endOfRecords
+                    outerRes.json({ "data": data["results"], "endOfRecords": endOfRecords });
                 }
                 else {
                     outerRes.end();

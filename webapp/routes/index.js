@@ -45,7 +45,10 @@ module.exports = {
         });
     },
     getAllSpecies: (req, res) => {
-        knex.distinct('Genus', 'Species').from("materials").limit(20).offset(140).then(rows => {
+        knex.distinct('Genus', 'Species').from("materials").where({ "Genus": "Dalbergia", "Species": "" }).limit(10).offset(0).then(rows => {
+            //knex.distinct('Genus', 'Species').from("materials").where({ "Genus": "Eucalyptus", "Species": "" }).limit(10).offset(0).then(rows => {
+            //knex.distinct('Genus', 'Species').from("materials").where({ "Genus": "Paubrasilia", "Species": "Echinata" }).limit(10).offset(0).then(rows => {
+            //knex.distinct('Genus', 'Species').from("materials").limit(10).offset(0).then(rows => {
             res.json(rows);
         });
     },
@@ -73,6 +76,8 @@ module.exports = {
         let species = req.params.species;
         let outerRes = res;
 
+        console.log("IUCN", species);
+
         let query = knex.select().from("iucnCache").where({ "Scientific Name": species });
         query.then(rows => {
             if (rows.length === 0) {
@@ -83,8 +88,10 @@ module.exports = {
                     try {
                         data = JSON.parse(data);
                         let results = data["result"];
+                        let newname = data["name"];
+
                         results.forEach(function (element, index) {
-                            knex('iucnCache').insert({ "Scientific Name": species, "year": element["year"], "code": element["code"], "category": element["category"] }).then(result => { });
+                            knex('iucnCache').insert({ "Scientific Name": newname, "year": element["year"], "code": element["code"], "category": element["category"] }).then(result => { });
                         });
 
                         outerRes.json(results);
@@ -113,6 +120,19 @@ module.exports = {
             secondQuery.then(data => {
                 res.end(JSON.stringify({ orchestras: rows, locations: data }));
             });
+        });
+    },
+    queryGenusAnnotations: (req, res) => {
+        let genus = req.params.genus;
+
+        let query = knex.select().from("genusAnnotations").where({ "Genus": genus });
+        query.then(rows => {
+            if (rows.length === 0) {
+                res.json([]);
+            }
+            else {
+                res.json(rows);
+            }
         });
     },
     processMusicalChairs: (req, res) => {

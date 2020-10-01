@@ -25,6 +25,7 @@ const {
   processMusicalChairs,
   getInstrumentsFromGroup,
   getTimeline,
+  queryGenusAnnotations
 } = require("./routes/index");
 const {
   getTrade,
@@ -108,7 +109,8 @@ app.get("/searchSpeciesNotes/:word", searchSpeciesNotesPage);
 app.post("/queryIUCN/:species", queryIUCN);
 app.post("/queryGBIF/:taxonKey", queryGBIF);
 app.post("/queryGBIFspeciesByGenus/:genus", queryGBIFspeciesByGenus);
-app.post("/queryGBIFchildren/:genusKey", queryGBIFchildren);
+//app.post("/queryGBIFchildren/:genusKey", queryGBIFchildren);
+app.post("/queryGBIFchildren/:genusKey/:offset", queryGBIFchildren);
 app.post("/queryGBIFsynonyms/:taxonKey", queryGBIFsynonyms);
 app.post("/queryGBIFspecies/:word", queryGBIFspecies);
 app.post("/queryTreeSearchSpecies/:genus/:species", queryTreeSearchSpecies);
@@ -119,6 +121,7 @@ app.post("/queryBGCIThreatSearchByGenus/:genus", queryBGCIThreatSearchByGenus);
 app.post("/requestMapboxToken", requestMapboxToken);
 app.post("/getCountriesGeoJSON", getCountriesGeoJSON);
 app.post("/queryCountriesForNationalRedList", queryCountriesForNationalRedList);
+app.post("/queryGenusAnnotations/:genus", queryGenusAnnotations);
 /*app.post('/getMusicalChairs', getMusicalChairs);*/
 /*app.get('/processMusicalChairs', processMusicalChairs);*/
 /*app.get('/add', addPlayerPage);
