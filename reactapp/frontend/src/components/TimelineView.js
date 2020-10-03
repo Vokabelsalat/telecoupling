@@ -17,6 +17,7 @@ class TimelineView extends Component {
             domainYears: [],
             pieStyle: "pie",
             groupSame: true,
+            heatStyle: "dom",
             sortedKeys: []
         };
     }
@@ -108,6 +109,14 @@ class TimelineView extends Component {
         this.setGroupSame(style);
     }
 
+    setHeatStyle(setValue) {
+        this.setState({ heatStyle: setValue });
+    }
+
+    onHeatStyle(style) {
+        this.setHeatStyle(style);
+    }
+
     render() {
         let renderTimelines = false;
         if (Number.isInteger(this.state.domainYears.minYear) && Number.isInteger(this.state.domainYears.maxYear)) {
@@ -128,6 +137,8 @@ class TimelineView extends Component {
                         pieStyle={this.state.pieStyle}
                         groupSame={this.state.groupSame}
                         onGroupSame={this.onGroupSame.bind(this)}
+                        heatStyle={this.state.heatStyle}
+                        onHeatStyle={this.onHeatStyle.bind(this)}
                     />
                     <br />
                     <Timeline
@@ -153,6 +164,7 @@ class TimelineView extends Component {
                                     maxPerYear={this.state.maxPerYear}
                                     pieStyle={this.state.pieStyle}
                                     groupSame={this.state.groupSame}
+                                    heatStyle={this.state.heatStyle}
                                     justTrade={true}
                                 />
                             )
@@ -190,6 +202,7 @@ class TimelineView extends Component {
                                     maxPerYear={this.state.maxPerYear}
                                     pieStyle={this.state.pieStyle}
                                     groupSame={this.state.groupSame}
+                                    heatStyle={this.state.heatStyle}
                                     justGenus={e.trim().includes(" ") ? false : true}
                                 />
                             )

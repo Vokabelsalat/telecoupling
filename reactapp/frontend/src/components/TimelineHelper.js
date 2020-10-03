@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { getOrCreate, dangerColorMap, sourceToDangerMap, iucnToDangerMap, pushOrCreate, dangerSorted } from '../utils/utils'
-import { getIucnColor, getIucnColorForeground, iucnCategoriesSorted, citesAppendixSorted } from '../utils/timelineUtils'
+import { getIucnColor, getIucnColorForeground, iucnCategoriesSorted, citesAppendixSorted, citesScore, citesScoreReverse } from '../utils/timelineUtils'
 
 class D3Timeline {
     constructor(param) {
@@ -17,6 +17,7 @@ class D3Timeline {
 
         this.pieStyle = param.pieStyle;
         this.groupSame = param.groupSame;
+        this.heatStyle = param.heatStyle;
 
         this.initWidth = 960;
         this.initHeight = 100;
@@ -197,12 +198,45 @@ class D3Timeline {
     appendCitesHeatMap(listingData) {
         let listingHeatMap = {};
 
+        let speciesMap = {};
+
         let yearCount = {};
         for (let entry of listingData) {
             let year = entry.year.toString();
-            pushOrCreate(getOrCreate(listingHeatMap, year, {}), entry.appendix, entry);
+            let name = `${entry.genus} ${entry.species}`.trim();
+
+            pushOrCreate(speciesMap, name, entry);
             pushOrCreate(yearCount, year, 1);
+            pushOrCreate(getOrCreate(listingHeatMap, year, {}), entry.appendix, entry);
         }
+
+        let years = Object.keys(yearCount).map(e => parseInt(e));
+        let maxYear = Math.max(...years);
+        let minYear = Math.min(...years);
+
+        let newListingHeatMap = {};
+
+        for (let species of Object.keys(speciesMap)) {
+            let yearData = {};
+            let lastState = null;
+            for (let entry of speciesMap[species]) {
+                pushOrCreate(yearData, entry.year, entry);
+            }
+
+            for (let year = minYear; year <= maxYear; year++) {
+                if (yearData.hasOwnProperty(year.toString())) {
+                    let highest = yearData[year.toString()].reduce((a, b) => citesAppendixSorted[a.appendix] < citesAppendixSorted[b.appendix] ? a.appendix : b.appendix, []);
+
+                    pushOrCreate(getOrCreate(newListingHeatMap, year, {}), highest, 1);
+                    lastState = yearData[year.toString()][0].appendix;
+                }
+                else if (lastState) {
+                    pushOrCreate(getOrCreate(newListingHeatMap, year, {}), lastState, 1);
+                }
+            }
+        }
+
+        console.log(newListingHeatMap);
 
         let heatMapData = [];
         let maxKeyPrevious = null;
@@ -210,29 +244,108 @@ class D3Timeline {
 
         let maxSpecies = Math.max(...Object.values(yearCount).map(e => e.length));
 
-        for (let year of Object.keys(listingHeatMap).sort((a, b) => parseInt(a) - parseInt(b))) {
-            let yearData = listingHeatMap[year.toString()];
+        for (let year of Object.keys(newListingHeatMap).sort((a, b) => parseInt(a) - parseInt(b))) {
+            let yearData = newListingHeatMap[year.toString()];
             let push = true;
+            let countSum;
 
-            let maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
-            let maxValue = yearData[maxKey];
+            let tmp, maxKey, maxValue;
 
-            if (maxKeyPrevious !== null) {
-                if (maxValue.length < maxValuePrevious.length) {
-                    maxKey = maxKeyPrevious;
-                    maxValue = maxValuePrevious;
-                    push = false;
-                }
+            switch (this.heatStyle) {
+                case "dom":
+                    maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
+                    countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
+                        return accumulator + yearData[currentValue].length;
+                    }, 0);
+                    maxValue = yearData[maxKey];
+
+                    if (maxKeyPrevious !== null) {
+                        if (maxValue.length <= maxValuePrevious.length) {
+                            maxKey = maxKeyPrevious;
+                            maxValue = maxValuePrevious;
+                            push = false;
+                        }
+                    }
+
+                    maxKeyPrevious = maxKey;
+                    maxValuePrevious = maxValue;
+
+                    tmp = {
+                        appendix: maxKey,
+                        year: year,
+                        sciName: this.speciesName + " (" + countSum + ")",
+                        rank: "ALL",
+                        text: maxKey,
+                        type: "listingHistory"
+                    };
+
+                    tmp.opacity = maxValue.length / maxSpecies;
+                    break;
+                case "avg":
+
+                    let scoreSum = Object.keys(yearData).reduce(((a, b) => a + yearData[b].length * citesScore(b)), 0);
+                    countSum = Object.values(yearData).reduce((accumulator, currentValue) => {
+                        return accumulator + currentValue.length;
+                    }, 0);
+
+                    let avg = scoreSum / countSum;
+
+                    if (maxValuePrevious !== null) {
+                        if (maxValuePrevious === avg) {
+                            avg = maxValuePrevious;
+                            push = false;
+                        }
+                    }
+
+                    let reverseScore = citesScoreReverse(avg);
+
+                    maxValuePrevious = avg;
+
+                    tmp = {
+                        appendix: reverseScore,
+                        year: year,
+                        sciName: this.speciesName + " (" + countSum + ")",
+                        rank: "ALL",
+                        text: maxKey,
+                        type: "listingHistory"
+                    };
+
+                    tmp.opacity = countSum / maxSpecies;
+                    break;
+                case "max":
+
+                    maxKey = Object.keys(yearData).reduce((a, b) => citesScore(a) > citesScore(b) ? a : b);
+                    countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
+                        return accumulator + yearData[currentValue].length;
+                    }, 0);
+                    maxValue = yearData[maxKey];
+
+                    if (maxKeyPrevious !== null) {
+                        if (maxValue.length === maxValuePrevious.length && maxKey === maxKeyPrevious) {
+                            maxKey = maxKeyPrevious;
+                            maxValue = maxValuePrevious;
+                            push = false;
+                        }
+                    }
+
+                    maxKeyPrevious = maxKey;
+                    maxValuePrevious = maxValue;
+
+                    tmp = {
+                        appendix: maxKey,
+                        year: year,
+                        sciName: this.speciesName + " (" + countSum + ")",
+                        rank: "ALL",
+                        text: maxKey,
+                        type: "listingHistory"
+                    };
+
+                    tmp.opacity = yearData[maxKey].length / maxSpecies;
+                default:
+                    break;
             }
 
-            maxKeyPrevious = maxKey;
-            maxValuePrevious = maxValue;
-
-            let tmp = maxValue[0];
-
-            tmp.opacity = maxValue.length / maxSpecies;
-
-            if (push)
+            if (push && tmp)
                 heatMapData.push(tmp);
         }
 
@@ -365,44 +478,6 @@ class D3Timeline {
                         break;
                 }
             });
-
-        /*  if (this.zoomLevel > 0) {
-             elemEnter
-                 .append("text")
-                 .attr("class", "circleLabel noselect")
-                 .text(function (d) {
-                     return d.text;
-                 })
-                 .attr("x", function (d) {
-                     return this.x.bandwidth() / 2;
-                 }.bind(this))
-                 .attr("y", function (d) {
-                     return this.radius;
-                 }.bind(this))
-                 .style("font-size", this.radius)
-                 .attr("width", function (d) {
-                     return this.width - this.x(Number(d.year));
-                 }.bind(this))
-                 .style("fill", function (d) {
-                     switch (d.type) {
-                         case "listingHistory":
-                             switch (d.appendix) {
-                                 case "I":
-                                     return getIucnColorForeground({ text: "CR" });
-                                 case "II":
-                                     return getIucnColorForeground({ text: "EN" });
-                                 case "III":
-                                     return getIucnColorForeground({ text: "NT" });
-                                 default:
-                                     break;
-                             }
-                             break;
-                         default:
-                             break;
-                     }
-                 })
-                 .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif")); 
-    }*/
     }
 
     appendCites(listingData, synonymos = null, genusLine = false) {
@@ -2431,14 +2506,14 @@ class D3Timeline {
                     }
                 }
 
-                /* if (this.data.timeIUCN.length) {
+                if (this.data.timeIUCN.length) {
                     if (this.zoomLevel > 0) {
                         this.appendIUCN(this.data.timeIUCN);
                     }
                     else {
                         this.appendIUCNHeatMap(this.data.timeIUCN);
                     }
-                } */
+                }
 
                 /* if (this.data.timeThreat.length) {
                     if (this.zoomLevel === 0) {

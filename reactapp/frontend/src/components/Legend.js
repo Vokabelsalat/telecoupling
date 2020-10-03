@@ -77,6 +77,18 @@ class Legend extends Component {
                 }}>
                     {this.props.groupSame ? "Group Same" : "Not"}
                 </button>
+                <select
+                    value={this.props.heatStyle}
+                    onChange={(event) => {
+                        this.props.onHeatStyle(event.target.value);
+                    }}
+                    style={{
+                        "marginLeft": "10px"
+                    }}>
+                    <option value="dom">Dominant</option>
+                    <option value="avg">Average</option>
+                    <option value="max">Max</option>
+                </select>
             </div >
         );
     }
