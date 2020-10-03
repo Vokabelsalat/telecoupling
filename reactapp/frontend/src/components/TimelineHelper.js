@@ -1,6 +1,6 @@
 import * as d3 from "d3";
-import { getOrCreate, dangerColorMap, sourceToDangerMap, iucnToDangerMap, pushOrCreate, dangerSorted } from '../utils/utils'
-import { getIucnColor, getIucnColorForeground, iucnCategoriesSorted, citesAppendixSorted, citesScore, citesScoreReverse } from '../utils/timelineUtils'
+import { getOrCreate, dangerColorMap, sourceToDangerMap, iucnToDangerMap, pushOrCreate, dangerSorted, scaleValue } from '../utils/utils'
+import { getIucnColor, getIucnColorForeground, iucnCategoriesSorted, citesAppendixSorted, citesScore, citesScoreReverse, iucnScore, iucnScoreReverse, iucnCategories } from '../utils/timelineUtils'
 
 class D3Timeline {
     constructor(param) {
@@ -225,6 +225,7 @@ class D3Timeline {
 
             for (let year = minYear; year <= maxYear; year++) {
                 if (yearData.hasOwnProperty(year.toString())) {
+                    //get the highest assesments if there are multiple in the same year for the same species
                     let highest = yearData[year.toString()].reduce((a, b) => citesAppendixSorted[a.appendix] < citesAppendixSorted[b.appendix] ? a.appendix : b.appendix, []);
 
                     pushOrCreate(getOrCreate(newListingHeatMap, year, {}), highest, 1);
@@ -236,11 +237,11 @@ class D3Timeline {
             }
         }
 
-        console.log(newListingHeatMap);
-
         let heatMapData = [];
         let maxKeyPrevious = null;
         let maxValuePrevious = null;
+
+        console.log(listingData, newListingHeatMap);
 
         let maxSpecies = Math.max(...Object.values(yearCount).map(e => e.length));
 
@@ -249,7 +250,8 @@ class D3Timeline {
             let push = true;
             let countSum;
 
-            let tmp, maxKey, maxValue;
+            let tmp = {};
+            let maxKey, maxValue, opacity;
 
             switch (this.heatStyle) {
                 case "dom":
@@ -270,16 +272,7 @@ class D3Timeline {
                     maxKeyPrevious = maxKey;
                     maxValuePrevious = maxValue;
 
-                    tmp = {
-                        appendix: maxKey,
-                        year: year,
-                        sciName: this.speciesName + " (" + countSum + ")",
-                        rank: "ALL",
-                        text: maxKey,
-                        type: "listingHistory"
-                    };
-
-                    tmp.opacity = maxValue.length / maxSpecies;
+                    opacity = maxValue.length / maxSpecies;
                     break;
                 case "avg":
 
@@ -301,16 +294,9 @@ class D3Timeline {
 
                     maxValuePrevious = avg;
 
-                    tmp = {
-                        appendix: reverseScore,
-                        year: year,
-                        sciName: this.speciesName + " (" + countSum + ")",
-                        rank: "ALL",
-                        text: maxKey,
-                        type: "listingHistory"
-                    };
+                    maxKey = reverseScore;
 
-                    tmp.opacity = countSum / maxSpecies;
+                    opacity = countSum / maxSpecies;
                     break;
                 case "max":
 
@@ -331,22 +317,25 @@ class D3Timeline {
                     maxKeyPrevious = maxKey;
                     maxValuePrevious = maxValue;
 
-                    tmp = {
-                        appendix: maxKey,
-                        year: year,
-                        sciName: this.speciesName + " (" + countSum + ")",
-                        rank: "ALL",
-                        text: maxKey,
-                        type: "listingHistory"
-                    };
-
-                    tmp.opacity = yearData[maxKey].length / maxSpecies;
+                    opacity = yearData[maxKey].length / maxSpecies;
                 default:
                     break;
             }
 
-            if (push && tmp)
+            if (push) {
+
+                tmp = {
+                    appendix: maxKey,
+                    year: year,
+                    sciName: this.speciesName + " (" + countSum + ")",
+                    rank: "ALL",
+                    text: maxKey,
+                    type: "listingHistory",
+                    opacity: opacity
+                };
+
                 heatMapData.push(tmp);
+            }
         }
 
         listingData = heatMapData;
@@ -486,8 +475,6 @@ class D3Timeline {
 
         let listingKeys = [];
         let newListingData = [];
-        let SPECIESfromGENUSfiltered = [];
-        let SPECIESfromGENUS = false;
 
         let characteristicsMap = {};
 
@@ -504,7 +491,6 @@ class D3Timeline {
             }
 
             if (listing.rank === "SPECIESfromGENUS") {
-                SPECIESfromGENUS = true;
                 /* push = false;
                 SPECIESfromGENUSfiltered.push(listing); */
             }
@@ -596,18 +582,6 @@ class D3Timeline {
                 return Math.min(...speciesListing[b].map(e => parseInt(e.year))) - Math.min(...speciesListing[a].map(e => parseInt(e.year)))
             });
 
-        /*  for (let speciesName of speciesNamesSorted) {
-             for (let syn of synonymos) {
-                 if (syn.includes(speciesName)) {
-                     if (speciesNamesSorted.includes(syn.filter(e => e !== speciesName)[0]))
-                         console.log("SYNDE!", syn, speciesName);
-                 }
-             }
-         } */
-
-
-        let circleYearCountIUCN = {};
-
         let svgHeight = 0;
         if (this.groupSame) {
             svgHeight = (uniqueCharacteristics.length + this.heightScaleSum * maxHeightScale) * rowHeight;
@@ -616,16 +590,12 @@ class D3Timeline {
             svgHeight = speciesCount * rowHeight;
         }
 
-        console.log("HEIGHT", svgHeight);
-
         let svgCITES = this.wrapper
             .append("svg")
             .attr("id", this.id + "Cites" + genusLine)
             .attr("width", this.initWidth)
             .attr("height", svgHeight)
             .style("display", "block");
-
-        let maxCount = 0;
 
         svgCITES.style("display", "block");
 
@@ -640,10 +610,7 @@ class D3Timeline {
             .attr("width", this.width)
             .attr("height", (speciesCount) * rowHeight)
             .attr("stroke", "gray")
-            .style("fill", "none");/*  */
-        //.style("fill", "url(#mainGradient)")
-        /*.style("stroke", "black")*/
-        //.style("fill", "url(#myGradient)");
+            .style("fill", "none");
 
         let keyData = [];
         if (this.groupSame) {
@@ -663,7 +630,19 @@ class D3Timeline {
 
         g.selectAll("g myCircleText").data(keyData)
             .enter()
-            .append("text")
+            .append("rect")
+            .attr("width", (d) => {
+                if (genusLine) {
+                    return 0;
+                }
+                else {
+                    return scaleValue(charCounting[characteristicsMap[d.sciName]], [0, speciesCount], [0, 150]);
+                }
+            })
+            .attr("height", (d) => {
+                return rowHeight + maxHeightScale * d.heightScale;
+            })
+            .style("fill", "var(--main)")
             .attr("transform", (d) => {
                 let rowNum = 0;
                 if (this.groupSame) {
@@ -680,8 +659,9 @@ class D3Timeline {
 
                 let yPos = this.groupSame ? (rowHeight * rowNum + maxHeightScale * addY * rowHeight + (rowHeight + rowHeight * maxHeightScale * d.heightScale) / 2) : rowHeight * rowNum + (rowHeight / 2);
 
-                return "translate(-5," + yPos + ")";
+                return "translate(" + (-scaleValue(charCounting[characteristicsMap[d.sciName]], [0, speciesCount], [0, 150])) + ", " + yPos + ")";
             })
+            .append("text")
             .style("text-anchor", "end")
             .style("dominant-baseline", "central")
             .style("font-size", "9")
@@ -708,11 +688,6 @@ class D3Timeline {
             });
 
         appendCitesRects.bind(this)(newListingData);
-
-        /* if (SPECIESfromGENUS) {
-            console.log("speices", SPECIESfromGENUSfiltered);
-            appendCitesRects.bind(this)(SPECIESfromGENUSfiltered);
-        } */
 
         function appendCitesRects(lData) {
             let elem = g.selectAll("g myCircleText").data(lData);
@@ -925,12 +900,44 @@ class D3Timeline {
 
     appendIUCNHeatMap(iucnData) {
         let iucnHeatMap = {};
+        let speciesMap = {};
 
         let yearCount = {};
         for (let entry of iucnData) {
             let year = entry.year.toString();
+            let name = entry.sciName;
+
+            pushOrCreate(speciesMap, name, entry);
             pushOrCreate(getOrCreate(iucnHeatMap, year, {}), entry.code, entry);
             pushOrCreate(yearCount, year, 1);
+        }
+
+        let years = Object.keys(yearCount).map(e => parseInt(e));
+        let maxYear = Math.max(...years);
+        let minYear = Math.min(...years);
+
+        let newIUCNHeatMap = {};
+
+        for (let species of Object.keys(speciesMap)) {
+            let yearData = {};
+            let lastState = null;
+            for (let entry of speciesMap[species]) {
+                pushOrCreate(yearData, entry.year, entry);
+            }
+
+            for (let year = minYear; year <= maxYear; year++) {
+                if (yearData.hasOwnProperty(year.toString())) {
+                    let highestScore = Math.max(...yearData[year.toString()].map(e => iucnScore(e.code)));
+                    let highest = iucnScoreReverse(highestScore);
+                    //let highest = yearData[year.toString()].reduce((a, b) => iucnScore(a) > iucnScore(b.code) ? a : b.code, []);
+
+                    pushOrCreate(getOrCreate(newIUCNHeatMap, year, {}), highest, 1);
+                    lastState = yearData[year.toString()][0].code;
+                }
+                else if (lastState) {
+                    pushOrCreate(getOrCreate(newIUCNHeatMap, year, {}), lastState, 1);
+                }
+            }
         }
 
         let heatMapData = [];
@@ -939,30 +946,94 @@ class D3Timeline {
 
         let maxSpecies = Math.max(...Object.values(yearCount).map(e => e.length));
 
-        for (let year of Object.keys(iucnHeatMap).sort((a, b) => parseInt(a) - parseInt(b))) {
-            let yearData = iucnHeatMap[year.toString()];
+        for (let year of Object.keys(newIUCNHeatMap).sort((a, b) => parseInt(a) - parseInt(b))) {
+            let yearData = newIUCNHeatMap[year.toString()];
             let push = true;
+            let countSum;
 
-            let maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
-            let maxValue = yearData[maxKey];
+            let tmp, maxKey, maxValue;
+            let opacity;
 
-            /* if (maxKeyPrevious !== null) {
-                if (maxValue.length < maxValuePrevious.length) {
-                    maxKey = maxKeyPrevious;
-                    maxValue = maxValuePrevious;
-                    push = false;
-                }
-            } */
+            switch (this.heatStyle) {
+                case "dom":
+                    maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
+                    countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
+                        return accumulator + yearData[currentValue].length;
+                    }, 0);
+                    maxValue = yearData[maxKey];
 
-            maxKeyPrevious = maxKey;
-            maxValuePrevious = maxValue;
+                    if (maxKeyPrevious !== null) {
+                        if (maxKey === maxKeyPrevious && maxValue.length <= maxValuePrevious.length) {
+                            maxKey = maxKeyPrevious;
+                            maxValue = maxValuePrevious;
+                            push = false;
+                        }
+                    }
 
-            let tmp = maxValue[0];
+                    maxKeyPrevious = maxKey;
+                    maxValuePrevious = maxValue;
 
-            tmp.opacity = maxValue.length / maxSpecies;
+                    opacity = maxValue.length / maxSpecies;
+                    break;
+                case "avg":
 
-            if (push)
+                    let scoreSum = Object.keys(yearData).reduce(((a, b) => a + yearData[b].length * iucnScore(b)), 0);
+                    countSum = Object.values(yearData).reduce((accumulator, currentValue) => {
+                        return accumulator + currentValue.length;
+                    }, 0);
+
+                    let avg = scoreSum / countSum;
+
+                    if (maxValuePrevious !== null) {
+                        if (maxValuePrevious === avg) {
+                            avg = maxValuePrevious;
+                            push = false;
+                        }
+                    }
+
+                    maxKey = iucnScoreReverse(avg);
+
+                    maxValuePrevious = avg;
+
+                    opacity = countSum / maxSpecies;
+                    break;
+                case "max":
+
+                    maxKey = Object.keys(yearData).reduce((a, b) => iucnScore(a) > iucnScore(b) ? a : b);
+                    countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
+                        return accumulator + yearData[currentValue].length;
+                    }, 0);
+                    maxValue = yearData[maxKey];
+
+                    if (maxKeyPrevious !== null) {
+                        if (maxValue.length === maxValuePrevious.length && maxKey === maxKeyPrevious) {
+                            maxKey = maxKeyPrevious;
+                            maxValue = maxValuePrevious;
+                            push = false;
+                        }
+                    }
+
+                    maxKeyPrevious = maxKey;
+                    maxValuePrevious = maxValue;
+
+                    opacity = yearData[maxKey].length / maxSpecies;
+                default:
+                    break;
+            }
+
+            if (push) {
+                tmp = {
+                    category: iucnCategories[maxKey],
+                    code: maxKey,
+                    year: year,
+                    sciName: this.speciesName + " (" + countSum + ")",
+                    rank: "ALL",
+                    text: maxKey,
+                    type: "iucn",
+                    opacity: opacity
+                };
                 heatMapData.push(tmp);
+            }
         }
 
         let listingData = heatMapData;
@@ -1122,12 +1193,277 @@ class D3Timeline {
         }
     }
 
+    appendIUCNNew(iucnData) {
+
+        let speciesListing = {};
+
+        let listingKeys = [];
+        let newListingData = [];
+
+        let characteristicsMap = {};
+
+        let maxHeightScale = 5;
+
+        for (let listing of iucnData.sort((a, b) => parseInt(a.year) - parseInt(b.year))) {
+            let push = true;
+            let name = listing.sciName;
+
+            let listingKey = `${listing.year}${listing.code}${listing.sciName}`;
+            let characteristic = `${listing.year}${listing.code}`;
+            if (speciesListing.hasOwnProperty(name)) {
+                if (!listingKeys.includes(listingKey)) {
+                    speciesListing[name].push(listing);
+                    if (push) {
+                        newListingData.push(listing);
+                    }
+                    characteristicsMap[name][listing.year] = characteristic;
+                }
+            }
+            else {
+                speciesListing[name] = [listing];
+                if (push) {
+                    newListingData.push(listing);
+                }
+                characteristicsMap[name] = {};
+                characteristicsMap[name][listing.year] = characteristic;
+            }
+
+            listingKeys.push(listingKey);
+        }
+
+        for (let key of Object.keys(characteristicsMap)) {
+            characteristicsMap[key] = Object.values(characteristicsMap[key]).join("");
+        }
+
+        let charCounting = Object.values(characteristicsMap).reduce(function (countMap, word) { countMap[word] = ++countMap[word] || 1; return countMap }, {});
+
+        let uniqueCharacteristics = Object.keys(charCounting).reverse();
+
+        let speciesCount = Object.keys(speciesListing).length;
+
+        let rowHeight = this.radius + 1;
+
+        let heightMap = {};
+        if (this.groupSame) {
+            let charsAlready = [];
+            let newData = [];
+            let filteredSpecies = [];
+
+            for (let entry of newListingData) {
+                let char = characteristicsMap[entry.sciName];
+
+                if (!charsAlready.includes(char) || filteredSpecies.includes(entry.sciName)) {
+                    let charCount = charCounting[characteristicsMap[entry.sciName]];
+                    let heightScale = (charCount > 1 ? charCount : 0) / speciesCount;
+
+                    entry.heightScale = heightScale;
+
+                    newData.push(entry);
+                    filteredSpecies.push(entry.sciName);
+                    charsAlready.push(char);
+
+                    if (!Object.keys(heightMap).includes(char)) {
+                        heightMap[char] = heightScale;
+                    }
+                }
+            }
+
+            newListingData = newData;
+
+            this.heightScaleSum = Object.values(heightMap).reduce((prev, curr) => prev + curr);
+        }
+
+
+        let speciesNamesSorted = Object.keys(speciesListing)
+            .sort((a, b) => {
+                return Math.min(...speciesListing[b].map(e => parseInt(e.year))) - Math.min(...speciesListing[a].map(e => parseInt(e.year)))
+            });
+
+        let circleYearCountIUCN = {};
+
+        let svgHeight = 0;
+        if (this.groupSame) {
+            svgHeight = (uniqueCharacteristics.length + this.heightScaleSum * maxHeightScale) * rowHeight;
+        }
+        else {
+            svgHeight = speciesCount * rowHeight;
+        }
+
+        let svgIUCN = this.wrapper
+            .append("svg")
+            .attr("id", this.id + "IUCN")
+            .attr("width", this.initWidth)
+            .attr("height", svgHeight)
+            .style("display", "block");
+
+        let maxCount = 0;
+
+        svgIUCN.style("display", "block");
+
+        let defs = svgIUCN.append("defs");
+
+        let g = svgIUCN.append("g")
+            .attr("transform", "translate(" + this.margin.left + "," + 0 + ")")
+            .attr("height", svgHeight);
+
+        let rect = g
+            .append("rect")
+            .attr("width", this.width)
+            .attr("height", (speciesCount) * rowHeight)
+            .attr("stroke", "gray")
+            .style("fill", "none");/*  */
+        //.style("fill", "url(#mainGradient)")
+        /*.style("stroke", "black")*/
+        //.style("fill", "url(#myGradient)");
+
+        let keyData = [];
+        if (this.groupSame) {
+            let already = [];
+            let newData = [];
+            for (let entry of newListingData) {
+                if (!already.includes(entry.sciName)) {
+                    newData.push(entry);
+                    already.push(entry.sciName);
+                }
+            }
+            keyData = newData;
+        }
+        else {
+            keyData = Object.values(speciesListing).map(e => e[0]);
+        }
+
+        g.selectAll("g myCircleText").data(keyData)
+            .enter()
+            .append("text")
+            .attr("transform", (d) => {
+                let rowNum = 0;
+                if (this.groupSame) {
+                    rowNum = uniqueCharacteristics.indexOf(characteristicsMap[d.sciName]);
+                }
+                else {
+                    rowNum = speciesNamesSorted.indexOf(d.sciName);
+                }
+
+                let addY = 0;
+                for (let idx = 0; idx < rowNum; idx++) {
+                    addY += heightMap[uniqueCharacteristics[idx]];
+                }
+
+                let yPos = this.groupSame ? (rowHeight * rowNum + maxHeightScale * addY * rowHeight + (rowHeight + rowHeight * maxHeightScale * d.heightScale) / 2) : rowHeight * rowNum + (rowHeight / 2);
+
+                return "translate(-5," + yPos + ")";
+            })
+            .style("text-anchor", "end")
+            .style("dominant-baseline", "central")
+            .style("font-size", "9")
+            .text((d) => {
+                if (this.groupSame) {
+                    let counting = charCounting[characteristicsMap[d.sciName]];
+
+                    if (counting === 1) {
+                        return d.sciName;
+                    }
+                    else {
+                        return counting;
+                    }
+                }
+                else {
+                    return d.sciName;
+                }
+            });
+
+        appendCitesRects.bind(this)(newListingData);
+
+        function appendCitesRects(lData) {
+            let elem = g.selectAll("g myCircleText").data(lData);
+
+            let elemEnter = elem
+                .enter()
+                .append("g")
+                .attr("class", "noselect")
+                .attr("transform", function (d) {
+                    let rowNum = 0;
+                    if (this.groupSame) {
+                        rowNum = uniqueCharacteristics.indexOf(characteristicsMap[d.sciName]);
+                    }
+                    else {
+                        rowNum = speciesNamesSorted.indexOf(d.sciName);
+                    }
+
+                    let addY = 0;
+                    for (let idx = 0; idx < rowNum; idx++) {
+                        addY += heightMap[uniqueCharacteristics[idx]];
+                    }
+
+                    let yPos = this.groupSame ? (rowHeight * rowNum + maxHeightScale * addY * rowHeight) : rowHeight * rowNum;
+                    return "translate(" + (this.x(Number(d.year)) + this.x.bandwidth() / 2) + "," + yPos + ")";
+                }.bind(this))
+                .attr("x", function (d) {
+                    return this.x(Number(d.year) + this.x.bandwidth() / 2);
+                }.bind(this))
+                .on("mouseover", this.mouseover)
+                .on("mousemove", this.mousemove)
+                .on("mouseleave", this.mouseleave);
+
+            elemEnter
+                .append("rect")
+                .attr("class", "pinarea")
+                .attr("height", (d) => {
+                    let hei = this.groupSame ? rowHeight + (d.heightScale * maxHeightScale * rowHeight) : rowHeight;
+                    return hei;
+                })
+                .attr("width", function (d) {
+                    return this.width - this.x(Number(d.year));
+                }.bind(this))
+                .style("fill", "white");
+
+            elemEnter
+                .append("rect")
+                .attr("class", "pinarea")
+                .attr("height", (d) => {
+                    let hei = this.groupSame ? rowHeight + (d.heightScale * maxHeightScale * rowHeight) : rowHeight;
+                    return hei;
+                })
+                .attr("width", function (d) {
+                    return this.width - this.x(Number(d.year));
+                }.bind(this))
+                .style("fill", function (d) {
+                    switch (d.type) {
+                        case "iucn":
+                            return getIucnColor(d);
+                        default:
+                            break;
+                    }
+                })
+                .style("stroke", function (d) {
+                    switch (d.type) {
+                        case "iucn":
+                            return "gray";
+                            break;
+                        default:
+                            break;
+                    }
+                }).style("stroke-width", function (d) {
+                    switch (d.type) {
+                        case "iucn":
+                            return 1;
+                            break;
+                        default:
+                            break;
+                    }
+                });
+
+        }
+    }
+
     appendIUCN(iucnData) {
 
         let speciesListing = {};
 
         let listingKeys = [];
         let newListingData = [];
+
+        let characteristicsMap = {};
 
         for (let listing of iucnData.sort((a, b) => parseInt(a.year) - parseInt(b.year))) {
 
@@ -1269,12 +1605,50 @@ class D3Timeline {
 
     appendThreatHeatMapNew(threatData) {
         let threatHeatMap = {};
+        let speciesMap = {};
+
+        console.log(threatData);
 
         let yearCount = {};
         for (let entry of threatData) {
             let year = entry.year.toString();
-            pushOrCreate(getOrCreate(threatHeatMap, year, {}), entry.threatened, entry);
+            let name = entry.genusSpecies;
+
+            pushOrCreate(speciesMap, name, entry);
+            pushOrCreate(getOrCreate(threatHeatMap, year, {}), entry.danger, entry);
             pushOrCreate(yearCount, year, 1);
+        }
+
+        console.log(speciesMap, threatHeatMap);
+
+
+        let years = Object.keys(yearCount).map(e => parseInt(e));
+        let maxYear = Math.max(...years);
+        let minYear = Math.min(...years);
+
+        let newThreatHeatMap = {};
+
+        for (let species of Object.keys(speciesMap)) {
+            let yearData = {};
+            let lastState = null;
+            for (let entry of speciesMap[species]) {
+                pushOrCreate(yearData, entry.year, entry);
+            }
+
+            for (let year = minYear; year <= maxYear; year++) {
+                if (yearData.hasOwnProperty(year.toString())) {
+                    let highestScore = Math.max(...yearData[year.toString()].map(e => iucnScore(e.code)));
+                    let highest = iucnScoreReverse(highestScore);
+                    //let highest = yearData[year.toString()].reduce((a, b) => iucnScore(a) > iucnScore(b.code) ? a : b.code, []);
+
+
+                    pushOrCreate(getOrCreate(newThreatHeatMap, year, {}), highest, 1);
+                    lastState = yearData[year.toString()][0].code;
+                }
+                else if (lastState) {
+                    pushOrCreate(getOrCreate(newThreatHeatMap, year, {}), lastState, 1);
+                }
+            }
         }
 
         let heatMapData = [];
@@ -1283,30 +1657,94 @@ class D3Timeline {
 
         let maxSpecies = Math.max(...Object.values(yearCount).map(e => e.length));
 
-        for (let year of Object.keys(threatHeatMap).sort((a, b) => parseInt(a) - parseInt(b))) {
-            let yearData = threatHeatMap[year.toString()];
+        for (let year of Object.keys(newThreatHeatMap).sort((a, b) => parseInt(a) - parseInt(b))) {
+            let yearData = newThreatHeatMap[year.toString()];
             let push = true;
+            let countSum;
 
-            let maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
-            let maxValue = yearData[maxKey];
+            let tmp, maxKey, maxValue;
+            let opacity;
 
-            /* if (maxKeyPrevious !== null) {
-                if (maxValue.length < maxValuePrevious.length) {
-                    maxKey = maxKeyPrevious;
-                    maxValue = maxValuePrevious;
-                    push = false;
-                }
-            } */
+            switch (this.heatStyle) {
+                case "dom":
+                    maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
+                    countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
+                        return accumulator + yearData[currentValue].length;
+                    }, 0);
+                    maxValue = yearData[maxKey];
 
-            maxKeyPrevious = maxKey;
-            maxValuePrevious = maxValue;
+                    if (maxKeyPrevious !== null) {
+                        if (maxKey === maxKeyPrevious && maxValue.length <= maxValuePrevious.length) {
+                            maxKey = maxKeyPrevious;
+                            maxValue = maxValuePrevious;
+                            push = false;
+                        }
+                    }
 
-            let tmp = maxValue[0];
+                    maxKeyPrevious = maxKey;
+                    maxValuePrevious = maxValue;
 
-            tmp.opacity = maxValue.length / maxSpecies;
+                    opacity = maxValue.length / maxSpecies;
+                    break;
+                case "avg":
 
-            if (push)
+                    let scoreSum = Object.keys(yearData).reduce(((a, b) => a + yearData[b].length * iucnScore(b)), 0);
+                    countSum = Object.values(yearData).reduce((accumulator, currentValue) => {
+                        return accumulator + currentValue.length;
+                    }, 0);
+
+                    let avg = scoreSum / countSum;
+
+                    if (maxValuePrevious !== null) {
+                        if (maxValuePrevious === avg) {
+                            avg = maxValuePrevious;
+                            push = false;
+                        }
+                    }
+
+                    maxKey = iucnScoreReverse(avg);
+
+                    maxValuePrevious = avg;
+
+                    opacity = countSum / maxSpecies;
+                    break;
+                case "max":
+
+                    maxKey = Object.keys(yearData).reduce((a, b) => iucnScore(a) > iucnScore(b) ? a : b);
+                    countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
+                        return accumulator + yearData[currentValue].length;
+                    }, 0);
+                    maxValue = yearData[maxKey];
+
+                    if (maxKeyPrevious !== null) {
+                        if (maxValue.length === maxValuePrevious.length && maxKey === maxKeyPrevious) {
+                            maxKey = maxKeyPrevious;
+                            maxValue = maxValuePrevious;
+                            push = false;
+                        }
+                    }
+
+                    maxKeyPrevious = maxKey;
+                    maxValuePrevious = maxValue;
+
+                    opacity = yearData[maxKey].length / maxSpecies;
+                default:
+                    break;
+            }
+
+            if (push) {
+                tmp = {
+                    category: iucnCategories[maxKey],
+                    code: maxKey,
+                    year: year,
+                    sciName: this.speciesName + " (" + countSum + ")",
+                    rank: "ALL",
+                    text: maxKey,
+                    type: "iucn",
+                    opacity: opacity
+                };
                 heatMapData.push(tmp);
+            }
         }
 
         let listingData = heatMapData;
@@ -1895,9 +2333,9 @@ class D3Timeline {
             });
 
         /*  elem = g.selectAll("g myCircleText").data(piedData);
- 
+     
          strokeWidth = 0.5;
- 
+     
          elemEnter = elem
              .enter()
              .append("g")
@@ -1911,7 +2349,7 @@ class D3Timeline {
              .on("mouseover", this.mouseover)
              .on("mousemove", this.mousemove)
              .on("mouseleave", this.mouseleave);
- 
+     
          elemEnter
              .selectAll('whatever')
              .data(function (d) {
@@ -2508,7 +2946,7 @@ class D3Timeline {
 
                 if (this.data.timeIUCN.length) {
                     if (this.zoomLevel > 0) {
-                        this.appendIUCN(this.data.timeIUCN);
+                        this.appendIUCNNew(this.data.timeIUCN);
                     }
                     else {
                         this.appendIUCNHeatMap(this.data.timeIUCN);
@@ -2520,7 +2958,7 @@ class D3Timeline {
                         switch (this.pieStyle) {
                             case "pie":
                                 //this.appendThreatPies(this.data.timeThreat);
-                                this.appendThreatHeatMap(this.data.timeThreat);
+                                this.appendThreatHeatMapNew(this.data.timeThreat);
                                 break;
                             case "bar":
                                 this.appendThreatBars(this.data.timeThreat);

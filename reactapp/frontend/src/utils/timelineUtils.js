@@ -57,3 +57,60 @@ module.exports.citesScoreReverse = function (value) {
 module.exports.iucnColors = iucnColors;
 module.exports.getIucnColor = getIucnColor;
 module.exports.getIucnColorForeground = getIucnColorForeground;
+module.exports.iucnScore = function (category) {
+    if (["EX", "EW", "RE"].includes(category)) {
+        return 1.0;
+    }
+    else if ("CR" === category) {
+        return 0.8;
+    }
+    else if ("EN" === category) {
+        return 0.6;
+    }
+    else if ("VU" === category) {
+        return 0.4;
+    }
+    else if ("NT" === category) {
+        return 0.2;
+    }
+    else if ("LC" === category) {
+        return 0.0;
+    }
+    else {
+        return 0.5;
+    }
+};
+module.exports.iucnScoreReverse = function (value) {
+    if (value > 0.8) {
+        return "EX";
+    }
+    else if (value > 0.6) {
+        return "CR";
+    }
+    else if (value > 0.4) {
+        return "EN";
+    }
+    else if (value > 0.2) {
+        return "VU";
+    }
+    else if (value > 0.0) {
+        return "NT";
+    }
+    else if (value === 0.0) {
+        return "LC";
+    }
+    else {
+        return "DD";
+    }
+};
+module.exports.iucnCategories = {
+    "EX": "Extinct",
+    "EW": "Extinct in the Wild",
+    "CR": "Critical Endangered",
+    "EN": "Endangered",
+    "VU": "Vulnerable",
+    "NT": "Near Threatened",
+    "LC": "Least Concern",
+    "DD": "Data Deficient",
+    "NE": "Not Evaluated"
+};

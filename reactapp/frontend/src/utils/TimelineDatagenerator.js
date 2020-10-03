@@ -159,7 +159,6 @@ export class TimelineDatagenerator {
     }
 
     getTimelineListingDataFromSpecies(speciesObject) {
-        console.log("OBJ", speciesObject);
 
         let speciesCountries = {};
         //Collect all countries
@@ -243,7 +242,6 @@ export class TimelineDatagenerator {
                 for (let species of Object.keys(speciesObject.species)) {
 
                     if (groupdBySpecies[species]) {
-                        console.log(groupdBySpecies[species]);
 
                         let filtered = groupdBySpecies[species].filter(e => {
                             if (parseInt(e.year) <= parseInt(gListing.year)) {
