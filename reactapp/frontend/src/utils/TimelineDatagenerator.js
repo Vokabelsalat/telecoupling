@@ -26,11 +26,47 @@ export class TimelineDatagenerator {
         return { minYear: this.minYear, maxYear: this.maxYear };
     }
 
+    getTreeSpeciesNames(i_speciesName, speciesObject) {
+        let speciesNames = speciesObject.trees.map(e => e.taxon);
+
+        let speciesNamesAndSyns = {};
+        let reverseSyns = {};
+
+        let allAccepted = {};
+
+        for (let speciesName of speciesNames) {
+            for (let syns of speciesObject.synonymos) {
+                let index = syns.indexOf(speciesName);
+                if (index > -1) {
+                    let newIndex = 1 - index;
+
+                    let syn = syns[newIndex];
+
+                    pushOrCreate(speciesNamesAndSyns, speciesName, syn);
+                    reverseSyns[syn] = speciesName;
+
+                    allAccepted[syn] = 1;
+                }
+                else if (!Object.keys(speciesNamesAndSyns).includes(speciesName)) {
+                    speciesNamesAndSyns[speciesName] = [];
+                }
+                allAccepted[speciesName] = 1;
+            }
+        }
+
+        allAccepted[i_speciesName] = 1;
+        speciesNamesAndSyns[i_speciesName] = [];
+
+        allAccepted = Object.keys(allAccepted);
+        return [speciesNamesAndSyns, reverseSyns, allAccepted];
+    }
+
     processData(tradeData, i_threatData, i_tradeData) {
 
         //########### CREATING DATA ###########
 
         for (let speciesName of Object.keys(tradeData)) {
+            speciesName = speciesName.trim();
             let speciesObject = tradeData[speciesName];
 
             if (i_tradeData !== undefined && i_tradeData.hasOwnProperty(speciesName)) {
@@ -42,6 +78,11 @@ export class TimelineDatagenerator {
                 let threatArray = i_threatData[speciesName];
                 speciesObject.threats = threatArray;
             }
+
+            let [treeSpeciesNamesAndSyns, reverseSyns, allAccepted] = this.getTreeSpeciesNames(speciesName, speciesObject);
+            speciesObject.treeSpeciesNamesAndSyns = treeSpeciesNamesAndSyns;
+            speciesObject.reverseSyns = reverseSyns;
+            speciesObject.allAccepted = allAccepted;
 
             let [data, groupedBySource] = this.getTimelineTradeDataFromSpecies(speciesObject);
             let listingData = this.getTimelineListingDataFromSpecies(speciesObject);
@@ -131,7 +172,6 @@ export class TimelineDatagenerator {
                                     e.consAssCategory = "nT";
                                 }
                             }
-                            //console.log(e);
 
                             return {
                                 year: year,
@@ -152,7 +192,7 @@ export class TimelineDatagenerator {
                     );
                 }
             }
-            return returnData.filter((e) => !e.reference.includes("IUCN"));
+            return returnData.filter((e) => !e.reference.includes("IUCN") && e.scope === "Global");
         } else {
             return [];
         }
@@ -174,12 +214,21 @@ export class TimelineDatagenerator {
             var parseTime = timeParse("%d/%m/%Y");
             let groupedByYear = {};
             let groupdBySpecies = {};
+            console.log(Object.keys(speciesObject.treeSpeciesNamesAndSyns));
+
+
             for (let entry of speciesObject["listingHistory"].values()) {
                 let dateString = entry.EffectiveAt;
                 let date = parseTime(dateString);
                 let year = date.getFullYear();
 
-                pushOrCreate(groupedByYear, year.toString(), entry);
+                entry.sciName = (entry["Genus"].trim() + " " + entry["Species"].trim()).trim();
+
+                if (speciesObject.allAccepted.includes(entry.sciName)) {
+
+                    entry.sciName = speciesObject.reverseSyns[entry.sciName] !== undefined ? speciesObject.reverseSyns[entry.sciName] : entry.sciName;
+                    pushOrCreate(groupedByYear, year.toString(), entry);
+                }
             }
 
             let returnData = [];
@@ -205,7 +254,7 @@ export class TimelineDatagenerator {
                                     type: "listingHistory",
                                     rank: e["RankName"],
                                     genus: e["Genus"],
-                                    species: e["Species"]
+                                    species: e["Species"],
                                 };
 
                                 if (e.hasOwnProperty("FullAnnotationEnglish")) {
@@ -237,9 +286,20 @@ export class TimelineDatagenerator {
                 }
             }
 
+            console.log(groupdBySpecies);
+
+
+            let testSpec = {};
             for (let gListing of genusListings) {
 
-                for (let species of Object.keys(speciesObject.species)) {
+                for (let species of Object.keys(speciesObject.treeSpeciesNamesAndSyns)) {
+
+                    if (!species.includes(" ")) {
+                        console.log(species);
+                        continue; //because it is a genus listing
+                    }
+
+                    testSpec[species] = 1;
 
                     if (groupdBySpecies[species]) {
 
@@ -259,7 +319,6 @@ export class TimelineDatagenerator {
                             }
                         }
                     }
-
 
                     let isLocale = false;
                     let countries = null;
@@ -299,6 +358,9 @@ export class TimelineDatagenerator {
                 }
             }
 
+            console.log(Object.keys(testSpec));
+
+
             return returnData;
         } else {
             return [];
@@ -315,6 +377,7 @@ export class TimelineDatagenerator {
                 for (let iucn of tradeArray) {
                     let year = iucn.year;
                     iucn.sciName = subkey;
+                    iucn.genus = subkey.split(" ")[0];
                     pushOrCreate(groupedByYear, year.toString(), iucn);
                 }
             }

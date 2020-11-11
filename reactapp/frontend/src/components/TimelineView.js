@@ -17,8 +17,9 @@ class TimelineView extends Component {
             domainYears: [],
             pieStyle: "pie",
             groupSame: true,
+            sortGrouped: "trend",
             heatStyle: "dom",
-            sortedKeys: []
+            sortedKeys: [],
         };
     }
 
@@ -109,6 +110,14 @@ class TimelineView extends Component {
         this.setGroupSame(style);
     }
 
+    setSortGrouped(setValue) {
+        this.setState({ sortGrouped: setValue });
+    }
+
+    onSortGrouped(style) {
+        this.setSortGrouped(style);
+    }
+
     setHeatStyle(setValue) {
         this.setState({ heatStyle: setValue });
     }
@@ -137,6 +146,8 @@ class TimelineView extends Component {
                         pieStyle={this.state.pieStyle}
                         groupSame={this.state.groupSame}
                         onGroupSame={this.onGroupSame.bind(this)}
+                        sortGrouped={this.state.sortGrouped}
+                        onSortGrouped={this.onSortGrouped.bind(this)}
                         heatStyle={this.state.heatStyle}
                         onHeatStyle={this.onHeatStyle.bind(this)}
                     />
@@ -164,6 +175,7 @@ class TimelineView extends Component {
                                     maxPerYear={this.state.maxPerYear}
                                     pieStyle={this.state.pieStyle}
                                     groupSame={this.state.groupSame}
+                                    sortGrouped={this.state.sortGrouped}
                                     heatStyle={this.state.heatStyle}
                                     justTrade={true}
                                 />
@@ -203,6 +215,7 @@ class TimelineView extends Component {
                                     pieStyle={this.state.pieStyle}
                                     groupSame={this.state.groupSame}
                                     heatStyle={this.state.heatStyle}
+                                    sortGrouped={this.state.sortGrouped}
                                     justGenus={e.trim().includes(" ") ? false : true}
                                 />
                             )

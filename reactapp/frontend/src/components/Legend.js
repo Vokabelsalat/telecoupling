@@ -78,6 +78,18 @@ class Legend extends Component {
                     {this.props.groupSame ? "Group Same" : "Not"}
                 </button>
                 <select
+                    value={this.props.sortGrouped}
+                    onChange={(event) => {
+                        this.props.onSortGrouped(event.target.value);
+                    }}
+                    style={{
+                        "marginLeft": "10px"
+                    }}>
+                    <option value="trend">Trend</option>
+                    <option value="avg">Average</option>
+                    <option value="quant">Quantity</option>
+                </select>
+                <select
                     value={this.props.heatStyle}
                     onChange={(event) => {
                         this.props.onHeatStyle(event.target.value);

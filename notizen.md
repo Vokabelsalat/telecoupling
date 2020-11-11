@@ -199,3 +199,12 @@ Die Darstellung der Objekte als Explosionszeichnung als Startpunkt für eine Suc
 Erstmal nur die globalen Assesments beachten
 bei Demand die details und lokalen threats anzeigen
 für die zusammenfassung verschiedene metriken anbieten
+
+
+Skype mit Silke 2.11.20
+- Statistiken der Verteilungen sind vermutlich nur schwer zu begründen, deshalb ist die Frage, ob man das nicht nochmal anders macht
+- finden wir einen Mathematiker oder Statistiker
+-
+
+Fragen an Stefan:
+Wurden für die Statistiken alle Assesments verwendet oder nur die globalen?

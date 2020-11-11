@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { getOrCreate, dangerColorMap, sourceToDangerMap, iucnToDangerMap, pushOrCreate, dangerSorted, scaleValue } from '../utils/utils'
-import { getIucnColor, getIucnColorForeground, iucnCategoriesSorted, citesAppendixSorted, citesScore, citesScoreReverse, iucnScore, iucnScoreReverse, iucnCategories } from '../utils/timelineUtils'
+import { getIucnColor, getIucnColorForeground, iucnCategoriesSorted, citesAppendixSorted, citesScore, citesScoreReverse, iucnScore, iucnScoreReverse, iucnCategories, threatScore, threatScoreReverse } from '../utils/timelineUtils'
 
 class D3Timeline {
     constructor(param) {
@@ -17,6 +17,8 @@ class D3Timeline {
 
         this.pieStyle = param.pieStyle;
         this.groupSame = param.groupSame;
+        this.sortGrouped = param.sortGrouped;
+
         this.heatStyle = param.heatStyle;
 
         this.initWidth = 960;
@@ -26,7 +28,7 @@ class D3Timeline {
             top: 10,
             right: 0,
             bottom: 20,
-            left: 100,
+            left: 130,
         };
 
         this.paint();
@@ -240,8 +242,6 @@ class D3Timeline {
         let heatMapData = [];
         let maxKeyPrevious = null;
         let maxValuePrevious = null;
-
-        console.log(listingData, newListingHeatMap);
 
         let maxSpecies = Math.max(...Object.values(yearCount).map(e => e.length));
 
@@ -477,6 +477,7 @@ class D3Timeline {
         let newListingData = [];
 
         let characteristicsMap = {};
+        let trendMap = {};
 
         let maxHeightScale = 5;
 
@@ -505,6 +506,8 @@ class D3Timeline {
                         newListingData.push(listing);
                     }
                     characteristicsMap[name][listing.year] = characteristic;
+
+                    trendMap[name][listing.year] = listing.appendix;
                 }
             }
             else {
@@ -514,18 +517,151 @@ class D3Timeline {
                 }
                 characteristicsMap[name] = {};
                 characteristicsMap[name][listing.year] = characteristic;
+                trendMap[name] = {};
+                trendMap[name][listing.year] = listing.appendix;
             }
 
             listingKeys.push(listingKey);
         }
 
+        let newTrendMap = {};
+        let sumMap = {};
+        let characteristicsTrend = {};
         for (let key of Object.keys(characteristicsMap)) {
-            characteristicsMap[key] = Object.values(characteristicsMap[key]).join("");
+            let prevYear = 0;
+            newTrendMap[key] = [];
+            sumMap[key] = [];
+            characteristicsMap[key] = Object.keys(characteristicsMap[key])
+                .sort((a, b) => parseInt(b) - parseInt(a)).reverse()
+                .map((year, index) => {
+
+                    let curr = citesScore(trendMap[key][year]);
+                    if (curr < 0) {
+                        curr = 0.5;
+                    }
+
+                    sumMap[key].push(curr);
+                    if (index > 0) {
+                        let prev = citesScore(trendMap[key][prevYear]);
+                        if (prev < 0) {
+                            prev = 0.5;
+                        }
+
+                        let trend;
+                        if (curr > prev) {
+                            trend = 1;
+                        }
+                        else if (curr < prev) {
+                            trend = -1;
+                        }
+                        else {
+                            trend = 0;
+                        }
+
+                        newTrendMap[key].push(trend);
+                    }
+                    else {
+                        newTrendMap[key].push(0);
+                    }
+
+                    prevYear = year;
+
+                    characteristicsTrend[key] = newTrendMap[key];
+
+                    return characteristicsMap[key][year];
+                })
+                .join("");
         }
+
 
         let charCounting = Object.values(characteristicsMap).reduce(function (countMap, word) { countMap[word] = ++countMap[word] || 1; return countMap }, {});
 
-        let uniqueCharacteristics = Object.keys(charCounting).reverse();
+        if (genusListing) {
+            let genusChar = characteristicsMap[genusListing];
+            charCounting[genusChar] -= 1;
+        }
+
+        let uniqueCharacteristics = Object.keys(charCounting);
+
+        let characteristicsToTrend = {};
+
+        let newSumMap = {};
+        Object.keys(characteristicsMap).forEach(species => {
+            characteristicsToTrend[characteristicsMap[species]] = characteristicsTrend[species];
+            newSumMap[characteristicsMap[species]] = sumMap[species].reduce((acc, cur) => acc + cur) / sumMap[species].length;
+        });
+
+        uniqueCharacteristics.sort((a, b) => {
+            if (this.sortGrouped === "trend") {
+                let indexA = null;
+                for (let idx = characteristicsToTrend[a].length - 1; idx > 0; idx--) {
+                    if (indexA === null && characteristicsToTrend[a][idx] !== 0) {
+                        indexA = idx;
+                        break;
+                    }
+                }
+
+
+
+                let indexB = null;
+                for (let idx = characteristicsToTrend[b].length - 1; idx > 0; idx--) {
+                    if (indexB === null && characteristicsToTrend[b][idx] !== 0) {
+                        indexB = idx;
+                        break;
+                    }
+                }
+
+                if (indexB === null && indexA === null) {
+                }
+                else {
+                    let lenA = characteristicsToTrend[a].length > 1 ? characteristicsToTrend[a].length - 1 : 1;
+                    let lenB = characteristicsToTrend[b].length > 1 ? characteristicsToTrend[b].length - 1 : 1;
+
+                    let scaleA = (indexA) / lenA;
+                    let scaleB = (indexB) / lenB;
+
+                    let valA = scaleA * characteristicsToTrend[a][indexA];
+                    let valB = scaleB * characteristicsToTrend[b][indexB];
+
+                    if (indexA === null) {
+                        valA = 0;
+                    }
+
+                    if (indexB === null) {
+                        valB = 0;
+                    }
+
+                    if (valA > valB) {
+                        return 1;
+                    }
+                    else if (valA < valB) {
+                        return -1;
+                    }
+                }
+            }
+
+            if (this.sortGrouped === "avg") {
+                let sumA = newSumMap[a];
+                let sumB = newSumMap[b];
+
+                if (sumB !== sumA) {
+                    return sumA - sumB;
+                }
+                else {
+                    return b.localeCompare(a);
+                }
+            }
+
+            let countA = charCounting[a];
+            let countB = charCounting[b];
+
+            if (countB !== countA) {
+                return countB - countA;
+            }
+            else {
+                return b.localeCompare(a);
+            }
+        });
 
         let speciesCount = Object.keys(speciesListing).length;
 
@@ -572,7 +708,7 @@ class D3Timeline {
 
             newListingData = newData;
 
-            this.heightScaleSum = Object.values(heightMap).reduce((prev, curr) => prev + curr);
+            this.heightScaleSum = Object.values(heightMap).reduce(function (prev, curr) { return prev + curr; }, 0);
         }
 
 
@@ -584,7 +720,7 @@ class D3Timeline {
 
         let svgHeight = 0;
         if (this.groupSame) {
-            svgHeight = (uniqueCharacteristics.length + this.heightScaleSum * maxHeightScale) * rowHeight;
+            svgHeight = uniqueCharacteristics.length * rowHeight;
         }
         else {
             svgHeight = speciesCount * rowHeight;
@@ -628,21 +764,45 @@ class D3Timeline {
             keyData = Object.values(speciesListing).map(e => e[0]);
         }
 
+
+        if (this.groupSame) {
+            g.selectAll("g myCircleText").data(keyData)
+                .enter()
+                .append("rect")
+                .attr("width", (d) => {
+                    if (genusLine) {
+                        return 0;
+                    }
+                    else {
+                        return scaleValue(charCounting[characteristicsMap[d.sciName]], [0, speciesCount], [1, 100]);
+                    }
+                })
+                .attr("height", (d) => {
+                    return rowHeight;
+                })
+                .style("fill", "var(--main)")
+                .attr("transform", (d) => {
+                    let rowNum = 0;
+                    if (this.groupSame) {
+                        rowNum = uniqueCharacteristics.indexOf(characteristicsMap[d.sciName]);
+                    }
+                    else {
+                        rowNum = speciesNamesSorted.indexOf(d.sciName);
+                    }
+
+                    let yPos = rowHeight * rowNum;
+
+                    return "translate(" + (- scaleValue(charCounting[characteristicsMap[d.sciName]], [0, speciesCount], [1, 100])) + ", " + yPos + ")";
+                });
+        }
+
         g.selectAll("g myCircleText").data(keyData)
             .enter()
-            .append("rect")
-            .attr("width", (d) => {
-                if (genusLine) {
-                    return 0;
-                }
-                else {
-                    return scaleValue(charCounting[characteristicsMap[d.sciName]], [0, speciesCount], [0, 150]);
-                }
-            })
-            .attr("height", (d) => {
-                return rowHeight + maxHeightScale * d.heightScale;
-            })
-            .style("fill", "var(--main)")
+            .append("text")
+            .style("text-anchor", "end")
+            .style("dominant-baseline", "central")
+            .style("font-size", "9")
+            .style("font-style", (d) => { return genusLine ? "" : "italic"; })
             .attr("transform", (d) => {
                 let rowNum = 0;
                 if (this.groupSame) {
@@ -652,20 +812,18 @@ class D3Timeline {
                     rowNum = speciesNamesSorted.indexOf(d.sciName);
                 }
 
-                let addY = 0;
-                for (let idx = 0; idx < rowNum; idx++) {
-                    addY += heightMap[uniqueCharacteristics[idx]];
+                let yPos = rowHeight * rowNum + rowHeight / 2;
+
+                if (genusLine) {
+                    return "translate(" + (-3) + ", " + yPos + ")";
                 }
-
-                let yPos = this.groupSame ? (rowHeight * rowNum + maxHeightScale * addY * rowHeight + (rowHeight + rowHeight * maxHeightScale * d.heightScale) / 2) : rowHeight * rowNum + (rowHeight / 2);
-
-                return "translate(" + (-scaleValue(charCounting[characteristicsMap[d.sciName]], [0, speciesCount], [0, 150])) + ", " + yPos + ")";
+                else if (this.groupSame) {
+                    return "translate(" + (-3 - scaleValue(charCounting[characteristicsMap[d.sciName]], [0, speciesCount], [0, 100])) + ", " + yPos + ")";
+                }
+                else {
+                    return "translate(" + (-3) + ", " + yPos + ")";
+                }
             })
-            .append("text")
-            .style("text-anchor", "end")
-            .style("dominant-baseline", "central")
-            .style("font-size", "9")
-            .style("font-style", (d) => { return genusLine ? "" : "italic"; })
             .text((d) => {
                 if (genusLine) {
                     return d.genus;
@@ -705,12 +863,7 @@ class D3Timeline {
                         rowNum = speciesNamesSorted.indexOf(d.sciName);
                     }
 
-                    let addY = 0;
-                    for (let idx = 0; idx < rowNum; idx++) {
-                        addY += heightMap[uniqueCharacteristics[idx]];
-                    }
-
-                    let yPos = this.groupSame ? (rowHeight * rowNum + maxHeightScale * addY * rowHeight) : rowHeight * rowNum;
+                    let yPos = rowHeight * rowNum;
                     return "translate(" + (this.x(Number(d.year)) + this.x.bandwidth() / 2) + "," + yPos + ")";
                 }.bind(this))
                 .attr("x", function (d) {
@@ -728,8 +881,7 @@ class D3Timeline {
                         return (speciesCount + 1) * rowHeight
                     }
                     else {
-                        let hei = this.groupSame ? rowHeight + (d.heightScale * maxHeightScale * rowHeight) : rowHeight;
-                        return hei;
+                        return rowHeight;
                     }
                 })
                 /* .attr("width", function (d) {
@@ -749,8 +901,7 @@ class D3Timeline {
                         return (speciesCount + 1) * rowHeight
                     }
                     else {
-                        let hei = this.groupSame ? rowHeight + (d.heightScale * maxHeightScale * rowHeight) : rowHeight;
-                        return hei;
+                        return rowHeight;
                     }
                 })
                 /* .attr("width", function (d) {
@@ -1201,6 +1352,7 @@ class D3Timeline {
         let newListingData = [];
 
         let characteristicsMap = {};
+        let trendMap = {};
 
         let maxHeightScale = 5;
 
@@ -1209,7 +1361,7 @@ class D3Timeline {
             let name = listing.sciName;
 
             let listingKey = `${listing.year}${listing.code}${listing.sciName}`;
-            let characteristic = `${listing.year}${listing.code}`;
+            let characteristic = `${listing.year}${iucnScore(listing.code)}`;
             if (speciesListing.hasOwnProperty(name)) {
                 if (!listingKeys.includes(listingKey)) {
                     speciesListing[name].push(listing);
@@ -1217,6 +1369,7 @@ class D3Timeline {
                         newListingData.push(listing);
                     }
                     characteristicsMap[name][listing.year] = characteristic;
+                    trendMap[name][listing.year] = listing.code;
                 }
             }
             else {
@@ -1226,18 +1379,74 @@ class D3Timeline {
                 }
                 characteristicsMap[name] = {};
                 characteristicsMap[name][listing.year] = characteristic;
+                trendMap[name] = {};
+                trendMap[name][listing.year] = listing.code;
             }
 
             listingKeys.push(listingKey);
         }
 
+        let newTrendMap = {};
+        let sumMap = {};
+        let characteristicsTrend = {};
         for (let key of Object.keys(characteristicsMap)) {
-            characteristicsMap[key] = Object.values(characteristicsMap[key]).join("");
+            /* characteristicsMap[key] = Object.values(characteristicsMap[key]).join(""); */
+
+            let prevYear = 0;
+            newTrendMap[key] = [];
+            sumMap[key] = [];
+            characteristicsMap[key] = Object.keys(characteristicsMap[key])
+                .sort((a, b) => parseInt(b) - parseInt(a)).reverse()
+                .map((year, index) => {
+
+                    let curr = iucnScore(trendMap[key][year]);
+                    if (curr < 0) {
+                        curr = 0.5;
+                    }
+                    sumMap[key].push(curr);
+                    if (index > 0) {
+                        let prev = iucnScore(trendMap[key][prevYear]);
+                        if (prev < 0) {
+                            prev = 0.5;
+                        }
+
+                        let trend;
+                        if (curr > prev) {
+                            trend = 1;
+                        }
+                        else if (curr < prev) {
+                            trend = -1;
+                        }
+                        else {
+                            trend = 0;
+                        }
+
+                        newTrendMap[key].push(trend);
+                    }
+                    else {
+                        newTrendMap[key].push(0);
+                    }
+
+                    prevYear = year;
+
+                    characteristicsTrend[key] = newTrendMap[key];
+
+                    return characteristicsMap[key][year];
+                })
+                .join("");
         }
 
         let charCounting = Object.values(characteristicsMap).reduce(function (countMap, word) { countMap[word] = ++countMap[word] || 1; return countMap }, {});
 
-        let uniqueCharacteristics = Object.keys(charCounting).reverse();
+        let uniqueCharacteristics = Object.keys(charCounting);
+
+        let characteristicsToTrend = {};
+
+        let newSumMap = {};
+        Object.keys(characteristicsMap).forEach(species => {
+            characteristicsToTrend[characteristicsMap[species]] = characteristicsTrend[species];
+            newSumMap[characteristicsMap[species]] = sumMap[species].reduce((acc, cur) => acc + cur) / sumMap[species].length;
+        });
 
         let speciesCount = Object.keys(speciesListing).length;
 
@@ -1273,6 +1482,77 @@ class D3Timeline {
             this.heightScaleSum = Object.values(heightMap).reduce((prev, curr) => prev + curr);
         }
 
+        uniqueCharacteristics.sort((a, b) => {
+            if (this.sortGrouped === "trend") {
+                let indexA = null;
+                for (let idx = characteristicsToTrend[a].length - 1; idx > 0; idx--) {
+                    if (indexA === null && characteristicsToTrend[a][idx] !== 0) {
+                        indexA = idx;
+                        break;
+                    }
+                }
+
+
+
+                let indexB = null;
+                for (let idx = characteristicsToTrend[b].length - 1; idx > 0; idx--) {
+                    if (indexB === null && characteristicsToTrend[b][idx] !== 0) {
+                        indexB = idx;
+                        break;
+                    }
+                }
+
+                if (indexB === null && indexA === null) {
+                }
+                else {
+                    let lenA = characteristicsToTrend[a].length > 1 ? characteristicsToTrend[a].length - 1 : 1;
+                    let lenB = characteristicsToTrend[b].length > 1 ? characteristicsToTrend[b].length - 1 : 1;
+
+                    let scaleA = (indexA) / lenA;
+                    let scaleB = (indexB) / lenB;
+
+                    let valA = scaleA * characteristicsToTrend[a][indexA];
+                    let valB = scaleB * characteristicsToTrend[b][indexB];
+
+                    if (indexA === null) {
+                        valA = 0;
+                    }
+
+                    if (indexB === null) {
+                        valB = 0;
+                    }
+
+                    if (valA > valB) {
+                        return 1;
+                    }
+                    else if (valA < valB) {
+                        return -1;
+                    }
+                }
+            }
+
+            if (this.sortGrouped === "avg") {
+                let sumA = newSumMap[a];
+                let sumB = newSumMap[b];
+
+                if (sumB !== sumA) {
+                    return sumA - sumB;
+                }
+                else {
+                    return b.localeCompare(a);
+                }
+            }
+
+            let countA = charCounting[a];
+            let countB = charCounting[b];
+
+            if (countB !== countA) {
+                return countB - countA;
+            }
+            else {
+                return b.localeCompare(a);
+            }
+        });
 
         let speciesNamesSorted = Object.keys(speciesListing)
             .sort((a, b) => {
@@ -1283,7 +1563,7 @@ class D3Timeline {
 
         let svgHeight = 0;
         if (this.groupSame) {
-            svgHeight = (uniqueCharacteristics.length + this.heightScaleSum * maxHeightScale) * rowHeight;
+            svgHeight = uniqueCharacteristics.length * rowHeight;
         }
         else {
             svgHeight = speciesCount * rowHeight;
@@ -1332,9 +1612,39 @@ class D3Timeline {
             keyData = Object.values(speciesListing).map(e => e[0]);
         }
 
+        if (this.groupSame) {
+            g.selectAll("g myCircleText").data(keyData)
+                .enter()
+                .append("rect")
+                .attr("width", (d) => {
+                    return scaleValue(charCounting[characteristicsMap[d.sciName]], [0, speciesCount], [1, 100]);
+                })
+                .attr("height", (d) => {
+                    return rowHeight;
+                })
+                .style("fill", "var(--main)")
+                .attr("transform", (d) => {
+                    let rowNum = 0;
+                    if (this.groupSame) {
+                        rowNum = uniqueCharacteristics.indexOf(characteristicsMap[d.sciName]);
+                    }
+                    else {
+                        rowNum = speciesNamesSorted.indexOf(d.sciName);
+                    }
+
+                    let yPos = rowHeight * rowNum;
+
+                    return "translate(" + (- scaleValue(charCounting[characteristicsMap[d.sciName]], [0, speciesCount], [1, 100])) + ", " + yPos + ")";
+                });
+        }
+
         g.selectAll("g myCircleText").data(keyData)
             .enter()
             .append("text")
+            .style("text-anchor", "end")
+            .style("dominant-baseline", "central")
+            .style("font-size", "9")
+            .style("font-style", (d) => "italic")
             .attr("transform", (d) => {
                 let rowNum = 0;
                 if (this.groupSame) {
@@ -1344,31 +1654,28 @@ class D3Timeline {
                     rowNum = speciesNamesSorted.indexOf(d.sciName);
                 }
 
-                let addY = 0;
-                for (let idx = 0; idx < rowNum; idx++) {
-                    addY += heightMap[uniqueCharacteristics[idx]];
+                let yPos = rowHeight * rowNum + rowHeight / 2;
+
+                if (this.groupSame) {
+                    return "translate(" + (-3 - scaleValue(charCounting[characteristicsMap[d.sciName]], [0, speciesCount], [0, 100])) + ", " + yPos + ")";
                 }
-
-                let yPos = this.groupSame ? (rowHeight * rowNum + maxHeightScale * addY * rowHeight + (rowHeight + rowHeight * maxHeightScale * d.heightScale) / 2) : rowHeight * rowNum + (rowHeight / 2);
-
-                return "translate(-5," + yPos + ")";
+                else {
+                    return "translate(" + (-3) + ", " + yPos + ")";
+                }
             })
-            .style("text-anchor", "end")
-            .style("dominant-baseline", "central")
-            .style("font-size", "9")
             .text((d) => {
                 if (this.groupSame) {
                     let counting = charCounting[characteristicsMap[d.sciName]];
 
                     if (counting === 1) {
-                        return d.sciName;
+                        return d.sciName.replace(d.genus, "").trim();
                     }
                     else {
                         return counting;
                     }
                 }
                 else {
-                    return d.sciName;
+                    return d.sciName.replace(d.genus, "").trim();
                 }
             });
 
@@ -1395,7 +1702,7 @@ class D3Timeline {
                         addY += heightMap[uniqueCharacteristics[idx]];
                     }
 
-                    let yPos = this.groupSame ? (rowHeight * rowNum + maxHeightScale * addY * rowHeight) : rowHeight * rowNum;
+                    let yPos = rowHeight * rowNum;
                     return "translate(" + (this.x(Number(d.year)) + this.x.bandwidth() / 2) + "," + yPos + ")";
                 }.bind(this))
                 .attr("x", function (d) {
@@ -1409,8 +1716,7 @@ class D3Timeline {
                 .append("rect")
                 .attr("class", "pinarea")
                 .attr("height", (d) => {
-                    let hei = this.groupSame ? rowHeight + (d.heightScale * maxHeightScale * rowHeight) : rowHeight;
-                    return hei;
+                    return rowHeight;
                 })
                 .attr("width", function (d) {
                     return this.width - this.x(Number(d.year));
@@ -1421,8 +1727,7 @@ class D3Timeline {
                 .append("rect")
                 .attr("class", "pinarea")
                 .attr("height", (d) => {
-                    let hei = this.groupSame ? rowHeight + (d.heightScale * maxHeightScale * rowHeight) : rowHeight;
-                    return hei;
+                    return rowHeight;
                 })
                 .attr("width", function (d) {
                     return this.width - this.x(Number(d.year));
@@ -1456,158 +1761,10 @@ class D3Timeline {
         }
     }
 
-    appendIUCN(iucnData) {
-
-        let speciesListing = {};
-
-        let listingKeys = [];
-        let newListingData = [];
-
-        let characteristicsMap = {};
-
-        for (let listing of iucnData.sort((a, b) => parseInt(a.year) - parseInt(b.year))) {
-
-            let listingKey = `${listing.year}${listing.code}${listing.sciName}`;
-            if (speciesListing.hasOwnProperty(listing.sciName)) {
-                if (!listingKeys.includes(listingKey)) {
-                    speciesListing[listing.sciName].push(listing);
-                    newListingData.push(listing);
-                }
-            }
-            else {
-                speciesListing[listing.sciName] = [listing];
-                newListingData.push(listing);
-            }
-
-            listingKeys.push(listingKey);
-        }
-
-        /*  for (let species of Object.keys(speciesListing)) {
-             speciesListing[species] = speciesListing[species].sort((a, b) => {
-                 if (a.year === b.year) {
-                     console.log(a, b, iucnCategoriesSorted.indexOf(a.code), iucnCategoriesSorted.indexOf(b.code));
-     
-                     if (iucnCategoriesSorted.indexOf(a.code) < iucnCategoriesSorted.indexOf(b.code)) {
-                         return false;
-                     }
-                     else {
-                         return true;
-                     }
-                 }
-                 else {
-                     return true;
-                 }
-             });
-         } */
-
-        let speciesCount = Object.keys(speciesListing).length;
-
-        let speciesNamesSorted = Object.keys(speciesListing)
-            .sort((a, b) => {
-                if (Math.min(...speciesListing[b].map(e => parseInt(e.year))) > Math.min(...speciesListing[a].map(e => parseInt(e.year)))) {
-                    return 1;
-                }
-                else if (Math.min(...speciesListing[b].map(e => parseInt(e.year))) < Math.min(...speciesListing[a].map(e => parseInt(e.year)))) {
-                    return -1;
-                }
-                else {
-                    if (iucnCategoriesSorted.indexOf(speciesListing[b][0].code) < 0) {
-                        console.log("HERE", speciesListing[b][0].code, speciesListing[b][0]);
-                    }
-                    return iucnCategoriesSorted.indexOf(speciesListing[b][0].code) - iucnCategoriesSorted.indexOf(speciesListing[a][0].code);
-                }
-            });
-
-        let circleYearCountIUCN = {};
-
-        let rowHeight = this.radius + 1;
-
-        let svgCITES = this.wrapper
-            .append("svg")
-            .attr("id", this.id + "IUCN")
-            .attr("width", this.initWidth)
-            .attr("height", (speciesCount) * rowHeight)
-            .style("display", "block");
-
-        let maxCount = 0;
-
-        svgCITES.style("display", "block");
-
-        let g = svgCITES.append("g")
-            .attr("transform", "translate(" + this.margin.left + "," + 0 + ")")
-            .attr("height", (speciesCount) * rowHeight);
-
-        let rect = g
-            .append("rect")
-            .attr("width", this.width)
-            .attr("height", (speciesCount) * rowHeight)
-            .attr("stroke", "gray")
-            .style("fill", "none");
-
-
-        appendCitesRects.bind(this)(newListingData);
-
-        g
-            .append("text")
-            .attr("transform", "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")")
-            .style("text-anchor", "end")
-            .style("dominant-baseline", "central")
-            .style("font-size", "9")
-            .text("IUCN");
-
-        function appendCitesRects(lData) {
-            let elem = g.selectAll("g myCircleText").data(lData);
-
-            let elemEnter = elem
-                .enter()
-                .append("g")
-                .attr("class", "noselect")
-                .attr("transform", function (d) {
-                    let rowNum = speciesNamesSorted.indexOf(d.sciName);
-                    let count = this.yearCount(d.year, circleYearCountIUCN);
-                    maxCount = Math.max(maxCount, count);
-                    return "translate(" + (this.x(Number(d.year)) + this.x.bandwidth() / 2) + "," + (rowHeight * rowNum) + ")";
-                }.bind(this))
-                .attr("x", function (d) {
-                    return this.x(Number(d.year) + this.x.bandwidth() / 2);
-                }.bind(this))
-                .on("mouseover", this.mouseover)
-                .on("mousemove", this.mousemove)
-                .on("mouseleave", this.mouseleave);
-
-
-            //let radius = (height - y(1)) / 2;
-            elemEnter
-                .append("rect")
-                .attr("class", "pinarea")
-                .attr("height", rowHeight)
-                .attr("width", function (d) {
-                    return this.width - this.x(Number(d.year));
-                }.bind(this))
-                .style("fill", function (d) {
-                    switch (d.type) {
-                        case "iucn":
-                            return getIucnColor(d);
-                        default:
-                            break;
-                    }
-                })
-                .style("stroke", function (d) {
-                    switch (d.type) {
-                        case "iucn":
-                            return "gray";
-                        default:
-                            break;
-                    }
-                });
-        }
-    }
 
     appendThreatHeatMapNew(threatData) {
         let threatHeatMap = {};
         let speciesMap = {};
-
-        console.log(threatData);
 
         let yearCount = {};
         for (let entry of threatData) {
@@ -1618,9 +1775,6 @@ class D3Timeline {
             pushOrCreate(getOrCreate(threatHeatMap, year, {}), entry.danger, entry);
             pushOrCreate(yearCount, year, 1);
         }
-
-        console.log(speciesMap, threatHeatMap);
-
 
         let years = Object.keys(yearCount).map(e => parseInt(e));
         let maxYear = Math.max(...years);
@@ -1637,13 +1791,13 @@ class D3Timeline {
 
             for (let year = minYear; year <= maxYear; year++) {
                 if (yearData.hasOwnProperty(year.toString())) {
-                    let highestScore = Math.max(...yearData[year.toString()].map(e => iucnScore(e.code)));
-                    let highest = iucnScoreReverse(highestScore);
+                    let highestScore = Math.max(...yearData[year.toString()].map(e => threatScore(e.danger)));
+                    let highest = threatScoreReverse(highestScore);
                     //let highest = yearData[year.toString()].reduce((a, b) => iucnScore(a) > iucnScore(b.code) ? a : b.code, []);
 
 
                     pushOrCreate(getOrCreate(newThreatHeatMap, year, {}), highest, 1);
-                    lastState = yearData[year.toString()][0].code;
+                    lastState = yearData[year.toString()][0].danger;
                 }
                 else if (lastState) {
                     pushOrCreate(getOrCreate(newThreatHeatMap, year, {}), lastState, 1);
@@ -1664,6 +1818,7 @@ class D3Timeline {
 
             let tmp, maxKey, maxValue;
             let opacity;
+
 
             switch (this.heatStyle) {
                 case "dom":
@@ -1688,7 +1843,7 @@ class D3Timeline {
                     break;
                 case "avg":
 
-                    let scoreSum = Object.keys(yearData).reduce(((a, b) => a + yearData[b].length * iucnScore(b)), 0);
+                    let scoreSum = Object.keys(yearData).reduce(((a, b) => a + yearData[b].length * threatScore(b)), 0);
                     countSum = Object.values(yearData).reduce((accumulator, currentValue) => {
                         return accumulator + currentValue.length;
                     }, 0);
@@ -1702,7 +1857,7 @@ class D3Timeline {
                         }
                     }
 
-                    maxKey = iucnScoreReverse(avg);
+                    maxKey = threatScoreReverse(avg);
 
                     maxValuePrevious = avg;
 
@@ -1710,7 +1865,7 @@ class D3Timeline {
                     break;
                 case "max":
 
-                    maxKey = Object.keys(yearData).reduce((a, b) => iucnScore(a) > iucnScore(b) ? a : b);
+                    maxKey = Object.keys(yearData).reduce((a, b) => threatScore(a) > threatScore(b) ? a : b);
                     countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
                         return accumulator + yearData[currentValue].length;
                     }, 0);
@@ -1732,15 +1887,15 @@ class D3Timeline {
                     break;
             }
 
+
             if (push) {
                 tmp = {
-                    category: iucnCategories[maxKey],
-                    code: maxKey,
+                    danger: maxKey,
                     year: year,
                     sciName: this.speciesName + " (" + countSum + ")",
                     rank: "ALL",
                     text: maxKey,
-                    type: "iucn",
+                    type: "threat",
                     opacity: opacity
                 };
                 heatMapData.push(tmp);
@@ -1897,32 +2052,215 @@ class D3Timeline {
 
         let speciesListing = {};
 
+        let listingKeys = [];
         let newListingData = [];
+
+        let characteristicsMap = {};
+        let trendMap = {};
 
         for (let listing of threatData.sort((a, b) => parseInt(a.year) - parseInt(b.year))) {
             let push = true;
             let name = `${listing.genusSpecies}`.trim();
+
+            listing.text += " " + name;
 
             if (listing.scope !== "Global") {
                 push = false;
             }
 
             listing.sciName = name;
-            if (speciesListing.hasOwnProperty(name)) {
-                speciesListing[name].push(listing);
-                if (push) {
-                    newListingData.push(listing);
+
+            let listingKey = `${listing.year}${listing.danger}${listing.sciName}`;
+            let characteristic = `${listing.year}${listing.danger}`;
+
+            if (push) {
+                if (speciesListing.hasOwnProperty(name)) {
+                    if (!listingKeys.includes(listingKey)) {
+                        speciesListing[name].push(listing);
+                        newListingData.push(listing);
+                        characteristicsMap[name][listing.year] = characteristic;
+                        trendMap[name][listing.year] = listing.danger;
+                    }
                 }
-            }
-            else {
-                speciesListing[name] = [listing];
-                if (push) {
+                else {
+                    speciesListing[name] = [listing];
                     newListingData.push(listing);
+                    characteristicsMap[name] = {};
+                    characteristicsMap[name][listing.year] = characteristic;
+                    trendMap[name] = {};
+                    trendMap[name][listing.year] = listing.danger;
                 }
+
+                listingKeys.push(listingKey);
             }
         }
 
+        let newTrendMap = {};
+        let sumMap = {};
+        let characteristicsTrend = {};
+        for (let key of Object.keys(characteristicsMap)) {
+
+            let prevYear = 0;
+            newTrendMap[key] = [];
+            sumMap[key] = [];
+            characteristicsMap[key] = Object.keys(characteristicsMap[key])
+                .sort((a, b) => parseInt(b) - parseInt(a)).reverse()
+                .map((year, index) => {
+
+                    let curr = threatScore(trendMap[key][year]);
+                    if (curr < 0) {
+                        curr = 0.5;
+                    }
+                    sumMap[key].push(curr);
+                    if (index > 0) {
+                        let prev = threatScore(trendMap[key][prevYear]);
+                        if (prev < 0) {
+                            prev = 0.5;
+                        }
+
+                        let trend;
+
+                        if (curr > prev) {
+                            trend = 1;
+                        }
+                        else if (curr < prev) {
+                            trend = -1;
+                        }
+                        else {
+                            trend = 0;
+                        }
+
+                        newTrendMap[key].push(trend);
+                    }
+                    else {
+                        newTrendMap[key].push(0);
+                    }
+
+                    prevYear = year;
+
+                    characteristicsTrend[key] = newTrendMap[key];
+
+                    return characteristicsMap[key][year];
+                })
+                .join("");
+        }
+
+
+        let charCounting = Object.values(characteristicsMap).reduce(function (countMap, word) { countMap[word] = ++countMap[word] || 1; return countMap }, {});
+
+        let uniqueCharacteristics = Object.keys(charCounting);
+
+        let characteristicsToTrend = {};
+        let newSumMap = {};
+        Object.keys(characteristicsMap).forEach(species => {
+            characteristicsToTrend[characteristicsMap[species]] = characteristicsTrend[species];
+            newSumMap[characteristicsMap[species]] = sumMap[species].reduce((acc, cur) => acc + cur) / sumMap[species].length;
+        });
+
         let speciesCount = Object.keys(speciesListing).length;
+
+        let rowHeight = this.radius + 1;
+
+        let heightMap = {};
+        if (this.groupSame) {
+            let charsAlready = [];
+            let newData = [];
+            let filteredSpecies = [];
+
+            for (let entry of newListingData) {
+                let char = characteristicsMap[entry.sciName];
+
+                if (!charsAlready.includes(char) || filteredSpecies.includes(entry.sciName)) {
+                    let charCount = charCounting[characteristicsMap[entry.sciName]];
+                    let heightScale = (charCount > 1 ? charCount : 0) / speciesCount;
+
+                    entry.heightScale = heightScale;
+
+                    newData.push(entry);
+                    filteredSpecies.push(entry.sciName);
+                    charsAlready.push(char);
+
+                    if (!Object.keys(heightMap).includes(char)) {
+                        heightMap[char] = heightScale;
+                    }
+                }
+            }
+
+            newListingData = newData;
+
+            this.heightScaleSum = Object.values(heightMap).reduce((prev, curr) => prev + curr);
+        }
+
+        uniqueCharacteristics.sort((a, b) => {
+            if (this.sortGrouped === "trend") {
+                let indexA = null;
+                for (let idx = characteristicsToTrend[a].length - 1; idx > 0; idx--) {
+                    if (indexA === null && characteristicsToTrend[a][idx] !== 0) {
+                        indexA = idx;
+                        break;
+                    }
+                }
+
+                let indexB = null;
+                for (let idx = characteristicsToTrend[b].length - 1; idx > 0; idx--) {
+                    if (indexB === null && characteristicsToTrend[b][idx] !== 0) {
+                        indexB = idx;
+                        break;
+                    }
+                }
+
+                if (indexB === null && indexA === null) {
+                }
+                else {
+                    let lenA = characteristicsToTrend[a].length > 1 ? characteristicsToTrend[a].length - 1 : 1;
+                    let lenB = characteristicsToTrend[b].length > 1 ? characteristicsToTrend[b].length - 1 : 1;
+
+                    let scaleA = (indexA) / lenA;
+                    let scaleB = (indexB) / lenB;
+
+                    let valA = scaleA * characteristicsToTrend[a][indexA];
+                    let valB = scaleB * characteristicsToTrend[b][indexB];
+
+                    if (indexA === null) {
+                        valA = 0;
+                    }
+
+                    if (indexB === null) {
+                        valB = 0;
+                    }
+
+                    if (valA > valB) {
+                        return 1;
+                    }
+                    else if (valA < valB) {
+                        return -1;
+                    }
+                }
+            }
+
+            if (this.sortGrouped === "avg") {
+                let sumA = newSumMap[a];
+                let sumB = newSumMap[b];
+
+                if (sumB !== sumA) {
+                    return sumA - sumB;
+                }
+                else {
+                    return b.localeCompare(a);
+                }
+            }
+
+            let countA = charCounting[a];
+            let countB = charCounting[b];
+
+            if (countB !== countA) {
+                return countB - countA;
+            }
+            else {
+                return b.localeCompare(a);
+            }
+        });
+
 
         let speciesNamesSorted = Object.keys(speciesListing)
             .sort((a, b) => {
@@ -1934,29 +2272,119 @@ class D3Timeline {
                 }
                 else {
                     if (dangerSorted.indexOf(speciesListing[b][0].danger) < 0) {
-                        console.log("HERE", speciesListing[b][0].danger);
                     }
                     return dangerSorted.indexOf(speciesListing[b][0].danger) - dangerSorted.indexOf(speciesListing[a][0].danger);
                 }
             });
 
-        threatData = newListingData;
+        let keyData = [];
+        if (this.groupSame) {
+            let already = [];
+            let newData = [];
+            for (let entry of newListingData) {
+                if (!already.includes(entry.sciName)) {
+                    newData.push(entry);
+                    already.push(entry.sciName);
+                }
+            }
+            keyData = newData;
+        }
+        else {
+            keyData = Object.values(speciesListing).map(e => e[0]);
+        }
 
         // ############# THREATS #############
         let circleYearCountThreats = {};
-        let rowHeight = 0.5 * this.radius + 1;
+
+        let svgHeight = 0;
+        if (this.groupSame) {
+            svgHeight = uniqueCharacteristics.length * rowHeight;
+        }
+        else {
+            svgHeight = speciesCount * rowHeight;
+        }
+
+        threatData = newListingData;
+
 
         let svgThreat = this.wrapper
             .append("svg")
             .attr("id", this.id + "Threat")
             .attr("width", this.initWidth)
-            .attr("height", (speciesCount) * rowHeight);
+            .attr("height", svgHeight);
 
         let maxCount = 0;
 
         svgThreat.style("display", "block");
 
         let g = svgThreat.append("g").attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
+
+        if (this.groupSame) {
+            g.selectAll("g myCircleText").data(keyData)
+                .enter()
+                .append("rect")
+                .attr("width", (d) => {
+                    return scaleValue(charCounting[characteristicsMap[d.sciName]], [0, speciesCount], [1, 100]);
+                })
+                .attr("height", (d) => {
+                    return rowHeight;
+                })
+                .style("fill", "var(--main)")
+                .attr("transform", (d) => {
+                    let rowNum = 0;
+                    if (this.groupSame) {
+                        rowNum = uniqueCharacteristics.indexOf(characteristicsMap[d.sciName]);
+                    }
+                    else {
+                        rowNum = speciesNamesSorted.indexOf(d.sciName);
+                    }
+
+                    let yPos = rowHeight * rowNum;
+
+                    return "translate(" + (- scaleValue(charCounting[characteristicsMap[d.sciName]], [0, speciesCount], [1, 100])) + ", " + yPos + ")";
+                });
+        }
+
+        g.selectAll("g myCircleText").data(keyData)
+            .enter()
+            .append("text")
+            .style("text-anchor", "end")
+            .style("dominant-baseline", "central")
+            .style("font-size", "9")
+            .style("font-style", (d) => "italic")
+            .attr("transform", (d) => {
+                let rowNum = 0;
+                if (this.groupSame) {
+                    rowNum = uniqueCharacteristics.indexOf(characteristicsMap[d.sciName]);
+                }
+                else {
+                    rowNum = speciesNamesSorted.indexOf(d.sciName);
+                }
+
+                let yPos = rowHeight * rowNum + rowHeight / 2;
+
+                if (this.groupSame) {
+                    return "translate(" + (-3 - scaleValue(charCounting[characteristicsMap[d.sciName]], [0, speciesCount], [0, 100])) + ", " + yPos + ")";
+                }
+                else {
+                    return "translate(" + (-3) + ", " + yPos + ")";
+                }
+            })
+            .text((d) => {
+                if (this.groupSame) {
+                    let counting = charCounting[characteristicsMap[d.sciName]];
+
+                    if (counting === 1) {
+                        return d.sciName.replace(d.genus, "").trim();
+                    }
+                    else {
+                        return counting;
+                    }
+                }
+                else {
+                    return d.sciName.replace(d.genus, "").trim();
+                }
+            });
 
         let rect = g
             .append("rect")
@@ -1972,16 +2400,21 @@ class D3Timeline {
             .append("g")
             .attr("class", "noselect")
             .attr("transform", function (d) {
-                let rowNum = speciesNamesSorted.indexOf(d.genusSpecies);
-                let count = this.yearCount(d.year, circleYearCountThreats);
-                maxCount = Math.max(maxCount, count);
-                return "translate(" + (this.x(Number(d.year)) + this.x.bandwidth() / 2) + "," + (rowHeight * rowNum) + ")";
-                /* .attr("transform", function (d) {
-                    let count = this.yearCount(d.year, circleYearCountThreats);
-                    maxCount = Math.max(maxCount, count);
-                    rect.attr("height", (maxCount + 1) * rowHeight);
-                    svgThreat.attr("height", (maxCount + 1) * rowHeight);
-                    return "translate(" + (this.x(Number(d.year)) + this.x.bandwidth() / 2) + "," + rowHeight * count + ")"; */
+                let rowNum = 0;
+                if (this.groupSame) {
+                    rowNum = uniqueCharacteristics.indexOf(characteristicsMap[d.sciName]);
+                }
+                else {
+                    rowNum = speciesNamesSorted.indexOf(d.sciName);
+                }
+
+                let addY = 0;
+                for (let idx = 0; idx < rowNum; idx++) {
+                    addY += heightMap[uniqueCharacteristics[idx]];
+                }
+
+                let yPos = rowHeight * rowNum;
+                return "translate(" + (this.x(Number(d.year)) + this.x.bandwidth() / 2) + "," + yPos + ")";
             }.bind(this))
             .attr("x", function (d) {
                 return this.x(Number(d.year)) + this.x.bandwidth() / 2;
@@ -1990,12 +2423,6 @@ class D3Timeline {
             .on("mousemove", this.mousemove)
             .on("mouseleave", this.mouseleave);
 
-        g.append("text")
-            .attr("transform", "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")")
-            .style("text-anchor", "end")
-            .style("dominant-baseline", "central")
-            .style("font-size", "9")
-            .text("Threats");
 
         //let radius = (height - y(1)) / 2;
         elemEnter
@@ -2843,6 +3270,8 @@ class D3Timeline {
             case "threat":
                 htmlText =
                     d.year +
+                    " " +
+                    d.genusSpecies +
                     " : " +
                     d.consAssCategoryOrig +
                     " | " +
@@ -2953,7 +3382,7 @@ class D3Timeline {
                     }
                 }
 
-                /* if (this.data.timeThreat.length) {
+                if (this.data.timeThreat.length) {
                     if (this.zoomLevel === 0) {
                         switch (this.pieStyle) {
                             case "pie":
@@ -2974,7 +3403,7 @@ class D3Timeline {
                         //this.appendThreats(this.data.timeThreat);
                         this.appendThreatsWithSubSpecies(this.data.timeThreat);
                     }
-                } */
+                }
             }
         }
         else if (this.id.includes("scale")) {
