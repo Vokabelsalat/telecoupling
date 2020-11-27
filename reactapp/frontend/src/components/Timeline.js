@@ -30,7 +30,9 @@ class Timeline extends Component {
             sortGrouped: this.props.sortGrouped,
             heatStyle: this.props.heatStyle,
             justTrade: this.props.justTrade,
-            justGenus: this.props.justGenus
+            justGenus: this.props.justGenus,
+            setSpeciesSignThreats: this.props.setSpeciesSignThreats,
+            getSpeciesSignThreats: this.props.getSpeciesSignThreats
         });
     }
 
@@ -49,7 +51,9 @@ class Timeline extends Component {
             sortGrouped: this.props.sortGrouped,
             heatStyle: this.props.heatStyle,
             justTrade: this.props.justTrade,
-            justGenus: this.props.justGenus
+            justGenus: this.props.justGenus,
+            setSpeciesSignThreats: this.props.setSpeciesSignThreats,
+            getSpeciesSignThreats: this.props.getSpeciesSignThreats
         });
     }
 

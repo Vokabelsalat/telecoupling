@@ -20,6 +20,7 @@ class TimelineView extends Component {
             sortGrouped: "trend",
             heatStyle: "dom",
             sortedKeys: [],
+            speciesSignThreats: {}
         };
     }
 
@@ -57,9 +58,13 @@ class TimelineView extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.compareObjects(prevProps.data, this.props.data) === false) {
+        if (JSON.stringify(prevProps) !== JSON.stringify(this.props)) {
             this.create();
         }
+
+        /* if (this.compareObjects(prevProps.data, this.props.data) === false) {
+            this.create();
+        } */
     }
 
     create() {
@@ -126,6 +131,33 @@ class TimelineView extends Component {
         this.setHeatStyle(style);
     }
 
+    setSpeciesSignThreats(key, subkey, value) {
+
+        let speciesSignThreats = this.state.speciesSignThreats;
+        if (speciesSignThreats.hasOwnProperty(key)) {
+            if (speciesSignThreats[key][subkey] !== value) {
+                speciesSignThreats[key][subkey] = value;
+                this.setState({ speciesSignThreats: speciesSignThreats });
+            }
+        }
+        else {
+            let speciesSignThreats = this.state.speciesSignThreats;
+            speciesSignThreats[key] = { cites: "DD", iucn: "DD", threat: "DD" };
+            speciesSignThreats[key][subkey] = value;
+            this.setState({ speciesSignThreats: speciesSignThreats });
+        }
+    }
+
+    getSpeciesSignThreats(species) {
+        if (this.state.speciesSignThreats.hasOwnProperty(species)) {
+            let returnElement = this.state.speciesSignThreats[species];
+            return returnElement;
+        }
+        else {
+            return { cites: "DD", iucn: "DD", threat: "DD" };
+        }
+    }
+
     render() {
         let renderTimelines = false;
         if (Number.isInteger(this.state.domainYears.minYear) && Number.isInteger(this.state.domainYears.maxYear)) {
@@ -161,7 +193,7 @@ class TimelineView extends Component {
                         domainYears={this.state.domainYears}
                         zoomLevel={this.state.zoomLevel}
                     />
-                    <div> {
+                    {/*                     <div> {
                         this.state.sortedKeys.filter(key => this.state.data[key].timeTrade[0].length > 1).map(e => {
                             return (
                                 <Timeline
@@ -178,10 +210,11 @@ class TimelineView extends Component {
                                     sortGrouped={this.state.sortGrouped}
                                     heatStyle={this.state.heatStyle}
                                     justTrade={true}
+                                    getSpeciesSignThreats={this.getSpeciesSignThreats.bind(this)}
                                 />
                             )
                         })
-                    } </div>
+                    } </div> */}
                     <Timeline
                         id={"scaleBottom"}
                         key={"scaleBottomtimelineLegend"}
@@ -217,6 +250,8 @@ class TimelineView extends Component {
                                     heatStyle={this.state.heatStyle}
                                     sortGrouped={this.state.sortGrouped}
                                     justGenus={e.trim().includes(" ") ? false : true}
+                                    setSpeciesSignThreats={this.setSpeciesSignThreats.bind(this)}
+                                    getSpeciesSignThreats={this.getSpeciesSignThreats.bind(this)}
                                 />
                             )
                         })

@@ -28,7 +28,17 @@ let iucnColors = {
 };
 
 function getIucnColor(d) {
-    return iucnColors[d.text] ? iucnColors[d.text].bg : iucnColors["DD"].bg;
+    if (d.hasOwnProperty("text")) {
+        return iucnColors[d.text] ? iucnColors[d.text].bg : iucnColors["DD"].bg;
+    }
+    else {
+        if (iucnColors.hasOwnProperty(d)) {
+            return iucnColors[d].bg;
+        }
+        else {
+            return iucnColors["DD"].bg;
+        }
+    }
 };
 
 function getIucnColorForeground(d) {
@@ -68,6 +78,18 @@ module.exports.citesScoreReverse = function (value) {
         return "DD";
     }
 };
+module.exports.getCitesColor = function (appendix) {
+    switch (appendix) {
+        case "I":
+            return getIucnColor({ text: "EX" });
+        case "II":
+            return getIucnColor({ text: "CR" });
+        case "III":
+            return getIucnColor({ text: "NT" });
+        default:
+            return getIucnColor({ text: "DD" });
+    }
+}
 module.exports.iucnColors = iucnColors;
 module.exports.getIucnColor = getIucnColor;
 module.exports.getIucnColorForeground = getIucnColorForeground;
@@ -95,11 +117,11 @@ module.exports.iucnScore = function (category) {
     }
 };
 module.exports.iucnScoreReverse = function (value) {
-    if (value > 0.8) {
+    if (value > 0.6) {
         return "EX";
     }
-    else if (value > 0.6) {
-        return "CR";
+    else if (value > 0.2) {
+        return "EN";
     }
     /* else if (value > 0.4) {
         return "EN";
@@ -152,16 +174,18 @@ module.exports.threatScore = function (danger) {
     }
 };
 module.exports.threatScoreReverse = function (value) {
-    if (value === 1.0) {
+    /* if (value === 1.0) {
+    } */
+    if (value > 2 / 3) {
         return "EX";
     }
-    else if (value > 2 / 3) {
+    else if (value > 1 / 3) {
         return "TH";
     }
-    else if (value > 1 / 3) {
+    else if (value > 0.0) {
         return "PT";
     }
-    else if (value > 0.0) {
+    else if (value === 0) {
         return "nT";
     }
     else {

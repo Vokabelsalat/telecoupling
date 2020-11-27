@@ -134,9 +134,17 @@ export class TimelineDatagenerator {
     getTimelineThreatsDataFromSpecies(speciesObject) {
         if (speciesObject.hasOwnProperty("threats") && Array.isArray(speciesObject.threats)) {
             let groupedByYear = {};
+            let groupdBySpecies = {};
             for (let entry of speciesObject["threats"].values()) {
                 let year = entry.assessmentYear;
-                if (year) pushOrCreate(groupedByYear, year.toString(), entry);
+
+                if (speciesObject.allAccepted.includes(entry.genusSpecies)) {
+                    entry.genusSpecies = speciesObject.reverseSyns[entry.genusSpecies] !== undefined ? speciesObject.reverseSyns[entry.genusSpecies] : entry.genusSpecies;
+                    pushOrCreate(groupdBySpecies, entry.genusSpecies, entry);
+                    if (year) {
+                        pushOrCreate(groupedByYear, year.toString(), entry);
+                    }
+                }
             }
 
             let maxPerYear = Math.max(...Object.values(groupedByYear).map(e => e.length));
@@ -192,7 +200,32 @@ export class TimelineDatagenerator {
                     );
                 }
             }
-            return returnData.filter((e) => !e.reference.includes("IUCN") && e.scope === "Global");
+
+            for (let species of Object.keys(speciesObject.treeSpeciesNamesAndSyns)) {
+
+                if (!species.includes(" ")) {
+                    continue; //because it is a genus listing
+                }
+
+                if (!groupdBySpecies.hasOwnProperty(species)) {
+                    returnData.push({
+                        year: 2019,
+                        scope: "Global",
+                        threatened: "DD",
+                        consAssCategory: "DD",
+                        text: "DD",
+                        danger: "DD",
+                        consAssCategoryOrig: "DD",
+                        type: "threat",
+                        reference: "Kusnick",
+                        genusSpecies: species
+                    });
+
+                    pushOrCreate(groupdBySpecies, species, {});
+                }
+            }
+
+            return returnData.filter((e) => e.scope === "Global"); //!e.reference.includes("IUCN") &&
         } else {
             return [];
         }
@@ -214,8 +247,6 @@ export class TimelineDatagenerator {
             var parseTime = timeParse("%d/%m/%Y");
             let groupedByYear = {};
             let groupdBySpecies = {};
-            console.log(Object.keys(speciesObject.treeSpeciesNamesAndSyns));
-
 
             for (let entry of speciesObject["listingHistory"].values()) {
                 let dateString = entry.EffectiveAt;
@@ -286,16 +317,12 @@ export class TimelineDatagenerator {
                 }
             }
 
-            console.log(groupdBySpecies);
-
-
             let testSpec = {};
             for (let gListing of genusListings) {
 
                 for (let species of Object.keys(speciesObject.treeSpeciesNamesAndSyns)) {
 
                     if (!species.includes(" ")) {
-                        console.log(species);
                         continue; //because it is a genus listing
                     }
 
@@ -358,9 +385,6 @@ export class TimelineDatagenerator {
                 }
             }
 
-            console.log(Object.keys(testSpec));
-
-
             return returnData;
         } else {
             return [];
@@ -372,13 +396,18 @@ export class TimelineDatagenerator {
 
             //subkeys
             let groupedByYear = {};
+            let groupdBySpecies = {};
             for (let subkey of Object.keys(speciesObject["iucn"])) {
                 let tradeArray = speciesObject["iucn"][subkey];
                 for (let iucn of tradeArray) {
                     let year = iucn.year;
-                    iucn.sciName = subkey;
-                    iucn.genus = subkey.split(" ")[0];
-                    pushOrCreate(groupedByYear, year.toString(), iucn);
+
+                    if (speciesObject.allAccepted.includes(subkey)) {
+                        iucn.sciName = speciesObject.reverseSyns[subkey] !== undefined ? speciesObject.reverseSyns[subkey] : subkey;
+                        iucn.genus = subkey.split(" ")[0];
+                        pushOrCreate(groupedByYear, year.toString(), iucn);
+                        pushOrCreate(groupdBySpecies, iucn.sciName, iucn);
+                    }
                 }
             }
 
@@ -414,7 +443,6 @@ export class TimelineDatagenerator {
                         code: e.code,
                         text: e.code,
                         category: e.category,
-                        /* count: count++, */
                         type: "iucn",
                         sciName: e.sciName
                     };
@@ -422,6 +450,49 @@ export class TimelineDatagenerator {
 
                 returnData.push(...data);
             }
+
+            for (let species of Object.keys(speciesObject.treeSpeciesNamesAndSyns)) {
+                if (!species.includes(" ")) {
+                    continue; //because it is a genus
+                }
+
+                if (!groupdBySpecies.hasOwnProperty(species)) {
+
+                    returnData.push({
+                        year: 2019,
+                        code: "DD",
+                        text: "Data Deficient",
+                        category: "DD",
+                        type: "iucn",
+                        sciName: species
+                    });
+                }
+            }
+
+            /* for (let year of Object.keys(groupedByYear)) {
+                let data = groupedByYear[year.toString()].map(e => {
+                    for (let cat of Object.keys(iucnColors)) {
+                        if (e.code.toLowerCase().includes(cat.toLowerCase())) {
+                            e.code = cat;
+                        }
+                    }
+ 
+                    if (e.code === "NT" && e.category.toLowerCase().includes("not")) {
+                        e.code = "nT";
+                    }
+ 
+                    return {
+                        year: year,
+                        code: e.code,
+                        text: e.code,
+                        category: e.category,
+                        type: "iucn",
+                        sciName: e.sciName
+                    };
+                });
+ 
+                returnData.push(...data);
+            } */
 
             /* for (let year = yearMin; year <= yearMax; year++) {
                 if (groupedByYear.hasOwnProperty(year.toString())) {
@@ -432,11 +503,11 @@ export class TimelineDatagenerator {
                                 e.code = cat;
                             }
                         }
-
+ 
                         if (e.code === "NT" && e.category.toLowerCase().includes("not")) {
                             e.code = "nT";
                         }
-
+ 
                         return {
                             year: year,
                             code: e.code,
@@ -447,7 +518,7 @@ export class TimelineDatagenerator {
                             sciName: e.sciName
                         };
                     });
-
+ 
                     for (let entry of addData
                         .sort((a, b) => {
                             return getPositionOfIUCN(a) - getPositionOfIUCN(b);

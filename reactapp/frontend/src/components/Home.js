@@ -124,7 +124,7 @@ class Home extends Component {
     }
 
     fetchSpeciesData(species) {
-        let fetchSpeciesOccurrencesBound = this.fetchSpeciesOccurrences.bind(this);
+        /* let fetchSpeciesOccurrencesBound = this.fetchSpeciesOccurrences.bind(this); */
         fetch("http://localhost:3000/data/" + species.trim().replaceSpecialCharacters() + ".json")
             .then(res => res.json())
             .then(function (data) {
@@ -134,7 +134,7 @@ class Home extends Component {
 
                     newSpeciesData[species] = data;
 
-                    setTimeout(fetchSpeciesOccurrencesBound(species, data.species));
+                    /* setTimeout(fetchSpeciesOccurrencesBound(species, data.species)); */
 
                     this.setStateAsync({
                         ...this.state,
@@ -212,7 +212,7 @@ class Home extends Component {
     }
 
     render() {
-        console.log("SPECIES DATA", this.state.speciesData);
+        /* console.log("SPECIES DATA", this.state.speciesData); */
         return (
             <div>
                 <Orchestra id="orchestraVis"
