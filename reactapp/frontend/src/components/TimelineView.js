@@ -62,9 +62,9 @@ class TimelineView extends Component {
             this.create();
         }
 
-        /* if (this.compareObjects(prevProps.data, this.props.data) === false) {
-            this.create();
-        } */
+        /*         if (this.compareObjects(prevProps.data, this.props.data) === false) {
+                    this.create();
+                } */
     }
 
     create() {

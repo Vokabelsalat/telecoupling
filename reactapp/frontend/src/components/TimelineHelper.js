@@ -144,8 +144,11 @@ class D3Timeline {
 
         let speciesNameDiv = content
             .append("div")
-            .attr("width", "150")
-            .attr("class", "speciesNameDiv");
+            .attr("class", "speciesNameDiv")
+            .style("width", this.margin.left + "px")
+            /* .style("border-top", "1px solid var(--black)") */
+            .style("vertical-align", "middle")
+        /* .style("display", "table-cell"); */
 
         this.wrapper = content
             .append("div")
@@ -169,7 +172,7 @@ class D3Timeline {
         if (this.id.toLowerCase().includes("scale")) {
             if (this.speciesName === "scaleTop") {
                 speciesNameDiv.style("border-top", "none");
-                this.wrapper.style("border-top", "none");
+                this.wrapper.style("border-bottom", "1px solid black").style("border-top", "none");
             }
         }
         else {
@@ -612,7 +615,7 @@ class D3Timeline {
         let genusListing = null;
         for (let listing of listingData.sort((a, b) => parseInt(a.year) - parseInt(b.year))) {
             let push = true;
-            let name = `${listing.genus} ${listing.species}`.trim();
+            let name = listing.sciName;
 
             if (listing.rank === "GENUS") {
                 genusListing = name;
@@ -626,7 +629,7 @@ class D3Timeline {
 
             let listingKey = `${listing.year}${listing.appendix}${listing.genus}${listing.species}${listing.countries}${listing.rank}`;
             let characteristic = `${listing.year}${listing.appendix}${listing.countries}`;
-            listing.sciName = name;
+
             if (speciesListing.hasOwnProperty(name)) {
                 if (!listingKeys.includes(listingKey)) {
                     speciesListing[name].push(listing);
@@ -854,11 +857,14 @@ class D3Timeline {
 
         let trendObject = {};
 
-        let trendData = [
-            { rowNum: firstDownTrend + justDown.length, type: "", length: uniqueCharacteristics.length - justDown.length - justUp.length }
-        ];
+        let trendData = [];
 
-        trendObject[firstDownTrend + justDown.length] = { type: "", length: uniqueCharacteristics.length - justDown.length - justUp.length };
+        if (uniqueCharacteristics.length - justDown.length - justUp.length > 0) {
+            trendData.push(
+                { rowNum: firstDownTrend + justDown.length, type: "", length: uniqueCharacteristics.length - justDown.length - justUp.length }
+            );
+            trendObject[firstDownTrend + justDown.length] = { type: "", length: uniqueCharacteristics.length - justDown.length - justUp.length };
+        }
 
         if (justDown.length > 0) {
             trendData.push({ rowNum: firstDownTrend, type: "down", length: justDown.length });
@@ -1675,11 +1681,12 @@ class D3Timeline {
 
         let trendObject = {};
 
-        let trendData = [
-            { rowNum: firstDownTrend + justDown.length, type: "", length: uniqueCharacteristics.length - justDown.length - justUp.length }
-        ];
+        let trendData = [];
 
-        trendObject[firstDownTrend + justDown.length] = { type: "", length: uniqueCharacteristics.length - justDown.length - justUp.length };
+        if (uniqueCharacteristics.length - justDown.length - justUp.length > 0) {
+            trendData.push({ rowNum: firstDownTrend + justDown.length, type: "", length: uniqueCharacteristics.length - justDown.length - justUp.length });
+            trendObject[firstDownTrend + justDown.length] = { type: "", length: uniqueCharacteristics.length - justDown.length - justUp.length };
+        }
 
         if (justDown.length > 0) {
             trendData.push({ rowNum: firstDownTrend, type: "down", length: justDown.length });
@@ -2475,11 +2482,12 @@ class D3Timeline {
 
         let trendObject = {};
 
-        let trendData = [
-            { rowNum: firstDownTrend + justDown.length, type: "", length: uniqueCharacteristics.length - justDown.length - justUp.length }
-        ];
+        let trendData = [];
 
-        trendObject[firstDownTrend + justDown.length] = { type: "", length: uniqueCharacteristics.length - justDown.length - justUp.length };
+        if (uniqueCharacteristics.length - justDown.length - justUp.length > 0) {
+            trendData.push({ rowNum: firstDownTrend + justDown.length, type: "", length: uniqueCharacteristics.length - justDown.length - justUp.length });
+            trendObject[firstDownTrend + justDown.length] = { type: "", length: uniqueCharacteristics.length - justDown.length - justUp.length };
+        }
 
         if (justDown.length > 0) {
             trendData.push({ rowNum: firstDownTrend, type: "down", length: justDown.length });
@@ -3236,7 +3244,15 @@ class D3Timeline {
                     this.fontSize = 9;
                 }
 
-                this.rowHeight = this.radius + 1;
+                /* console.log(this.speciesName, this.data); */
+
+
+                if (this.zoomLevel > 0) {
+                    this.rowHeight = 2 * this.radius + 1;
+                }
+                else {
+                    this.rowHeight = this.radius + 1;
+                }
 
                 if (this.data.timeListing.length) {
                     if (this.zoomLevel > 0) {

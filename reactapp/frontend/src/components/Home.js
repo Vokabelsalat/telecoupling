@@ -67,8 +67,8 @@ class Home extends Component {
 
     fetchAndSetSpecies() {
         if (this.state.mainPart !== "") {
-            //fetch("http://localhost:9000/api/getMaterial/" + this.state.instrument + "/" + this.state.mainPart)
-            fetch("http://localhost:9000/api/getTestMaterial")
+            fetch("http://localhost:9000/api/getMaterial/" + this.state.instrument + "/" + this.state.mainPart)
+                //fetch("http://localhost:9000/api/getTestMaterial")
                 .then(res => res.json())
                 .then(data => {
                     this.setSpecies(

@@ -349,7 +349,8 @@ button {
 .speciesNameDiv {
   text-align: start;
   font-size: small;
-  /* margin-top: 15px; */
+  display: table-row;
+  margin-top: 15px;
 }
 
 .tooltip {
