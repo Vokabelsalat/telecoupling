@@ -180,6 +180,7 @@
     }
 
     function getGBIFChildrenInBulk(genusKey, offset, callback) {
+        /* console.log("Trying to fetch all the children of", genusKey, "/queryGBIFchildren/" + genusKey + "/" + offset); */
         $.post("/queryGBIFchildren/" + genusKey + "/" + offset, function (res) {
             callback(res.data);
             if (res.endOfRecords !== true) {
@@ -320,6 +321,7 @@
 
                     $.post("/queryGBIFspeciesByGenus/" + justGenus,
                         function (genusKey) {
+
                             let boundCallback = function (res) {
                                 let boundAppend = appendSpecies.bind({ "tableRow": $tableRow, material: scientificName });
                                 boundAppend(res);
@@ -332,16 +334,23 @@
                                                 boundFunc(syns);
                                             }
                                         );
-                                    }, 5000);
+                                    }, 2500 * index);
                                 });
-
                                 let boundFunc = appendIUCN.bind(
                                     { "tableRow": $tableRow, material: scientificName, scientificName: scientificName }
                                 );
 
                                 getIUCNInBulk(res.map(e => e["species"]), 0, boundFunc);
                             };
-                            getGBIFChildrenInBulk(genusKey, 0, boundCallback);
+
+                            if (genusKey === "trySpeciesNames") {
+                                $.post("/queryGBIFGenusKeyBySpeciesName/" + justGenus, function (newGenusKey) {
+                                    getGBIFChildrenInBulk(newGenusKey, 0, boundCallback);
+                                });
+                            }
+                            else {
+                                getGBIFChildrenInBulk(genusKey, 0, boundCallback);
+                            }
                         });
 
                     $.post("/getSpeciesJustGenus/" + justGenus, $.proxy(appendListings, { "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: scientificName }));
@@ -416,6 +425,7 @@
                             $.post("/queryGBIFsynonyms/" + speciesKey,
                                 function (syns) {
                                     if (Array.isArray(syns)) {
+                                        /* console.log("syns", syns); */
                                         syns = syns.filter(e => (e["canonicalName"] !== undefined && (e.taxonomicStatus === "SYNONYM" || e.taxonomicStatus === "HOMOTYPIC_SYNONYM")));
                                     }
                                     else {
@@ -432,9 +442,11 @@
 
                                     for (let newSyn of syns) {
                                         if (!allNames.includes(newSyn.canonicalName)) {
-                                            allNames.push(newSyn.canonicalName);
+                                            allNames.push(newSyn.scientificName);
                                         }
                                     }
+
+                                    /* console.log("allNames", allNames); */
 
                                     //######### Trade #########
                                     let appendTradeBound = appendTrade.bind({ "tableRow": $tableRow, "treeName": scientificName, material: scientificName, scientificName: data["species"] });

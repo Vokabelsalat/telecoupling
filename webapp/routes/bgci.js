@@ -15,9 +15,14 @@ module.exports = {
         json: true,
       },
       function (err, res, data) {
-        if (data.results.length > 0) {
-          outerRes.end(JSON.stringify(data.results[0]));
-        } else {
+        if (data.hasOwnProperty("results")) {
+          if (data.results.length > 0) {
+            outerRes.end(JSON.stringify(data.results[0]));
+          } else {
+            outerRes.end();
+          }
+        }
+        else {
           outerRes.end();
         }
       }
@@ -30,8 +35,8 @@ module.exports = {
 
     if (name.includes(" ")) {
       let split = name.split(" ");
-      let genus = split[0];
-      let species = split[1];
+      let genus = split[0].trim();
+      let species = name.replace(genus, "").trim();
 
       request(
         {
@@ -40,9 +45,14 @@ module.exports = {
           json: true,
         },
         function (err, res, data) {
-          if (data && data.results.length > 0) {
-            outerRes.json(data.results);
-          } else {
+          if (data && data.hasOwnProperty("results")) {
+            if (data.results.length > 0) {
+              outerRes.json(data.results);
+            } else {
+              outerRes.end();
+            }
+          }
+          else {
             outerRes.end();
           }
         }
@@ -55,7 +65,7 @@ module.exports = {
     let outerRes = res;
     let bgciUrl = req.body.bgciUrl;
 
-    console.log("BGCI Url", bgciUrl);
+    //console.log("BGCI Url", bgciUrl);
 
     https
       .get(bgciUrl.replace("http", "https"), (resp) => {
@@ -72,7 +82,7 @@ module.exports = {
           const root = parse(data);
           let isCountry = false;
 
-          if(root.querySelector("#search_generic_border")) {
+          if (root.querySelector("#search_generic_border")) {
             for (let child of root.querySelector("#search_generic_border").childNodes) {
               if (isCountry === false) {
                 if (child.tagName === "strong") {
@@ -92,8 +102,8 @@ module.exports = {
               }
             }
           }
-        
-          if(root.querySelector("#content")) {
+
+          if (root.querySelector("#content")) {
             for (let child of root.querySelector("#content").childNodes) {
               for (let subchild of child.childNodes) {
                 if (subchild.tagName === "div") {
@@ -139,7 +149,7 @@ module.exports = {
     if (name.includes(" ")) {
       let split = name.split(" ");
       let genus = split[0];
-      let species = split[1];
+      let species = name.replace(genus, "").trim();
 
       request(
         {
@@ -149,7 +159,12 @@ module.exports = {
         },
         function (err, res, data) {
           if (data) {
-            outerRes.json(data.results);
+            if (data.hasOwnProperty("results")) {
+              outerRes.json(data.results);
+            }
+            else {
+              outerRes.end();
+            }
           } else {
             outerRes.end();
           }

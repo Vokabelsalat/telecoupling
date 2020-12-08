@@ -39,6 +39,7 @@ const {
   queryGBIFspeciesByGenus,
   queryGBIFchildren,
   queryGBIFsynonyms,
+  queryGBIFGenusKeyBySpeciesName,
 } = require("./routes/gbif");
 const {
   queryTreeSearchSpecies,
@@ -113,6 +114,7 @@ app.post("/queryGBIFspeciesByGenus/:genus", queryGBIFspeciesByGenus);
 app.post("/queryGBIFchildren/:genusKey/:offset", queryGBIFchildren);
 app.post("/queryGBIFsynonyms/:taxonKey", queryGBIFsynonyms);
 app.post("/queryGBIFspecies/:word", queryGBIFspecies);
+app.post("/queryGBIFGenusKeyBySpeciesName/:genus", queryGBIFGenusKeyBySpeciesName);
 app.post("/queryTreeSearchSpecies/:genus/:species", queryTreeSearchSpecies);
 app.post("/queryTreeSearchSpeciesWithSciName/:name", queryTreeSearchSpeciesWithSciName);
 app.post("/queryThreatSearchWithSciName/:name", queryThreatSearchWithSciName);

@@ -45,10 +45,11 @@ module.exports = {
         });
     },
     getAllSpecies: (req, res) => {
-        knex.distinct('Genus', 'Species').from("materials").where({ "Genus": "Dalbergia", "Species": "" }).limit(10).offset(0).then(rows => {
-            //knex.distinct('Genus', 'Species').from("materials").where({ "Genus": "Eucalyptus", "Species": "" }).limit(10).offset(0).then(rows => {
-            //knex.distinct('Genus', 'Species').from("materials").where({ "Genus": "Paubrasilia", "Species": "Echinata" }).limit(10).offset(0).then(rows => {
-            //knex.distinct('Genus', 'Species').from("materials").limit(10).offset(0).then(rows => {
+        //knex.distinct('Genus', 'Species').from("materials4").where({ "Genus": "Salix" }).limit(10).offset(0).then(rows => {
+        knex.distinct('Genus', 'Species').from("materials4").limit(10).offset(0).then(rows => {
+            //knex.distinct('Genus', 'Species').from("materials4").where({ "Genus": "Eucalyptus", "Species": "" }).limit(10).offset(0).then(rows => {
+            //knex.distinct('Genus', 'Species').from("materials4").where({ "Genus": "Paubrasilia", "Species": "Echinata" }).limit(10).offset(0).then(rows => {
+            //knex.distinct('Genus', 'Species').from("materials4").limit(10).offset(0).then(rows => {
             res.json(rows);
         });
     },
