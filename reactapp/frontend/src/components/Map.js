@@ -18,29 +18,40 @@ class Map extends Component {
         this.treeCoordinateQueue = [];
         this.MapHelper = new MapHelper("mapid");
 
-        for (let species of Object.keys(this.props.data).values()) {
+        this.addTreesFromMapSpecies();
+    }
 
-            if (this.props.data[species].hasOwnProperty("trees")) {
-                let countries = [];
+    addTreesFromMapSpecies() {
+        let trees = this.MapHelper.getTrees();
 
-                function processEntry(e) {
-                    countries.push(e.country);
+        if (this.props.data && this.props.mapSpecies) {
+            for (let species of Object.keys(this.props.mapSpecies)) {
+
+                if (this.props.data.hasOwnProperty(species)) {
+
+                    if (this.props.data[species].hasOwnProperty("treeCountries")) {
+                        let countries = Object.keys(this.props.data[species]["treeCountries"]);
+
+                        if (countries.length > 0) {
+                            this.MapHelper.addTreeCountries(species, countries);
+                        }
+                    }
+
+                    let mapHelper = this.MapHelper;
+
+                    if (this.props.coordinates !== undefined &&
+                        this.props.coordinates.hasOwnProperty(species) &&
+                        this.props.coordinates[species].length > 0) {
+                        mapHelper.addTreeCoordinates(species, this.props.coordinates[species]);
+                    }
                 }
-
-                this.props.data[species]["trees"].forEach(function (element, index) {
-                    element.TSGeolinks.map(processEntry);
-                });
-
-                this.MapHelper.addTreeCountries(species, countries);
             }
+        }
+    }
 
-            let mapHelper = this.MapHelper;
-
-            if (this.props.coordinates !== undefined &&
-                this.props.coordinates.hasOwnProperty(species) &&
-                this.props.coordinates[species].length > 0) {
-                mapHelper.addTreeCoordinates(species, this.props.coordinates[species]);
-            }
+    removeTreesByMapSpecies(diff) {
+        for (let species of diff) {
+            this.MapHelper.removeTreeCountries(species);
         }
     }
 
@@ -48,16 +59,22 @@ class Map extends Component {
         this.init();
     }
 
-    componentDidUpdate() {
-        this.init();
+    componentDidUpdate(prevProps) {
+        if (JSON.stringify(prevProps.mapSpecies) !== JSON.stringify(this.props.mapSpecies)) {
+            this.addTreesFromMapSpecies();
+            let newSpecies = Object.keys(this.props.mapSpecies);
+            let diff = Object.keys(prevProps.mapSpecies).filter(x => !newSpecies.includes(x));
+
+            this.removeTreesByMapSpecies(diff);
+        }
     }
 
     render() {
         return (
             <div>
                 <div id="mapid" style={{
-                    height: "80vh",
-                    width: "80vw"
+                    height: "50vh",
+                    width: "50vw"
                 }}></div>
             </div>
         );

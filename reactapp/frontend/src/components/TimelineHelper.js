@@ -20,6 +20,9 @@ class D3Timeline {
         this.groupSame = param.groupSame;
         this.sortGrouped = param.sortGrouped;
 
+        this.addTreeSpeciesToMap = param.addTreeSpeciesToMap;
+        this.removeTreeSpeciesFromMap = param.removeTreeSpeciesFromMap;
+
         this.heatStyle = param.heatStyle;
 
         this.initWidth = 900;
@@ -36,6 +39,8 @@ class D3Timeline {
 
         this.setSpeciesSignThreats = param.setSpeciesSignThreats;
         this.getSpeciesSignThreats = param.getSpeciesSignThreats;
+
+        this.muted = param.muted;
 
         this.margin = {
             top: 10,
@@ -142,6 +147,17 @@ class D3Timeline {
 
         let content = d3.select("#" + this.id);
 
+        if (this.muted) {
+            content
+                .style("opacity", 0.5);
+            /* .append("div")
+            .attr("class", "muteRectDiv")
+            .style("width", (this.initWidth) + "px"); */
+        }
+        else {
+            content.style("opacity", 1.0);
+        }
+
         let speciesNameDiv = content
             .append("div")
             .attr("class", "speciesNameDiv")
@@ -154,20 +170,9 @@ class D3Timeline {
             .append("div")
             .attr("id", this.id + "wrapper");
 
-        switch (this.zoomLevel) {
-            //case 0:
-            default:
-                this.wrapper
-                    .style("display", "table-cell")
-                    .style("border-top", "1px solid var(--black)")
-
-                break;
-            /*  default:
-                 this.wrapper.style("display", "block");
-                 speciesNameDiv
-                     .style("display", "block");
-                 break; */
-        }
+        this.wrapper
+            .style("display", "table-cell")
+            .style("border-top", "1px solid var(--black)")
 
         if (this.id.toLowerCase().includes("scale")) {
             if (this.speciesName === "scaleTop") {
@@ -238,9 +243,11 @@ class D3Timeline {
                 /* .style("font-weight", this.justGenus ? "bold" : "") */
                 .on("click", () => {
                     if (this.zoomLevel === 0) {
+                        this.addTreeSpeciesToMap(this.speciesName);
                         this.setZoomLevel(2);
                     }
                     else {
+                        this.removeTreeSpeciesFromMap(this.speciesName);
                         this.setZoomLevel(0);
                     }
                 })

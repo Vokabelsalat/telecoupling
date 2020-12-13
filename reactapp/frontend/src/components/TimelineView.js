@@ -20,7 +20,9 @@ class TimelineView extends Component {
             sortGrouped: "trend",
             heatStyle: "dom",
             sortedKeys: [],
-            speciesSignThreats: {}
+            speciesSignThreats: {},
+            oldTimelineData: {},
+            unmutedSpecies: {}
         };
     }
 
@@ -58,18 +60,28 @@ class TimelineView extends Component {
     }
 
     componentDidUpdate(prevProps) {
+
         if (JSON.stringify(prevProps) !== JSON.stringify(this.props)) {
+            //console.log("update timeline");
             this.create();
         }
 
-        /*         if (this.compareObjects(prevProps.data, this.props.data) === false) {
-                    this.create();
-                } */
+        /*  let create = false;
+         for (let species of Object.keys(this.props.data)) {
+             if (!prevProps.data.hasOwnProperty(species)) {
+                 this.create();
+                 break;
+             }
+             else {
+                 console.log(species, this.props.data.threats !== undefined ? this.props.data.threats.length : 0);
+             }
+         } */
+
     }
 
     create() {
-        let generator = new TimelineDatagenerator();
-        generator.processData(this.props.data, this.props.threatData, this.props.tradeData);
+        let generator = new TimelineDatagenerator(this.state.oldTimelineData);
+        generator.processData(this.props.data, this.props.tradeData);
 
         let tmpdata = generator.getData();
         let reducer = (accumulator, currentValue) => { return accumulator + currentValue.length; };
@@ -84,6 +96,7 @@ class TimelineView extends Component {
             "data": tmpdata,
             "domainYears": generator.getDomainYears(),
             "sourceColorMap": generator.getSourceColorMap(),
+            "oldTimelineData": tmpdata
         });
     }
 
@@ -97,6 +110,10 @@ class TimelineView extends Component {
         zoomLevel = Math.max(zoomLevel, 0);
 
         this.setZoomLevel(zoomLevel);
+    }
+
+    setMuted(setValue) {
+        this.setState({ muted: setValue });
     }
 
     setPieStyle(setValue) {
@@ -131,6 +148,24 @@ class TimelineView extends Component {
         this.setHeatStyle(style);
     }
 
+    addUnmutedSpecies(species) {
+        console.log("add unmuted species", species);
+        let newUnmutedSpecies = { ...this.state.unmutedSpecies };
+        newUnmutedSpecies[species] = 1;
+        this.setState({ unmutedSpecies: newUnmutedSpecies });
+    }
+
+    removeUnmutedSpecies(species) {
+        let newUnmutedSpecies = { ...this.state.unmutedSpecies };
+        delete newUnmutedSpecies[species];
+        this.setState({ unmutedSpecies: newUnmutedSpecies });
+    }
+
+    removeAllUnmutedSpecies() {
+        console.log("remove all!");
+        this.setState({ unmutedSpecies: {} });
+    }
+
     setSpeciesSignThreats(key, subkey, value) {
 
         let speciesSignThreats = this.state.speciesSignThreats;
@@ -159,6 +194,7 @@ class TimelineView extends Component {
     }
 
     render() {
+        console.log(this.state.unmutedSpecies);
         let renderTimelines = false;
         if (Number.isInteger(this.state.domainYears.minYear) && Number.isInteger(this.state.domainYears.maxYear)) {
             if (this.state.domainYears.maxYear - this.state.domainYears.minYear > 0) {
@@ -169,7 +205,7 @@ class TimelineView extends Component {
         if (renderTimelines) {
             return (
                 <div>
-                    <Legend
+                    {<Legend
                         onZoom={() => this.onZoom(1)}
                         onZoomOut={() => this.onZoom(-1)}
                         zoomLevel={this.state.zoomLevel}
@@ -183,7 +219,7 @@ class TimelineView extends Component {
                         heatStyle={this.state.heatStyle}
                         onHeatStyle={this.onHeatStyle.bind(this)}
                     />
-                    <br />
+                    /* <br />
                     <Timeline
                         id={"scaleTop"}
                         key={"scaleToptimelineLegend"}
@@ -192,7 +228,7 @@ class TimelineView extends Component {
                         sourceColorMap={this.state.sourceColorMap}
                         domainYears={this.state.domainYears}
                         zoomLevel={this.state.zoomLevel}
-                    />
+                    /> */}
                     {/*                     <div> {
                         this.state.sortedKeys.filter(key => this.state.data[key].timeTrade[0].length > 1).map(e => {
                             return (
@@ -215,7 +251,7 @@ class TimelineView extends Component {
                             )
                         })
                     } </div> */}
-                    <Timeline
+                    {/*  <Timeline
                         id={"scaleBottom"}
                         key={"scaleBottomtimelineLegend"}
                         data={null}
@@ -223,7 +259,7 @@ class TimelineView extends Component {
                         sourceColorMap={this.state.sourceColorMap}
                         domainYears={this.state.domainYears}
                         zoomLevel={this.state.zoomLevel}
-                    />
+                    /> */}
                     <Timeline
                         id={"scaleTop2"}
                         key={"scaleToptimeline"}
@@ -238,12 +274,13 @@ class TimelineView extends Component {
                             return (
                                 <Timeline
                                     id={e.replaceSpecialCharacters() + "TimelineVis"}
-                                    key={e + "timeline"}
+                                    key={e.replaceSpecialCharacters() + "timeline"}
                                     data={this.state.data[e]}
                                     speciesName={e}
                                     sourceColorMap={this.state.sourceColorMap}
                                     domainYears={this.state.domainYears}
                                     zoomLevel={this.state.zoomLevel}
+                                    setZoomLevel={this.setZoomLevel.bind(this)}
                                     maxPerYear={this.state.maxPerYear}
                                     pieStyle={this.state.pieStyle}
                                     groupSame={this.state.groupSame}
@@ -252,6 +289,13 @@ class TimelineView extends Component {
                                     justGenus={e.trim().includes(" ") ? false : true}
                                     setSpeciesSignThreats={this.setSpeciesSignThreats.bind(this)}
                                     getSpeciesSignThreats={this.getSpeciesSignThreats.bind(this)}
+                                    addTreeSpeciesToMap={this.props.addTreeSpeciesToMap}
+                                    removeTreeSpeciesFromMap={this.props.removeTreeSpeciesFromMap}
+                                    muted={Object.keys(this.state.unmutedSpecies).includes(e) ? false :
+                                        Object.keys(this.state.unmutedSpecies).length > 0 ? true : false}
+                                    removeAllUnmutedSpecies={this.removeAllUnmutedSpecies.bind(this)}
+                                    addUnmutedSpecies={this.addUnmutedSpecies.bind(this)}
+                                    removeUnmutedSpecies={this.removeUnmutedSpecies.bind(this)}
                                 />
                             )
                         })

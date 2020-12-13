@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Orchestra from './Orchestra';
 import DataTable from './DataTable';
 import TimelineView from "./TimelineView";
+import { getOrCreate } from "../utils/utils";
 import Map from "./Map";
 
 class Home extends Component {
@@ -15,6 +16,7 @@ class Home extends Component {
             instrument: props.instrument,
             mainPart: props.mainPart,
             mainPartList: [],
+            mapSpecies: {}
             /*          speciesTrades: {},
                      speciesThreats: {}, */
         };
@@ -50,7 +52,7 @@ class Home extends Component {
         fetch("http://localhost:9000/api/getMainParts/" + instrument)
             .then(res => res.json())
             .then(function (data) {
-                setMainPartList(data.map(e => e.Main_part));
+                setMainPartList(data.map(e => e["Main part"]));
             });
     }
 
@@ -65,10 +67,26 @@ class Home extends Component {
         });
     }
 
+    addTreeSpeciesToMap(species) {
+        let newMapSpecies = { ...this.state.mapSpecies };
+        newMapSpecies[species] = 1;
+
+        this.setState({ mapSpecies: newMapSpecies });
+    }
+
+    removeTreeSpeciesFromMap(species) {
+        let newMapSpecies = { ...this.state.mapSpecies };
+        delete newMapSpecies[species];
+
+        console.log("Delete", species, "from Map", newMapSpecies);
+
+        this.setState({ mapSpecies: newMapSpecies });
+    }
+
     fetchAndSetSpecies() {
         if (this.state.mainPart !== "") {
-            fetch("http://localhost:9000/api/getMaterial/" + this.state.instrument + "/" + this.state.mainPart)
-                //fetch("http://localhost:9000/api/getTestMaterial")
+            //fetch("http://localhost:9000/api/getMaterial/" + this.state.instrument + "/" + this.state.mainPart)
+            fetch("http://localhost:9000/api/getTestMaterial")
                 .then(res => res.json())
                 .then(data => {
                     this.setSpecies(
@@ -92,8 +110,7 @@ class Home extends Component {
                 let newSpeciesData = { ...this.state.speciesTrades };
 
                 newSpeciesData[species] = data;
-                this.setStateAsync({
-                    ...this.state,
+                this.setState({
                     speciesTrades: newSpeciesData
                 });
             }.bind(this))
@@ -109,12 +126,14 @@ class Home extends Component {
             })
             .then(function (data) {
                 if (data) {
-                    let newSpeciesData = { ...this.state.speciesThreats };
+                    let newSpeciesData = { ...this.state.speciesData };
 
-                    newSpeciesData[species] = data;
-                    this.setStateAsync({
-                        ...this.state,
-                        speciesThreats: newSpeciesData
+                    let newData = getOrCreate(newSpeciesData, species, {});
+
+                    newSpeciesData[species] = { ...newData, threats: data };
+
+                    this.setState({
+                        speciesData: newSpeciesData
                     });
                 }
             }.bind(this))
@@ -132,12 +151,11 @@ class Home extends Component {
 
                     let newSpeciesData = { ...this.state.speciesData };
 
-                    newSpeciesData[species] = data;
+                    let newData = getOrCreate(newSpeciesData, species, {});
 
-                    /* setTimeout(fetchSpeciesOccurrencesBound(species, data.species)); */
+                    newSpeciesData[species] = { ...newData, ...data };
 
-                    this.setStateAsync({
-                        ...this.state,
+                    this.setState({
                         speciesData: newSpeciesData
                     });
                 }
@@ -156,7 +174,7 @@ class Home extends Component {
             let newSpeciesData = { ...this.state.speciesOccurrences };
 
             newSpeciesData[species] = coordinates;
-            this.setStateAsync({
+            this.setState({
                 speciesOccurrences: newSpeciesData
             });
         }.bind(this);
@@ -202,17 +220,17 @@ class Home extends Component {
     setSpecies(species) {
         species = [...new Set(species)];
 
-        this.setStateAsync({ speciesData: {}, species: species });
+        this.setState({ speciesData: {}, species: species });
 
         for (let spec of species) {
             this.fetchSpeciesData(spec);
-            this.fetchSpeciesTrades(spec);
+            //this.fetchSpeciesTrades(spec);
             this.fetchSpeciesThreats(spec);
         }
     }
 
     render() {
-        /* console.log("SPECIES DATA", this.state.speciesData); */
+        //console.log("SPECIES DATA", this.state.speciesData);
         return (
             <div>
                 <Orchestra id="orchestraVis"
@@ -239,8 +257,9 @@ class Home extends Component {
                 {Object.keys(this.state.speciesData).length > 0 && <div>
                     <TimelineView
                         data={this.state.speciesData}
-                        threatData={this.state.speciesThreats}
                         tradeData={this.state.speciesTrades}
+                        addTreeSpeciesToMap={this.addTreeSpeciesToMap.bind(this)}
+                        removeTreeSpeciesFromMap={this.removeTreeSpeciesFromMap.bind(this)}
                     />
                     <div
                         key="tooltip"
@@ -249,10 +268,11 @@ class Home extends Component {
                     </div>
                 </div>
                 }
-                {/* <Map
+                {<Map
                     data={this.state.speciesData}
-                    coordinates={this.state.speciesOccurrences}
-                ></Map> */}
+                    mapSpecies={this.state.mapSpecies}
+                /* coordinates={this.state.speciesOccurrences} */
+                ></Map>}
             </div >
         );
     }

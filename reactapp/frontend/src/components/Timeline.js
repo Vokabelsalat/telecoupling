@@ -12,7 +12,15 @@ class Timeline extends Component {
     }
 
     setZoomLevel(setValue) {
-        this.setState({ zoomLevel: setValue });
+        if (setValue > 0) {
+            console.log("zoom");
+            this.props.addUnmutedSpecies(this.props.speciesName);
+            this.setState({ zoomLevel: setValue });
+        }
+        else {
+            this.props.removeUnmutedSpecies(this.props.speciesName)
+            this.setState({ zoomLevel: setValue, muted: true });
+        }
     }
 
     componentDidMount() {
@@ -32,7 +40,10 @@ class Timeline extends Component {
             justTrade: this.props.justTrade,
             justGenus: this.props.justGenus,
             setSpeciesSignThreats: this.props.setSpeciesSignThreats,
-            getSpeciesSignThreats: this.props.getSpeciesSignThreats
+            getSpeciesSignThreats: this.props.getSpeciesSignThreats,
+            addTreeSpeciesToMap: this.props.addTreeSpeciesToMap,
+            removeTreeSpeciesFromMap: this.props.removeTreeSpeciesFromMap,
+            muted: this.props.muted !== undefined ? this.props.muted : false
         });
     }
 
@@ -53,13 +64,16 @@ class Timeline extends Component {
             justTrade: this.props.justTrade,
             justGenus: this.props.justGenus,
             setSpeciesSignThreats: this.props.setSpeciesSignThreats,
-            getSpeciesSignThreats: this.props.getSpeciesSignThreats
+            getSpeciesSignThreats: this.props.getSpeciesSignThreats,
+            addTreeSpeciesToMap: this.props.addTreeSpeciesToMap,
+            removeTreeSpeciesFromMap: this.props.removeTreeSpeciesFromMap,
+            muted: this.props.muted !== undefined ? this.props.muted : false
         });
     }
 
     render() {
         return (
-            <div id={this.state.id}></div>
+            <div id={this.state.id} class="timelineVis"></div>
         );
     }
 }

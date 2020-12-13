@@ -49,6 +49,13 @@
   --black: rgba(45, 49, 66, 1);
   --gray: rgba(191, 192, 192, 1);
   --lightgray: rgba(255, 255, 255, 1);
+
+  --gunmetal: #1e212e;
+  --sapphire: rgba(9, 94, 142, 1);
+  --redpurple: rgba(14, 16, 44, 1);
+  --seagreen: rgba(135, 188, 98, 1);
+  --crayola: rgba(255, 171, 38, 1);
+  --applered: rgba(214, 0, 3, 1);
 }
 
 html {
@@ -410,4 +417,16 @@ button {
 .leaflet-div-icon {
   background: none !important;
   border: none  !important;
+}
+
+.muteRectDiv {
+  z-index: 9999;
+  background-color: rgba(175,168,168,0.3);
+  position:absolute;
+  pointer-events: none;
+  height: 100%;
+}
+
+.timelineVis {
+  position: relative;
 }

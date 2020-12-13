@@ -3,8 +3,8 @@ import { pushOrCreate, getOrCreate, pushOrCreateWithoutDuplicates, threatenedToD
 import { timeParse, extent } from "d3";
 
 export class TimelineDatagenerator {
-    constructor(input) {
-        this.input = input; //TODO rewrite as object input from index.ejs
+    constructor(oldInput) {
+        this.oldInput = oldInput;
         this.minYear = 9999;
         this.maxYear = -9999;
         this.domainYears = [];
@@ -26,18 +26,34 @@ export class TimelineDatagenerator {
         return { minYear: this.minYear, maxYear: this.maxYear };
     }
 
+    getTreeCountries(i_speciesName, speciesObject) {
+        let countries = {};
+        if (speciesObject.hasOwnProperty("trees")) {
+            for (let treeEntry of speciesObject["trees"]) {
+                if (treeEntry.hasOwnProperty("TSGeolinks")) {
+                    for (let geoData of treeEntry["TSGeolinks"]) {
+                        let country = geoData.country;
+                        pushOrCreate(countries, country, geoData);
+                    }
+                }
+            }
+        }
+
+        return countries;
+    }
+
     getTreeSpeciesNames(i_speciesName, speciesObject) {
         if (speciesObject.hasOwnProperty("trees")) {
 
-
-            let speciesNames = speciesObject.trees.map(e => e.taxon);
+            console.log(i_speciesName, speciesObject.trees.length);
 
             let speciesNamesAndSyns = {};
             let reverseSyns = {};
 
             let allAccepted = {};
 
-            for (let speciesName of speciesNames) {
+            for (let tree of speciesObject.trees) {
+                let speciesName = tree.taxon;
                 for (let syns of speciesObject.synonymos) {
                     let index = syns.indexOf(speciesName);
                     if (index > -1) {
@@ -78,47 +94,73 @@ export class TimelineDatagenerator {
 
         for (let speciesName of Object.keys(tradeData)) {
             speciesName = speciesName.trim();
+            let generateNew = true;
 
-            if (!speciesName.includes(" ")) {
-                genusMode = true;
+
+            if (this.oldInput.hasOwnProperty(speciesName)) {
+                let dataKey = "CITES" + (tradeData[speciesName].listingHistory !== undefined ? tradeData[speciesName].listingHistory.length : 0)
+                    + "IUCN" + (tradeData[speciesName].iucn !== undefined ? Object.keys(tradeData[speciesName].iucn).length : 0)
+                    + "BGCI" + (tradeData[speciesName].threats !== undefined ? tradeData[speciesName].threats.length : 0);
+
+                let dataKeyOld = "CITES" + (this.oldInput[speciesName].listingHistory !== undefined ? this.oldInput[speciesName].listingHistory.length : 0)
+                    + "IUCN" + (this.oldInput[speciesName].iucn !== undefined ? Object.keys(this.oldInput[speciesName].iucn).length : 0)
+                    + "BGCI" + (this.oldInput[speciesName].threats !== undefined ? this.oldInput[speciesName].threats.length : 0);
+
+                if (dataKey === dataKeyOld) {
+                    tradeData[speciesName].timeTrade = this.oldInput[speciesName].timeTrade;
+                    tradeData[speciesName].timeListing = this.oldInput[speciesName].timeListing;
+
+                    tradeData[speciesName].timeIUCN = this.oldInput[speciesName].timeIUCN;
+                    tradeData[speciesName].timeThreat = this.oldInput[speciesName].timeThreat;
+                    generateNew = false;
+                }
             }
 
-            let speciesObject = tradeData[speciesName];
+            if (generateNew) {
 
-            if (i_tradeData !== undefined && i_tradeData.hasOwnProperty(speciesName)) {
-                let tradeArray = i_tradeData[speciesName];
-                speciesObject.trade = tradeArray;
+                if (!speciesName.includes(" ")) {
+                    genusMode = true;
+                }
+
+                let speciesObject = tradeData[speciesName];
+
+                if (i_tradeData !== undefined && i_tradeData.hasOwnProperty(speciesName)) {
+                    let tradeArray = i_tradeData[speciesName];
+                    speciesObject.trade = tradeArray;
+                }
+
+                if (i_threatData !== undefined && i_threatData.hasOwnProperty(speciesName)) {
+                    let threatArray = i_threatData[speciesName];
+                    speciesObject.threats = threatArray;
+                }
+
+                //let [treeSpeciesNamesAndSyns, reverseSyns, allAccepted] = this.getTreeSpeciesNames(speciesName, speciesObject);
+                speciesObject.treeSpeciesNamesAndSyns = speciesObject.speciesNamesAndSyns !== undefined ? speciesObject.speciesNamesAndSyns : {};
+                speciesObject.reverseSyns = speciesObject.reverseSyns !== undefined ? speciesObject.reverseSyns : {};
+                speciesObject.allAccepted = speciesObject.allAccepted !== undefined ? speciesObject.allAccepted : [];
+                let countries = this.getTreeCountries(speciesName, speciesObject);
+                speciesObject.treeCountries = countries;
+
+
+                let [data, groupedBySource] = this.getTimelineTradeDataFromSpecies(speciesObject);
+                let listingData = this.getTimelineListingDataFromSpecies(speciesObject, genusMode);
+                let iucnData = this.getTimelineIUCNDataFromSpecies(speciesObject, genusMode);
+                let threatData = this.getTimelineThreatsDataFromSpecies(speciesObject, genusMode);
+
+                tradeData[speciesName].timeTrade = [data, groupedBySource];
+                tradeData[speciesName].timeListing = listingData;
+
+                tradeData[speciesName].timeIUCN = iucnData;
+                tradeData[speciesName].timeThreat = threatData;
+
             }
-
-            if (i_threatData !== undefined && i_threatData.hasOwnProperty(speciesName)) {
-                let threatArray = i_threatData[speciesName];
-                speciesObject.threats = threatArray;
-            }
-
-            let [treeSpeciesNamesAndSyns, reverseSyns, allAccepted] = this.getTreeSpeciesNames(speciesName, speciesObject);
-            speciesObject.treeSpeciesNamesAndSyns = treeSpeciesNamesAndSyns;
-            speciesObject.reverseSyns = reverseSyns;
-            speciesObject.allAccepted = allAccepted;
-
-            let [data, groupedBySource] = this.getTimelineTradeDataFromSpecies(speciesObject);
-            let listingData = this.getTimelineListingDataFromSpecies(speciesObject, genusMode);
-            let iucnData = this.getTimelineIUCNDataFromSpecies(speciesObject, genusMode);
-            let threatData = this.getTimelineThreatsDataFromSpecies(speciesObject, genusMode);
-
-            tradeData[speciesName].timeTrade = [data, groupedBySource];
-            tradeData[speciesName].timeListing = listingData;
-
-            tradeData[speciesName].timeIUCN = iucnData;
-            tradeData[speciesName].timeThreat = threatData;
 
             let allCircleData = [];
-            allCircleData.push(...listingData);
-            allCircleData.push(...iucnData);
-            allCircleData.push(...threatData);
+            allCircleData.push(...tradeData[speciesName].timeListing);
+            allCircleData.push(...tradeData[speciesName].timeIUCN);
+            allCircleData.push(...tradeData[speciesName].timeThreat);
 
-            let domainYears = data.map(function (d) {
-                return d.year;
-            });
+            let domainYears = [];
 
             domainYears.push(...allCircleData.map((d) => d.year));
 
@@ -148,7 +190,9 @@ export class TimelineDatagenerator {
     /* ############## HELPER FUNCTIONS ############## */
 
     getTimelineThreatsDataFromSpecies(speciesObject, genusMode) {
+
         if (speciesObject.hasOwnProperty("threats") && Array.isArray(speciesObject.threats)) {
+
             let groupedByYear = {};
             let groupdBySpecies = {};
             for (let entry of speciesObject["threats"].values()) {

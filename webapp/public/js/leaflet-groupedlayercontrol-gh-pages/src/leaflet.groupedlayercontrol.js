@@ -38,16 +38,16 @@ L.Control.GroupedLayers = L.Control.extend({
     this._update();
 
     map
-        .on('layeradd', this._onLayerChange, this)
-        .on('layerremove', this._onLayerChange, this);
+      .on('layeradd', this._onLayerChange, this)
+      .on('layerremove', this._onLayerChange, this);
 
     return this._container;
   },
 
   onRemove: function (map) {
     map
-        .off('layeradd', this._onLayerChange, this)
-        .off('layerremove', this._onLayerChange, this);
+      .off('layeradd', this._onLayerChange, this)
+      .off('layerremove', this._onLayerChange, this);
   },
 
   addBaseLayer: function (layer, name) {
@@ -63,12 +63,13 @@ L.Control.GroupedLayers = L.Control.extend({
   },
 
   removeLayer: function (layer) {
-    var id = L.Util.stamp(layer);
+ /*   var id = L.Util.stamp(layer);
     var _layer = this._getLayer(id);
+    console.log('removelayer');
     if (_layer) {
-      delete this._layers[this._layers.indexOf(_layer)];
+      this._layers.splice(this._layers.indexOf(_layer), 1);
     }
-    this._update();
+    this._update();*/
     return this;
   },
 
@@ -99,8 +100,8 @@ L.Control.GroupedLayers = L.Control.extend({
     if (this.options.collapsed) {
       if (!L.Browser.android) {
         L.DomEvent
-            .on(container, 'mouseover', this._expand, this)
-            .on(container, 'mouseout', this._collapse, this);
+          .on(container, 'mouseover', this._expand, this)
+          .on(container, 'mouseout', this._collapse, this);
       }
       var link = this._layersLink = L.DomUtil.create('a', className + '-toggle', container);
       link.href = '#';
@@ -108,8 +109,8 @@ L.Control.GroupedLayers = L.Control.extend({
 
       if (L.Browser.touch) {
         L.DomEvent
-            .on(link, 'click', L.DomEvent.stop)
-            .on(link, 'click', this._expand, this);
+          .on(link, 'click', L.DomEvent.stop)
+          .on(link, 'click', this._expand, this);
       } else {
         L.DomEvent.on(link, 'focus', this._expand, this);
       }
@@ -133,8 +134,8 @@ L.Control.GroupedLayers = L.Control.extend({
     var _layer = {
       layer: layer,
       name: name,
-      overlay: overlay, 
-      onMethod, 
+      overlay: overlay,
+      onMethod,
       offMethod
     };
     this._layers.push(_layer);
@@ -200,11 +201,11 @@ L.Control.GroupedLayers = L.Control.extend({
 
       switch (type) {
         case "overlayadd":
-          if(obj.onMethod !== undefined)
+          if (obj.onMethod !== undefined)
             obj.onMethod();
           break;
         case "overlayremove":
-          if(obj.offMethod !== undefined)
+          if (obj.offMethod !== undefined)
             obj.offMethod();
           break;
         default:
@@ -235,6 +236,7 @@ L.Control.GroupedLayers = L.Control.extend({
   },
 
   _addItem: function (obj) {
+    console.log("obj",obj);
     var label = document.createElement('label'),
       input,
       checked = this._map.hasLayer(obj.layer),
