@@ -26,6 +26,7 @@ class Timeline extends Component {
     componentDidMount() {
         TimelineHelper.draw({
             id: this.state.id,
+            initWidth: this.props.initWidth,
             data: this.props.data,
             sourceColorMap: this.props.sourceColorMap,
             domainYears: this.props.domainYears,
@@ -41,8 +42,9 @@ class Timeline extends Component {
             justGenus: this.props.justGenus,
             setSpeciesSignThreats: this.props.setSpeciesSignThreats,
             getSpeciesSignThreats: this.props.getSpeciesSignThreats,
-            addTreeSpeciesToMap: this.props.addTreeSpeciesToMap,
-            removeTreeSpeciesFromMap: this.props.removeTreeSpeciesFromMap,
+            getTreeThreatLevel: this.props.getTreeThreatLevel,
+            addSpeciesToMap: this.props.addSpeciesToMap,
+            removeSpeciesFromMap: this.props.removeSpeciesFromMap,
             muted: this.props.muted !== undefined ? this.props.muted : false
         });
     }
@@ -50,6 +52,7 @@ class Timeline extends Component {
     componentDidUpdate() {
         TimelineHelper.draw({
             id: this.state.id,
+            initWidth: this.props.initWidth,
             data: this.props.data,
             sourceColorMap: this.props.sourceColorMap,
             domainYears: this.props.domainYears,
@@ -65,15 +68,16 @@ class Timeline extends Component {
             justGenus: this.props.justGenus,
             setSpeciesSignThreats: this.props.setSpeciesSignThreats,
             getSpeciesSignThreats: this.props.getSpeciesSignThreats,
-            addTreeSpeciesToMap: this.props.addTreeSpeciesToMap,
-            removeTreeSpeciesFromMap: this.props.removeTreeSpeciesFromMap,
+            getTreeThreatLevel: this.props.getTreeThreatLevel,
+            addSpeciesToMap: this.props.addSpeciesToMap,
+            removeSpeciesFromMap: this.props.removeSpeciesFromMap,
             muted: this.props.muted !== undefined ? this.props.muted : false
         });
     }
 
     render() {
         return (
-            <div id={this.state.id} class="timelineVis"></div>
+            <div id={this.state.id} className="timelineVis"></div>
         );
     }
 }

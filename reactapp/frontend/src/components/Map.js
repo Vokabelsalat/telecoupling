@@ -16,42 +16,68 @@ class Map extends Component {
 
     init() {
         this.treeCoordinateQueue = [];
-        this.MapHelper = new MapHelper("mapid");
+        this.MapHelper = new MapHelper("mapid", this.props.getTreeThreatLevel, this.props.initWidth, this.props.setDiversityScale);
 
-        this.addTreesFromMapSpecies();
+        this.addSpeciesFromMapSpecies();
+
+        this.MapHelper.updateHeatMap(this.props.heatMap, this.props.treeThreatType);
+        this.MapHelper.updateDiversity(this.props.diversity, this.props.diversityMode, this.props.diversityAttribute);
     }
 
-    addTreesFromMapSpecies() {
-        let trees = this.MapHelper.getTrees();
-
+    addSpeciesFromMapSpecies() {
         if (this.props.data && this.props.mapSpecies) {
             for (let species of Object.keys(this.props.mapSpecies)) {
 
                 if (this.props.data.hasOwnProperty(species)) {
+                    fetch("/distribution/" + species.replace(" ", "_") + ".geojson")
+                        .then(res => res.json())
+                        .then(data => {
+                            this.MapHelper.addDistribution(species, data);
+                        })
+                        .catch(e => {
 
-                    if (this.props.data[species].hasOwnProperty("treeCountries")) {
-                        let countries = Object.keys(this.props.data[species]["treeCountries"]);
+                            let justGenus = false;
+                            if (!species.includes(" ")) {
+                                justGenus = true;
+                            }
 
-                        if (countries.length > 0) {
-                            this.MapHelper.addTreeCountries(species, countries);
-                        }
-                    }
+                            if (this.props.data[species].hasOwnProperty("treeCountries")) {
+                                let countries = Object.keys(this.props.data[species]["treeCountries"]);
 
-                    let mapHelper = this.MapHelper;
+                                if (countries.length > 0) {
+                                    if (justGenus) {
+                                        let speciesCountries = {};
+                                        let acceptedTreeSpecies = Object.keys(this.props.data[species]["speciesNamesAndSyns"]);
+                                        for (let treeName of Object.keys(this.props.data[species]["speciesCountries"])) {
+                                            if (acceptedTreeSpecies.includes(treeName)) {
+                                                speciesCountries[treeName] = this.props.data[species]["speciesCountries"][treeName];
+                                            }
+                                        }
+                                        this.MapHelper.addTreeCountries(species, countries, speciesCountries);
+                                    }
+                                    else {
+                                        this.MapHelper.addTreeCountries(species, countries);
+                                    }
+                                }
 
-                    if (this.props.coordinates !== undefined &&
-                        this.props.coordinates.hasOwnProperty(species) &&
-                        this.props.coordinates[species].length > 0) {
-                        mapHelper.addTreeCoordinates(species, this.props.coordinates[species]);
-                    }
+                                let mapHelper = this.MapHelper;
+
+                                if (this.props.coordinates !== undefined &&
+                                    this.props.coordinates.hasOwnProperty(species) &&
+                                    this.props.coordinates[species].length > 0) {
+                                    mapHelper.addTreeCoordinates(species, this.props.coordinates[species]);
+                                }
+                            }
+                        });
                 }
             }
         }
     }
 
-    removeTreesByMapSpecies(diff) {
+    removeSpeciesByMapSpecies(diff) {
         for (let species of diff) {
-            this.MapHelper.removeTreeCountries(species);
+            this.MapHelper.removeSpeciesCountries(species);
+            this.MapHelper.removeSpeciesEcoRegions(species);
         }
     }
 
@@ -61,11 +87,28 @@ class Map extends Component {
 
     componentDidUpdate(prevProps) {
         if (JSON.stringify(prevProps.mapSpecies) !== JSON.stringify(this.props.mapSpecies)) {
-            this.addTreesFromMapSpecies();
+            this.addSpeciesFromMapSpecies();
             let newSpecies = Object.keys(this.props.mapSpecies);
             let diff = Object.keys(prevProps.mapSpecies).filter(x => !newSpecies.includes(x));
 
-            this.removeTreesByMapSpecies(diff);
+            this.removeSpeciesByMapSpecies(diff);
+            this.MapHelper.updateHeatMap(this.props.heatMap, this.props.treeThreatType);
+            this.MapHelper.updateDiversity(this.props.diversity, this.props.diversityMode, this.props.diversityAttribute);
+        }
+
+        if (prevProps.heatMap !== this.props.heatMap) {
+            this.MapHelper.updateHeatMap(this.props.heatMap, this.props.treeThreatType);
+        }
+
+        if (prevProps.diversity !== this.props.diversity
+            || prevProps.diversityMode !== this.props.diversityMode
+            || prevProps.diversityAttribute !== this.props.diversityAttribute) {
+            this.MapHelper.updateDiversity(this.props.diversity, this.props.diversityMode, this.props.diversityAttribute);
+        }
+
+        if (prevProps.treeThreatType !== this.props.treeThreatType) {
+            this.MapHelper.updateHeatMap(this.props.heatMap, this.props.treeThreatType);
+            this.MapHelper.updateDiversity(this.props.diversity, this.props.diversityMode, this.props.diversityAttribute);
         }
     }
 
@@ -74,7 +117,7 @@ class Map extends Component {
             <div>
                 <div id="mapid" style={{
                     height: "50vh",
-                    width: "50vw"
+                    width: "70vw"
                 }}></div>
             </div>
         );

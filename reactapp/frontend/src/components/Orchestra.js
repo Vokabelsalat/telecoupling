@@ -11,7 +11,8 @@ class Orchestra extends Component {
             instrument: this.props.instrument,
             mainPart: this.props.mainPart,
             setInstrumentAndMainPart: this.props.setInstrumentAndMainPart,
-            setInstrument: this.props.setInstrument
+            setInstrument: this.props.setInstrument,
+            setInstrumentGroup: this.props.setInstrumentGroup
         };
     }
 
@@ -22,7 +23,8 @@ class Orchestra extends Component {
             instrument: this.state.instrument,
             mainPart: this.state.mainPart,
             setInstrumentAndMainPart: this.state.setInstrumentAndMainPart,
-            setInstrument: this.state.setInstrument
+            setInstrument: this.state.setInstrument,
+            setInstrumentGroup: this.state.setInstrumentGroup
         });
     }
 

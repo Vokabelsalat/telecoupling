@@ -10,6 +10,7 @@ class D3Orchestra {
         this.mainPart = param.mainPart;
         this.setInstrumentAndMainPart = param.setInstrumentAndMainPart;
         this.setInstrument = param.setInstrument;
+        this.setInstrumentGroup = param.setInstrumentGroup;
 
         this.initWidth = window.innerWidth;
         this.initHeight = window.innerHeight;
@@ -56,6 +57,8 @@ class D3Orchestra {
         group.selectAll(".subarc").style("display", "initial").transition().duration(this.animationTime / 5).style("opacity", 1.0);
 
         setTimeout(() => this.zoomAndRotate(path), this.animationTime / 1.5);
+
+        this.setInstrumentGroup(id);
     }
 
     describeArc(x, y, radius, startAngle, endAngle, direction = 0, withoutM = false) {
@@ -227,7 +230,7 @@ class D3Orchestra {
                         }
 
                         newId = (name + instrumentGroup).replaceSpecialCharacters();
-                        this.appendSelectArc(group, newId, name, "hsl(0, 100%, " + getRandomInt(40, 90) + "%)", newstroke, this.positionX, this.positionY, startRadius - (newstroke) * (i + 2), start, end, 1,
+                        this.appendSelectArc(group, newId, name, "hsl(0, 100%, " + (50 + i * (45 / data.length)) + "%)", newstroke, this.positionX, this.positionY, startRadius - (newstroke) * (i + 2), start, end, 1,
                             Math.min(newstroke - 1, 7), "subarc");
 
                         /* d3.select("#"+newId).transition().duration(animationTime * 1.5).style("opacity", 1.0);
@@ -277,6 +280,7 @@ class D3Orchestra {
             let thisPadding = this.padding;
             let setInstrumentAndMainPart = this.setInstrumentAndMainPart;
             let setInstrument = this.setInstrument;
+            let setInstrumentGroup = this.setInstrumentGroup;
 
             group.on("click", function () {
                 let value = d3.select(this).attr("name");
@@ -285,6 +289,7 @@ class D3Orchestra {
                 /* $("#instrumentsSelect").val(value).change(); */
 
                 setInstrument(value.trim());
+                d3.event.stopPropagation();
 
                 if (value.trim() === "String instrument bow") {
 
@@ -311,7 +316,7 @@ class D3Orchestra {
 
                             let scale = (thisWidth - 2 * thisPadding) / largest;
 
-                            svgNode.attr("transform", "translate(" + (largest * scale + thisPadding) + " " + thisPadding + ") rotate(90) scale(" + scale + ")");
+                            svgNode.attr("transform", "translate(" + (thisPadding) + " " + thisPadding + ") rotate(90) scale(" + (scale) + ", " + (-scale) + ")");
 
                             svg
                                 .attr("height", smallest * scale + thisPadding * 2)
@@ -605,12 +610,12 @@ class D3Orchestra {
             .text("Back");
 
         let selectchart = d3.select("#selectChart");
-        this.appendSelectArc(selectchart, "Keyboard", "Keyboard", "hsl(0, 100%, " + getRandomInt(40, 90) + "%)", 70, this.positionX, this.positionY, 140, 300 - 1, 270, 1, 12);
-        this.appendSelectArc(selectchart, "Percussion", "Percussion", "hsl(0, 100%, " + getRandomInt(40, 90) + "%)", 70, this.positionX, this.positionY, 140, 330 - 1, 300, 1, 12);
-        this.appendSelectArc(selectchart, "Woodwinds", "Woodwinds", "hsl(0, 100%, " + getRandomInt(40, 90) + "%)", 70, this.positionX, this.positionY, 140, 390, 330, 1, 12);
-        this.appendSelectArc(selectchart, "Brasses", "Brasses", "hsl(0, 100%, " + getRandomInt(40, 90) + "%)", 70, this.positionX, this.positionY, 140, 420, 390 + 1, 1, 12);
-        this.appendSelectArc(selectchart, "Plucked", "Plucked", "hsl(0, 100%, " + getRandomInt(40, 90) + "%)", 70, this.positionX, this.positionY, 140, 450, 420 + 1, 1, 12);
-        this.appendSelectArc(selectchart, "Strings", "Strings", "hsl(0, 100%, " + getRandomInt(40, 90) + "%)", 90, this.positionX, this.positionY, 60 - 1 * 2, 90, 270, 1, 12);
+        this.appendSelectArc(selectchart, "Keyboard", "Keyboard", "hsl(0, 100%, " + (50 + 30) + "%)", 70, this.positionX, this.positionY, 140, 300 - 1, 270, 1, 12);
+        this.appendSelectArc(selectchart, "Percussion", "Percussion", "hsl(0, 100%, " + (50 + 20) + "%)", 70, this.positionX, this.positionY, 140, 330 - 1, 300, 1, 12);
+        this.appendSelectArc(selectchart, "Woodwinds", "Woodwinds", "hsl(0, 100%, " + (50 + 10) + "%)", 70, this.positionX, this.positionY, 140, 390, 330, 1, 12);
+        this.appendSelectArc(selectchart, "Brasses", "Brasses", "hsl(0, 100%, " + (50 + 20) + "%)", 70, this.positionX, this.positionY, 140, 420, 390 + 1, 1, 12);
+        this.appendSelectArc(selectchart, "Plucked", "Plucked", "hsl(0, 100%, " + (50 + 30) + "%)", 70, this.positionX, this.positionY, 140, 450, 420 + 1, 1, 12);
+        this.appendSelectArc(selectchart, "Strings", "Strings", "hsl(0, 100%, " + (50 + 35) + "%)", 90, this.positionX, this.positionY, 60 - 1 * 2, 90, 270, 1, 12);
 
         if (this.instrumentGroup !== undefined) {
             // wat for finishing appending the elements

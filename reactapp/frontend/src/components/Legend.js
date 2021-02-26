@@ -18,43 +18,62 @@ class Legend extends Component {
 
     render() {
         return (
-            <div style={{ textAlign: "center" }}>
-                <div>
-                    {(Object.keys(iucnColors).map(e => {
-                        let style = {
-                            display: "inline-block",
-                            width: "30px",
-                            height: "20px",
-                            backgroundColor: iucnColors[e].bg,
-                            color: iucnColors[e].fg
-                        };
-                        return (<div
-                            key={e}
-                            style={style}
-                        >
-                            {e}
-                        </div>);
-                    }))
-                    }
-                </div>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+                <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "60px auto 30px",
+                    gridTemplateRows: "23px 23px"
+                }}>
+                    <div style={{ gridColumnStart: 1, gridColumnEnd: 1, gridRowStart: 1, gridRowEnd: 1 }}>IUCN</div>
+                    <div style={{ gridColumnStart: 2, gridColumnEnd: 2, gridRowStart: 1, gridRowEnd: 1 }}>
+                        {(Object.keys(iucnColors).map((e, i) => {
 
-                <div>
-                    {(Object.keys(dangerColorMap).map(e => {
-                        let style = {
-                            display: "inline-block",
-                            width: "30px",
-                            height: "20px",
-                            backgroundColor: dangerColorMap[e].bg,
-                            color: dangerColorMap[e].fg
-                        };
-                        return (<div
-                            key={e}
-                            style={style}
-                        >
-                            {e}
-                        </div>);
-                    }))
-                    }
+                            let style = {
+                                display: "inline-block",
+                                width: "30px",
+                                height: "20px",
+                                backgroundColor: iucnColors[e].bg,
+                                color: iucnColors[e].fg,
+                                textAlign: "center"
+                            };
+                            return (<div
+                                key={e}
+                                style={style}
+                            >
+                                {e}
+                            </div>);
+                        }))
+                        }
+                    </div>
+
+                    <div style={{ gridColumnStart: 1, gridColumnEnd: 1, gridRowStart: 2, gridRowEnd: 2 }}>BGCI</div>
+                    <div style={{ gridColumnStart: 2, gridColumnEnd: 2, gridRowStart: 2, gridRowEnd: 2 }}>
+                        {(Object.keys(dangerColorMap).map(e => {
+                            let width;
+                            if (["EX", "TH"].includes(e)) {
+                                width = "90px";
+                            }
+                            else {
+                                width = "30px";
+                            }
+
+                            let style = {
+                                display: "inline-block",
+                                width: width,
+                                height: "20px",
+                                backgroundColor: dangerColorMap[e].bg,
+                                color: dangerColorMap[e].fg,
+                                textAlign: "center"
+                            };
+                            return (<div
+                                key={e}
+                                style={style}
+                            >
+                                {e}
+                            </div>);
+                        }))
+                        }
+                    </div>
                 </div>
 
                 {/* < div > {this.props.zoomLevel + 1} / {this.props.maxZoomLevel + 1}</div >

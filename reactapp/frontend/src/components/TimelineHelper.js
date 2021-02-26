@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { getOrCreate, dangerColorMap, sourceToDangerMap, iucnToDangerMap, pushOrCreate, dangerSorted, scaleValue } from '../utils/utils'
+import { getOrCreate, dangerColorMap, sourceToDangerMap, iucnToDangerMap, pushOrCreate, pushOrCreateWithoutDuplicates, dangerSorted, scaleValue } from '../utils/utils'
 import { getIucnColor, getIucnColorForeground, iucnCategoriesSorted, citesAppendixSorted, citesScore, citesScoreReverse, iucnScore, iucnScoreReverse, iucnCategories, threatScore, threatScoreReverse, getCitesColor } from '../utils/timelineUtils'
 import { stackOffsetNone } from "d3";
 
@@ -20,12 +20,12 @@ class D3Timeline {
         this.groupSame = param.groupSame;
         this.sortGrouped = param.sortGrouped;
 
-        this.addTreeSpeciesToMap = param.addTreeSpeciesToMap;
-        this.removeTreeSpeciesFromMap = param.removeTreeSpeciesFromMap;
+        this.addSpeciesToMap = param.addSpeciesToMap;
+        this.removeSpeciesFromMap = param.removeSpeciesFromMap;
 
         this.heatStyle = param.heatStyle;
 
-        this.initWidth = 900;
+        this.initWidth = param.initWidth;
         this.initHeight = 100;
 
         this.citesSignThreat = "DD";
@@ -39,6 +39,8 @@ class D3Timeline {
 
         this.setSpeciesSignThreats = param.setSpeciesSignThreats;
         this.getSpeciesSignThreats = param.getSpeciesSignThreats;
+
+        this.getTreeThreatLevel = param.getTreeThreatLevel;
 
         this.muted = param.muted;
 
@@ -191,27 +193,32 @@ class D3Timeline {
             let iucnColor = getIucnColor("DD");
             if (typeof this.getSpeciesSignThreats == 'function') {
 
-                citesThreat = this.getSpeciesSignThreats(this.speciesName)["cites"];
-                iucnThreat = this.getSpeciesSignThreats(this.speciesName)["iucn"];
-                let threatThreat = this.getSpeciesSignThreats(this.speciesName)["threat"];
+                let speciesSignThreats = this.getSpeciesSignThreats(this.speciesName);
+
+                citesThreat = speciesSignThreats["cites"];
+                iucnThreat = speciesSignThreats["iucn"];
+                let threatThreat = speciesSignThreats["threat"];
 
 
-                let iucnScoreVal = iucnScore(iucnThreat);
-                let threatScoreVal = threatScore(threatThreat);
+                /*  let iucnScoreVal = iucnScore(iucnThreat);
+                 let threatScoreVal = threatScore(threatThreat);
+ 
+                 if (iucnScoreVal > threatScoreVal) {
+                     iucnColor = getIucnColor(iucnThreat);
+                     iucnThreat = iucnThreat;
+                 }
+                 else if (threatScoreVal > iucnScoreVal) {
+                     iucnColor = dangerColorMap[threatThreat]["bg"];
+                     iucnThreat = threatThreat;
+                 }
+                 else {
+                     iucnColor = getIucnColor(iucnThreat);
+                     iucnThreat = iucnThreat;
+                 } */
 
-                if (iucnScoreVal > threatScoreVal) {
-                    iucnColor = getIucnColor(iucnThreat);
-                    iucnThreat = iucnThreat;
-                }
-                else if (threatScoreVal > iucnScoreVal) {
-                    iucnColor = dangerColorMap[threatThreat]["bg"];
-                    iucnThreat = threatThreat;
-                }
-                else {
-                    iucnColor = getIucnColor(iucnThreat);
-                    iucnThreat = iucnThreat;
-                }
+                iucnThreat = this.getTreeThreatLevel(this.speciesName, "ecologically");
 
+                iucnColor = dangerColorMap[iucnThreat].bg;
                 /* iucnThreat = iucnScoreReverse(Math.max(iucnScore(iucnThreat), threatScore(threatThreat))); */
             }
 
@@ -243,11 +250,11 @@ class D3Timeline {
                 /* .style("font-weight", this.justGenus ? "bold" : "") */
                 .on("click", () => {
                     if (this.zoomLevel === 0) {
-                        this.addTreeSpeciesToMap(this.speciesName);
+                        this.addSpeciesToMap(this.speciesName);
                         this.setZoomLevel(2);
                     }
                     else {
-                        this.removeTreeSpeciesFromMap(this.speciesName);
+                        this.removeSpeciesFromMap(this.speciesName);
                         this.setZoomLevel(0);
                     }
                 })
@@ -1181,7 +1188,7 @@ class D3Timeline {
 
             pushOrCreate(speciesMap, name, entry);
             pushOrCreate(getOrCreate(iucnHeatMap, year, {}), entry.code, entry);
-            pushOrCreate(yearCount, year, 1);
+            pushOrCreateWithoutDuplicates(yearCount, year, name);
         }
 
         let years = Object.keys(yearCount).map(e => parseInt(e));
@@ -1199,13 +1206,12 @@ class D3Timeline {
 
             for (let year = minYear; year <= maxYear; year++) {
                 if (yearData.hasOwnProperty(year.toString())) {
-                    let highestScore = Math.max(...yearData[year.toString()].map(e => iucnScore(e.code)));
-                    let highest = iucnScoreReverse(highestScore);
-
+                    let highest = yearData[year.toString()].reduce((max, p) => iucnScore(p.code) > iucnScore(max.code) ? p : max, yearData[year.toString()][0]);
+                    let highestScore = iucnScore(highest.code);
                     //let highest = yearData[year.toString()].reduce((a, b) => iucnScore(a) > iucnScore(b.code) ? a : b.code, []);
 
-                    pushOrCreate(getOrCreate(newIUCNHeatMap, year, {}), highest, 1);
-                    lastState = yearData[year.toString()][0].code;
+                    pushOrCreate(getOrCreate(newIUCNHeatMap, year, {}), highest.code, 1);
+                    lastState = highest.code;
                 }
                 else if (lastState) {
                     pushOrCreate(getOrCreate(newIUCNHeatMap, year, {}), lastState, 1);
@@ -1483,7 +1489,14 @@ class D3Timeline {
 
         let maxHeightScale = 5;
 
-        for (let listing of iucnData.sort((a, b) => parseInt(a.year) - parseInt(b.year))) {
+        for (let listing of iucnData.sort((a, b) => {
+            if (parseInt(a.year) === parseInt(b.year)) {
+                return iucnScore(a.code) - iucnScore(b.code);
+            }
+            else {
+                return parseInt(a.year) - parseInt(b.year);
+            }
+        })) {
             let push = true;
             let name = listing.sciName;
 
@@ -1950,7 +1963,7 @@ class D3Timeline {
     }
 
 
-    appendThreatHeatMap(threatData) {
+    appendThreatHeatMap(threatData, speciesNamesAndSyns) {
         let threatHeatMap = {};
         let speciesMap = {};
 
@@ -2027,7 +2040,7 @@ class D3Timeline {
                     maxKeyPrevious = maxKey;
                     maxValuePrevious = maxValue;
 
-                    opacity = maxValue.length / maxSpecies;
+                    opacity = maxValue.length / Object.keys(speciesNamesAndSyns).length;
                     break;
                 case "avg":
 
@@ -3223,7 +3236,11 @@ class D3Timeline {
         // var circleYearCount = {};
 
         if (this.data) {
-            let [data, groupedBySource] = this.data.timeTrade;
+            let [data, groupedBySource] = [[], []];
+
+            if (this.data.hasOwnProperty("timeTrade")) {
+                [data, groupedBySource] = this.data.timeTrade;
+            }
 
             this.y.domain([
                 0,
@@ -3261,7 +3278,7 @@ class D3Timeline {
                     this.rowHeight = this.radius + 1;
                 }
 
-                if (this.data.timeListing.length) {
+                if (this.data.hasOwnProperty("timeListing") && this.data.timeListing.length) {
                     if (this.zoomLevel > 0) {
                         /* this.appendCitesHeatMap(this.data.timeListing, true); */
                         if (this.justGenus) {
@@ -3278,7 +3295,7 @@ class D3Timeline {
                     this.firstSVGAdded = true;
                 }
 
-                if (this.data.timeIUCN.length) {
+                if (this.data.hasOwnProperty("timeIUCN") && this.data.timeIUCN.length) {
                     if (this.zoomLevel > 0) {
                         this.appendIUCN(this.data.timeIUCN);
                     }
@@ -3288,12 +3305,12 @@ class D3Timeline {
                     this.firstSVGAdded = true;
                 }
 
-                if (this.data.timeThreat.length) {
+                if (this.data.hasOwnProperty("timeThreat") && this.data.timeThreat.length) {
                     if (this.zoomLevel === 0) {
                         switch (this.pieStyle) {
                             case "pie":
                                 //this.appendThreatPies(this.data.timeThreat);
-                                this.appendThreatHeatMap(this.data.timeThreat);
+                                this.appendThreatHeatMap(this.data.timeThreat, this.data.speciesNamesAndSyns);
                                 break;
                             case "bar":
                                 this.appendThreatBars(this.data.timeThreat);

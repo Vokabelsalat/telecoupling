@@ -1,3 +1,4 @@
+var timelineUtils = require();
 import { iucnColors, citesAppendixSorted } from './timelineUtils';
 import { pushOrCreate, getOrCreate, pushOrCreateWithoutDuplicates, threatenedToDangerMap, colorBrewerScheme8Qualitative } from './utils';
 import { timeParse, extent } from "d3";
@@ -132,8 +133,8 @@ export class TimelineDatagenerator {
                     speciesObject.threats = threatArray;
                 }
 
-                //let [speciesNamesAndSyns, reverseSyns, allAccepted] = this.getTreeSpeciesNames(speciesName, speciesObject);
-                speciesObject.speciesNamesAndSyns = speciesObject.speciesNamesAndSyns !== undefined ? speciesObject.speciesNamesAndSyns : {};
+                //let [treeSpeciesNamesAndSyns, reverseSyns, allAccepted] = this.getTreeSpeciesNames(speciesName, speciesObject);
+                speciesObject.treeSpeciesNamesAndSyns = speciesObject.speciesNamesAndSyns !== undefined ? speciesObject.speciesNamesAndSyns : {};
                 speciesObject.reverseSyns = speciesObject.reverseSyns !== undefined ? speciesObject.reverseSyns : {};
                 speciesObject.allAccepted = speciesObject.allAccepted !== undefined ? speciesObject.allAccepted : [];
                 let countries = this.getTreeCountries(speciesName, speciesObject);
@@ -261,7 +262,7 @@ export class TimelineDatagenerator {
             }
 
             if (genusMode) {
-                for (let species of Object.keys(speciesObject.speciesNamesAndSyns)) {
+                for (let species of Object.keys(speciesObject.treeSpeciesNamesAndSyns)) {
 
                     if (!species.includes(" ")) {
                         continue; //because it is a genus listing
@@ -387,7 +388,7 @@ export class TimelineDatagenerator {
             let testSpec = {};
             for (let gListing of genusListings) {
 
-                for (let species of Object.keys(speciesObject.speciesNamesAndSyns)) {
+                for (let species of Object.keys(speciesObject.treeSpeciesNamesAndSyns)) {
 
                     if (!species.includes(" ")) {
                         continue; //because it is a genus listing
@@ -453,7 +454,7 @@ export class TimelineDatagenerator {
             }
 
             if (genusMode) {
-                for (let species of Object.keys(speciesObject.speciesNamesAndSyns)) {
+                for (let species of Object.keys(speciesObject.treeSpeciesNamesAndSyns)) {
                     if (!species.includes(" ")) {
                         continue; //because it is a genus
                     }
@@ -551,7 +552,7 @@ export class TimelineDatagenerator {
             }
 
             if (genusMode) {
-                for (let species of Object.keys(speciesObject.speciesNamesAndSyns)) {
+                for (let species of Object.keys(speciesObject.treeSpeciesNamesAndSyns)) {
                     if (!species.includes(" ")) {
                         continue; //because it is a genus
                     }

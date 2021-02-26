@@ -20,13 +20,38 @@ router.get("/getInstrumentsFromGroup/:selectedGroup", function (req, res, next) 
     });
 });
 
-router.get("/getMaterial/:instruments/:mainPart", (req, res) => {
+router.get("/getMaterial/:instrumentGroup/:instruments?/:mainPart?", (req, res) => {
+    let instrumentGroup = req.params.instrumentGroup;
     let instruments = req.params.instruments;
     let mainPart = req.params.mainPart;
+    console.log(instrumentGroup, instruments, mainPart);
 
-    knex.select().from("materials4").where({ "Instruments": instruments, "Main part": mainPart }).then(rows => {
+    if (instruments) {
+        if (mainPart) {
+            knex.select().from("materials4").where({ "Instruments": instruments, "Main part": mainPart }).then(rows => {
+                res.json(rows);
+            });
+        }
+        else {
+            knex.select().from("materials4").where({ "Instruments": instruments }).then(rows => {
+                res.json(rows);
+            });
+        }
+    }
+    else {
+        knex.select().from("materials4").where({ "Instrument groups": instrumentGroup }).then(rows => {
+            res.json(rows);
+        });
+    }
+});
+
+router.get("/getAllMaterials", (req, res) => {
+    knex.distinct('Genus', 'Species').from("materials4").then(rows => {
         res.json(rows);
     });
+    /* knex.select().from("materials4").offset(440).limit(60).then(rows => {
+        res.json(rows);
+    }); */
 });
 
 router.get("/getTestMaterial", (req, res) => {
@@ -34,7 +59,30 @@ router.get("/getTestMaterial", (req, res) => {
          res.json(rows);
      }); */
 
-    knex.select().from("materials4").where({ "Genus": "Dalbergia", "Species": " " }).orWhere({ "Genus": "Paubrasilia", "Species": "Echinata" }).then(rows => {
+    /* knex.select().from("materials4").where({ "Genus": "Swietenia", "Species": "mahagoni" })
+        .orWhere({ "Genus": "Paubrasilia", "Species": "Echinata" })
+        .orWhere({ "Genus": "Brosimum", "Species": "guianense" })
+        .orWhere({ "Genus": "Dalbergia", "Species": "melanoxylon" })
+        .then(rows => {
+             */
+
+    //knex.select().from("materials4").where({ "Genus": "Dalbergia", "Species": "" }).orWhere({ "Genus": "Paubrasilia", "Species": "Echinata" }).then(rows => {
+    //knex.select().from("materials4").where({ "Instruments": "violin, viola, cello, double bass" }).then(rows => {
+    knex.select('Genus', 'Species').from("materials4")
+        .where({ "Genus": "Paubrasilia", "Species": "Echinata" })
+        .orWhere({ "Genus": "Brosimum", "Species": "guianense" })
+        .orWhere({ "Genus": "Dalbergia", "Species": "melanoxylon" })
+        .then(rows => {
+            res.json(rows);
+        });
+});
+
+router.put("/saveThreatSignToDB", (req, res) => {
+    let genus = req.body.genus;
+    let species = req.body.species;
+    let signThreats = req.body.signThreats;
+
+    knex("materials4").where({ "Genus": genus, "Species": species }).update(signThreats).then(rows => {
         res.json(rows);
     });
 });
@@ -64,8 +112,6 @@ router.get("/getTreeOccurrences/genus/:genus", (req, res) => {
 
 
 router.put("/writeJSONFile", (req, res) => {
-    console.log("BODY", req.body);
-
 });
 
 module.exports = router;

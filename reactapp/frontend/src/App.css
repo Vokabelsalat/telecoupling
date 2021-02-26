@@ -127,12 +127,20 @@ img {
 }
 
 #mapid {
-  height: 80vh;
-  width: 80vw;
+  margin-top: 5px;
+  height: 90vh;
+}
+
+.leaflet-control-container {
+  height: 100%;
+}
+
+.leaflet-top.leaflet-right {
+  height: 100%;
 }
 
 .leaflet-control-layers {
-  max-height: 70vh;
+  max-height: 90%;
   overflow: auto;
 }
 
@@ -370,6 +378,7 @@ button {
   max-width: 250px;
   font-size: 12px;
   display: none;
+  z-index: 9999;
 }
 
 .timelineSVG {

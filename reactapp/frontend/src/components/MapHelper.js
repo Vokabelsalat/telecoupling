@@ -3,8 +3,9 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/leaflet.markercluster.js'
 import * as groupedLayers from 'leaflet-groupedlayercontrol';
 import * as d3 from 'd3';
-import { rgbToRGBA, serializeXmlNode, watermarkColorSheme, colorBrewerScheme8Qualitative } from '../utils/utils';
-import { rgb } from 'd3';
+import { rgbToRGBA, serializeXmlNode, watermarkColorSheme, colorBrewerScheme8Qualitative, dangerColorMap, pushOrCreate, iucnToDangerMap, scaleValue } from '../utils/utils';
+import { threatScore, threatScoreReverse, getCitesColor, getIucnColor } from '../utils/timelineUtils';
+var colorsys = require('colorsys');
 
 var categoryField = "tree";
 var iconField = "tree";
@@ -13,7 +14,7 @@ var values = [];
 var biomes = ["Tropical & Subtropical Moist Broadleaf Forests", "Tropical & Subtropical Dry Broadleaf Forests", "Tropical & Subtropical Coniferous Forests", "Temperate Broadleaf & Mixed Forests", "Temperate Conifer Forests", "Boreal Forests/Taiga", "Tropical & Subtropical Grasslands, Savannas & Shrublands", "Temperate Grasslands, Savannas & Shrublands", "Flooded Grasslands & Savannas", "Montane Grasslands & Shrublands", "Tundra", "Mediterranean Forests, Woodlands & Scrub", "Deserts & Xeric Shrublands", "Mangroves"];
 
 class MapHelper {
-    constructor(id) {
+    constructor(id, getTreeThreatLevel, initWidth, setDiversityScale) {
         if (!MapHelper.instance) {
             this._data = [];
             this._id = id;
@@ -25,6 +26,16 @@ class MapHelper {
             this.isTreeClustered = false;
             this.rmax = 30;
             this.treeClusterCache = {};
+            this.getTreeThreatLevel = getTreeThreatLevel;
+            this.setDiversityScale = setDiversityScale;
+            this.initWidth = initWidth;
+            this.addHotSpots = false;
+            this.addEcoregions = true;
+            this.addAllCountries = true;
+            this.treeThreatType = true;
+
+            this.diversityRegions = {};
+            this.diversityCountries = {};
 
             MapHelper.instance = this;
             this.init();
@@ -37,13 +48,20 @@ class MapHelper {
     }
 
     init() {
+        d3.select("#mapid")
+            .style("width", this.initWidth + "px");
+
         this.mymap = L.map("mapid", {
-            worldCopyJump: true
+            worldCopyJump: true,
         }).setView([39.74739, -105], 2);
         //this.mymap = L.map("mapid").setView([51.505, -0.09], 13);
 
         this.mymap.on("overlayadd", this.overlayadd.bind(this));
         this.mymap.on("overlayremove", this.overlayremove.bind(this));
+
+        this.mymap.createPane('labels');
+        this.mymap.getPane('labels').style.zIndex = 650;
+        this.mymap.getPane('labels').style.pointerEvents = 'none';
 
         this.achenSvgString = '<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"  width="590.074px" height="590.073px" viewBox="0 0 590.074 590.073" style="enable-background:new 0 0 590.074 590.073;fill:fillColor"     xml:space="preserve"><g>   <path d="M537.804,174.688c0-44.772-33.976-81.597-77.552-86.12c-12.23-32.981-43.882-56.534-81.128-56.534     c-16.304,0-31.499,4.59-44.514,12.422C319.808,17.949,291.513,0,258.991,0c-43.117,0-78.776,31.556-85.393,72.809       c-3.519-0.43-7.076-0.727-10.71-0.727c-47.822,0-86.598,38.767-86.598,86.598c0,2.343,0.172,4.638,0.354,6.933      c-24.25,15.348-40.392,42.333-40.392,73.153c0,27.244,12.604,51.513,32.273,67.387c-0.086,1.559-0.239,3.107-0.239,4.686        c0,47.822,38.767,86.598,86.598,86.598c14.334,0,27.817-3.538,39.723-9.696c16.495,11.848,40.115,26.67,51.551,23.715       c0,0,4.255,65.905,3.337,82.64c-1.75,31.843-11.303,67.291-18.025,95.979h104.117c0,0-15.348-63.954-16.018-85.307      c-0.669-21.354,6.675-60.675,6.675-60.675l36.118-37.36c13.903,9.505,30.695,14.908,48.807,14.908      c44.771,0,81.597-34.062,86.12-77.639c32.98-12.23,56.533-43.968,56.533-81.214c0-21.994-8.262-41.999-21.765-57.279        C535.71,195.926,537.804,185.561,537.804,174.688z M214.611,373.444c6.942-6.627,12.766-14.372,17.212-22.969l17.002,35.62      C248.816,386.096,239.569,390.179,214.611,373.444z M278.183,395.438c-8.798,1.597-23.782-25.494-34.416-47.517     c11.791,6.015,25.102,9.477,39.254,9.477c3.634,0,7.201-0.296,10.72-0.736C291.006,374.286,286.187,393.975,278.183,395.438z         M315.563,412.775c-20.35,5.651-8.167-36.501-2.334-60.904c4.218-1.568,8.301-3.413,12.183-5.604       c2.343,17.786,10.069,33.832,21.516,46.521C337.011,401.597,325.593,409.992,315.563,412.775z"/></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>';
 
@@ -55,17 +73,41 @@ class MapHelper {
                         accessToken: data.accessToken
                     });*/
 
-        let osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        /* let osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             'attribution': 'Kartendaten &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> Mitwirkende',
             'useCache': true
         });
-
+        
         let stramen = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.{ext}', {
             attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             subdomains: 'abcd',
-            minZoom: 0,
+            minZoom: 2,
             maxZoom: 20,
-            ext: 'png'
+            ext: 'png',
+        }); */
+
+        let CartoDB_PositronNoLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            minZoom: 2,
+            maxZoom: 20
+        });
+
+        var CartoDB_PositronOnlyLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            minZoom: 2,
+            maxZoom: 20,
+            pane: "labels"
+        });
+
+        var Stamen_TonerLabels = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.{ext}', {
+            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            subdomains: 'abcd',
+            minZoom: 2,
+            maxZoom: 20,
+            ext: 'png',
+            pane: "labels"
         });
 
         /*var groupedOverlays = {
@@ -79,20 +121,64 @@ class MapHelper {
         };*/
 
         this.control = L.control.groupedLayers({
-            "OSM": osm,
-            "Stramen": stramen
-        }, this.overlayMaps, { collapsed: false });
+            /*      "OSM": osm,
+                 "Stramen": stramen */
+            CartoDB: CartoDB_PositronNoLabels
+        }, this.overlayMaps, { collapsed: true });
 
         //obj.control = L.control.layers(, obj.overlayMaps, { collapsed: false });
         this.control.addTo(this.mymap);
 
-        stramen.addTo(this.mymap);
-        fetch("/countries10m.geo.json")
+        let addAllCountries = this.addAllCountries;
+
+        CartoDB_PositronNoLabels.addTo(this.mymap);
+        Stamen_TonerLabels.addTo(this.mymap);
+        /* CartoDB_PositronOnlyLabels.addTo(this.mymap); */
+
+        fetch("/UN_Worldmap_FeaturesToJSON10percentCorrected.json")
             .then(res => res.json())
             .then(data => {
+                if (addAllCountries) {
+                    let allCountries = L.geoJson(data, {
+                        style: {
+                            /*fill: "rgba(255, 0, 0, 0.3)",
+                            color: "rgb(255, 0, 0)",*/
+                            opacity: 0.1,
+                            fillOpacity: 0.65,
+                            strokeWidth: "2px"
+                        },
+                        onEachFeature: (feature, layer) => {
+                            if (feature.properties) {
+                                let popupText = feature.properties.ROMNAM + "<br>" + feature.properties.MAPLAB;
+                                layer.bindPopup(popupText);
+
+                                let color = "rgb(255,0,0)";
+
+                                layer.setStyle({
+                                    'fillColor': color,
+                                    'color': color
+                                });
+
+                                layer.on('mouseover', function () {
+                                    this.setStyle({
+                                        'fillColor': '#0000ff',
+                                        "color": '#0000ff'
+                                    });
+                                });
+
+                                layer.on('mouseout', function () {
+                                    this.setStyle({
+                                        'fillColor': color,
+                                        'color': color
+                                    });
+                                });
+                            }
+                        }
+                    });
+                    this.control.addOverlay(allCountries, "All Countries", "Additional");
+                }
 
                 this.countriesData = data;
-
                 setTimeout(this.processTreeQueue(), 10);
             });
 
@@ -124,48 +210,51 @@ class MapHelper {
             console.log(locationMapping);
         });*/
 
-        fetch("/data/hotspots_2011_polygons-2.json")
-            .then(res => res.json())
-            .then(function (data) {
-                function filterByType(feature) {
-                    if (feature.properties.TYPE !== "outer_limit") return true;
-                }
-
-                let hotSpots = L.geoJson(data, {
-                    style: {
-                        fill: "rgba(255, 0, 0)",
-                        color: "rgb(255, 0, 0)",
-                        opacity: 0.5,
-                        fillOpacity: 0.5,
-                        strokeWidth: 2,
-                        stroke: null
-                    },
-                    filter: filterByType,
-                    onEachFeature: (feature, layer) => {
-                        if (feature.properties) {
-                            layer.bindPopup(feature.properties.NAME);
-                        }
-
-                        layer.on('mouseover', function () {
-                            this.setStyle({
-                                'fillColor': '#0000ff',
-                                "color": '#0000ff'
-                            });
-                        });
-                        layer.on('mouseout', function () {
-                            this.setStyle({
-                                'fillColor': '#ff0000',
-                                'color': '#ff0000'
-                            });
-                        });
+        if (this.addHotSpots) {
+            fetch("/hotspots_2011_polygons-2.json")
+                .then(res => res.json())
+                .then(function (data) {
+                    function filterByType(feature) {
+                        if (feature.properties.TYPE !== "outer_limit") return true;
                     }
-                });
 
-                this.control.addOverlay(hotSpots, "Biodiversity Hot Spots", "Additional");
+                    let hotSpots = L.geoJson(data, {
+                        style: {
+                            fill: "rgba(255, 0, 0)",
+                            color: "rgb(255, 0, 0)",
+                            opacity: 0.5,
+                            fillOpacity: 0.5,
+                            strokeWidth: 2,
+                            stroke: null
+                        },
+                        filter: filterByType,
+                        onEachFeature: (feature, layer) => {
+                            if (feature.properties) {
+                                layer.bindPopup(feature.properties.NAME);
+                            }
 
-            }.bind(this))
+                            layer.on('mouseover', function () {
+                                this.setStyle({
+                                    'fillColor': '#0000ff',
+                                    "color": '#0000ff'
+                                });
+                            });
+                            layer.on('mouseout', function () {
+                                this.setStyle({
+                                    'fillColor': '#ff0000',
+                                    'color': '#ff0000'
+                                });
+                            });
+                        }
+                    });
 
-        fetch("/data/Terrestrial_Ecoregions_World-4.json")
+                    this.control.addOverlay(hotSpots, "Biodiversity Hot Spots", "Additional");
+
+                }.bind(this));
+        }
+
+        let addEcos = this.addEcoregions;
+        fetch("/wwf_terr_ecos_Project_Featur10percentCorrected.json")
             .then(res => res.json())
             .then(data => {
                 function filterByEco(feature) {
@@ -221,11 +310,18 @@ class MapHelper {
                         }
                     }
                 });
+                this.ecoData = data;
 
-                this.control.addOverlay(eco, "Terrestrial Ecoregions", "Additional");
+                if (addEcos) {
+                    this.control.addOverlay(eco, "Terrestrial Ecoregions", "Additional");
+                }
             });
 
-        fetch("/data/capitals.geo.json")
+
+        this.diversityLayer = L.layerGroup([]);
+        this.control.addOverlay(this.diversityLayer, "Diversity", "Additional");
+
+        fetch("/capitals.geo.json")
             .then(res => res.json())
             .then(data => {
                 this.capitalsData = data;
@@ -234,6 +330,14 @@ class MapHelper {
                     this.capitals[element.properties.iso2] = element;
                 }.bind(this));
             });
+
+        /* fetch("/intersectionsOfEcoAndCountries.geo.json")
+            .then(res => res.json())
+            .then(data => {
+                this.intersections = data;
+            });
+ */
+        this.addTreeCountries("HeatMap", []);
     }
 
     defineFeature(feature, latlng) {
@@ -427,7 +531,7 @@ class MapHelper {
         }
     }
 
-    addTreeCountries(treeName, countries) {
+    addTreeCountries(treeName, countries, speciesCountries = null) {
 
         let index = Object.keys(this.trees).length;
         let add = false;
@@ -444,6 +548,10 @@ class MapHelper {
 
         if (add) {
             this.trees[treeName].countries = countries;
+            if (speciesCountries !== null) {
+                this.trees[treeName].speciesCountries = speciesCountries;
+            }
+            //if (this.countriesData && this.intersections !== undefined) {
             if (this.countriesData) {
                 this.addTreeLayer(treeName);
             } else {
@@ -452,12 +560,25 @@ class MapHelper {
         }
     }
 
-    removeTreeCountries(treeName) {
+    removeSpeciesCountries(treeName) {
         if (this.trees.hasOwnProperty(treeName)) {
             for (let layer of this.control._layers) {
-                if (layer.name === "Regions" && layer.group.name === treeName) {
+                if (layer.name === "Countries" && layer.group.name === treeName) {
                     delete this.trees[treeName].countries;
+                    this.mymap.removeLayer(this.trees[treeName].treeCountriesLayer);
                     this.control.removeLayer(this.trees[treeName].treeCountriesLayer);
+                }
+            }
+        }
+    }
+
+    removeSpeciesEcoRegions(treeName) {
+        if (this.trees.hasOwnProperty(treeName)) {
+            for (let layer of this.control._layers) {
+                if (layer.name === "Eco Regions" && layer.group.name === treeName) {
+                    /* delete this.trees[treeName].countries; */
+                    this.mymap.removeLayer(this.trees[treeName].treeEcosLayer);
+                    this.control.removeLayer(this.trees[treeName].treeEcosLayer);
                 }
             }
         }
@@ -689,30 +810,128 @@ class MapHelper {
         }
     }
 
-    addTreeLayer(treeName) {
-        let countries = this.trees[treeName].countries;
-
-        function filterByName(feature) {
-            if (countries.includes(feature.properties.name)) return true;
-        }
-
-        let color = this.trees[treeName].color;
-
-        var country = L.geoJson(this.countriesData, {
-            filter: filterByName,
+    addDistribution(species, data) {
+        let dist = L.geoJson(data, {
             clickable: false,
-            fillPattern: this.stripes,
             style: {
-                fill: color,
-                color: color,
-                opacity: 0.5,
-                fillOpacity: 0.5
+                color: "blue",
+                /* opacity: opacity,
+                fillOpacity: opacity */
             }
         });
 
-        let overlay = this.control.addOverlay(country, "Regions", treeName);
+        this.control.addOverlay(dist, "Distribution", species);
+    }
+
+    addTreeLayer(treeName) {
+        let countries = [...new Set(this.trees[treeName].countries)];
+
+        if (this.trees[treeName].speciesCountries !== undefined) {
+            countries = Object.values(this.trees[treeName].speciesCountries).flat();
+        }
+
+        let newRegions = [];
+        let countryNames = [];
+        let intersections = this.intersections;
+
+        function filterByName(feature) {
+            if (countryNames.includes(feature.properties.ROMNAM)) {
+                return true;
+            }
+        }
+
+        function filterByIntersection(feature) {
+            if (newRegions.includes(feature.id)) {
+                return true;
+            }
+        }
+
+        let sumCat = this.getTreeThreatLevel(treeName, this.treeThreatType);
+        let color;
+        if (this.treeThreatType) {
+            color = getCitesColor(sumCat);
+        }
+        else {
+            color = dangerColorMap[sumCat].bg;
+        }
+
+        let regions = this.control._layers.filter(layer => layer.name === "Countries" && layer.group.name !== "HeatMap");
+        let activeRegions = regions.filter(layer => layer.layer._map !== null);
+        let opacity = 1 / (activeRegions.length + 1);
+        opacity = scaleValue(opacity, [0, 1], [1, 3]) / 3;
+
+        let newFeatureSet = [];
+        let notFound = [];
+
+        let mapCountries = {};
+        let diversityCountries = [];
+
+        for (let country of countries) {
+            let hit = false;
+            for (let feature of this.countriesData.features) {
+                if (country === feature.properties.MAPLAB || country === feature.properties.ROMNAM || country === feature.properties.bgciName) {
+                    if (mapCountries.hasOwnProperty(feature.properties.ISO3CD)) {
+                        if (feature.properties.Shape_Area > mapCountries[feature.properties.ISO3CD].properties.Shape_Area) {
+                            mapCountries[feature.properties.ISO3CD] = feature;
+                        }
+                    }
+                    else {
+                        mapCountries[feature.properties.ISO3CD] = feature;
+                    }
+                    diversityCountries.push(feature.id);
+
+                    hit = true;
+                    /* if (intersections.hasOwnProperty(feature.properties.ROMNAM)) {
+                        newRegions.push(...intersections[feature.properties.ROMNAM]);
+                    } */
+                }
+            }
+
+            if (hit === false) {
+                notFound.push(country);
+            }
+        }
+
+        /* this.diversityRegions[treeName] = [...new Set(newRegions)]; */
+        this.diversityCountries[treeName] = diversityCountries;
+
+        var country = L.geoJson(
+            {
+                "type": "FeatureCollection",
+                "features": Object.values(mapCountries)
+            }
+            , {
+                /* filter: filterByName, */
+                clickable: false,
+                fillPattern: this.stripes,
+                style: {
+                    fill: color,
+                    color: color,
+                    opacity: opacity,
+                    fillOpacity: opacity
+                }
+            });
+
+        /*  let ecos = L.geoJson(this.ecoData, {
+             filter: filterByIntersection,
+             style: {
+                 fill: color,
+                 fillColor: color,
+                 color: "grey",
+                 opacity: opacity,
+                 fillOpacity: opacity
+             }
+         }); */
+
+        this.control.addOverlay(country, "Countries", treeName);
+        this.mymap.addLayer(country);
         this.trees[treeName].treeCountriesLayer = country;
-        this.colorLayerGroups();
+
+        /* this.control.addOverlay(ecos, "Eco Regions", treeName);
+        this.trees[treeName].treeEcosLayer = ecos; */
+
+        this.updateRegions();
+        this.updateDiversity();
     }
 
     colorLayerGroups() {
@@ -724,6 +943,323 @@ class MapHelper {
         }
     }
 
+    updateHeatMap(active, treeThreatType) {
+        this.treeThreatType = treeThreatType ? "economically" : "ecologically";
+
+        let regions = this.control._layers.filter(layer => layer.name === "Countries" && layer.group.name !== "HeatMap");
+
+        if (active) {
+
+            let heatMapData = {};
+            let countryHeat = {};
+
+            for (let layer of regions) {
+                let layerTreeName = layer.group.name;
+                for (let country of this.trees[layerTreeName].countries) {
+                    pushOrCreate(heatMapData, country, this.getTreeThreatLevel(layerTreeName, this.treeThreatType));
+                }
+                this.mymap.removeLayer(this.trees[layerTreeName].treeCountriesLayer);
+            }
+
+            for (let country of Object.keys(heatMapData)) {
+                let countryData = heatMapData[country].map(e => threatScore(e)).filter(e => e >= 0.0);
+
+                let scoreSum = countryData.reduce(((a, b) => a + b), 0);
+
+                let avg = scoreSum / countryData.length;
+
+                countryHeat[country] = avg;
+            }
+
+            let countries = Object.keys(countryHeat);
+
+            function filterByName(feature) {
+                for (let country of countries) {
+                    if (country === feature.properties.ROMNAM || country === feature.properties.MAPLAB || country === feature.properties.bgciName) {
+                        return true;
+                    }
+                }
+            }
+
+            let calculateStlyle = function (feature) {
+                let score = countryHeat.hasOwnProperty(feature.properties.ROMNAM) ? countryHeat[feature.properties.ROMNAM] : countryHeat.hasOwnProperty(feature.properties.MAPLAB) ? countryHeat[feature.properties.MAPLAB] : countryHeat[feature.properties.bgciName];
+                let cat = threatScoreReverse(score);
+                let color = dangerColorMap[cat].bg;
+                let heatMapEntry = heatMapData.hasOwnProperty(feature.properties.ROMNAM) ? heatMapData[feature.properties.ROMNAM] : heatMapData.hasOwnProperty(feature.properties.MAPLAB) ? heatMapData[feature.properties.MAPLAB] : heatMapData[feature.properties.bgciName];
+                let opacity = heatMapEntry.length / regions.length;
+                opacity = scaleValue(opacity, [0, 1], [1, 3]) / 3;
+                return {
+                    fill: color,
+                    color: color,
+                    opacity: opacity,
+                    fillOpacity: opacity
+                };
+            };
+
+            var country = L.geoJson(this.countriesData, {
+                filter: filterByName,
+                clickable: false,
+                fillPattern: this.stripes,
+                style: calculateStlyle
+            });
+
+            if (this.trees["HeatMap"].hasOwnProperty("treeCountriesLayer")) {
+                this.trees["HeatMap"].treeCountriesLayer.eachLayer(feat => {
+                    this.trees["HeatMap"].treeCountriesLayer.removeLayer(feat);
+                });
+
+                country.eachLayer(feat => {
+                    this.trees["HeatMap"].treeCountriesLayer.addLayer(feat);
+                });
+            }
+
+            if (this.trees["HeatMap"].hasOwnProperty("treeCountriesLayer")) {
+                this.mymap.addLayer(this.trees["HeatMap"].treeCountriesLayer);
+            }
+        }
+        else {
+            if (this.trees["HeatMap"].hasOwnProperty("treeCountriesLayer")) {
+                this.mymap.removeLayer(this.trees["HeatMap"].treeCountriesLayer);
+            }
+
+            for (let layer of regions) {
+                let layerTreeName = layer.group.name;
+                if (this.trees[layerTreeName].hasOwnProperty("treeCountriesLayer")) {
+                    this.mymap.addLayer(this.trees[layerTreeName].treeCountriesLayer);
+                }
+            }
+        }
+    }
+
+    updateRegions(add = 0) {
+        let regions = this.control._layers.filter(layer => layer.name === "Countries" && layer.group.name !== "HeatMap");
+        let activeRegions = regions.filter(layer => layer.layer._map !== null);
+
+        let opacity = 1 / (activeRegions.length + add);
+        opacity = scaleValue(opacity, [0, 1], [1, 3]) / 3;
+
+        for (let layer of activeRegions) {
+            let layerTreeName = layer.group.name;
+            if (this.trees[layerTreeName].treeCountriesLayer) {
+                this.trees[layerTreeName].treeCountriesLayer.setStyle({ fillOpacity: opacity, opacity: opacity });
+            }
+        }
+    }
+
+    removeAllCountrieLayers() {
+        let oldregions = this.control._layers.filter(layer => layer.name === "Countries" && layer.group.name !== "HeatMap");
+        for (let layer of oldregions) {
+            let layerTreeName = layer.group.name;
+            this.mymap.removeLayer(this.trees[layerTreeName].treeCountriesLayer);
+        }
+    }
+
+    updateDiversity(active, diversityMode, diversityAttribute) {
+
+        this.diversityMode = diversityMode;
+
+        let oldregions = this.control._layers.filter(layer => layer.name === "Countries" && layer.group.name !== "HeatMap");
+        if (active) {
+            for (let layer of oldregions) {
+                let layerTreeName = layer.group.name;
+                this.mymap.removeLayer(this.trees[layerTreeName].treeCountriesLayer);
+            }
+
+            this.diversityLayer.clearLayers();
+
+            let heatMapData = {};
+
+            for (let treeName of oldregions.map(e => e.group.name)) {
+                //let speciesRegions = this.diversityRegions[treeName];
+                let speciesRegions = this.diversityCountries[treeName];
+
+                for (let region of speciesRegions) {
+                    if (this.diversityMode) {
+                        pushOrCreate(heatMapData, region.toString(), treeName);
+                    }
+                    else {
+                        let threat = this.getTreeThreatLevel(treeName, this.treeThreatType);
+                        if (threat === diversityAttribute || threat === iucnToDangerMap[diversityAttribute]) {
+                            pushOrCreate(heatMapData, region.toString(), threat);
+                        }
+                    }
+                }
+            }
+
+            console.log(heatMapData);
+
+
+            let regionIDs = Object.keys(heatMapData);
+
+            function filterByHeatMap(feature) {
+                if (regionIDs.includes(feature.id)) {
+                    return true;
+                }
+            }
+
+            function filterByName(feature) {
+                if (regionIDs.includes(feature.properties.ROMNAM)) {
+                    return true;
+                }
+            }
+
+            function filterByISO(feature) {
+                if (regionIDs.includes(feature.properties.ISO3CD)) {
+                    return true;
+                }
+            }
+
+            function filterByID(feature) {
+                if (regionIDs.includes(feature.id.toString())) {
+                    return true;
+                }
+            }
+
+            let treeThreatType = this.treeThreatType;
+
+            let heatMapLength = oldregions.length;
+            let heatMapMax = Math.max(...Object.values(heatMapData).map(e => e.length));
+
+            let scaleSteps = Math.min(10, heatMapMax);
+            let scale = [];
+
+
+            for (let i = 0; i < (scaleSteps + 1); i++) {
+                let scaleValue = i * (heatMapMax / scaleSteps);
+                let scaleOpacity = scaleValue / heatMapMax;
+
+                let scaleColor = "";
+                if (diversityMode) {
+                    scaleColor = "rgba(5,74,145," + scaleOpacity + ")";
+                }
+                else {
+                    scaleColor = treeThreatType === "economically" ? getCitesColor(diversityAttribute) : (dangerColorMap[iucnToDangerMap[diversityAttribute]]).bg;
+
+                    let rgbValues = scaleColor.replace("rgb", "").replace("(", "").replace(")", "").split(",").map(e => parseInt(e.trim()));
+
+                    let hsvValues = colorsys.rgb_to_hsv(...rgbValues);
+                    scaleColor = colorsys.hsvToHex({ h: hsvValues.h, s: scaleOpacity * hsvValues.s, v: hsvValues.v });
+                }
+
+                scale.push({ scaleColor, scaleValue: Math.ceil(scaleValue) });
+            }
+
+            let getScaledIndex = function (value) {
+                let index = 0;
+                for (let e of scale) {
+
+                    if (value < e.scaleValue) {
+                        return index;
+                    }
+                    index++;
+                }
+                return Math.min(scale.length - 1, index);
+            }
+
+            this.setDiversityScale(scale);
+
+
+            function calculateStlyle(feature) {
+
+                if (diversityMode) {
+                    return {
+                        color: "white",
+                        stroke: 1,
+                        opacity: 1,
+                        weight: 1,
+                        fillOpacity: heatMapData[feature.id].length / heatMapMax,
+                        fillColor: "rgb(5, 74, 145)",
+
+                        /* fill: colorsys.hsvToHex({ h: 210, s: (heatMapData[feature.id].length / heatMapMax) * 100, v: 100 }),
+                        fillColor: colorsys.hsvToHex({ h: 210, s: (heatMapData[feature.id].length / heatMapMax) * 100, v: 100 }),
+                        opacity: 1,
+                        fillOpacity: 1 */
+                        /* opacity: heatMapData[feature.id].length / heatMapMax, */
+                        /* fill: "rgb(5, 74, 145)", */
+                        /* opacity: heatMapData[feature.properties.ISO3CD].length / heatMapLength,
+                         fillOpacity: heatMapData[feature.properties.ISO3CD].length / heatMapLength */
+                        /* opacity: heatMapData[feature.properties.ROMNAM].length / heatMapLength,
+                        fillOpacity: heatMapData[feature.properties.ROMNAM].length / heatMapLength */
+                    };
+                }
+                else {
+
+                    let val = heatMapData[feature.id].length;
+                    let scaledIndex = getScaledIndex(val);
+
+                    return {
+                        color: "white",
+                        stroke: 1,
+                        opacity: 1,
+                        weight: 1,
+                        fillOpacity: 1,
+                        fillColor: scale[scaledIndex].scaleColor,
+
+                        /* fill: colorsys.hsvToHex({ h: 210, s: (heatMapData[feature.id].length / heatMapMax) * 100, v: 100 }),
+                        fillColor: colorsys.hsvToHex({ h: 210, s: (heatMapData[feature.id].length / heatMapMax) * 100, v: 100 }),
+                        opacity: 1,
+                        fillOpacity: 1 */
+                        /* opacity: heatMapData[feature.id].length / heatMapMax, */
+                        /* fill: "rgb(5, 74, 145)", */
+                        /* opacity: heatMapData[feature.properties.ISO3CD].length / heatMapLength,
+                         fillOpacity: heatMapData[feature.properties.ISO3CD].length / heatMapLength */
+                        /* opacity: heatMapData[feature.properties.ROMNAM].length / heatMapLength,
+                        fillOpacity: heatMapData[feature.properties.ROMNAM].length / heatMapLength */
+                    };
+                }
+
+
+            }
+
+            /* function calculateStlyle(feature) {
+                let style = {
+                    fill: "blue",
+                    fillColor: "blue",
+                    color: null,
+                    opacity: heatMapData[feature.id.toString()].length / heatMapLength,
+                    fillOpacity: heatMapData[feature.id.toString()].length / heatMapLength
+                };
+
+                return style;
+            } */
+
+            /*     let ecos = L.geoJson(this.ecoData, {
+                    filter: filterByHeatMap,
+                    style: calculateStlyle
+                }); */
+
+            let ecos = L.geoJson(this.countriesData, {
+                filter: filterByID,
+                style: calculateStlyle,
+            });
+
+            var bounds = L.latLngBounds([]);
+
+            ecos.eachLayer(feature => {
+                feature.bindPopup(feature.feature.properties.ROMNAM + ": " + heatMapData[feature.feature.id].length);
+                this.diversityLayer.addLayer(feature);
+
+                var layerBounds = feature.getBounds();
+                bounds.extend(layerBounds);
+            });
+
+            this.mymap.addLayer(this.diversityLayer);
+            /* 
+                        this.mymap.fitBounds(bounds); */
+        }
+        else {
+            for (let layer of oldregions) {
+                let layerTreeName = layer.group.name;
+                if (this.trees[layerTreeName].hasOwnProperty("treeCountriesLayer")) {
+                    this.mymap.addLayer(this.trees[layerTreeName].treeCountriesLayer);
+                }
+            }
+
+            this.mymap.removeLayer(this.diversityLayer);
+        }
+    }
+
+
     overlayadd(event) {
         let treeName = event.group.name;
         let typ = event.name;
@@ -732,6 +1268,11 @@ class MapHelper {
             if (typ.includes("Trees")) {
                 this.addTreeCoordinateLayer(treeName);
             }
+
+            /* if (typ === "Countries") {
+                this.updateRegions();
+                this.updateDiversity();
+            } */
         }
     }
 
@@ -743,6 +1284,21 @@ class MapHelper {
             switch (typ) {
                 case "Trees":
                     this.removeTreeCoordinateLayer(treeName);
+                    break;
+
+                case "Countries":
+                    /* let regions = this.control._layers.filter(layer => layer.name === "Countries");
+                    let activeRegions = regions.filter(layer => layer.layer._map !== null);
+
+                    let opacity = 1 / (activeRegions.length - 1);
+
+                    for (let layer of activeRegions) {
+                        if (this.trees[layer.group.name].treeCountriesLayer) {
+                            this.trees[layer.group.name].treeCountriesLayer.setStyle({ fillOpacity: opacity, opacity: opacity });
+                        }
+                    } */
+                    /* this.updateRegions(-1); */
+                    /* this.updateDiversity(); */
                     break;
 
                 default:
