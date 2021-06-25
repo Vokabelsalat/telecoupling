@@ -218,9 +218,9 @@ class TimelineView extends Component {
                     />
                     <div style={{ maxHeight: window.innerHeight / 2 + "px", overflowY: "scroll" }}> {
                         this.state.sortedKeys
-                            /* .filter(e => {
+                            .filter(e => {
                                 return e.trim().includes(" ")
-                            }) */
+                            })
                             .map(e => {
                                 return (
                                     <Timeline
