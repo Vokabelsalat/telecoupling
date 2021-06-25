@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { iucnColors } from '../utils/timelineUtils';
+import { iucnColors, iucnAssessment, bgciAssessment, citesAssessment } from '../utils/timelineUtils';
 import { dangerColorMap } from '../utils/utils';
 
 class Legend extends Component {
@@ -22,18 +22,18 @@ class Legend extends Component {
                 <div style={{
                     display: "grid",
                     gridTemplateColumns: "60px auto 30px",
-                    gridTemplateRows: "23px 23px"
+                    gridTemplateRows: "23px 23px 23px"
                 }}>
                     <div style={{ gridColumnStart: 1, gridColumnEnd: 1, gridRowStart: 1, gridRowEnd: 1 }}>IUCN</div>
                     <div style={{ gridColumnStart: 2, gridColumnEnd: 2, gridRowStart: 1, gridRowEnd: 1 }}>
-                        {(Object.keys(iucnColors).map((e, i) => {
+                        {(iucnAssessment.getSortedLevels().map((e, i) => {
 
                             let style = {
                                 display: "inline-block",
                                 width: "30px",
                                 height: "20px",
-                                backgroundColor: iucnColors[e].bg,
-                                color: iucnColors[e].fg,
+                                backgroundColor: iucnAssessment.get(e).getColor(),
+                                color: iucnAssessment.get(e).getForegroundColor(),
                                 textAlign: "center"
                             };
                             return (<div
@@ -48,7 +48,7 @@ class Legend extends Component {
 
                     <div style={{ gridColumnStart: 1, gridColumnEnd: 1, gridRowStart: 2, gridRowEnd: 2 }}>BGCI</div>
                     <div style={{ gridColumnStart: 2, gridColumnEnd: 2, gridRowStart: 2, gridRowEnd: 2 }}>
-                        {(Object.keys(dangerColorMap).map(e => {
+                        {(bgciAssessment.getSortedLevels().map(e => {
                             let width;
                             if (["EX", "TH"].includes(e)) {
                                 width = "90px";
@@ -61,8 +61,36 @@ class Legend extends Component {
                                 display: "inline-block",
                                 width: width,
                                 height: "20px",
-                                backgroundColor: dangerColorMap[e].bg,
-                                color: dangerColorMap[e].fg,
+                                backgroundColor: bgciAssessment.get(e).getColor(),
+                                color: bgciAssessment.get(e).getForegroundColor(),
+                                textAlign: "center"
+                            };
+                            return (<div
+                                key={e}
+                                style={style}
+                            >
+                                {e}
+                            </div>);
+                        }))
+                        }
+                    </div>
+                    <div style={{ gridColumnStart: 1, gridColumnEnd: 1, gridRowStart: 3, gridRowEnd: 3 }}>CITES</div>
+                    <div style={{ gridColumnStart: 2, gridColumnEnd: 2, gridRowStart: 3, gridRowEnd: 3 }}>
+                        {(citesAssessment.getSortedLevels().map(e => {
+                            let width;
+                            if (["I", "II"].includes(e)) {
+                                width = "90px";
+                            }
+                            else {
+                                width = "30px";
+                            }
+
+                            let style = {
+                                display: "inline-block",
+                                width: width,
+                                height: "20px",
+                                backgroundColor: citesAssessment.get(e).getColor(),
+                                color: citesAssessment.get(e).getForegroundColor(),
                                 textAlign: "center"
                             };
                             return (<div

@@ -8,7 +8,11 @@ class BarChart extends Component {
         this.state = {
             id: this.props.id,
             data: this.props.data,
-            colorFunction: this.props.colorFunction
+            colorFunction: this.props.colorFunction,
+            maxValue: this.props.maxValue,
+            grouped: this.props.grouped,
+            text: this.props.text,
+            showIcons: this.props.showIcons
         };
     }
 
@@ -16,16 +20,23 @@ class BarChart extends Component {
         BarChartHelper.draw({
             id: this.state.id,
             data: this.state.data,
-            colorFunction: this.state.colorFunction
+            colorFunction: this.state.colorFunction,
+            maxValue: this.state.maxValue,
+            grouped: this.state.grouped,
+            text: this.state.text,
+            showIcons: this.state.showIcons
         });
     }
 
     componentDidUpdate() {
-        console.log("UPDATED BARCHART");
         BarChartHelper.draw({
             id: this.state.id,
             data: this.props.data,
-            colorFunction: this.state.colorFunction
+            colorFunction: this.state.colorFunction,
+            maxValue: this.props.maxValue,
+            grouped: this.props.grouped,
+            text: this.props.text,
+            showIcons: this.props.showIcons
         });
     }
 

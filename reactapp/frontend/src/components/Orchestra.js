@@ -37,7 +37,7 @@ class Orchestra extends Component {
 
     render() {
         return (
-            <div>
+            <div style={{ "display": "inline-block" }}>
                 <div id={this.state.id}></div>
                 <div id={"selectmainpartWrapper"}></div>
             </div>

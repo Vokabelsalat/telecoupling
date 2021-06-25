@@ -46,7 +46,7 @@ router.get("/getMaterial/:instrumentGroup/:instruments?/:mainPart?", (req, res) 
 });
 
 router.get("/getAllMaterials", (req, res) => {
-    knex.distinct('Genus', 'Species').from("materials4").then(rows => {
+    knex.select().from("materials4").then(rows => {
         res.json(rows);
     });
     /* knex.select().from("materials4").offset(440).limit(60).then(rows => {
@@ -68,10 +68,15 @@ router.get("/getTestMaterial", (req, res) => {
 
     //knex.select().from("materials4").where({ "Genus": "Dalbergia", "Species": "" }).orWhere({ "Genus": "Paubrasilia", "Species": "Echinata" }).then(rows => {
     //knex.select().from("materials4").where({ "Instruments": "violin, viola, cello, double bass" }).then(rows => {
-    knex.select('Genus', 'Species').from("materials4")
+    knex.select().from("materials4")
         .where({ "Genus": "Paubrasilia", "Species": "Echinata" })
         .orWhere({ "Genus": "Brosimum", "Species": "guianense" })
         .orWhere({ "Genus": "Dalbergia", "Species": "melanoxylon" })
+        .orWhere({ "Genus": "Betula", "Species": "pendula" })
+        .orWhere({ "Genus": "Dalbergia", "Species": "" })
+        .orWhere({ "Genus": "Calamus", "Species": "" })
+        .orWhere({ "Genus": "Fraxinus", "Species": "" })
+        /* .where({ "Genus": "Betula", "Species": "pendula" }) */
         .then(rows => {
             res.json(rows);
         });

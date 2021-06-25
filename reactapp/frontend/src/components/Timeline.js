@@ -45,7 +45,9 @@ class Timeline extends Component {
             getTreeThreatLevel: this.props.getTreeThreatLevel,
             addSpeciesToMap: this.props.addSpeciesToMap,
             removeSpeciesFromMap: this.props.removeSpeciesFromMap,
-            muted: this.props.muted !== undefined ? this.props.muted : false
+            muted: this.props.muted !== undefined ? this.props.muted : false,
+            treeImageLinks: this.props.treeImageLinks,
+            setHover: this.props.setHover
         });
     }
 
@@ -71,7 +73,9 @@ class Timeline extends Component {
             getTreeThreatLevel: this.props.getTreeThreatLevel,
             addSpeciesToMap: this.props.addSpeciesToMap,
             removeSpeciesFromMap: this.props.removeSpeciesFromMap,
-            muted: this.props.muted !== undefined ? this.props.muted : false
+            muted: this.props.muted !== undefined ? this.props.muted : false,
+            treeImageLinks: this.props.treeImageLinks,
+            setHover: this.props.setHover
         });
     }
 

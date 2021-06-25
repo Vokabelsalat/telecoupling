@@ -1,0 +1,7 @@
+{
+"type": "FeatureCollection",
+"name": "Balaenoptera_acutorostrata",
+"features": [
+{ "type": "Feature", "properties": { "ASSESSMENT": 50348265.0, "ID_NO": 2474.0, "BINOMIAL": "Balaenoptera acutorostrata", "PRESENCE": 1, "ORIGIN": 1, "SEASONAL": 1, "COMPILER": "IUCN", "YEAR": 2012, "CITATION": "IUCN (International Union for Conservation of Nature)", "LEGEND": "Extant (resident)", "SUBSPECIES": null, "SUBPOP": null, "DIST_COMM": null, "ISLAND": null, "TAX_COMM": null }, "geometry": null }
+]
+}

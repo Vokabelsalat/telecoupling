@@ -16,7 +16,12 @@ let dangerColorMap = {
 };
 
 function getThreatColor(d) {
-    return dangerColorMap[d].bg
+    if (dangerColorMap.hasOwnProperty(d)) {
+        return dangerColorMap[d].bg
+    }
+    else {
+        return dangerColorMap["DD"].bg
+    }
 }
 
 module.exports = {
@@ -74,6 +79,44 @@ module.exports = {
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min)) + min;
     },
+    getGroupFileAndRotationFromID(id) {
+        let group = "";
+        let filename = "";
+        let rotation = 0;
+
+        switch (id) {
+            case "Strings":
+                group = "Strings";
+                filename = "strings2.svg";
+                break;
+            case "Woodwinds":
+                group = "Woodwinds";
+                filename = "woodwinds.svg";
+                rotation = 80;
+                break;
+            case "Percussion":
+                group = "Percussion";
+                filename = "percussion2.svg";
+                break;
+            case "Plucked":
+                group = "Plucked";
+                filename = "plucked2.svg";
+                break;
+            case "Keyboard":
+                group = "Keyboard";
+                filename = "keyboard2.svg";
+                break;
+            case "Brasses":
+                group = null;
+                filename = "brasses2.svg";
+                break;
+            default:
+                // statements_def
+                break;
+        }
+
+        return { group, filename, rotation };
+    },
     threatenedToDangerMap: {
         "extinct": "EX",
         "threatened": "TH",
@@ -102,6 +145,19 @@ module.exports = {
         "DD": "DD",
         "NA": "DD",
         "NE": "DD"
+    },
+    dangerToIUCNMap: {
+        "EX": "EX",
+        "EX": "EW",
+        "EX": "RE",
+        "TH": "CR",
+        "TH": "EN",
+        "PT": "VU",
+        "nT": "NT",
+        "nT": "LC",
+        "DD": "DD",
+        "DD": "NA",
+        "DD": "NE"
     },
     dangerColorMap: dangerColorMap,
     getThreatColor: getThreatColor,

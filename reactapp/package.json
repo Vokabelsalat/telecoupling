@@ -4,8 +4,7 @@
   "private": true,
   "dependencies": {
     "concurrently": "^5.1.0",
-    "leaflet": "^1.3.4",
-    "leaflet.markercluster": "^1.4.1"
+    "yargs": "^13.3.2"
   },
   "scripts": {
     "buildfrontend": "cd frontend && npm install",

@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { polarToCartesian, describeArc, getStartAndEnd, getAngle } from '../utils/orchestraUtils'
-import { getRandomInt } from '../utils/utils'
+import { getRandomInt, getGroupFileAndRotationFromID } from '../utils/utils'
 
 class D3Orchestra {
     constructor(param) {
@@ -12,8 +12,8 @@ class D3Orchestra {
         this.setInstrument = param.setInstrument;
         this.setInstrumentGroup = param.setInstrumentGroup;
 
-        this.initWidth = window.innerWidth;
-        this.initHeight = window.innerHeight;
+        this.initWidth = window.innerWidth / 2;
+        this.initHeight = window.innerHeight / 2;
 
         this.positionX = this.initWidth / 2;
         this.positionY = this.initHeight / 2 + 100;
@@ -26,7 +26,7 @@ class D3Orchestra {
             top: 10,
             right: 10,
             bottom: 10,
-            left: 10,
+            left: 40,
         };
 
         d3.selection.prototype.moveToFront = function () {
@@ -99,45 +99,6 @@ class D3Orchestra {
             return ["M", x, y, "L", endX, endY].join(" ");
     }
 
-    getGroupFileAndRotationFromID(id) {
-        let group = "";
-        let filename = "";
-        let rotation = 0;
-
-        switch (id) {
-            case "Strings":
-                group = "Strings";
-                filename = "strings2.svg";
-                break;
-            case "Woodwinds":
-                group = "Woodwinds";
-                filename = "woodwinds.svg";
-                rotation = 80;
-                break;
-            case "Percussion":
-                group = "Percussion";
-                filename = "percussion2.svg";
-                break;
-            case "Plucked":
-                group = "Plucked";
-                filename = "plucked2.svg";
-                break;
-            case "Keyboard":
-                group = "Keyboard";
-                filename = "keyboard2.svg";
-                break;
-            case "Brasses":
-                group = null;
-                filename = "brasses2.svg";
-                break;
-            default:
-                // statements_def
-                break;
-        }
-
-        return { group, filename, rotation };
-    }
-
     appendSelectArc(dst, id, text, color, strokewidth, x, y, width, start, end, direction, fontSize, classStr = "") {
         let group = dst.append("g")
             .style("cursor", "pointer")
@@ -173,7 +134,7 @@ class D3Orchestra {
 
         let groupAndFile;
         if (!classStr.includes("subarc")) {
-            groupAndFile = this.getGroupFileAndRotationFromID(id);
+            groupAndFile = getGroupFileAndRotationFromID(id);
             let instrumentGroup = groupAndFile.group;
 
             width = width + 10;
@@ -454,6 +415,7 @@ class D3Orchestra {
             .attr("id", "selectChartSVG")
             .attr("height", this.height)
             .attr("width", this.width)
+            .style("transform", "translate(" + this.margin.left + "px , " + 0 + "px)")
             .style("border", "solid 1px gray")
 
         this.container = svg.append("g")
@@ -569,6 +531,10 @@ class D3Orchestra {
         selectchart.selectAll(".icon").style("opacity", 1.0);
 
         this.zoomAndRotate(selectchart, true);
+
+        this.setInstrumentGroup(undefined);
+        this.setInstrument(undefined);
+        this.setInstrumentAndMainPart(undefined, undefined);
     }
 
     paint() {

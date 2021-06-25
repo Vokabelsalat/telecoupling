@@ -57,7 +57,6 @@ class TimelineView extends Component {
     }
 
     componentDidUpdate(prevProps) {
-
         if (JSON.stringify(prevProps) !== JSON.stringify(this.props)) {
             //console.log("update timeline");
             this.create();
@@ -79,7 +78,7 @@ class TimelineView extends Component {
     create() {
         let tmpdata;
         let domainYears;
-        if (!this.usePreGenerated) {
+        if (this.usePreGenerated === false) {
             let generator = new TimelineDatagenerator(this.state.oldTimelineData);
             generator.processData(this.props.data, this.props.tradeData);
 
@@ -93,11 +92,14 @@ class TimelineView extends Component {
 
         let reducer = (accumulator, currentValue) => { return accumulator + currentValue.length; };
         let sortedKeys = Object.keys(tmpdata).sort((a, b) => {
-            if (tmpdata[b].hasOwnProperty("timeTrade") && tmpdata[a].hasOwnProperty("timeTrade")) {
-                return Object.values(tmpdata[b].timeTrade[1]).reduce(reducer, 0) - Object.values(tmpdata[a].timeTrade[1]).reduce(reducer, 0);
+            if (!tmpdata[b].hasOwnProperty("timeIUCN")) {
+                return -1;
+            }
+            else if (!tmpdata[a].hasOwnProperty("timeIUCN")) {
+                return 1;
             }
             else {
-                return -1;
+                return (tmpdata[b].timeIUCN.length + tmpdata[b].timeListing.length + tmpdata[b].timeThreat.length) - (tmpdata[a].timeIUCN.length + tmpdata[a].timeListing.length + tmpdata[a].timeThreat.length);
             }
         });
 
@@ -214,38 +216,44 @@ class TimelineView extends Component {
                         domainYears={this.state.domainYears}
                         zoomLevel={this.state.zoomLevel}
                     />
-                    <div> {
-                        this.state.sortedKeys.map(e => {
-                            return (
-                                <Timeline
-                                    id={e.replaceSpecialCharacters() + "TimelineVis"}
-                                    key={e.replaceSpecialCharacters() + "timeline"}
-                                    data={this.state.data[e]}
-                                    initWidth={this.props.initWidth}
-                                    speciesName={e}
-                                    sourceColorMap={this.state.sourceColorMap}
-                                    domainYears={this.state.domainYears}
-                                    zoomLevel={this.state.zoomLevel}
-                                    setZoomLevel={this.setZoomLevel.bind(this)}
-                                    maxPerYear={this.state.maxPerYear}
-                                    pieStyle={this.props.pieStyle}
-                                    groupSame={this.props.groupSame}
-                                    heatStyle={this.props.heatStyle}
-                                    sortGrouped={this.props.sortGrouped}
-                                    justGenus={e.trim().includes(" ") ? false : true}
-                                    setSpeciesSignThreats={this.props.setSpeciesSignThreats}
-                                    getSpeciesSignThreats={this.props.getSpeciesSignThreats}
-                                    getTreeThreatLevel={this.props.getTreeThreatLevel}
-                                    addSpeciesToMap={this.props.addSpeciesToMap}
-                                    removeSpeciesFromMap={this.props.removeSpeciesFromMap}
-                                    muted={Object.keys(this.state.unmutedSpecies).includes(e) ? false :
-                                        Object.keys(this.state.unmutedSpecies).length > 0 ? true : false}
-                                    removeAllUnmutedSpecies={this.removeAllUnmutedSpecies.bind(this)}
-                                    addUnmutedSpecies={this.addUnmutedSpecies.bind(this)}
-                                    removeUnmutedSpecies={this.removeUnmutedSpecies.bind(this)}
-                                />
-                            )
-                        })
+                    <div style={{ maxHeight: window.innerHeight / 2 + "px", overflowY: "scroll" }}> {
+                        this.state.sortedKeys
+                            /* .filter(e => {
+                                return e.trim().includes(" ")
+                            }) */
+                            .map(e => {
+                                return (
+                                    <Timeline
+                                        id={e.replaceSpecialCharacters() + "TimelineVis"}
+                                        key={e.replaceSpecialCharacters() + "timeline"}
+                                        data={this.state.data[e]}
+                                        initWidth={this.props.initWidth}
+                                        speciesName={e}
+                                        sourceColorMap={this.state.sourceColorMap}
+                                        domainYears={this.state.domainYears}
+                                        zoomLevel={this.state.zoomLevel}
+                                        setZoomLevel={this.setZoomLevel.bind(this)}
+                                        maxPerYear={this.state.maxPerYear}
+                                        pieStyle={this.props.pieStyle}
+                                        groupSame={this.props.groupSame}
+                                        heatStyle={this.props.heatStyle}
+                                        sortGrouped={this.props.sortGrouped}
+                                        justGenus={e.trim().includes(" ") ? false : true}
+                                        setSpeciesSignThreats={this.props.setSpeciesSignThreats}
+                                        getSpeciesSignThreats={this.props.getSpeciesSignThreats}
+                                        getTreeThreatLevel={this.props.getTreeThreatLevel}
+                                        addSpeciesToMap={this.props.addSpeciesToMap}
+                                        removeSpeciesFromMap={this.props.removeSpeciesFromMap}
+                                        muted={Object.keys(this.state.unmutedSpecies).includes(e) ? false :
+                                            Object.keys(this.state.unmutedSpecies).length > 0 ? true : false}
+                                        removeAllUnmutedSpecies={this.removeAllUnmutedSpecies.bind(this)}
+                                        addUnmutedSpecies={this.addUnmutedSpecies.bind(this)}
+                                        removeUnmutedSpecies={this.removeUnmutedSpecies.bind(this)}
+                                        treeImageLinks={this.props.treeImageLinks}
+                                        setHover={this.props.setHover}
+                                    />
+                                )
+                            })
                     } </div>
                     <Timeline
                         id={"scaleBottom2"}

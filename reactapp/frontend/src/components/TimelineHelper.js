@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import { getOrCreate, dangerColorMap, sourceToDangerMap, iucnToDangerMap, pushOrCreate, pushOrCreateWithoutDuplicates, dangerSorted, scaleValue } from '../utils/utils'
-import { getIucnColor, getIucnColorForeground, iucnCategoriesSorted, citesAppendixSorted, citesScore, citesScoreReverse, iucnScore, iucnScoreReverse, iucnCategories, threatScore, threatScoreReverse, getCitesColor } from '../utils/timelineUtils'
-import { stackOffsetNone } from "d3";
+import { getIucnColor, getIucnColorForeground, iucnCategoriesSorted, citesAppendixSorted, iucnCategories, threatScore, threatScoreReverse, getCitesColor, citesAssessment, iucnAssessment, bgciAssessment } from '../utils/timelineUtils'
+import { scaleLinear, stackOffsetNone } from "d3";
 
 class D3Timeline {
     constructor(param) {
@@ -23,7 +23,10 @@ class D3Timeline {
         this.addSpeciesToMap = param.addSpeciesToMap;
         this.removeSpeciesFromMap = param.removeSpeciesFromMap;
 
-        this.heatStyle = param.heatStyle;
+        this.setHover = param.setHover;
+
+        //this.heatStyle = param.heatStyle;
+        this.heatStyle = "max";
 
         this.initWidth = param.initWidth;
         this.initHeight = 100;
@@ -33,7 +36,7 @@ class D3Timeline {
 
         this.firstSVGAdded = false;
 
-        this.rowHeight = 0;
+        this.rowHeight = 20;
 
         this.rightGroupWidth = 50;
 
@@ -41,6 +44,8 @@ class D3Timeline {
         this.getSpeciesSignThreats = param.getSpeciesSignThreats;
 
         this.getTreeThreatLevel = param.getTreeThreatLevel;
+
+        this.speciesImageLinks = param.treeImageLinks;
 
         this.muted = param.muted;
 
@@ -174,6 +179,7 @@ class D3Timeline {
 
         this.wrapper
             .style("display", "table-cell")
+            .style("position", "relative")
             .style("border-top", "1px solid var(--black)")
 
         if (this.id.toLowerCase().includes("scale")) {
@@ -218,7 +224,7 @@ class D3Timeline {
 
                 iucnThreat = this.getTreeThreatLevel(this.speciesName, "ecologically");
 
-                iucnColor = dangerColorMap[iucnThreat].bg;
+                iucnColor = iucnThreat.getColor();
                 /* iucnThreat = iucnScoreReverse(Math.max(iucnScore(iucnThreat), threatScore(threatThreat))); */
             }
 
@@ -258,6 +264,35 @@ class D3Timeline {
                         this.setZoomLevel(0);
                     }
                 })
+                .on("mouseover", () => {
+                    this.setHover([this.speciesName]);
+                })
+                .on("mouseout", () => {
+                    this.setHover([]);
+                })
+
+            if (this.speciesImageLinks.hasOwnProperty(this.speciesName) && !(this.justGenus && this.zoomLevel > 0)) {
+                //let imageWidth = this.zoomLevel > 0 ? this.margin.left / 3 : 2 * this.margin.left / 3;
+                let imageWidth = 2 * this.margin.left / 3;
+                this.wrapper
+                    .append('div')
+                    .attr("class", "speciesImageWrapper")
+                    .style("width", imageWidth + "px")
+                    .style("height", "-webkit-fill-available")
+                    .style("position", "absolute")
+                    .style("left", 0)
+                    .style("top", 0)
+                    .style("background-image", "url(" + this.speciesImageLinks[this.speciesName] + ")")
+                    .on("mouseover", () => {
+                        this.setHover([this.speciesName]);
+                    })
+                    .on("mouseout", () => {
+                        this.setHover([]);
+                    })
+
+
+            }
+
         }
     }
 
@@ -383,7 +418,7 @@ class D3Timeline {
             for (let year = minYear; year <= maxYear; year++) {
                 if (yearData.hasOwnProperty(year.toString())) {
                     //get the highest assesments if there are multiple in the same year for the same species
-                    let highest = yearData[year.toString()].reduce((a, b) => citesAppendixSorted[a.appendix] < citesAppendixSorted[b.appendix] ? a.appendix : b.appendix, []);
+                    let highest = yearData[year.toString()].reduce((a, b) => citesAssessment.get(a.appendix).sort < citesAssessment.get(b.appendix).sort ? a.appendix : b.appendix, []);
 
                     pushOrCreate(getOrCreate(newListingHeatMap, year, {}), highest, 1);
                     lastState = yearData[year.toString()][0].appendix;
@@ -411,53 +446,52 @@ class D3Timeline {
             let maxKey, maxValue, opacity;
 
             switch (this.heatStyle) {
-                case "dom":
-                    maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
-                    countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
-                        return accumulator + yearData[currentValue].length;
-                    }, 0);
-                    maxValue = yearData[maxKey];
-
-                    if (maxKeyPrevious !== null) {
-                        if (maxValue.length <= maxValuePrevious.length) {
-                            maxKey = maxKeyPrevious;
-                            maxValue = maxValuePrevious;
-                            push = false;
-                        }
-                    }
-
-                    maxKeyPrevious = maxKey;
-                    maxValuePrevious = maxValue;
-
-                    opacity = maxValue.length / maxSpecies;
-                    break;
-                case "avg":
-
-                    let scoreSum = Object.keys(yearData).reduce(((a, b) => a + yearData[b].length * citesScore(b)), 0);
-                    countSum = Object.values(yearData).reduce((accumulator, currentValue) => {
-                        return accumulator + currentValue.length;
-                    }, 0);
-
-                    let avg = scoreSum / countSum;
-
-                    if (maxValuePrevious !== null) {
-                        if (maxValuePrevious === avg) {
-                            avg = maxValuePrevious;
-                            push = false;
-                        }
-                    }
-
-                    let reverseScore = citesScoreReverse(avg);
-
-                    maxValuePrevious = avg;
-
-                    maxKey = reverseScore;
-
-                    opacity = countSum / maxSpecies;
-                    break;
+                /*                 case "dom":
+                                    maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
+                                    countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
+                                        return accumulator + yearData[currentValue].length;
+                                    }, 0);
+                                    maxValue = yearData[maxKey];
+                
+                                    if (maxKeyPrevious !== null) {
+                                        if (maxValue.length <= maxValuePrevious.length) {
+                                            maxKey = maxKeyPrevious;
+                                            maxValue = maxValuePrevious;
+                                            push = false;
+                                        }
+                                    }
+                
+                                    maxKeyPrevious = maxKey;
+                                    maxValuePrevious = maxValue;
+                
+                                    opacity = maxValue.length / maxSpecies;
+                                    break;
+                                case "avg":
+                
+                                    let scoreSum = Object.keys(yearData).reduce(((a, b) => a + yearData[b].length * citesScore(b)), 0);
+                                    countSum = Object.values(yearData).reduce((accumulator, currentValue) => {
+                                        return accumulator + currentValue.length;
+                                    }, 0);
+                
+                                    let avg = scoreSum / countSum;
+                
+                                    if (maxValuePrevious !== null) {
+                                        if (maxValuePrevious === avg) {
+                                            avg = maxValuePrevious;
+                                            push = false;
+                                        }
+                                    }
+                
+                                    let reverseScore = citesScoreReverse(avg);
+                
+                                    maxValuePrevious = avg;
+                
+                                    maxKey = reverseScore;
+                
+                                    opacity = countSum / maxSpecies;
+                                    break; */
                 case "max":
-
-                    maxKey = Object.keys(yearData).reduce((a, b) => citesScore(a) > citesScore(b) ? a : b);
+                    maxKey = Object.keys(yearData).reduce((a, b) => citesAssessment.get(a).sort < citesAssessment.get(b).sort ? a : b);
                     countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
                         return accumulator + yearData[currentValue].length;
                     }, 0);
@@ -488,7 +522,7 @@ class D3Timeline {
                     rank: "ALL",
                     text: maxKey,
                     type: "listingHistory",
-                    opacity: opacity
+                    opacity: 1.0
                 };
 
                 heatMapData.push(tmp);
@@ -506,7 +540,7 @@ class D3Timeline {
 
         let circleYearCountIUCN = {};
 
-        let rowHeight = 2 * this.radius + 1;
+        let rowHeight = this.rowHeight + 1;
 
         let svgCITES = this.wrapper
             .append("svg")
@@ -596,21 +630,11 @@ class D3Timeline {
                             })*/
             .style("stroke-width", 1)
             .style("stroke", function (d) {
-                switch (d.type) {
-                    case "listingHistory":
-                        return getCitesColor(d.appendix);
-                    default:
-                        break;
-                }
+                return citesAssessment.get(d.appendix).getColor();
             })
             .style("fill-opacity", (d) => d.opacity)
             .style("fill", function (d) {
-                switch (d.type) {
-                    case "listingHistory":
-                        return getCitesColor(d.appendix);
-                    default:
-                        break;
-                }
+                return citesAssessment.get(d.appendix).getColor();
             });
     }
 
@@ -680,23 +704,22 @@ class D3Timeline {
                 .sort((a, b) => parseInt(b) - parseInt(a)).reverse()
                 .map((year, index) => {
 
-                    let curr = citesScore(trendMap[key][year]);
+                    let curr = citesAssessment.get(trendMap[key][year]).numvalue;
+
+                    /* let curr = citesScore(trendMap[key][year]);
                     if (curr < 0) {
                         curr = 0.5;
-                    }
+                    } */
 
                     sumMap[key].push(curr);
                     if (index > 0) {
-                        let prev = citesScore(trendMap[key][prevYear]);
-                        if (prev < 0) {
-                            prev = 0.5;
-                        }
+                        let prev = citesAssessment.get(trendMap[key][prevYear]).numvalue;
 
                         let trend;
-                        if (curr > prev) {
+                        if (curr < prev) {
                             trend = 1;
                         }
-                        else if (curr < prev) {
+                        else if (curr > prev) {
                             trend = -1;
                         }
                         else {
@@ -955,9 +978,10 @@ class D3Timeline {
         if (!genusLine) {
             g
                 .append("text")
-                .attr("transform", "translate(-" + this.margin.left + "," + (svgHeight / 2) + ")")
+                .attr("transform", "translate(-" + (this.justGenus ? this.margin.left : 5) + "," + (svgHeight / 2) + ")")
                 .style("dominant-baseline", "central")
                 .style("font-size", "9")
+                .style("text-anchor", "end")
                 .text("CITES");
         }
 
@@ -1145,7 +1169,7 @@ class D3Timeline {
                                         .attr("x2", 0)
                                         .attr("y2", 6)
                                         .attr("stroke", () => {
-                                            return getCitesColor(d.appendix);
+                                            return citesAssessment.get(d.appendix).getColor();
                                         })
                                         .attr('stroke-width', 6);
                                 }
@@ -1153,7 +1177,7 @@ class D3Timeline {
                                 return "url(#" + id + ")";
                             }
                             else {
-                                return getCitesColor(d.appendix);
+                                return citesAssessment.get(d.appendix).getColor();
                             }
                         default:
                             break;
@@ -1206,8 +1230,8 @@ class D3Timeline {
 
             for (let year = minYear; year <= maxYear; year++) {
                 if (yearData.hasOwnProperty(year.toString())) {
-                    let highest = yearData[year.toString()].reduce((max, p) => iucnScore(p.code) > iucnScore(max.code) ? p : max, yearData[year.toString()][0]);
-                    let highestScore = iucnScore(highest.code);
+                    let highest = yearData[year.toString()].reduce((max, p) => iucnAssessment.get(p.code).sort < iucnAssessment.get(max.code).sort ? p : max, yearData[year.toString()][0]);
+                    let highestScore = iucnAssessment.get(highest.code).sort;
                     //let highest = yearData[year.toString()].reduce((a, b) => iucnScore(a) > iucnScore(b.code) ? a : b.code, []);
 
                     pushOrCreate(getOrCreate(newIUCNHeatMap, year, {}), highest.code, 1);
@@ -1234,51 +1258,51 @@ class D3Timeline {
             let opacity;
 
             switch (this.heatStyle) {
-                case "dom":
-                    maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
-                    countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
-                        return accumulator + yearData[currentValue].length;
-                    }, 0);
-                    maxValue = yearData[maxKey];
-
-                    if (maxKeyPrevious !== null) {
-                        if (maxKey === maxKeyPrevious && maxValue.length <= maxValuePrevious.length) {
-                            maxKey = maxKeyPrevious;
-                            maxValue = maxValuePrevious;
-                            push = false;
-                        }
-                    }
-
-                    maxKeyPrevious = maxKey;
-                    maxValuePrevious = maxValue;
-
-                    opacity = maxValue.length / maxSpecies;
-                    break;
-                case "avg":
-
-                    let scoreSum = Object.keys(yearData).reduce(((a, b) => a + yearData[b].length * iucnScore(b)), 0);
-                    countSum = Object.values(yearData).reduce((accumulator, currentValue) => {
-                        return accumulator + currentValue.length;
-                    }, 0);
-
-                    let avg = scoreSum / countSum;
-
-                    if (maxValuePrevious !== null) {
-                        if (maxValuePrevious === avg) {
-                            avg = maxValuePrevious;
-                            push = false;
-                        }
-                    }
-
-                    maxKey = iucnScoreReverse(avg);
-
-                    maxValuePrevious = avg;
-
-                    opacity = countSum / maxSpecies;
-                    break;
+                /*                 case "dom":
+                                    maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
+                                    countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
+                                        return accumulator + yearData[currentValue].length;
+                                    }, 0);
+                                    maxValue = yearData[maxKey];
+                
+                                    if (maxKeyPrevious !== null) {
+                                        if (maxKey === maxKeyPrevious && maxValue.length <= maxValuePrevious.length) {
+                                            maxKey = maxKeyPrevious;
+                                            maxValue = maxValuePrevious;
+                                            push = false;
+                                        }
+                                    }
+                
+                                    maxKeyPrevious = maxKey;
+                                    maxValuePrevious = maxValue;
+                
+                                    opacity = maxValue.length / maxSpecies;
+                                    break;
+                                case "avg":
+                
+                                    let scoreSum = Object.keys(yearData).reduce(((a, b) => a + yearData[b].length * iucnScore(b)), 0);
+                                    countSum = Object.values(yearData).reduce((accumulator, currentValue) => {
+                                        return accumulator + currentValue.length;
+                                    }, 0);
+                
+                                    let avg = scoreSum / countSum;
+                
+                                    if (maxValuePrevious !== null) {
+                                        if (maxValuePrevious === avg) {
+                                            avg = maxValuePrevious;
+                                            push = false;
+                                        }
+                                    }
+                
+                                    maxKey = iucnScoreReverse(avg);
+                
+                                    maxValuePrevious = avg;
+                
+                                    opacity = countSum / maxSpecies;
+                                    break; */
                 case "max":
 
-                    maxKey = Object.keys(yearData).reduce((a, b) => iucnScore(a) > iucnScore(b) ? a : b);
+                    maxKey = Object.keys(yearData).reduce((a, b) => iucnAssessment.get(a).sort < iucnAssessment.get(b).sort ? a : b);
                     countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
                         return accumulator + yearData[currentValue].length;
                     }, 0);
@@ -1309,7 +1333,7 @@ class D3Timeline {
                     rank: "ALL",
                     text: maxKey,
                     type: "iucn",
-                    opacity: opacity
+                    opacity: 1.0
                 };
                 heatMapData.push(tmp);
             }
@@ -1324,7 +1348,7 @@ class D3Timeline {
 
         let circleYearCountIUCN = {};
 
-        let rowHeight = 2 * this.radius + 1;
+        let rowHeight = this.rowHeight + 1;
 
         let svgCITES = this.wrapper
             .append("svg")
@@ -1456,22 +1480,7 @@ class D3Timeline {
                     return this.width - this.x(Number(d.year));
                 }.bind(this))
                 .style("fill", function (d) {
-                    switch (d.type) {
-                        case "listingHistory":
-                            switch (d.appendix) {
-                                case "I":
-                                    return getIucnColorForeground({ text: "CR" });
-                                case "II":
-                                    return getIucnColorForeground({ text: "EN" });
-                                case "III":
-                                    return getIucnColorForeground({ text: "NT" });
-                                default:
-                                    break;
-                            }
-                            break;
-                        default:
-                            break;
-                    }
+                    return iucnAssessment.get(d.code).getColor();
                 })
                 .style("font-family", (d) => (d.type === "listingHistory" ? "serif" : "sans-serif"));
         }
@@ -1491,7 +1500,8 @@ class D3Timeline {
 
         for (let listing of iucnData.sort((a, b) => {
             if (parseInt(a.year) === parseInt(b.year)) {
-                return iucnScore(a.code) - iucnScore(b.code);
+                /* return iucnScore(a.code) - iucnScore(b.code); */
+                return iucnAssessment.get(b.code).sort - iucnAssessment.get(a.code).sort;
             }
             else {
                 return parseInt(a.year) - parseInt(b.year);
@@ -1501,7 +1511,7 @@ class D3Timeline {
             let name = listing.sciName;
 
             let listingKey = `${listing.year}${listing.code}${listing.sciName}`;
-            let characteristic = `${listing.year}${iucnScore(listing.code)}`;
+            let characteristic = `${listing.year}${iucnAssessment.get(listing.code).sort}`;
             if (speciesListing.hasOwnProperty(name)) {
                 if (!listingKeys.includes(listingKey)) {
                     speciesListing[name].push(listing);
@@ -1538,23 +1548,16 @@ class D3Timeline {
             characteristicsMap[key] = Object.keys(characteristicsMap[key])
                 .sort((a, b) => parseInt(b) - parseInt(a)).reverse()
                 .map((year, index) => {
-
-                    let curr = iucnScore(trendMap[key][year]);
-                    if (curr < 0) {
-                        curr = 0.5;
-                    }
+                    let curr = iucnAssessment.get(trendMap[key][year]).sort;
                     sumMap[key].push(curr);
                     if (index > 0) {
-                        let prev = iucnScore(trendMap[key][prevYear]);
-                        if (prev < 0) {
-                            prev = 0.5;
-                        }
+                        let prev = iucnAssessment.get(trendMap[key][prevYear]).sort;
 
                         let trend;
-                        if (curr > prev) {
+                        if (curr < prev) {
                             trend = 1;
                         }
-                        else if (curr < prev) {
+                        else if (curr > prev) {
                             trend = -1;
                         }
                         else {
@@ -1964,6 +1967,7 @@ class D3Timeline {
 
 
     appendThreatHeatMap(threatData, speciesNamesAndSyns) {
+
         let threatHeatMap = {};
         let speciesMap = {};
 
@@ -1984,20 +1988,15 @@ class D3Timeline {
         let newThreatHeatMap = {};
 
         for (let species of Object.keys(speciesMap)) {
-            let yearData = {};
             let lastState = null;
-            for (let entry of speciesMap[species]) {
-                pushOrCreate(yearData, entry.year, entry);
-            }
 
             for (let year = minYear; year <= maxYear; year++) {
-                if (yearData.hasOwnProperty(year.toString())) {
-                    let highestScore = Math.max(...yearData[year.toString()].map(e => threatScore(e.danger)));
-                    let highest = threatScoreReverse(highestScore);
-                    //let highest = yearData[year.toString()].reduce((a, b) => iucnScore(a) > iucnScore(b.code) ? a : b.code, []);
+
+                if (threatHeatMap.hasOwnProperty(year.toString())) {
+                    let highest = Object.keys(threatHeatMap[year.toString()]).reduce((a, b) => bgciAssessment.get(a).sort < bgciAssessment.get(b).sort ? a : b, []);
 
                     pushOrCreate(getOrCreate(newThreatHeatMap, year, {}), highest, 1);
-                    lastState = yearData[year.toString()][0].danger;
+                    lastState = highest;
 
                 }
                 else if (lastState) {
@@ -2022,7 +2021,7 @@ class D3Timeline {
             let opacity;
 
             switch (this.heatStyle) {
-                case "dom":
+                /* case "dom":
                     maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
                     countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
                         return accumulator + yearData[currentValue].length;
@@ -2063,10 +2062,13 @@ class D3Timeline {
                     maxValuePrevious = avg;
 
                     opacity = countSum / maxSpecies;
-                    break;
+                    break; */
                 case "max":
+                    /*  let maxIndex = Math.min(...Object.keys(yearData).map(e => dangerSorted.indexOf(e)));
+                     maxKey = dangerSorted[maxIndex]; */
 
-                    maxKey = Object.keys(yearData).reduce((a, b) => threatScore(a) > threatScore(b) ? a : b);
+                    maxKey = Object.keys(yearData).reduce((a, b) => bgciAssessment.get(a).sort < bgciAssessment.get(b).sort ? a : b);
+
                     countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
                         return accumulator + yearData[currentValue].length;
                     }, 0);
@@ -2097,7 +2099,8 @@ class D3Timeline {
                     rank: "ALL",
                     text: maxKey,
                     type: "threat",
-                    opacity: opacity
+                    opacity: 1.0,
+                    scope: "Global"
                 };
                 heatMapData.push(tmp);
             }
@@ -2112,7 +2115,7 @@ class D3Timeline {
 
         let circleYearCountIUCN = {};
 
-        let rowHeight = 2 * this.radius + 1;
+        let rowHeight = this.rowHeight + 1;
 
         let svgCITES = this.wrapper
             .append("svg")
@@ -2208,21 +2211,12 @@ class D3Timeline {
                             })*/
             .style("stroke-width", 1)
             .style("stroke", function (d) {
-                switch (d.type) {
-                    case "threat":
-                        return dangerColorMap[d.danger].bg;
-                    default:
-                        break;
-                }
+                return bgciAssessment.get(d.danger).getColor();
             })
-            .style("fill-opacity", (d) => d.opacity)
+            /* .style("fill-opacity", (d) => d.opacity) */
+            .style("fill-opacity", 1.0)
             .style("fill", function (d) {
-                switch (d.type) {
-                    case "threat":
-                        return dangerColorMap[d.danger].bg;
-                    default:
-                        break;
-                }
+                return bgciAssessment.get(d.danger).getColor();
             });
 
         /* if (this.zoomLevel > 0) {
@@ -2264,7 +2258,20 @@ class D3Timeline {
         let characteristicsMap = {};
         let trendMap = {};
 
-        for (let listing of threatData.sort((a, b) => parseInt(a.year) - parseInt(b.year))) {
+        /* threatData = threatData.filter(e => e.year === 2014); */
+
+        threatData = threatData.sort((a, b) => {
+            let diff = parseInt(a.year) - parseInt(b.year);
+
+            if (diff === 0) {
+                return bgciAssessment.get(b.danger).sort - bgciAssessment.get(a.danger).sort;
+            }
+            else {
+                return diff;
+            }
+        });
+
+        for (let listing of threatData) {
             let push = true;
             let name = `${listing.genusSpecies}`.trim();
 
@@ -2313,23 +2320,17 @@ class D3Timeline {
                 .sort((a, b) => parseInt(b) - parseInt(a)).reverse()
                 .map((year, index) => {
 
-                    let curr = threatScore(trendMap[key][year]);
-                    if (curr < 0) {
-                        curr = 0.5;
-                    }
+                    let curr = bgciAssessment.get(trendMap[key][year]).sort;
                     sumMap[key].push(curr);
                     if (index > 0) {
-                        let prev = threatScore(trendMap[key][prevYear]);
-                        if (prev < 0) {
-                            prev = 0.5;
-                        }
+                        let prev = bgciAssessment.get(trendMap[key][prevYear]).sort;
 
                         let trend;
 
-                        if (curr > prev) {
+                        if (curr < prev) {
                             trend = 1;
                         }
-                        else if (curr < prev) {
+                        else if (curr > prev) {
                             trend = -1;
                         }
                         else {
@@ -2464,9 +2465,7 @@ class D3Timeline {
                     return -1;
                 }
                 else {
-                    if (dangerSorted.indexOf(speciesListing[b][0].danger) < 0) {
-                    }
-                    return dangerSorted.indexOf(speciesListing[b][0].danger) - dangerSorted.indexOf(speciesListing[a][0].danger);
+                    return bgciAssessment.get(speciesListing[b][0].danger).sort - bgciAssessment.get(speciesListing[a][0].danger).sort;
                 }
             });
 
@@ -2701,7 +2700,7 @@ class D3Timeline {
     appendThreatPies(threatData) {
 
         // ############# THREATS #############
-        let rowHeight = 2 * this.radius + 1;
+        let rowHeight = this.rowHeight + 1;
         let strokeWidth = 0.5;
 
         // let circleYearCountThreats = {};
@@ -3174,15 +3173,13 @@ class D3Timeline {
                 htmlText =
                     d.year +
                     " " +
-                    d.genusSpecies +
+                    d.sciName +
                     " : " +
-                    d.consAssCategoryOrig +
+                    d.text +
                     " | " +
-                    d.threatened +
+                    bgciAssessment.get(d.text).name +
                     " | " +
                     d.scope +
-                    " | " +
-                    d.reference +
                     (d.countries ? " | " + d.countries : "");
                 leftAdd = parseInt(d3.select(this).attr("x"));
                 break;
@@ -3223,13 +3220,17 @@ class D3Timeline {
 
         let yearDiff = this.domainYears.maxYear - this.domainYears.minYear;
 
+        /* let ticks = 20;
+        let tickSize = Math.ceil(yearDiff / ticks);
+
+        let tmpMinYear = Math.floor(this.domainYears.minYear / 10) * 10; */
+
         let xDomain = Array(yearDiff + 1)
             .fill()
             .map((_, i) => this.domainYears.minYear - 1 + i + 1);
 
-        this.x = d3.scaleBand().rangeRound([0, this.width]).padding(0.1);
 
-        this.x.domain(xDomain);
+        this.x = d3.scaleBand().domain(xDomain).rangeRound([0, this.width]).padding(0.1);
 
         this.y = d3.scaleLinear().rangeRound([this.height, 0]);
 
@@ -3272,10 +3273,10 @@ class D3Timeline {
 
 
                 if (this.zoomLevel > 0) {
-                    this.rowHeight = 2 * this.radius + 1;
+                    this.rowHeight = this.rowHeight + 1;
                 }
                 else {
-                    this.rowHeight = this.radius + 1;
+                    this.rowHeight = (this.rowHeight) + 1;
                 }
 
                 if (this.data.hasOwnProperty("timeListing") && this.data.timeListing.length) {
@@ -3338,6 +3339,9 @@ class D3Timeline {
                 .style("display", "block");
 
             let top = -1;
+
+            this.ticks = this.domainYears.maxYear - this.domainYears.minYear;
+
             let axis = d3.axisBottom(this.x);
 
             if (this.speciesName === "scaleTop") {
@@ -3350,6 +3354,18 @@ class D3Timeline {
             g.append("g")
                 .attr("transform", "translate(0," + 0 + ")")
                 .call(axis);
+
+            svgScale.selectAll(".tick").select("text").classed("axisTicks", true);
+
+            // Delete every second tick text
+            let contentWidth = this.width;
+            while (contentWidth < (this.ticks * 25)) {
+                svgScale.selectAll(".axisTicks").select(function (e, i) {
+                    return (i % 2 !== 0) ? this : null;
+                })
+                    .remove();
+                this.ticks = this.ticks / 2;
+            }
         }
     }
 }
