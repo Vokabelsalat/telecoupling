@@ -4,7 +4,7 @@ import BarChartView from './BarChartView';
 import TreeMapView from './TreeMapView';
 import Legend from './Legend';
 import TimelineView from "./TimelineView";
-import { getOrCreate, iucnToDangerMap, dangerSorted, pushOrCreate, getThreatColor } from "../utils/utils";
+import { getOrCreate, iucnToDangerMap, dangerSorted, pushOrCreate, getThreatColor, replaceSpecialCharacters } from "../utils/utils";
 import { iucnScore, threatScore, citesScore, citesScoreReverse, threatScoreReverse, citesAppendixSorted, iucnColors, getCitesColor, getIucnColor, iucnAssessment, bgciAssessment, citesAssessment } from '../utils/timelineUtils';
 import Map from "./Map";
 import { cluster, json, scaleLog, scalePoint, treemap } from 'd3';
@@ -86,7 +86,7 @@ class Home extends Component {
             let speciesName = speciesEntry.Species;
             let signThreat = this.getSpeciesSignThreats(species);
 
-            this.saveSpeciesSignThreatsToDB(genus, speciesName, signThreat, index);
+            /* this.saveSpeciesSignThreatsToDB(genus, speciesName, signThreat, index); */
             index++;
         }
     }
@@ -300,9 +300,7 @@ class Home extends Component {
 
         barChartData["overAllGrouped"] = overAllGrouped;
 
-        barChartData["cites"] = barChartData["cites"].filter(e => e.category !== "DD");
-
-        console.log("barChartData", barChartData);
+        barChartData["cites"] = barChartData["cites"].filter(e => e.category !== "DD" && e.category !== null);
 
         return [barChartData, showIcons];
     }
@@ -419,6 +417,9 @@ class Home extends Component {
             .then(data => {
                 let speciesObject = {};
                 for (let e of data) {
+                    if (e.Species.trim() === "")
+                        continue;
+
                     let speciesName = (e.Genus.trim() + " " + e.Species.trim()).trim();
                     if (speciesObject.hasOwnProperty(speciesName)) {
                         speciesObject[speciesName]["origMat"].push({ ...e });
@@ -444,7 +445,7 @@ class Home extends Component {
     }
 
     fetchSpeciesTrades(species) {
-        fetch("http://localhost:3000/data/" + species.replaceSpecialCharacters() + "_trades.json")
+        fetch("http://localhost:3000/data/" + replaceSpecialCharacters(species) + "_trades.json")
             .then(res => {
                 return res.json();
             })
@@ -462,7 +463,7 @@ class Home extends Component {
     }
 
     fetchSpeciesThreats(species) {
-        fetch("http://localhost:3000/data/" + species.replaceSpecialCharacters() + "_threats.json")
+        fetch("http://localhost:3000/data/" + replaceSpecialCharacters(species) + "_threats.json")
             .then(res => {
                 return res.json();
             })
@@ -490,13 +491,13 @@ class Home extends Component {
                 }
             }.bind(this))
             .catch((error) => {
-                console.log(`Couldn't find file ${species.trim().replaceSpecialCharacters()}_threats.json`);
+                console.log(`Couldn't find file ${replaceSpecialCharacters(species.trim())}_threats.json`);
             });
     }
 
     fetchSpeciesData(species) {
         let fetchSpeciesOccurrencesBound = this.fetchSpeciesOccurrences.bind(this);
-        fetch("http://localhost:3000/data/" + species.trim().replaceSpecialCharacters() + ".json")
+        fetch("http://localhost:3000/data/" + replaceSpecialCharacters(species.trim()) + ".json")
             .then(res => res.json())
             .then(function (data) {
                 if (data) {
@@ -519,7 +520,7 @@ class Home extends Component {
                 }
             }.bind(this))
             .catch((error) => {
-                console.log(`Couldn't find file ${species.trim().replaceSpecialCharacters()}.json`);
+                console.log(`Couldn't find file ${replaceSpecialCharacters(species.trim())}.json`);
             });
     }
 
@@ -552,7 +553,7 @@ class Home extends Component {
     }
 
     fetchAllSpeciesData(species) {
-        fetch("http://localhost:3000/generatedOutput/" + species.trim().replaceSpecialCharacters() + ".json")
+        fetch("http://localhost:3000/generatedOutput/" + replaceSpecialCharacters(species.trim()) + ".json")
             .then(res => res.json())
             .then(function (data) {
                 if (data) {
@@ -560,7 +561,7 @@ class Home extends Component {
                 }
             }.bind(this))
             .catch((error) => {
-                console.log(`Couldn't find file ${species.trim().replaceSpecialCharacters()}.json`, error);
+                console.log(`Couldn't find file ${replaceSpecialCharacters(species.trim())}.json`, error);
                 this.checkAndSet(species, {});
             });
     }
@@ -647,6 +648,8 @@ class Home extends Component {
     }
 
     saveSpeciesSignThreatsToDB(genus, species, signThreats, index) {
+        console.log(signThreats);
+
         setTimeout(() => {
             fetch("http://localhost:9000/api/saveThreatSignToDB", {
                 body: JSON.stringify({ genus, species, signThreats }),
@@ -669,7 +672,7 @@ class Home extends Component {
         }
         else {
             let speciesSignThreats = this.state.speciesSignThreats;
-            speciesSignThreats[key] = { cites: "DD", iucn: "DD", threat: "DD" };
+            speciesSignThreats[key] = { cites: null, iucn: null, threat: null };
             speciesSignThreats[key][subkey] = value;
 
             this.setState({ speciesSignThreats: speciesSignThreats });
@@ -682,18 +685,24 @@ class Home extends Component {
             return returnElement;
         }
         else {
-            return { cites: "DD", iucn: "DD", threat: "DD" };
+            return { cites: null, iucn: null, threat: null };
         }
     }
 
     getTreeThreatLevel(treeName, type = null) {
 
         let threatsSigns = this.getSpeciesSignThreats(treeName);
+        console.log(threatsSigns);
         switch (type) {
             case "economically":
                 return citesAssessment.get(threatsSigns.cites);
             case "ecologically":
-                return iucnAssessment.get(threatsSigns.iucn).numvalue < bgciAssessment.get(threatsSigns.threat).numvalue ? iucnAssessment.get(threatsSigns.iucn) : bgciAssessment.get(threatsSigns.threat);
+                if (threatsSigns.iucn !== null) {
+                    return iucnAssessment.get(threatsSigns.iucn);
+                }
+                else {
+                    return bgciAssessment.get(threatsSigns.threat);
+                }
             default:
                 let sumScore = 0.5 * Math.max(citesScore(threatsSigns.cites), 0) + 0.5 * Math.max(iucnScore(threatsSigns.iucn), threatScore(threatsSigns.threat), 0);
                 let sumCat = threatScoreReverse(sumScore);

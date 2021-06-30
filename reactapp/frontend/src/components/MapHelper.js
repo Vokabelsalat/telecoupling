@@ -4,7 +4,7 @@ import 'leaflet.markercluster/dist/leaflet.markercluster.js'
 import 'leaflet.pattern/dist/leaflet.pattern.js'
 import * as groupedLayers from 'leaflet-groupedlayercontrol';
 import * as d3 from 'd3';
-import { rgbToRGBA, serializeXmlNode, watermarkColorSheme, colorBrewerScheme8Qualitative, dangerColorMap, pushOrCreate, iucnToDangerMap, scaleValue, dangerSorted } from '../utils/utils';
+import { rgbToRGBA, serializeXmlNode, watermarkColorSheme, colorBrewerScheme8Qualitative, dangerColorMap, pushOrCreate, iucnToDangerMap, scaleValue, replaceSpecialCharacters } from '../utils/utils';
 import { threatScore, threatScoreReverse, getCitesColor, getIucnColor, citesAppendixSorted } from '../utils/timelineUtils';
 import { tree } from 'd3';
 var colorsys = require('colorsys');
@@ -129,22 +129,38 @@ class MapHelper {
         this.control = L.control.groupedLayers({
             /*      "OSM": osm, */
             /* "Stramen": stramen, */
-            CartoDB: CartoDB_PositronNoLabels
+            /* CartoDB: CartoDB_PositronNoLabels */
         }, this.overlayMaps, { collapsed: true });
 
         //obj.control = L.control.layers(, obj.overlayMaps, { collapsed: false });
-        this.control.addTo(this.mymap);
 
         let addAllCountries = this.addAllCountries;
 
-        CartoDB_PositronNoLabels.addTo(this.mymap);
+        //CartoDB_PositronNoLabels.addTo(this.mymap);
         /* Stamen_TonerLabels.addTo(this.mymap); */
         CartoDB_PositronOnlyLabels.addTo(this.mymap);
+
+        this.control.addTo(this.mymap);
 
         fetch("/UN_Worldmap_FeaturesToJSON10percentCorrected.json")
             .then(res => res.json())
             .then(data => {
                 if (addAllCountries) {
+
+                    /* this.countryClusterLayer = L.markerClusterGroup({
+                        maxClusterRadius: 2 * this.rmax,
+                        iconCreateFunction: this.defineClusterIcon.bind(this), //this is where the magic happens
+                        chunkedLoading: true
+                    }); */
+
+                    this.countryClusterLayer = L.markerClusterGroup({
+                        iconCreateFunction: this.defineClusterIconThreat.bind(this),
+                        chunkedLoading: true,
+                        tree: "CLUSTER",
+                        type: "Cluster"
+                    });
+
+                    //this.control.addOverlay(this.countryClusterLayer, 'Cluster', "Countries");
 
                     this.allCountries = L.geoJson(data, {
                         style: {
@@ -172,7 +188,7 @@ class MapHelper {
                                          "color": '#0000ff'
                                      });
                                  });
- 
+     
                                  layer.on('mouseout', function () {
                                      this.setStyle({
                                          'fillColor': color,
@@ -184,6 +200,7 @@ class MapHelper {
                     this.allCountriesLayer = this.control.addOverlay(this.allCountries, this.diversity ? "Diversity" : "Threat", "Additional");
 
                     this.allCountries.addTo(this.mymap);
+                    this.countryClusterLayer.addTo(this.mymap);
                 }
 
                 this.countriesData = data;
@@ -192,13 +209,13 @@ class MapHelper {
 
         /*$.post("/getMusicalChairs", function (data) {
             data = JSON.parse(data);
- 
+     
             let locationMapping = {};
             for (let orchestra of data.orchestras) {
                 let found = false;
                 let country = orchestra.country;
                 let city = orchestra.city;
- 
+     
                 for (let location of data.locations) {
                     if (location.location.includes(city + ",") && (location.location.includes(country) || country === "United States")) {
                         locationMapping = pushOrCreate(locationMapping, country, { city, location, cert: 100 });
@@ -214,7 +231,7 @@ class MapHelper {
                     //console.log("NOT MATCHED", city +" : "+ country);
                 }
             }
- 
+     
             console.log(locationMapping);
         });*/
 
@@ -341,7 +358,7 @@ class MapHelper {
             .then(data => {
                 this.intersections = data;
             });
- */
+        */
         this.addTreeCountries("HeatMap", []);
     }
 
@@ -367,7 +384,7 @@ class MapHelper {
         /* var props = feature.properties,
              fields = metadata.fields,
              popupContent = '';
- 
+     
          popupFields.map(function(key) {
              if (props[key]) {
                  var val = props[key],
@@ -407,7 +424,9 @@ class MapHelper {
                 pieLabelClass: 'marker-cluster-pie-label',
                 strokeColor: function (d) { /**/ return treeColors[d.data.key]; },
                 color: function (d) { /**/ return rgbToRGBA(treeColors[d.data.key], 0.75); },
-                pathClassFunc: function (d) { return "category-path category-" + d.data.key.replaceSpecialCharacters(); },
+                pathClassFunc: function (d) {
+                    return "category-path category-" + d.data.key.replaceSpecialCharacters();
+                },
                 pathTitleFunc: function (d) { return d.data.key + ' (' + d.data.values.length + ' accident' + (d.data.values.length != 1 ? 's' : '') + ')'; }
             });
 
@@ -467,7 +486,7 @@ class MapHelper {
 
         /*         let arc2 = d3.svg.arc().innerRadius(r-2).outerRadius(r).startAngle(45 * (Math.PI/180)) //converting from degs to radians
             .endAngle(3); //just radians;
- 
+     
                 arcs.append('svg:path')
                     .attr('fill', "rgba(0,0,0,0.8)")
                     .attr('stroke', "rgba(0,0,0,0.5)")
@@ -480,6 +499,135 @@ class MapHelper {
             .attr('stroke-width', strokeWidth)
             .attr('fill', color)
             .attr('stroke', strokeColor)
+            .attr('background', color)
+            .attr('border-color', color)
+            .attr('d', arc)
+            .append('svg:title')
+            .text(pathTitleFunc);
+
+        var svg2 = document.createElementNS("http://www.w3.org/2000/svg", 'svg');
+        //Create the pie chart
+        var vis2 = d3.select(svg2)
+            .attr('class', pieClass + " text")
+            .attr('width', w + 2)
+            .attr('height', h + 2)
+            .style('position', "absolute");
+
+        vis2.append('text')
+            .attr('x', origo)
+            .attr('y', origo)
+            .attr('class', pieLabelClass + "text")
+            .attr('text-anchor', 'middle')
+            .attr('dy', '.3em')
+            .text(pieLabel);
+
+        div.appendChild(svg);
+        div.appendChild(svg2);
+
+        //Return the svg-markup rather than the actual element
+        return serializeXmlNode(div);
+    }
+
+
+    defineClusterIconThreat(cluster) {
+        var children = cluster.getAllChildMarkers();
+        let data = children.map(e => e.options.data).flat();
+        data = d3.nest().key(function (d) { return d.abbreviation; }).entries(data, d3.map);
+        let n = children.length; //Get number of markers in cluster
+        let strokeWidth = 1; //Set clusterpie stroke width
+        let r = Math.min(this.rmax - 2 * strokeWidth - (n < 10 ? 12 : n < 100 ? 8 : n < 1000 ? 4 : 0), this.rmax); //Calculate clusterpie radius...
+        let iconDim = (r + strokeWidth) * 2; //...and divIcon dimensions (leaflet really want to know the size)
+
+        let cacheKey = data.reduce((prev, curr) => prev + (curr.key + curr.values.length), "");
+
+        let html;
+        if (Object.keys(this.treeClusterCache).includes(cacheKey)) {
+            html = this.treeClusterCache[cacheKey];
+        } else {
+            //bake some svg markup
+            html = this.bakeTheThreatPie({
+                data: data,
+                valueFunc: function (d) { return d.values.length; },
+                strokeWidth: 2,
+                outerRadius: r,
+                innerRadius: r - 8,
+                pieClass: 'cluster-pie',
+                pieLabel: n,
+                pieLabelClass: 'marker-cluster-pie-label',
+                strokeColor: function (d) { return d.data.values[0].getColor(); },
+                color: function (d) { return d.data.values[0].getColor(); },
+                /* pathClassFunc: function (d) { return "category-path category-" + d.data.key.replaceSpecialCharacters(); },
+                pathTitleFunc: function (d) { return d.data.key + ' (' + d.data.values.length + ' accident' + (d.data.values.length != 1 ? 's' : '') + ')'; } */
+            });
+
+            this.treeClusterCache[cacheKey] = html;
+        }
+        //Create a new divIcon and assign the svg markup to the html property
+        let myIcon = new L.DivIcon({
+            html: html,
+            className: 'marker-cluster',
+            iconSize: new L.Point(iconDim, iconDim)
+        });
+        return myIcon;
+    }
+
+    /*function that generates a svg markup for the pie chart*/
+    bakeTheThreatPie(options) {
+        /*data and valueFunc are required*/
+        if (!options.data || !options.valueFunc) {
+            return '';
+        }
+        var data = options.data,
+            valueFunc = options.valueFunc,
+            r = options.outerRadius ? options.outerRadius : 28, //Default outer radius = 28px
+            rInner = options.innerRadius ? options.innerRadius : r - 10, //Default inner radius = r-10
+            strokeWidth = options.strokeWidth ? options.strokeWidth : 1, //Default stroke is 1
+            pathClassFunc = options.pathClassFunc ? options.pathClassFunc : function () { return ''; }, //Class for each path
+            pathTitleFunc = options.pathTitleFunc ? options.pathTitleFunc : function () { return ''; }, //Title for each path
+            pieClass = options.pieClass ? options.pieClass : 'marker-cluster-pie', //Class for the whole pie
+            pieLabel = options.pieLabel ? options.pieLabel : d3.sum(data, valueFunc), //Label for the whole pie
+            pieLabelClass = options.pieLabelClass ? options.pieLabelClass : 'marker-cluster-pie-label', //Class for the pie label
+            color = options.color,
+            origo = (r + strokeWidth), //Center coordinate
+            w = origo * 2, //width and height of the svg element
+            h = w,
+            donut = d3.pie(),
+            arc = d3.arc().innerRadius(rInner).outerRadius(r);
+
+
+        let div = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+
+        //Create an svg element
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", 'svg');
+        //Create the pie chart
+        var vis = d3.select(svg)
+            .data([data])
+            .attr('class', pieClass)
+            .attr('width', w + 2)
+            .attr('height', h + 2)
+            .style('position', "absolute");
+
+        var arcs = vis.selectAll('g.arc')
+            .data(donut.value(valueFunc))
+            .enter().append('svg:g')
+            .attr('class', 'arc')
+            .attr('transform', 'translate(' + origo + ',' + origo + ')');
+
+        /*         let arc2 = d3.svg.arc().innerRadius(r-2).outerRadius(r).startAngle(45 * (Math.PI/180)) //converting from degs to radians
+            .endAngle(3); //just radians;
+     
+                arcs.append('svg:path')
+                    .attr('fill', "rgba(0,0,0,0.8)")
+                    .attr('stroke', "rgba(0,0,0,0.5)")
+                    .attr('transform', "translate(2,2)")
+                    .attr('d', arc2);*/
+
+
+        arcs.append('svg:path')
+            .attr('class', pathClassFunc)
+            .attr('stroke-width', strokeWidth)
+            .attr('fill', color)
+            .attr('stroke', color)
             .attr('background', color)
             .attr('border-color', color)
             .attr('d', arc)
@@ -851,10 +999,10 @@ class MapHelper {
         stripes.addTo(this.mymap)
         
         this.stripes[treeName] = stripes;
- 
+     
         let stripeSel = d3.select("#" + this._id).select("svg").select("defs").selectAll("pattern");
         let selSize = stripeSel.size();
- 
+     
         if(stripeSel) {
             let sel = stripeSel._groups[0][selSize - 1];
             d3.select(sel).html('<image href="'+this.speciesImageLinks[treeName]+'" x="0" y="0" width="1000" height="1000" preserveAspectRatio="xMinYMin slice" />');
@@ -1011,6 +1159,8 @@ class MapHelper {
 
         let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
 
+        this.countryClusterLayer.clearLayers();
+
         let heatMapData = {};
         let countryHeat = {};
 
@@ -1037,13 +1187,13 @@ class MapHelper {
             }
         }
 
-        for (let country of Object.keys(heatMapData)) {
+        /* for (let country of Object.keys(heatMapData)) {
             let countryData;
-            countryData = heatMapData[country].sort((a, b) => a.numvalue - b.numvalue);
-            countryHeat[country] = countryData.length % 2 !== 0 ? countryData[Math.floor(countryData.length / 2)] : countryData[Math.floor(countryData.length / 2) - 1];
-        }
+            countryData = heatMapData[country].sort((a, b) => a.numvalue - b.numvalue); */
+        //countryHeat[country] = countryData.length % 2 !== 0 ? countryData[Math.floor(countryData.length / 2)] : countryData[Math.floor(countryData.length / 2) - 1];
+        /* } */
 
-        let countries = Object.keys(countryHeat);
+        let countries = Object.keys(heatMapData);
 
         scale = Object.values(scale).sort((a, b) => b.threat.sort - a.threat.sort).map(e => { return { scaleColor: e.threat.getColor(), scaleValue: e.threat.abbreviation + " (" + e.count + ")", scalePercentage: e.count / maxCount } });
 
@@ -1066,13 +1216,16 @@ class MapHelper {
 
                 let val = heatMapData[feature.id].length;
 
+                let countryData = heatMapData[feature.id.toString()].sort((a, b) => a.numvalue - b.numvalue);;
+                let median = countryData.length % 2 !== 0 ? countryData[Math.floor(countryData.length / 2)] : countryData[Math.floor(countryData.length / 2) - 1];
+
                 return {
                     color: "white",
                     stroke: 1,
                     opacity: 1,
                     weight: 1,
                     fillOpacity: 1,
-                    fillColor: countryHeat[feature.id.toString()].getColor(),
+                    fillColor: median.getColor(),
                 };
             }
             else {
@@ -1085,6 +1238,30 @@ class MapHelper {
                 layer.setStyle(
                     calculateStlyle(layer.feature)
                 )
+
+                //calculate the clusterthreatpie
+                if (heatMapData.hasOwnProperty(layer.feature.id)) {
+                    let data = heatMapData[layer.feature.id];
+
+                    this.countryClusterLayer.addLayer(L.marker(layer.getBounds().getCenter(), {
+                        data: data,
+                        icon: new L.DivIcon({
+                            html: this.bakeTheThreatPie({
+                                data: data,
+                                valueFunc: function (d) { return 3; },
+                                strokeWidth: 2,
+                                outerRadius: 10,
+                                innerRadius: 0,
+                                pieClass: 'cluster-pie',
+                                pieLabel: heatMapData[layer.feature.id].length,
+                                pieLabelClass: 'marker-cluster-pie-label',
+                                color: function (d) { return d.data.getColor(); }
+                            }),
+                            className: 'marker-cluster',
+                            iconSize: new L.Point(8, 8)
+                        })
+                    }));
+                }
             });
         }
     }

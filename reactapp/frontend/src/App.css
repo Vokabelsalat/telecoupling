@@ -365,7 +365,8 @@ button {
   text-align: start;
   font-size: small;
   display: table-row;
-  margin-top: 15px;
+  /* margin-top: 15px; */
+  display: inline-block;
 }
 
 .tooltip {

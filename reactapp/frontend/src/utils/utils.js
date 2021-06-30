@@ -1,12 +1,3 @@
-String.prototype.replaceAll = function (search, replacement) {
-    var target = this;
-    return target.replace(new RegExp(search, 'g'), replacement);
-};
-String.prototype.replaceSpecialCharacters = function (search, replacement) {
-    var target = this;
-    return target.replace(/[ &\/\\#,+()$~%.'":*?<>{}]/g, '_');
-};
-
 let dangerColorMap = {
     "EX": { bg: "rgba(214, 0, 3, 1)", fg: "rgb(255,255,255)" },
     "TH": { bg: "rgb(252,127,63)", fg: "rgb(255,255,255)" },
@@ -25,6 +16,12 @@ function getThreatColor(d) {
 }
 
 module.exports = {
+    replaceAll(string, search, replacement) {
+        return string.replace(new RegExp(search, 'g'), replacement);
+    },
+    replaceSpecialCharacters(string) {
+        return string.replace(/[ &\/\\#,+()$~%.'":*?<>{}]/g, '_');
+    },
     serializeXmlNode(xmlNode) {
         if (typeof window.XMLSerializer != "undefined") {
             return (new window.XMLSerializer()).serializeToString(xmlNode);

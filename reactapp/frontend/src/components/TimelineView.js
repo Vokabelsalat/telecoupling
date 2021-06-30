@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Timeline from './Timeline.js';
 import { TimelineDatagenerator } from '../utils/TimelineDatagenerator'
+import { replaceSpecialCharacters } from '../utils/utils'
 import timelinedata from '../data/timelinedata.json'
 
 class TimelineView extends Component {
@@ -218,14 +219,11 @@ class TimelineView extends Component {
                     />
                     <div style={{ maxHeight: window.innerHeight / 2 + "px", overflowY: "scroll" }}> {
                         this.state.sortedKeys
-                            .filter(e => {
-                                return e.trim().includes(" ")
-                            })
                             .map(e => {
                                 return (
                                     <Timeline
-                                        id={e.replaceSpecialCharacters() + "TimelineVis"}
-                                        key={e.replaceSpecialCharacters() + "timeline"}
+                                        id={replaceSpecialCharacters(e) + "TimelineVis"}
+                                        key={replaceSpecialCharacters(e) + "timeline"}
                                         data={this.state.data[e]}
                                         initWidth={this.props.initWidth}
                                         speciesName={e}

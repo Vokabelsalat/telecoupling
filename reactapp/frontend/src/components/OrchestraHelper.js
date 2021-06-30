@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { polarToCartesian, describeArc, getStartAndEnd, getAngle } from '../utils/orchestraUtils'
-import { getRandomInt, getGroupFileAndRotationFromID } from '../utils/utils'
+import { getRandomInt, getGroupFileAndRotationFromID, replaceSpecialCharacters } from '../utils/utils'
 
 class D3Orchestra {
     constructor(param) {
@@ -159,7 +159,7 @@ class D3Orchestra {
 
                     let startRadius = width - 10 + strokewidth / 2 - newstroke / 2;
 
-                    let newId = (text + instrumentGroup).replaceSpecialCharacters();
+                    let newId = replaceSpecialCharacters(text + instrumentGroup);
                     this.appendSelectArc(group,
                         newId,
                         text,
@@ -190,7 +190,7 @@ class D3Orchestra {
                             name = "General";
                         }
 
-                        newId = (name + instrumentGroup).replaceSpecialCharacters();
+                        newId = replaceSpecialCharacters(name + instrumentGroup);
                         this.appendSelectArc(group, newId, name, "hsl(0, 100%, " + (50 + i * (45 / data.length)) + "%)", newstroke, this.positionX, this.positionY, startRadius - (newstroke) * (i + 2), start, end, 1,
                             Math.min(newstroke - 1, 7), "subarc");
 
@@ -588,7 +588,7 @@ class D3Orchestra {
             setTimeout(() => { d3.select(`#${this.instrumentGroup}arcgroup`).dispatch('click') }, 500);
 
             if (this.instrument !== undefined) {
-                setTimeout(() => { d3.select(`#${this.instrument.replaceSpecialCharacters()}${this.instrumentGroup}arcgroup`).dispatch('click') }, 1000);
+                setTimeout(() => { d3.select(`#${replaceSpecialCharacters(this.instrument)}${this.instrumentGroup}arcgroup`).dispatch('click') }, 1000);
 
                 if (this.mainPart !== undefined) {
                     setTimeout(() => { d3.select(`#${this.mainPart}`).dispatch('click') }, 1400);
