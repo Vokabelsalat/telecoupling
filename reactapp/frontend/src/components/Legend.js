@@ -30,7 +30,7 @@ class Legend extends Component {
 
                             let style = {
                                 display: "inline-block",
-                                width: "30px",
+                                minWidth: "30px",
                                 height: "20px",
                                 backgroundColor: iucnAssessment.get(e).getColor(),
                                 color: iucnAssessment.get(e).getForegroundColor(),
@@ -50,8 +50,14 @@ class Legend extends Component {
                     <div style={{ gridColumnStart: 2, gridColumnEnd: 2, gridRowStart: 2, gridRowEnd: 2 }}>
                         {(bgciAssessment.getSortedLevels().map(e => {
                             let width;
-                            if (["EX", "TH"].includes(e)) {
+                            if (["EX"].includes(e)) {
                                 width = "90px";
+                            }
+                            else if (["TH"].includes(e)) {
+                                width = "150px";
+                            }
+                            else if (["PT"].includes(e)) {
+                                width = "72px";
                             }
                             else {
                                 width = "30px";
@@ -59,7 +65,7 @@ class Legend extends Component {
 
                             let style = {
                                 display: "inline-block",
-                                width: width,
+                                minWidth: width,
                                 height: "20px",
                                 backgroundColor: bgciAssessment.get(e).getColor(),
                                 color: bgciAssessment.get(e).getForegroundColor(),
@@ -78,8 +84,14 @@ class Legend extends Component {
                     <div style={{ gridColumnStart: 2, gridColumnEnd: 2, gridRowStart: 3, gridRowEnd: 3 }}>
                         {(citesAssessment.getSortedLevels().map(e => {
                             let width;
-                            if (["I", "II"].includes(e)) {
+                            if (["I"].includes(e)) {
                                 width = "90px";
+                            }
+                            else if (["II"].includes(e)) {
+                                width = "150px";
+                            }
+                            else if (["III"].includes(e)) {
+                                width = "72px";
                             }
                             else {
                                 width = "30px";
@@ -87,7 +99,7 @@ class Legend extends Component {
 
                             let style = {
                                 display: "inline-block",
-                                width: width,
+                                minWidth: width,
                                 height: "20px",
                                 backgroundColor: citesAssessment.get(e).getColor(),
                                 color: citesAssessment.get(e).getForegroundColor(),

@@ -52,8 +52,16 @@ class Home extends Component {
             isDiv: true,
             isThreat: false,
             tabs: tabs,
-            hoverSpecies: []
+            hoverSpecies: [],
+            timeFrame: []
         };
+    }
+
+    setTimeFrame(timeFrame) {
+        if (timeFrame[0] !== this.state.timeFrame[0]
+            || timeFrame[1] !== this.state.timeFrame[1]) {
+            this.setState({ timeFrame });
+        }
     }
 
     readAndSetWoodMap() {
@@ -124,6 +132,7 @@ class Home extends Component {
     }
 
     setInstrumentGroup(instrumentGroup) {
+        console.log("HERE", instrumentGroup);
         this.setState({ instrumentGroup, instrument: "", mainPart: "" });
         this.fetchAndSetSpecies();
     }
@@ -239,6 +248,9 @@ class Home extends Component {
             for (let value of Object.keys(subgroupData[group])) {
                 let valueObject = {};
                 valueObject["name"] = value;
+                valueObject["kingdom"] = this.state.speciesData[value].kingdom;
+                valueObject["ecologically"] = this.getTreeThreatLevel(value, "ecologically");
+                valueObject["economically"] = this.getTreeThreatLevel(value, "economically");
                 valueObject["colname"] = "level3";
                 valueObject["value"] = subgroupData[group][value].reduce(function (a, b) {
                     return a + b;
@@ -271,8 +283,6 @@ class Home extends Component {
 
                 imageLinks[valueObject["name"]] = valueObject["link"]
             }
-
-            /* console.log(group, valueObjects); */
 
             if (valueObjects.length > 0)
                 treeMapData.push({ children: valueObjects, name: group, sum, colname: "level2" });
@@ -313,7 +323,8 @@ class Home extends Component {
                 continue;
             }
             let value = input[species][type];
-            pushOrCreate(barChartData, value, 1);
+            if (value !== null && value !== "null")
+                pushOrCreate(barChartData, value, 1);
         }
 
         let newBarChartData = [];
@@ -336,6 +347,9 @@ class Home extends Component {
 
             if (this.state.speciesData.hasOwnProperty(species)) {
                 let value = input[species][type];
+
+                if (value === null)
+                    continue
 
                 let groups = this.state.speciesData[species]["groups"];
                 let subgroups = this.state.speciesData[species]["instruments"];
@@ -411,12 +425,14 @@ class Home extends Component {
 
 
         //fetch("http://localhost:9000/api/getMaterial/" + this.state.instrument + "/" + this.state.mainPart)
-        fetch("http://localhost:9000/api/getTestMaterial")
-            //fetch(url)
+        //fetch("http://localhost:9000/api/getTestMaterial")
+            fetch(url)
             .then(res => res.json())
             .then(data => {
                 let speciesObject = {};
-                for (let e of data) {
+                //       for (let e of data) {
+                for (let e of data.slice(0, 140)) {
+                //for (let e of data) {
                     if (e.Species.trim() === "")
                         continue;
 
@@ -648,8 +664,6 @@ class Home extends Component {
     }
 
     saveSpeciesSignThreatsToDB(genus, species, signThreats, index) {
-        console.log(signThreats);
-
         setTimeout(() => {
             fetch("http://localhost:9000/api/saveThreatSignToDB", {
                 body: JSON.stringify({ genus, species, signThreats }),
@@ -692,7 +706,6 @@ class Home extends Component {
     getTreeThreatLevel(treeName, type = null) {
 
         let threatsSigns = this.getSpeciesSignThreats(treeName);
-        console.log(threatsSigns);
         switch (type) {
             case "economically":
                 return citesAssessment.get(threatsSigns.cites);
@@ -815,7 +828,7 @@ class Home extends Component {
 
         return (
             <div>
-                <div className="tabPanel" style={{ width: this.state.initWidthForVis + "px", height: window.innerHeight / 2 + "px" }}>
+                {/* <div className="tabPanel" style={{ width: this.state.initWidthForVis + "px", height: window.innerHeight / 2 + "px" }}>
                     <div
                         className="tabButton"
                         onClick={(event) => {
@@ -862,7 +875,7 @@ class Home extends Component {
                             <TreeMapView id="treeMapView" data={treeMapData}></TreeMapView>
                         </div>
                     </div >
-                </div>
+                </div> */}
 
                 <Orchestra id="orchestraVis"
                     mainPart={this.state.mainPart}
@@ -873,7 +886,7 @@ class Home extends Component {
                     setInstrumentAndMainPart={this.setInstrumentAndMainPart.bind(this)}
                 />
 
-                <div style={{ "display": "flex", "justifyContent": "center", "margin": "20px 0" }} >
+               { <div style={{ "display": "flex", "justifyContent": "center", "margin": "20px 0" }} >
                     <div style={{ width: "25%", height: "auto", display: "grid", gridTemplateColumns: "50% 50%", gridTemplateRows: "auto auto" }}>
                         <div style={{ gridColumnStart: 1, gridColumnEnd: 1, gridRowStart: 1, gridRowEnd: 1, }}>
                             Instrument Group:
@@ -904,13 +917,13 @@ class Home extends Component {
                         </div>
                     </div>
                     <button onClick={this.fetchAndSetSpecies.bind(this)}>Run!</button>
-                </div>
+                </div>}
                 {/* <DataTable data={this.state.speciesData}
                     threatData={this.state.speciesThreats}
                     tradeData={this.state.speciesTrades}
                 ></DataTable> */}
                 {
-                    <Legend
+                   /*  <Legend
                         onZoom={() => this.onZoom(1)}
                         onZoomOut={() => this.onZoom(-1)}
                         zoomLevel={this.state.zoomLevel}
@@ -923,7 +936,7 @@ class Home extends Component {
                         onSortGrouped={this.onSortGrouped.bind(this)}
                         heatStyle={this.state.heatStyle}
                         onHeatStyle={this.onHeatStyle.bind(this)}
-                    />
+                    /> */
                 }
                 <div style={{
                     width: "100%",
@@ -932,7 +945,7 @@ class Home extends Component {
                     gridTemplateColumns: "50% 50%",
                     gridTemplateRows: "auto auto"
                 }}>
-                    {Object.keys(this.state.speciesData).length > 0 &&
+                    {/* {Object.keys(this.state.speciesData).length > 0 &&
                         <div style={{
                             gridColumnStart: 1,
                             gridColumnEnd: 1,
@@ -958,6 +971,8 @@ class Home extends Component {
                                 getTreeThreatLevel={this.getTreeThreatLevel.bind(this)}
                                 treeImageLinks={imageLinks}
                                 setHover={this.setHover.bind(this)}
+                                setTimeFrame={this.setTimeFrame.bind(this)}
+                                timeFrame={this.state.timeFrame}
                             />
                             <div
                                 key="tooltip"
@@ -965,7 +980,7 @@ class Home extends Component {
                                 className="tooltip">
                             </div>
                         </div>
-                    }
+                    } */}
                     <div style={{
                         gridColumnStart: 2,
                         gridColumnEnd: 2,
@@ -1030,10 +1045,9 @@ class Home extends Component {
                             this.renderMapScale(this.state.diversityScale)
                         }
                         <div className="tabPanel" style={{ width: this.state.initWidthForVis + "px", height: window.innerHeight / 2 + "px" }}>
-                            <div
+                            {/* <div
                                 className="tabButton"
                                 onClick={(event) => {
-                                    /* this.activateTab("maps", "diversityMapTab"); */
                                     this.activateDiversity();
                                 }}
                                 style={{
@@ -1055,57 +1069,24 @@ class Home extends Component {
                                 }}
                             >
                                 {"Threat"}
-                            </div>
-                            <div style={{}}>
-                                <div className="tab"
-                                    id="diversityMapTab"
-                                    ref={this.diversityMapTab}
-                                    style={{
-                                        visibility: this.state.tabs["maps"]["diversityMapTab"] ? "visible" : "hidden",
-                                        position: "absolute",
-                                        top: "30px"
-                                    }}>
-                                    {< Map
-                                        id="map"
-                                        data={this.state.speciesData}
-                                        initWidth={this.state.initWidthForVis}
-                                        mapSpecies={this.state.mapSpecies}
-                                        getTreeThreatLevel={this.getTreeThreatLevel.bind(this)}
-                                        heatMap={this.state.heatMap}
-                                        diversity={this.state.diversity}
-                                        coordinates={this.state.speciesOccurrences}
-                                        setDiversityScale={this.setDiversityScale.bind(this)}
-                                        treeThreatType={this.state.treeThreatType}
-                                        diversityMode={this.state.diversityMode}
-                                        diversityAttribute={this.state.diversityAttribute}
-                                        speciesImageLinks={imageLinks}
-                                        hoverSpecies={this.state.hoverSpecies}
-                                    ></Map>}
-                                </div>
-                                <div className="tab"
-                                    id="threatMapTab"
-                                    ref={this.threatMapTab}
-                                    style={{
-                                        visibility: this.state.tabs["maps"]["threatMapTab"] ? "visible" : "hidden",
-                                        position: "absolute",
-                                        top: "30px"
-                                    }}>
-                                    {/* <Map
-                                        id="dangerMap"
-                                        data={this.state.speciesData}
-                                        initWidth={this.state.initWidthForVis}
-                                        mapSpecies={this.state.mapSpecies}
-                                        getTreeThreatLevel={this.getTreeThreatLevel.bind(this)}
-                                        heatMap={true}
-                                        diversity={false}
-                                        coordinates={this.state.speciesOccurrences}
-                                        setDiversityScale={this.setDiversityScale.bind(this)}
-                                        treeThreatType={this.state.treeThreatType}
-                                        diversityMode={this.state.diversityMode}
-                                        diversityAttribute={this.state.diversityAttribute}
-                                    ></Map> */}
-                                </div>
-                            </div>
+                            </div> */}
+                            {/* < Map
+                                id="map"
+                                data={this.state.speciesData}
+                                initWidth={this.state.initWidthForVis}
+                                mapSpecies={this.state.mapSpecies}
+                                getTreeThreatLevel={this.getTreeThreatLevel.bind(this)}
+                                heatMap={this.state.heatMap}
+                                diversity={this.state.diversity}
+                                coordinates={this.state.speciesOccurrences}
+                                setDiversityScale={this.setDiversityScale.bind(this)}
+                                treeThreatType={this.state.treeThreatType}
+                                diversityMode={this.state.diversityMode}
+                                diversityAttribute={this.state.diversityAttribute}
+                                speciesImageLinks={imageLinks}
+                                hoverSpecies={this.state.hoverSpecies}
+                                timeFrame={this.state.timeFrame}
+                            /> */}
                         </div>
                     </div >
                 </div >

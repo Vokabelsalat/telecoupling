@@ -24,6 +24,9 @@ class D3Timeline {
         this.removeSpeciesFromMap = param.removeSpeciesFromMap;
 
         this.setHover = param.setHover;
+        this.setTimeFrame = param.setTimeFrame;
+
+        this.timeFrame = param.timeFrame;
 
         //this.heatStyle = param.heatStyle;
         this.heatStyle = "max";
@@ -83,6 +86,21 @@ class D3Timeline {
         }
         return this.getRowHeight(genusLine) * rowNum + addY;
     }
+
+    appendGrayBox(timeFrameMax) {
+        let content = d3.select("#" + this.id);
+        content
+            .append("div")
+            .style("position", "absolute")
+            .style("display", "inline-block")
+            .style("width", (this.width - this.x(timeFrameMax) + this.x.bandwidth() / 2 - 30 + 1) + "px")
+            .style("min-height", "10px")
+            .style("top", "0")
+            .style("left", (this.margin.left + this.x(timeFrameMax) + this.x.bandwidth() / 2 - 1) + "px")
+            .style("height", "-webkit-fill-available")
+            .style("background-color", "rgba(255,255,255,0.8)")
+            .style("border-left", "solid gray 3px")
+    };
 
     appendTrends(destination, trendData, trendRows, genusLine = false, beginningHalfStep = false) {
         if (this.groupSame && this.sortGrouped === "trend") {
@@ -228,25 +246,45 @@ class D3Timeline {
                 /* iucnThreat = iucnScoreReverse(Math.max(iucnScore(iucnThreat), threatScore(threatThreat))); */
             }
 
-            this.citesSign = speciesNameSVG.append("path")
-                .attr("transform", "translate(10,10)")
-                .attr("d", d3.arc()
-                    .innerRadius(0)
-                    .outerRadius(5)
-                    .startAngle(3.14)     // It's in radian, so Pi = 3.14 = bottom.
-                    .endAngle(6.28)       // 2*Pi = 6.28 = top
-                )
-                .attr('fill', getCitesColor(citesThreat));
+            /*          this.citesSign = speciesNameSVG.append("path")
+                         .attr("transform", "translate(10,10)")
+                         .attr("d", d3.arc()
+                             .innerRadius(0)
+                             .outerRadius(5)
+                             .startAngle(3.14)     // It's in radian, so Pi = 3.14 = bottom.
+                             .endAngle(6.28)       // 2*Pi = 6.28 = top
+                         )
+                         .attr('fill', getCitesColor(citesThreat)); */
 
-            this.iucnSign = speciesNameSVG.append("path")
-                .attr("transform", "translate(10,10)")
-                .attr("d", d3.arc()
-                    .innerRadius(0)
-                    .outerRadius(5)
-                    .startAngle(-3.14)     // It's in radian, so Pi = 3.14 = bottom.
-                    .endAngle(-6.28)       // 2*Pi = 6.28 = top
-                )
-                .attr('fill', iucnColor);
+            /*  this.iucnSign = speciesNameSVG.append("path")
+                 .attr("transform", "translate(10,10)")
+                 .attr("d", d3.arc()
+                     .innerRadius(0)
+                     .outerRadius(5)
+                     .startAngle(-3.14)     // It's in radian, so Pi = 3.14 = bottom.
+                     .endAngle(-6.28)       // 2*Pi = 6.28 = top
+                 )
+                 .attr('fill', iucnColor); */
+
+            /* if (this.data.kingdom === "animals") {
+                d3.svg("http://localhost:3000/animalIcon.svg").then(function (xml) {
+                    let icon = speciesNameSVG.node().appendChild(xml.documentElement);
+                    d3.select(icon).attr("width", 20).attr("height", 15).attr("y", 2.5);
+
+                    d3.select(icon).select(".left").select("path").style("fill", citesAssessment.get(citesThreat).getColor())
+                    d3.select(icon).select(".right").select("path").style("fill", iucnColor)
+                });
+            }
+            else {
+                d3.svg("http://localhost:3000/plantIcon2.svg").then(function (xml) {
+                    let icon = speciesNameSVG.node().appendChild(xml.documentElement);
+                    d3.select(icon).attr("width", 20).attr("height", 15).attr("y", 2.5);
+
+                    d3.select(icon).select(".left").select("path").style("fill", citesAssessment.get(citesThreat).getColor())
+                    d3.select(icon).select(".right").select("path").style("fill", iucnColor)
+                });
+            } */
+
 
             speciesNameDiv.append("text")
                 .text(this.speciesName)
@@ -530,8 +568,19 @@ class D3Timeline {
             }
         }
 
-        lastResult = heatMapData.sort((a, b) => parseInt(a.year) - parseInt(b.year));
+        lastResult = heatMapData.filter(e => {
+            if (this.timeFrame[1] !== undefined) {
+                return e.year >= this.timeFrame[1];
+            }
+            else {
+                return e;
+            }
+        })
+            .sort((a, b) => parseInt(a.year) - parseInt(b.year));
+
         lastResult = lastResult[lastResult.length - 1].appendix;
+
+        console.log(lastResult);
 
         this.citesSignThreat = lastResult;
 
@@ -1256,10 +1305,20 @@ class D3Timeline {
             }
 
             listingKeys.push(listingKey);
-            lastListing = listing;
+
+
+            if (this.timeFrame[1] !== undefined) {
+                if (parseInt(listing.year) < this.timeFrame[1]) {
+                    lastListing = listing;
+                }
+            }
+            else {
+                lastListing = listing;
+            }
         }
 
-        this.citesSignThreat = lastListing.appendix;
+        this.citesSignThreat = lastListing ? lastListing.appendix : null;
+
         this.setSpeciesSignThreats(this.speciesName, "cites", this.citesSignThreat);
 
         let newTrendMap = {};
@@ -1707,14 +1766,21 @@ class D3Timeline {
             elemEnter
                 .append("rect")
                 .attr("class", "pinarea")
+                .attr("y", (d) => {
+                    return (this.rowHeight / 2 - 1.5) + "px";
+                })
                 .attr("height", (d) => {
+                    return "3px";
+                    //return this.rowHeight;
+                })
+                /* .attr("height", (d) => {
                     if (d.rank === "GENUS") {
                         return (speciesCount + 1) * this.getRowHeight(genusLine);
                     }
                     else {
                         return this.getRowHeight(genusLine);
                     }
-                })
+                }) */
                 .attr("width", function (d) {
                     return this.width - this.x(Number(d.year));
                 }.bind(this))
@@ -1751,17 +1817,15 @@ class D3Timeline {
                         default:
                             break;
                     }
-                })
-                .style("stroke", "gray")
-                .style("stroke-width", 1)
+                });
 
             //Add arrows / triangles
             elemEnter
                 .append("path")
-                .attr("d", "M 0 " + (this.rowHeight / 4) + " L " + (this.rowHeight / 3) + " " + (this.rowHeight / 2) + " L 0 " + (3 * this.rowHeight / 4) + " z")
-                .attr("fill", "none")
-                .attr("stroke", "gray")
-                .attr("stroke-width", 1);
+                .attr("d", "M 0 " + (0) + " L " + (Math.min(this.rowHeight, this.x.bandwidth())) + " " + (this.rowHeight / 2) + " L 0 " + (this.rowHeight) + " z")
+                .attr("fill", function (d) {
+                    return citesAssessment.get(d.appendix).getColor();
+                });
         }
     }
 
@@ -2579,10 +2643,18 @@ class D3Timeline {
             }
 
             listingKeys.push(listingKey);
-            lastListing = listing;
+
+            if (this.timeFrame[1] !== undefined) {
+                if (parseInt(listing.year) < this.timeFrame[1]) {
+                    lastListing = listing;
+                }
+            }
+            else {
+                lastListing = listing;
+            }
         }
 
-        this.iucnSignThreat = lastListing.code;
+        this.iucnSignThreat = lastListing ? lastListing.code : null;
 
         this.setSpeciesSignThreats(this.speciesName, "iucn", this.iucnSignThreat);
 
@@ -2831,10 +2903,11 @@ class D3Timeline {
 
         let rect = g
             .append("rect")
-            .attr("width", this.width)
+            .attr("width", this.width + 1)
             .attr("height", svgHeight)
             .attr("stroke", "gray")
-            .style("fill", "none");/*  */
+            .style("fill", "none");
+
         //.style("fill", "url(#mainGradient)")
         /*.style("stroke", "black")*/
         //.style("fill", "url(#myGradient)");
@@ -2972,18 +3045,22 @@ class D3Timeline {
                 .append("rect")
                 .attr("class", "pinarea")
                 .attr("height", (d) => {
-                    return this.rowHeight;
+                    return this.rowHeight - 1;
                 })
                 .attr("width", function (d) {
                     return this.width - this.x(Number(d.year));
                 }.bind(this))
-                .style("fill", "white");
+                .style("fill", "white")
 
             elemEnter
                 .append("rect")
                 .attr("class", "pinarea")
+                .attr("y", (d) => {
+                    return (this.rowHeight / 2 - 1.5) + "px";
+                })
                 .attr("height", (d) => {
-                    return this.rowHeight;
+                    return "3px";
+                    //return this.rowHeight;
                 })
                 .attr("width", function (d) {
                     return this.width - this.x(Number(d.year));
@@ -2991,21 +3068,17 @@ class D3Timeline {
                 .style("fill", function (d) {
                     return iucnAssessment.get(d.code).getColor();
                 })
-                .style("stroke", "gray")
-                .style("stroke-width", 1);
+            /* .style("stroke", "gray")
+            .style("stroke-width", 1); */
 
 
             //Add arrows / triangles
             elemEnter
                 .append("path")
-                .attr("d", "M 0 " + (this.rowHeight / 4) + " L " + (this.rowHeight / 3) + " " + (this.rowHeight / 2) + " L 0 " + (3 * this.rowHeight / 4) + " z")
-                .attr("fill", "none")
-                .attr("stroke", function (d) {
-                    //return iucnAssessment.get(d.code).getForegroundColor();
-                    return "gray";
-                })
-                .attr("stroke-width", 1);
-
+                .attr("d", "M 0 " + (0) + " L " + (Math.min(this.rowHeight, this.x.bandwidth())) + " " + (this.rowHeight / 2) + " L 0 " + (this.rowHeight) + " z")
+                .attr("fill", function (d) {
+                    return iucnAssessment.get(d.code).getColor();
+                });
         }
     }
 
@@ -3071,7 +3144,7 @@ class D3Timeline {
                         return accumulator + yearData[currentValue].length;
                     }, 0);
                     maxValue = yearData[maxKey];
-    
+     
                     if (maxKeyPrevious !== null) {
                         if (maxKey === maxKeyPrevious && maxValue.length <= maxValuePrevious.length) {
                             maxKey = maxKeyPrevious;
@@ -3079,32 +3152,32 @@ class D3Timeline {
                             push = false;
                         }
                     }
-    
+     
                     maxKeyPrevious = maxKey;
                     maxValuePrevious = maxValue;
-    
+     
                     opacity = maxValue.length / Object.keys(speciesNamesAndSyns).length;
                     break;
                 case "avg":
-    
+     
                     let scoreSum = Object.keys(yearData).reduce(((a, b) => a + yearData[b].length * threatScore(b)), 0);
                     countSum = Object.values(yearData).reduce((accumulator, currentValue) => {
                         return accumulator + currentValue.length;
                     }, 0);
-    
+     
                     let avg = scoreSum / countSum;
-    
+     
                     if (maxValuePrevious !== null) {
                         if (maxValuePrevious === avg) {
                             avg = maxValuePrevious;
                             push = false;
                         }
                     }
-    
+     
                     maxKey = threatScoreReverse(avg);
-    
+     
                     maxValuePrevious = avg;
-    
+     
                     opacity = countSum / maxSpecies;
                     break; */
                 case "max":
@@ -3690,6 +3763,7 @@ class D3Timeline {
 
         let rect = g
             .append("rect")
+            .attr("class", "test")
             .attr("width", this.width)
             .attr("height", svgHeight)
             .style("fill", "none")
@@ -3769,11 +3843,11 @@ class D3Timeline {
             let push = true;
             let name = `${listing.genusSpecies}`.trim();
 
-            listing.text += " " + name;
-
             if (listing.scope !== "Global") {
                 push = false;
             }
+
+            listing.text = listing.danger;
 
             listing.sciName = name;
 
@@ -3799,11 +3873,18 @@ class D3Timeline {
                 }
 
                 listingKeys.push(listingKey);
-                lastListing = listing;
+                if (this.timeFrame[1] !== undefined) {
+                    if (parseInt(listing.year) < this.timeFrame[1]) {
+                        lastListing = listing;
+                    }
+                }
+                else {
+                    lastListing = listing;
+                }
             }
         }
 
-        this.setSpeciesSignThreats(this.speciesName, "threat", lastListing.danger);
+        this.setSpeciesSignThreats(this.speciesName, "threat", lastListing ? lastListing.danger : null);
 
         let newTrendMap = {};
         let sumMap = {};
@@ -4185,24 +4266,29 @@ class D3Timeline {
             .filter((d) => d.scope === "Global")
             .append("rect")
             .attr("class", "pinarea")
-            .attr("height", this.rowHeight)
+            .attr("y", (d) => {
+                return (this.rowHeight / 2 - 1.5) + "px";
+            })
+            .attr("height", (d) => {
+                return "3px";
+                //return this.rowHeight;
+            })
+            /* .attr("height", this.rowHeight) */
             .attr("width", function (d) {
                 //return this.x.bandwidth() + 2;
                 return this.width - this.x(Number(d.year));
             }.bind(this))
             .style("fill", (d) => {
                 return dangerColorMap[d.danger].bg;
-            })
-            .style("stroke", "gray")
+            });
 
         //Add arrows / triangles
         elemEnter
-            .filter((d) => d.scope === "Global")
             .append("path")
-            .attr("d", "M 0 " + (this.rowHeight / 4) + " L " + (this.rowHeight / 3) + " " + (this.rowHeight / 2) + " L 0 " + (3 * this.rowHeight / 4) + " z")
-            .attr("fill", "none")
-            .attr("stroke", "gray")
-            .attr("stroke-width", 1);
+            .attr("d", "M 0 " + (0) + " L " + (Math.min(this.rowHeight, this.x.bandwidth())) + " " + (this.rowHeight / 2) + " L 0 " + (this.rowHeight) + " z")
+            .attr("fill", function (d) {
+                return bgciAssessment.get(d.danger).getColor();
+            });
     }
 
 
@@ -4675,18 +4761,11 @@ class D3Timeline {
                 leftAdd = parseInt(d3.select(this).attr("x"));
                 break;
             case "iucn":
-                htmlText = d.sciName + "<br>" + d.year + " : " + d.category;
+                htmlText = d.sciName + "<br>" + d.year + " : " + d.category + " | " + d.code;
                 leftAdd = parseInt(d3.select(this).attr("x"));
                 break;
             case "threat":
-                htmlText =
-                    d.year +
-                    " " +
-                    d.sciName +
-                    " : " +
-                    d.text +
-                    " | " +
-                    bgciAssessment.get(d.text).name +
+                htmlText = d.sciName + "<br>" + d.year + " : " + bgciAssessment.get(d.text).name +
                     " | " +
                     d.scope +
                     (d.countries ? " | " + d.countries : "");
@@ -4731,7 +4810,7 @@ class D3Timeline {
 
         /* let ticks = 20;
         let tickSize = Math.ceil(yearDiff / ticks);
-    
+     
         let tmpMinYear = Math.floor(this.domainYears.minYear / 10) * 10; */
 
         let xDomain = Array(yearDiff + 1)
@@ -4841,6 +4920,10 @@ class D3Timeline {
                     this.firstSVGAdded = true;
                 }
             }
+
+            if (this.timeFrame[1] !== undefined && this.timeFrame[1] !== this.domainYears.maxYear) {
+                this.appendGrayBox(this.timeFrame[1]);
+            }
         }
         else if (this.id.includes("scale")) {
             let svgScale = this.wrapper
@@ -4867,7 +4950,13 @@ class D3Timeline {
                 .attr("transform", "translate(0," + 0 + ")")
                 .call(axis);
 
-            svgScale.selectAll(".tick").select("text").classed("axisTicks", true);
+            svgScale
+                .selectAll(".tick")
+                .select("text")
+                .classed("axisTicks", true)
+                .on("mouseover", (e) => {
+                    this.setTimeFrame([this.domainYears.minYear, e]);
+                });
 
             // Delete every second tick text
             let contentWidth = this.width;

@@ -91,10 +91,14 @@ let iucnAssessment = new AssessmentType("IUCN", {
     "RE": new ThreatLevel("Regional Extinct", "RE", "IUCN", 0, 2),
     "CR": new ThreatLevel("Critical Endangered", "CR", "IUCN", 1, 3),
     "EN": new ThreatLevel("Endangered", "EN", "IUCN", 1, 4),
+    "E": new ThreatLevel("Endangered", "E", "IUCN", 1, 4.5),
     "VU": new ThreatLevel("Vulnerable", "VU", "IUCN", 1, 5),
+    "V": new ThreatLevel("Vulnerable", "V", "IUCN", 1, 5.5),
     "NT": new ThreatLevel("Near Threatend", "NT", "IUCN", 2, 6),
+    "LR/cd": new ThreatLevel("Lower Risk / Conservation Dependent", "LR/cd", "IUCN", 2, 6.5),
     "LC": new ThreatLevel("Least Concern", "LC", "IUCN", 3, 7),
     "DD": new ThreatLevel("Data Deficient", "DD", "IUCN", 4, 8),
+    "K": new ThreatLevel("Insufficiently Known", "K", "IUCN", 4, 8.5),
     "NA": new ThreatLevel("Not Assesset", "NA", "IUCN", 4, 9),
     "NE": new ThreatLevel("Not Evaluated", "NE", "IUCN", 4, 10)
 });

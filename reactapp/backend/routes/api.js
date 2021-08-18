@@ -76,6 +76,7 @@ router.get("/getTestMaterial", (req, res) => {
         .orWhere({ "Genus": "Dalbergia", "Species": "" })
         .orWhere({ "Genus": "Calamus", "Species": "" })
         .orWhere({ "Genus": "Fraxinus", "Species": "" })
+        .orWhere({ "Genus": "Loxodonta", "Species": "africana" })
         /* .where({ "Genus": "Betula", "Species": "pendula" }) */
         .then(rows => {
             res.json(rows);

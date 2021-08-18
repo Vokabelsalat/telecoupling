@@ -15,8 +15,6 @@ class Map extends Component {
         this.state = {
             id: this.props.id
         };
-
-        console.log("INIT MAP", this.state.id);
     }
 
     init() {
@@ -44,7 +42,7 @@ class Map extends Component {
             for (let species of Object.keys(this.props.mapSpecies)) {
 
                 if (this.props.data.hasOwnProperty(species)) {
-                    fetch("/distribution/" + species.replace(" ", "_") + ".geojson")
+                    fetch("/distribution/" + species.replace(" ", "_LEL") + ".geojson")
                         .then(res => res.json())
                         .then(data => {
                             this.pushAndCheckDistributionQueue({ type: "distribution", value: [species, data] });
@@ -92,6 +90,21 @@ class Map extends Component {
                                 else {
                                     this.pushAndCheckDistributionQueue({});
                                 }
+
+                                if (this.props.data[species].hasOwnProperty("ecoZones")) {
+                                    let ecoZones = Object.keys(this.props.data[species]["ecoZones"]);
+
+                                    if (ecoZones.length > 0) {
+                                        this.pushAndCheckDistributionQueue({ type: "ecoRegions", value: [species, ecoZones] });
+                                    }
+                                }
+
+                                if (this.props.data[species].hasOwnProperty("hexagons")) {
+                                    let hexagons = this.props.data[species]["hexagons"].map(e => e.HexagonID);
+                                    if (hexagons.length > 0) {
+                                        this.pushAndCheckDistributionQueue({ type: "hexagons", value: [species, hexagons] });
+                                    }
+                                }
                             }
 
                         });
@@ -105,7 +118,7 @@ class Map extends Component {
 
     pushAndCheckDistributionQueue(element) {
         this.distributionQueue.push(element);
-        if (this.distributionQueue.length >= this.expetedDistributionQueueLength) {
+        if (this.distributionQueue.length > 0) {
             for (let speciesObj of this.distributionQueue) {
                 switch (speciesObj.type) {
                     case "treeCountries":
@@ -114,6 +127,12 @@ class Map extends Component {
                     case "distribution":
                         this.MapHelper.addDistribution(...speciesObj.value);
                         break
+                    case "ecoRegions":
+                        this.MapHelper.addSpeciesEcoRegions(...speciesObj.value);
+                        break;
+                    case "hexagons":
+                        this.MapHelper.addSpeciesHexagons(...speciesObj.value);
+                        break;
                     default:
                         break;
                 }
@@ -125,7 +144,7 @@ class Map extends Component {
     removeSpeciesByMapSpecies(diff) {
         for (let species of diff) {
             this.MapHelper.removeSpeciesCountries(species);
-            this.MapHelper.removeSpeciesEcoRegions(species);
+            /* this.MapHelper.removeSpeciesEcoRegions(species); */
         }
     }
 
@@ -150,6 +169,12 @@ class Map extends Component {
             }
         }
 
+        if (JSON.stringify(this.props.timeFrame) !== JSON.stringify(prevProps.timeFrame)) {
+            console.log(JSON.stringify(this.props.timeFrame), JSON.stringify(prevProps.timeFrame));
+            this.MapHelper.updateHeatMap(this.props.heatMap, this.props.treeThreatType);
+            this.MapHelper.updateDiversity(this.props.diversity, this.props.diversityMode, this.props.diversityAttribute);
+        }
+
         if (prevProps.heatMap !== this.props.heatMap) {
             if (this.props.heatMap) {
                 this.MapHelper.updateHeatMap(this.props.heatMap, this.props.treeThreatType);
@@ -169,12 +194,8 @@ class Map extends Component {
         if (prevProps.treeThreatType !== this.props.treeThreatType) {
             this.MapHelper.setTreeThreatType(this.props.treeThreatType);
 
-            if (this.props.heatMap) {
-                this.MapHelper.updateHeatMap(this.props.heatMap, this.props.treeThreatType);
-            }
-            if (this.props.diversity) {
-                this.MapHelper.updateDiversity(this.props.diversity, this.props.diversityMode, this.props.diversityAttribute);
-            }
+            this.MapHelper.updateHeatMap(this.props.heatMap, this.props.treeThreatType);
+            this.MapHelper.updateDiversity(this.props.diversity, this.props.diversityMode, this.props.diversityAttribute);
         }
 
         if (JSON.stringify(prevProps.hoverSpecies) !== JSON.stringify(this.props.hoverSpecies)) {

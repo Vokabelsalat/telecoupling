@@ -216,6 +216,7 @@ class TimelineView extends Component {
                         sourceColorMap={this.state.sourceColorMap}
                         domainYears={this.state.domainYears}
                         zoomLevel={this.state.zoomLevel}
+                        setTimeFrame={this.props.setTimeFrame}
                     />
                     <div style={{ maxHeight: window.innerHeight / 2 + "px", overflowY: "scroll" }}> {
                         this.state.sortedKeys
@@ -249,6 +250,8 @@ class TimelineView extends Component {
                                         removeUnmutedSpecies={this.removeUnmutedSpecies.bind(this)}
                                         treeImageLinks={this.props.treeImageLinks}
                                         setHover={this.props.setHover}
+                                        setTimeFrame={this.props.setTimeFrame}
+                                        timeFrame={this.props.timeFrame}
                                     />
                                 )
                             })
@@ -262,6 +265,7 @@ class TimelineView extends Component {
                         sourceColorMap={this.state.sourceColorMap}
                         domainYears={this.state.domainYears}
                         zoomLevel={this.state.zoomLevel}
+                        setTimeFrame={this.props.setTimeFrame}
                     />
                 </div >
             );

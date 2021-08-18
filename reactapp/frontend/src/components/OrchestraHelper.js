@@ -23,9 +23,9 @@ class D3Orchestra {
         this.animationTime = 600;
 
         this.margin = {
-            top: 10,
+            top: 30,
             right: 10,
-            bottom: 10,
+            bottom: 0,
             left: 40,
         };
 
@@ -408,14 +408,14 @@ class D3Orchestra {
         d3.selectAll("#" + this.id + " > *").remove();
 
         this.width = this.initWidth - this.margin.left - this.margin.right;
-        this.height = this.initHeight - this.margin.top - this.margin.bottom;
+        this.height = this.initHeight + 10 - this.margin.top - this.margin.bottom;
 
         let content = d3.select("#" + this.id);
         let svg = content.append("svg")
             .attr("id", "selectChartSVG")
             .attr("height", this.height)
             .attr("width", this.width)
-            .style("transform", "translate(" + this.margin.left + "px , " + 0 + "px)")
+            .style("transform", "translate(" + this.margin.left + "px , " + this.margin.top + "px)")
             .style("border", "solid 1px gray")
 
         this.container = svg.append("g")

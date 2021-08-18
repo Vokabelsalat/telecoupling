@@ -47,7 +47,9 @@ class Timeline extends Component {
             removeSpeciesFromMap: this.props.removeSpeciesFromMap,
             muted: this.props.muted !== undefined ? this.props.muted : false,
             treeImageLinks: this.props.treeImageLinks,
-            setHover: this.props.setHover
+            setHover: this.props.setHover,
+            setTimeFrame: this.props.setTimeFrame,
+            timeFrame: this.props.timeFrame,
         });
     }
 
@@ -75,7 +77,10 @@ class Timeline extends Component {
             removeSpeciesFromMap: this.props.removeSpeciesFromMap,
             muted: this.props.muted !== undefined ? this.props.muted : false,
             treeImageLinks: this.props.treeImageLinks,
-            setHover: this.props.setHover
+            setHover: this.props.setHover,
+            setTimeFrame: this.props.setTimeFrame,
+            timeFrame: this.props.timeFrame,
+
         });
     }
 

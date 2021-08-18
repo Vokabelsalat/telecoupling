@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { getRandomInt, getGroupFileAndRotationFromID, pushOrCreate, pushOrCreateWithoutDuplicates, dangerSorted } from '../utils/utils'
-import { getIucnColor, citesAppendixSorted, iucnCategoriesSorted } from '../utils/timelineUtils'
+import { getIucnColor, citesAppendixSorted, iucnCategoriesSorted, citesAssessment, iucnAssessment, bgciAssessment } from '../utils/timelineUtils'
 
 class D3BarChart {
     constructor(param) {
@@ -111,7 +111,7 @@ class D3BarChart {
                 .paddingRight(27)
                 (root)
 
-            svg
+            let nodeContaines = svg
                 .selectAll(".nodeImgContainer")
                 .data(root.leaves())
                 .enter()
@@ -125,6 +125,42 @@ class D3BarChart {
                 .attr("class", "nodeImgContainerDiv")
                 .html(d => '<div class="nodeText">' + d.data.name + '</div><a target="_blank" href="' + d.data.link + '"><img class="nodeImage" src="' + d.data.link + '"/></a>')
             /* <div class="nodeValue">'+d.data.value+'</div> */
+
+
+            let nodeIconContaines = nodeContaines
+                .append('xhtml:div')
+                .attr("class", "nodeIconContainerDiv")
+                .style("width", "20px")
+                .style("height", "20px")
+                .style("left", "5px")
+                .style("top", "5px")
+                .style("position", "absolute");
+
+            nodeIconContaines.each(function(d, i) {
+                let node = d3.select(this);
+
+                let color = d.data.economically !== undefined ? d.data.economically.getColor() : "gray";
+                let secondColor = d.data.ecologically !== undefined ? d.data.ecologically.getColor() : "gray";
+
+                /* if (d.data.kingdom === "animals") {
+                    d3.svg("http://localhost:3000/animalIcon.svg").then(function (xml) {
+                        let icon = node.node().appendChild(xml.documentElement);
+                        d3.select(icon).attr("width", 20).attr("height", 15).attr("y", 2.5);
+
+                        d3.select(icon).select(".left").select("path").style("fill", color)
+                        d3.select(icon).select(".right").select("path").style("fill", secondColor)
+                    });
+                }
+                else {
+                    d3.svg("http://localhost:3000/plantIcon2.svg").then(function (xml) {
+                        let icon = node.node().appendChild(xml.documentElement);
+                        d3.select(icon).attr("width", 20).attr("height", 15).attr("y", 2.5);
+
+                        d3.select(icon).select(".left").select("path").style("fill", color)
+                        d3.select(icon).select(".right").select("path").style("fill", secondColor) 
+                    });
+                } */
+            });
 
             svg
                 .selectAll("titles")
