@@ -5,7 +5,7 @@ module.exports = {
             return { start: { x: parseInt(split[1]), y: parseInt(split[2]) }, end: { x: parseInt(split[9]), y: parseInt(split[10]) } };
             // statements
         } catch (e) {
-            console.log(e);
+            //console.log(e);
             return null;
         }
     },

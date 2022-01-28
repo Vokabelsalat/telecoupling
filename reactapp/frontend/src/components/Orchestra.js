@@ -12,7 +12,11 @@ class Orchestra extends Component {
             mainPart: this.props.mainPart,
             setInstrumentAndMainPart: this.props.setInstrumentAndMainPart,
             setInstrument: this.props.setInstrument,
-            setInstrumentGroup: this.props.setInstrumentGroup
+            setInstrumentGroup: this.props.setInstrumentGroup,
+            getTreeThreatLevel: this.props.getTreeThreatLevel,
+            treeThreatType: this.props.treeThreatType,
+            speciesData: this.props.speciesData,
+            finishedFetching: this.props.finishedFetching
         };
     }
 
@@ -24,15 +28,33 @@ class Orchestra extends Component {
             mainPart: this.state.mainPart,
             setInstrumentAndMainPart: this.state.setInstrumentAndMainPart,
             setInstrument: this.state.setInstrument,
-            setInstrumentGroup: this.state.setInstrumentGroup
+            setInstrumentGroup: this.state.setInstrumentGroup,
+            getTreeThreatLevel: this.state.getTreeThreatLevel,
+            treeThreatType: this.state.treeThreatType,
+            speciesData: this.state.speciesData,
+            finishedFetching: this.props.finishedFetching
         });
     }
 
-    componentDidUpdate() {
-        /*  OrchestraHelper.draw({
-             id: this.state.id,
-             setSpecies: this.state.setSpecies
-         }); */
+    componentDidUpdate(prevProps) {
+        /* if(prevProps.treeThreatType !== this.props.treeThreatType ||
+            JSON.stringify(this.props.speciesData) !== JSON.stringify(prevProps.speciesData) ||
+                JSON.stringify(this.props.speciesSignThreats) !== JSON.stringify(prevProps.speciesSignThreats)
+            ) { */
+            OrchestraHelper.draw({
+                id: this.state.id,
+                instrumentGroup: this.props.instrumentGroup,
+                instrument: this.props.instrument,
+                mainPart: this.props.mainPart,
+                setInstrumentAndMainPart: this.state.setInstrumentAndMainPart,
+                setInstrument: this.state.setInstrument,
+                setInstrumentGroup: this.state.setInstrumentGroup,
+                getTreeThreatLevel: this.props.getTreeThreatLevel,
+                treeThreatType: this.props.treeThreatType,
+                speciesData: this.props.speciesData
+            });
+
+       /*  } */
     }
 
     render() {

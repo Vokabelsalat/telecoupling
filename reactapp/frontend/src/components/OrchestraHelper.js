@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { polarToCartesian, describeArc, getStartAndEnd, getAngle } from '../utils/orchestraUtils'
-import { getRandomInt, getGroupFileAndRotationFromID, replaceSpecialCharacters } from '../utils/utils'
+import { getRandomInt, getGroupFileAndRotationFromID, replaceSpecialCharacters, serializeXmlNode } from '../utils/utils'
 
 class D3Orchestra {
     constructor(param) {
@@ -11,6 +11,9 @@ class D3Orchestra {
         this.setInstrumentAndMainPart = param.setInstrumentAndMainPart;
         this.setInstrument = param.setInstrument;
         this.setInstrumentGroup = param.setInstrumentGroup;
+        this.getTreeThreatLevel = param.getTreeThreatLevel;
+        this.treeThreatType = param.treeThreatType ? "economically" : "ecologically";
+        this.speciesData = param.speciesData;
 
         this.initWidth = window.innerWidth / 2;
         this.initHeight = window.innerHeight / 2;
@@ -38,9 +41,145 @@ class D3Orchestra {
         this.paint();
     }
 
+    bakeTheThreatPie(options) {
+
+        /*data and valueFunc are required*/
+        if (!options.data || !options.valueFunc) {
+            return '';
+        }
+
+        var data = options.data,
+            valueFunc = options.valueFunc,
+            r = options.outerRadius, //Default outer radius = 28px
+            rInner = options.innerRadius ? options.innerRadius : r - 10, //Default inner radius = r-10
+            strokeWidth = options.strokeWidth ? options.strokeWidth : 1, //Default stroke is 1
+            pathClassFunc = options.pathClassFunc ? options.pathClassFunc : function () { return ''; }, //Class for each path
+            pathTitleFunc = options.pathTitleFunc ? options.pathTitleFunc : function () { return ''; }, //Title for each path
+            pieClass = options.pieClass ? options.pieClass : 'marker-cluster-pie', //Class for the whole pie
+            pieLabel = options.pieLabel ? options.pieLabel : d3.sum(data, valueFunc), //Label for the whole pie
+            pieLabelClass = options.pieLabelClass ? options.pieLabelClass : 'marker-cluster-pie-label', //Class for the pie label
+            color = options.color,
+            origo = (r + strokeWidth), //Center coordinate
+            w = origo * 2, //width and height of the svg element
+            h = w,
+            donut = d3.pie(),
+            arc = d3.arc().innerRadius(rInner).outerRadius(r);
+
+
+        /* let div = document.createElementNS("http://www.w3.org/1999/xhtml", "div"); */
+        let div = d3.create("svg:g");
+
+        //Create an svg element
+        /* var svg = document.createElementNS("http://www.w3.org/2000/svg", 'svg'); */
+        /* let svg = d3.create("g"); */
+        //Create the pie chart
+
+        var vis = div.append("svg:g")
+            .data([data])
+            .attr('class', pieClass)
+            .attr('width', w + 2)
+            .attr('height', h + 2)
+            .style('position', "absolute");
+
+        let donutData = donut.value(valueFunc).sort((a, b) => { return (b.hasOwnProperty("values") && a.hasOwnProperty("values")) ? b.values[0].numvalue - a.values[0].numvalue : b.numvalue - a.numvalue; });
+
+        var arcs = vis.selectAll('g.arc')
+            .data(donutData)
+            .enter().append('svg:g')
+            //.attr('class', 'arc')
+            .attr('class', function (d) { return 'arc'; })
+            .attr('transform', 'translate(' + origo + ',' + origo + ')');
+
+        arcs.append('svg:path')
+            .attr('class', pathClassFunc)
+            .attr('stroke-width', strokeWidth)
+            .attr('fill', color)
+            .attr('stroke', color)
+            .attr('background', color)
+            .attr('border-color', color)
+            .attr('d', arc)
+            .append('svg:title')
+            .text(pathTitleFunc);
+
+        /* var svg2 = document.createElementNS("http://www.w3.org/2000/svg", 'svg'); */
+        /* var svg2 = d3.create('g'); */
+
+        //Create the pie chart
+        var vis2 = div.append("svg:g")
+            .attr('class', pieClass + " text")
+            .attr('width', w + 2)
+            .attr('height', h + 2)
+            .style('position', "absolute");
+
+        vis2.append('circle')
+            .attr('cx', origo)
+            .attr('cy', origo)
+            .attr('r', rInner - 1)
+            .attr('fill', 'white')
+            .style("fill-opacity", "50%")
+
+        vis2.append('text')
+            .attr('x', origo)
+            .attr('y', origo)
+            .attr('class', pieLabelClass + "text")
+            .attr('text-anchor', 'middle')
+            .attr('dy', '.3em')
+            .text(pieLabel);
+
+
+        /* div.appendChild(svg);
+        div.appendChild(svg2);*//*  */
+
+        //Return the svg-markup rather than the actual element
+        /* return serializeXmlNode(div.node()); */
+        return div;
+    }
+
+    appendPie(group, threats, textPathForPie, start, end, width) {
+        let data = d3.nest().key(function (d) { return d.abbreviation; }).entries(threats, d3.map);
+
+        let pie = this.bakeTheThreatPie({
+            "data": data,
+            "strokeWidth": 2,
+            "outerRadius": 28,
+            "innerRadius": 16,
+            "color": function(d) {return d.data.values[0].getColor();},
+            "pieClass": "clusterPie",
+            "pieLabelClass": "marker-cluster-pie-label",
+            valueFunc: function(d) {return d.values.length;}
+        });
+
+
+         let innerGroup = group
+            .append("g")
+            .attr("x",0)
+            .attr("y",0)
+            .attr("width","40px")
+            .attr("height","40px")
+            .attr("class","pieChartTest");
+            
+            innerGroup.node().appendChild(pie.node())
+
+           let textBox = textPathForPie.node().getBBox();
+           let svgNode = innerGroup;
+           let iconBox = svgNode.node().getBBox();
+
+           let scale = 30 / iconBox.height;
+
+           let angle = (start + ((end - start) / 2) - 360) % 180;
+
+           let cx = iconBox.x + (iconBox.width / 2);
+           let cy = iconBox.y + (iconBox.height / 2);
+
+           svgNode.classed("icon", true);
+
+           svgNode.attr("transform", "translate(" + (textBox.x) + " " + (textBox.y) + ") rotate(" + angle + ") scale(" + scale + ") translate(" + (-cx) + " " + (-cy) + ")");
+    }
+
     clickMainArc(id, group, dst) {
         let path = group.select("#" + id + "path");
         let icon = group.select(".icon");
+        let pie = group.select(".pieChartTest");
 
         d3.select("#backButton").style("display", "block");
 
@@ -48,15 +187,18 @@ class D3Orchestra {
 
         /* clickedgroup.on("mouseover", null); */
 
-        dst.selectAll(".subarc").style("display", "none").transition().duration(this.animationTime / 5).style("opacity", 0.0);
+        dst.selectAll(".subarc").style("display", "none")/* .transition().duration(this.animationTime / 5) */.style("opacity", 0.0);
         dst.selectAll(".text").style("opacity", 1.0); //.transition().duration(animationTime/2)
         dst.selectAll(".icon").style("opacity", 1.0);
+        dst.selectAll(".pieChartTest").style("opacity", 1.0);/*  */
 
-        icon.style("opacity", "0.0");
+        icon.style("opacity", 0);
+        pie.style("opacity", 0);
         d3.select("#" + id + "text").style("display", "initial").style("opacity", 0.0);
-        group.selectAll(".subarc").style("display", "initial").transition().duration(this.animationTime / 5).style("opacity", 1.0);
+        group.selectAll(".subarc").style("display", "initial")/* .transition().duration(this.animationTime / 5) */.style("opacity", 1.0);
 
-        setTimeout(() => this.zoomAndRotate(path), this.animationTime / 1.5);
+        /* setTimeout(() => this.zoomAndRotate(path), this.animationTime / 1.5); */
+        this.zoomAndRotate(path);
 
         this.setInstrumentGroup(id);
     }
@@ -119,8 +261,8 @@ class D3Orchestra {
             .style("fill", color)
             .style("stroke", "rgb(95, 77, 73)")
             .attr("origStroke", "rgb(95, 77, 73)")
-            .style("stroke-width", "0.5")
-            .attr("origStrokeWidth", "0.5")
+            .style("stroke-width", "1")
+            .attr("origStrokeWidth", "1")
             .attr("id", id + "path")
             .attr("class", "arc")
             .attr("start", start)
@@ -133,12 +275,12 @@ class D3Orchestra {
         path.classed(classStr, true);
 
         let groupAndFile;
+
         if (!classStr.includes("subarc")) {
             groupAndFile = getGroupFileAndRotationFromID(id);
             let instrumentGroup = groupAndFile.group;
 
             width = width + 10;
-
             fetch("http://localhost:9000/api/getInstrumentsFromGroup/" + instrumentGroup)
                 .then(res => res.json())
                 .then(data => {
@@ -191,14 +333,15 @@ class D3Orchestra {
                         }
 
                         newId = replaceSpecialCharacters(name + instrumentGroup);
-                        this.appendSelectArc(group, newId, name, "hsl(0, 100%, " + (50 + i * (45 / data.length)) + "%)", newstroke, this.positionX, this.positionY, startRadius - (newstroke) * (i + 2), start, end, 1,
-                            Math.min(newstroke - 1, 7), "subarc");
+                        this.appendSelectArc(group, newId, name, color, newstroke, this.positionX, this.positionY, startRadius - (newstroke) * (i + 2), start, end, 1,
+                            Math.min(newstroke - 1, 6), "subarc");
 
                         /* d3.select("#"+newId).transition().duration(animationTime * 1.5).style("opacity", 1.0);
                          d3.select("#"+newId+"textPath").transition().duration(animationTime * 1.5).style("opacity", 1.0);*/
                     }
                 });
         }
+
 
 
         dst.append("path")
@@ -210,7 +353,7 @@ class D3Orchestra {
             .attr("end", end)
             .attr("radius", width)
             .attr("name", text)
-            .attr("d", describeArc(x, y, width, start, end, direction));
+            .attr("d", describeArc(x, y, classStr.includes("subarc") ? width : width + 18, start, end, direction));
 
         let textElement = group
             .append("text")
@@ -329,7 +472,13 @@ class D3Orchestra {
                 .style("fill", "none")
                 .style("stroke", "none")
                 .attr("id", id + "textpathIcon")
-                .attr("d", describeArc(x, y, width - 25, start, end, direction));
+                .attr("d", describeArc(x, y, width - 34, start, end, direction));
+
+            dst.append("path")
+                .style("fill", "none")
+                .style("stroke", "none")
+                .attr("id", id + "textpathPie")
+                .attr("d", describeArc(x, y, width - 6, start, end, direction));
 
             let textElementForIcon = group
                 .append("text")
@@ -348,12 +497,50 @@ class D3Orchestra {
                 .attr("id", id + "textPathIcon")
                 .text("m");
 
-            /*.style("opacity", "0.0")
-            .style("fill-opacity", "0.0")*/
+            let textPathForPie = textElementForIcon.append("textPath")
+                .style("dominant-baseline", "central")
+                .style("opacity", "0.0")
+                .style("fill-opacity", "0.0")
+                .attr("class", "textonpath noselect")
+                .attr("xlink:href", "#" + id + "textpathPie")
+                .attr("font-size", 1)
+                .attr("text-anchor", "middle")
+                .attr("startOffset", "50%")
+                .attr("id", id + "textPathPie")
+                .text("m");
+
+                /* fetch("http://localhost:9000/api/getMaterial/" + id)
+                .then(res => res.json())
+                .then(data => { */
+
+                let speciesList = Object.values(this.speciesData)
+                    .filter(e => { return e.Species.trim() !== "" && e.groups.includes(id);})
+                    .map(e => {
+                        let genusSpecies = (e.Genus.trim() + " " + e.Species.trim()).trim();
+                        return genusSpecies;
+                    });
+
+                    speciesList = [...new Set(speciesList)];
+
+                    let heatMap = {};
+
+                    let speciesToThreat = {};
+                    let threats = [];
+                    for(let species of speciesList) {
+                        let threat = this.getTreeThreatLevel(species, this.treeThreatType);
+                        threats.push(threat);
+                    }
+
+                    //console.log(threats.map(e => e.abbreviation));
+                    this.appendPie(group, threats, textPathForPie, start, end, width);
+                /* }); */
+
+            
+            
             let filename = groupAndFile.filename;
             let rot = groupAndFile.rotation;
-
-            if (filename !== "") {
+            
+             if (filename !== "") {
                 fetch("/" + filename)
                     .then(response => response.text())
                     .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
@@ -364,10 +551,10 @@ class D3Orchestra {
                         group.append(() => svgNode.node());
                         let iconBox = svgNode.node().getBBox();
 
-                        let scale = 20 / iconBox.height;
+                        let scale = 15 / iconBox.height;
 
-                        /* let transX = (textBox.x - ((iconBox.width * scale) / 2) + textBox.width / 2);
-                        let transY = (textBox.y + textBox.height); */
+                        //let transX = (textBox.x - ((iconBox.width * scale) / 2) + textBox.width / 2);
+                        //let transY = (textBox.y + textBox.height);
 
                         let angle = (start + ((end - start) / 2) - 360) % 180;
 
@@ -378,10 +565,10 @@ class D3Orchestra {
                         let cx = iconBox.x + (iconBox.width / 2);
                         let cy = iconBox.y + (iconBox.height / 2);
 
-                        /* var saclestr = scale + ',' + scale; */
-                        /* var tx = -cx * (scale - 1);
-                        var ty = -cy * (scale - 1); */
-                        /* var translatestr = tx + ',' + ty; */
+                        //var saclestr = scale + ',' + scale;
+                        //var tx = -cx * (scale - 1);
+                        //var ty = -cy * (scale - 1);
+                        //var translatestr = tx + ',' + ty;
 
                         svgNode.classed("icon", true);
 
@@ -389,9 +576,9 @@ class D3Orchestra {
                     });
             }
 
-            group.on("click", function () {
+            /* group.on("click", function () {
                 this.clickMainArc(id, group, dst)
-            }.bind(this));
+            }.bind(this)); */
 
             group.moveToFront();
         }
@@ -505,7 +692,7 @@ class D3Orchestra {
         var ty = -cy * (toBeScaled - 1);
         var translatestr = tx + ',' + ty;
 
-        d3.select("#selectChart").transition().duration(this.animationTime).attr("transform", "\
+        d3.select("#selectChart").attr("transform", "\
             translate("+ translatestr + ") scale(" + saclestr + ") \
             ");
 
@@ -529,6 +716,7 @@ class D3Orchestra {
         selectchart.selectAll(".subarc").style("display", "none").transition().duration(this.animationTime / 5).style("opacity", 0.0);
         selectchart.selectAll(".text").style("opacity", 1.0);
         selectchart.selectAll(".icon").style("opacity", 1.0);
+        selectchart.selectAll(".pieChartTest").style("opacity", 1.0);
 
         this.zoomAndRotate(selectchart, true);
 
@@ -576,12 +764,13 @@ class D3Orchestra {
             .text("Back");
 
         let selectchart = d3.select("#selectChart");
-        this.appendSelectArc(selectchart, "Keyboard", "Keyboard", "hsl(0, 100%, " + (50 + 30) + "%)", 70, this.positionX, this.positionY, 140, 300 - 1, 270, 1, 12);
-        this.appendSelectArc(selectchart, "Percussion", "Percussion", "hsl(0, 100%, " + (50 + 20) + "%)", 70, this.positionX, this.positionY, 140, 330 - 1, 300, 1, 12);
-        this.appendSelectArc(selectchart, "Woodwinds", "Woodwinds", "hsl(0, 100%, " + (50 + 10) + "%)", 70, this.positionX, this.positionY, 140, 390, 330, 1, 12);
-        this.appendSelectArc(selectchart, "Brasses", "Brasses", "hsl(0, 100%, " + (50 + 20) + "%)", 70, this.positionX, this.positionY, 140, 420, 390 + 1, 1, 12);
-        this.appendSelectArc(selectchart, "Plucked", "Plucked", "hsl(0, 100%, " + (50 + 30) + "%)", 70, this.positionX, this.positionY, 140, 450, 420 + 1, 1, 12);
-        this.appendSelectArc(selectchart, "Strings", "Strings", "hsl(0, 100%, " + (50 + 35) + "%)", 90, this.positionX, this.positionY, 60 - 1 * 2, 90, 270, 1, 12);
+        this.appendSelectArc(selectchart, "Keyboard", "Keyboard", "white", 70, this.positionX, this.positionY, 140, 300 - 1, 270, 1, 10);
+        this.appendSelectArc(selectchart, "Percussion", "Percussion", "white", 70, this.positionX, this.positionY, 140, 330 - 1, 300, 1, 10);
+        this.appendSelectArc(selectchart, "Woodwinds", "Woodwinds", "white", 70, this.positionX, this.positionY, 140, 390, 330, 1, 10);
+        this.appendSelectArc(selectchart, "Brasses", "Brasses", "white", 70, this.positionX, this.positionY, 140, 420, 390 + 1, 1, 10);
+        this.appendSelectArc(selectchart, "Plucked", "Plucked", "white", 70, this.positionX, this.positionY, 140, 450, 420 + 1, 1, 10);
+        this.appendSelectArc(selectchart, "Strings", "Strings", "white", 89, this.positionX, this.positionY, 58, 90, 270, 1, 10);
+
 
         if (this.instrumentGroup !== undefined) {
             // wat for finishing appending the elements

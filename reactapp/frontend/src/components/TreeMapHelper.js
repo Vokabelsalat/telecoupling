@@ -6,6 +6,8 @@ class D3BarChart {
     constructor(param) {
         this.id = param.id;
         this.data = param.data;
+        
+        this.zoomArray = [];
 
         this.margin = {
             top: 10,
@@ -16,6 +18,8 @@ class D3BarChart {
 
         this.initWidth = window.innerWidth / 2;
         this.initHeight = window.innerHeight / 2;
+
+        this.currentTransform = [this.initWidth / 2, this.initHeight / 2, this.initHeight];
 
         this.padding = {
             top: 0,
@@ -72,6 +76,36 @@ class D3BarChart {
 
     }
 
+    zoom(d) {
+        console.log(d, this.zoomArray);
+        this.zoomArray.push(d.data.name);
+        console.log(d, this.zoomArray);
+        this.transition(d);
+    }
+
+
+    transition(d) {
+        console.log(d);
+        if(d) {
+            const i = d3.interpolateZoom(this.currentTransform, [d.x0, d.y0, Math.max(d.y1 - d.y0, d.x1 - d.x0)]);
+
+            console.log(i);
+
+            this.svg.transition()
+                .delay(250)
+                .duration(i.duration)
+                .attrTween("transform", () => t => this.transform(this.currentTransform = i(t)))
+                .on("end", this.transition);
+        }
+    }
+
+    transform([x, y, w]) {
+        return `
+        translate(${this.initWidth / 2}, ${this.initHeight / 2})
+        scale(${this.initHeight / w})
+        translate(${-x}, ${-y})
+        `;
+    }
 
     paint() {
 
@@ -107,13 +141,73 @@ class D3BarChart {
                 .size([width, height])
                 .paddingInner(-2)
                 .paddingOuter(6)
-                .paddingTop(27)
-                .paddingRight(27)
+                .paddingTop(20)
+                .paddingRight(10)
                 (root)
 
-            let nodeContaines = svg
+            let kingdomWrappers = svg
+                .selectAll(".kingdomWrapper")
+                .data(root.descendants().filter((d) => {return d.depth == 1 && d.children && d.children.length > 0;}))
+                .enter()
+                .append("rect")
+                .attr("class", "kingdomWrapper")
+                .attr("x", (d) => d.x0)
+                .attr("y", (d) => d.y0)
+                .attr("width", (d) => d.x1 - d.x0)
+                .attr("height", (d) => d.y1 - d.y0)
+                .style("stroke", "black")
+                .style("fill", "white")
+                .on('click', this.zoom.bind(this))
+            
+            let familyWrappers = svg
+                .selectAll(".familyWrapper")
+                .data(root.descendants().filter((d) => {return d.depth == 2 && d.children && d.children.length > 0;}))
+                .enter()
+                .append("rect")
+                .attr("class", "familyWrapper")
+                .attr("x", (d) => d.x0)
+                .attr("y", (d) => d.y0)
+                .attr("width", (d) => d.x1 - d.x0)
+                .attr("height", (d) => d.y1 - d.y0)
+                .style("stroke", "black")
+                .style("fill", "none")
+                
+
+            let genusWrappers = svg
+                .selectAll(".genusWrappers")
+                .data(root.descendants().filter((d) => {return d.depth == 3 && d.children && d.children.length > 0;}))
+                .enter()
+                .append("rect")
+                .attr("class", "familyWrapper")
+                .attr("x", (d) => d.x0)
+                .attr("y", (d) => d.y0)
+                .attr("width", (d) => d.x1 - d.x0)
+                .attr("height", (d) => d.y1 - d.y0)
+                .style("stroke", "black")
+                .style("fill", "none");
+
+            if(this.zoomArray.length === 0) {
+                let nodeContaines = svg
+                    .selectAll(".nodeImgContainer")
+                    .data(root.descendants().filter((d) => {return d.depth == 3 && d.children && d.children.length > 0;}))
+                    .enter()
+                    .append("foreignObject")
+                    .attr("class", "nodeImgContainer")
+                    .attr('x', function (d) { return d.x0; })
+                    .attr('y', function (d) { return d.y0; })
+                    .attr('width', function (d) { return d.x1 - d.x0; })
+                    .attr('height', function (d) { return d.y1 - d.y0; })
+                    .append('xhtml:div')
+                    .attr("class", "nodeImgContainerDiv")
+                    .html(d => {let link = d.data.children.sort((a,b) => a.value - b.value)[0].link; return '<div class="nodeText">' + "" + '</div><img class="nodeImage" style="vertical-align:text-top" src="' + link + '"/>';})
+                    /* .on('click', d => {console.log("CLICK", d);}) */
+            }
+
+
+
+            /* let nodeContaines = svg
                 .selectAll(".nodeImgContainer")
-                .data(root.leaves())
+                .data(root.leaves().filter((d) => { return d.value > 0; }))
                 .enter()
                 .append("foreignObject")
                 .attr("class", "nodeImgContainer")
@@ -123,26 +217,26 @@ class D3BarChart {
                 .attr('height', function (d) { return d.y1 - d.y0; })
                 .append('xhtml:div')
                 .attr("class", "nodeImgContainerDiv")
-                .html(d => '<div class="nodeText">' + d.data.name + '</div><a target="_blank" href="' + d.data.link + '"><img class="nodeImage" src="' + d.data.link + '"/></a>')
-            /* <div class="nodeValue">'+d.data.value+'</div> */
+                .html(d => '<div class="nodeText">' + d.data.name + '</div>') //<a target="_blank" href="' + d.data.link + '"><img class="nodeImage" style="vertical-align:text-top" src="' + d.data.link + '"/></a>
+            //<div class="nodeValue">'+d.data.value+'</div> */
 
 
-            let nodeIconContaines = nodeContaines
+/*             let nodeIconContaines = nodeContaines
                 .append('xhtml:div')
                 .attr("class", "nodeIconContainerDiv")
                 .style("width", "20px")
                 .style("height", "20px")
                 .style("left", "5px")
                 .style("top", "5px")
-                .style("position", "absolute");
+                .style("position", "absolute"); */
 
-            nodeIconContaines.each(function(d, i) {
+/*             nodeIconContaines.each(function(d, i) {
                 let node = d3.select(this);
 
                 let color = d.data.economically !== undefined ? d.data.economically.getColor() : "gray";
                 let secondColor = d.data.ecologically !== undefined ? d.data.ecologically.getColor() : "gray";
 
-                /* if (d.data.kingdom === "animals") {
+                 if (d.data.Kingdom === "Animalia") {
                     d3.svg("http://localhost:3000/animalIcon.svg").then(function (xml) {
                         let icon = node.node().appendChild(xml.documentElement);
                         d3.select(icon).attr("width", 20).attr("height", 15).attr("y", 2.5);
@@ -159,20 +253,45 @@ class D3BarChart {
                         d3.select(icon).select(".left").select("path").style("fill", color)
                         d3.select(icon).select(".right").select("path").style("fill", secondColor) 
                     });
-                } */
-            });
+                } 
+            }); */
 
             svg
                 .selectAll("titles")
-                .data(root.descendants().filter(function (d) { return d.depth == 1 }))
+                .data(root.descendants().filter(function (d) { return d.depth == 1 && d.children && d.children.length > 0 }))
                 .enter()
                 .append("text")
                 .attr("x", function (d) { return d.x0 + 6 })
-                .attr("y", function (d) { return d.y0 + 20 })
+                .attr("y", function (d) { return d.y0 + 15 })
                 .text(function (d) { return d.data.name })
                 .style("font-family", "sans-serif")
                 .attr("fill", "black")
+            
+            svg
+                .selectAll("titles")
+                .data(root.descendants().filter(function (d) { return d.depth == 2 && d.children && d.children.length > 0 }))
+                .enter()
+                .append("text")
+                .attr("x", function (d) { return d.x0 + 6 })
+                .attr("y", function (d) { return d.y0 + 15 })
+                .text(function (d) { return d.data.name })
+                .style("font-size", "smaller")
+                .style("font-family", "sans-serif")
+                .attr("fill", "black")
 
+            if(this.zoomArray.length > 0) {
+                svg
+                .selectAll("titles")
+                .data(root.descendants().filter(function (d) { return d.depth == 3 && d.children && d.children.length > 0 }))
+                .enter()
+                .append("text")
+                .attr("x", function (d) { return d.x0 + 6 })
+                .attr("y", function (d) { return d.y0 + 15 })
+                .text(function (d) { return d.data.name })
+                .style("font-size", "smaller")
+                .style("font-family", "sans-serif")
+                .attr("fill", "black")
+            }
         }
     }
 }

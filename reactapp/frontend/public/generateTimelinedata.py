@@ -1,9 +1,33 @@
 import json
+import csv
 
 species = {}
 
-for index in range(1,16):
-    with open('./timelineAndMapData/generatedData ({}).json'.format(index)) as json_file:
+""" fieldnames = [
+    "TS ID","Family","TaxonName in TS","Author1","BGCI_Scope","AssessmentYear","Category","Threatened","Reference","BGCI_URL","GTS ID","GTS TaxonName"
+]
+
+with open('./bgciThreatsSearchBySpecies.csv') as csv_file:
+    reader = csv.reader(csv_file, delimiter=';')
+    bgciThreats = {}
+    for row in reader:
+        threat = {}
+        for i in range(0,len(row)):
+            threat[fieldnames[i]] = row[i]
+
+        speciesName = threat["GTS TaxonName"]
+
+        if speciesName in bgciThreats:
+            bgciThreats[speciesName].append(threat)
+        else:
+            bgciThreats[speciesName] = [threat]
+
+with open("./generatedOutput/allBGCIThreats.json", 'w') as outfile:
+    json.dump(bgciThreats, outfile, separators=(',', ':'))
+    outfile.close() """
+
+for index in range(21,31):
+    with open('./timelineAndMapData/generatedData.json'.format(index)) as json_file:
         data = json.load(json_file)
         for p in data:
             print(p)
@@ -35,6 +59,25 @@ for index in range(1,16):
 
                 obj["speciesCountries"] = speciesCountries
 
+            if "populationTrend" in obj:
+                obj["populationTrend"] = obj["populationTrend"][p][0]
+
+            # Hexagon_distribution_maps
+            try:
+                hex_filename = './timelineAndMapData/Hexagon_distribution_maps/{}.json'.format(p.strip().replace(" ", "_"))
+                with open(hex_filename) as hexagon_file:
+                    hexagon_data = json.load(hexagon_file)
+                    species_hexagons = []
+                    for feature in hexagon_data["features"]:
+                        species_hexagons.append(str(feature["properties"]["HexagonID"]));
+                        #species_hexagons.append({"hexagonID": str(feature["properties"]["HexagonID"]), "count": feature["properties"]["Join_Count"]})
+
+                    obj["hexagons"] = species_hexagons
+
+            except FileNotFoundError:
+                print('File {} was not found.'.format(hex_filename))
+
+
             obj.pop('trade', None)
             obj.pop('iucn', None)
             obj.pop('threats', None)
@@ -51,6 +94,10 @@ for index in range(1,16):
             with open("./generatedOutput/"+p.strip().replace(" ", "_")+'.json', 'w') as outfile:
                 json.dump(obj, outfile, separators=(',', ':'))
                 outfile.close()
+
+with open("./generatedOutput/allSpecies.json", 'w') as outfile:
+    json.dump(species, outfile, separators=(',', ':'))
+    outfile.close()
 
 
     # iucnCats = ["EX", "EW", "RE", "CR", "EN", "VU", "V", "NT", "LC", "DD", "NA", "NE"]

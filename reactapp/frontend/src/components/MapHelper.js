@@ -19,7 +19,7 @@ var values = [];
 var biomes = ["Tropical & Subtropical Moist Broadleaf Forests", "Tropical & Subtropical Dry Broadleaf Forests", "Tropical & Subtropical Coniferous Forests", "Temperate Broadleaf & Mixed Forests", "Temperate Conifer Forests", "Boreal Forests/Taiga", "Tropical & Subtropical Grasslands, Savannas & Shrublands", "Temperate Grasslands, Savannas & Shrublands", "Flooded Grasslands & Savannas", "Montane Grasslands & Shrublands", "Tundra", "Mediterranean Forests, Woodlands & Scrub", "Deserts & Xeric Shrublands", "Mangroves"];
 
 class MapHelper {
-    constructor(id, getTreeThreatLevel, initWidth, setDiversityScale, heatMap, diversity) {
+    constructor(id, getTreeThreatLevel, initWidth, setDiversityScale, heatMap, diversity, setProcessedSpecies) {
         this._data = [];
         this._id = id;
         this.trees = {};
@@ -40,10 +40,12 @@ class MapHelper {
         this.treeThreatType = true;
         this.heatMap = heatMap;
         this.diversity = diversity;
-
+        this.setProcessedSpecies = setProcessedSpecies;
+        
         this.activeSpecies = {};
         this.speciesToThreat = {};
-
+        this.iso3ToCapital = {};
+        
         this.stripes = {};
         this.speciesImageLinks = {};
 
@@ -202,7 +204,7 @@ class MapHelper {
                 }
 
                 this.countriesData = data;
-                setTimeout(this.processTreeQueue(), 10);
+                setTimeout(this.processTreeQueue(), 1);
             });
 
         /*$.post("/getMusicalChairs", function (data) {
@@ -232,6 +234,16 @@ class MapHelper {
          
             console.log(locationMapping);
         });*/
+
+
+        fetch("/POPP_capitals_FeaturesToJSON.json")
+            .then(res => res.json())
+            .then(data => { 
+                for(let feat of data.features) {
+                    this.iso3ToCapital[feat.properties.ISO3CD] = feat;
+                }
+            });
+
 
         if (this.addHotSpots) {
             fetch("/hotspots_2011_polygons-2.json")
@@ -477,7 +489,6 @@ class MapHelper {
             donut = d3.pie(),
             arc = d3.arc().innerRadius(rInner).outerRadius(r);
 
-
         let div = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
 
         //Create an svg element
@@ -590,9 +601,9 @@ class MapHelper {
                 this.trees[treeName].speciesCountries = speciesCountries;
             }
 
-            this.updateDiversity(this.diversity, this.diversityMode, this.diversityAttribute);
+            /* this.updateDiversity(this.diversity, this.diversityMode, this.diversityAttribute);
             this.updateHeatMap(true, this.treeThreatType);
-
+ */
             //if (this.countriesData && this.intersections !== undefined) {
             if (this.countriesData) {
                 this.addTreeLayer(treeName);
@@ -640,6 +651,8 @@ class MapHelper {
         if (add) {
             this.trees[treeName].hexagons = hexagons;
         }
+
+        this.setProcessedSpecies(treeName);
     }
 
     removeSpeciesCountries(treeName) {
@@ -978,9 +991,6 @@ class MapHelper {
                     diversityCountries.push(feature.id);
 
                     hit = true;
-                    // if (intersections.hasOwnProperty(feature.properties.ROMNAM)) {
-                    //    newRegions.push(...intersections[feature.properties.ROMNAM]);
-                    //}
                 }
             }
 
@@ -989,49 +999,14 @@ class MapHelper {
             }
         }
 
-        /* this.diversityRegions[treeName] = [...new Set(newRegions)]; */
         this.diversityCountries[treeName] = diversityCountries;
-
-        /* var country = L.geoJson(
-            {
-                "type": "FeatureCollection",
-                "features": Object.values(mapCountries)
-            }
-            , {
-                //filter: filterByName,
-                clickable: false,
-                style: {
-                    fill: color,
-                    color: color,
-                    opacity: opacity,
-                    fillOpacity: opacity,
-                    //fill: "url(#img1)"
-                }
-            }); */
-
-        /*  let ecos = L.geoJson(this.ecoData, {
-             filter: filterByIntersection,
-             style: {
-                 fill: color,
-                 fillColor: color,
-                 color: "grey",
-                 opacity: opacity,
-                 fillOpacity: opacity
-             }
-         }); */
-
-        /* this.control.addOverlay(country, "Countries", treeName);
-        this.mymap.addLayer(country); */
-
-        //this.trees[treeName].treeCountriesLayer = country;
-
-        /* this.control.addOverlay(ecos, "Eco Regions", treeName);
-        this.trees[treeName].treeEcosLayer = ecos; */
 
         this.activeSpecies[treeName] = true;
 
-        this.updateDiversity(this.diversity, this.diversityMode, this.diversityAttribute);
-        this.updateHeatMap(true, this.treeThreatType);
+        this.setProcessedSpecies(treeName);
+
+       /*  this.updateDiversity(this.diversity, this.diversityMode, this.diversityAttribute);
+        this.updateHeatMap(true, this.treeThreatType); */
     }
 
     setDiversity(div) {
@@ -1052,9 +1027,6 @@ class MapHelper {
     colorLayerGroups() {
         for (let key of Object.keys(this.trees)) {
             let color = this.trees[key].color;
-            /* $(".leaflet-control-layers-group-name").filter(function () {
-                return $(this).text() === key;
-            }).first().closest(".leaflet-control-layers-group").css("border", "3px solid " + rgbToRGBA(color, 0.8)).css("background-color", rgbToRGBA(color, 0.5)); */
         }
     }
 
@@ -1093,17 +1065,7 @@ class MapHelper {
             }
         }
 
-        /* for (let country of Object.keys(heatMapData)) {
-            let countryData;
-            countryData = heatMapData[country].sort((a, b) => a.numvalue - b.numvalue); */
-        //countryHeat[country] = countryData.length % 2 !== 0 ? countryData[Math.floor(countryData.length / 2)] : countryData[Math.floor(countryData.length / 2) - 1];
-        /* } */
-
         let countries = Object.keys(heatMapData);
-
-        /* scale = Object.values(scale).sort((a, b) => b.threat.sort - a.threat.sort).map(e => { return { scaleColor: e.threat.getColor(), scaleValue: e.threat.abbreviation + " (" + e.count + ")", scalePercentage: e.count / maxCount } });
-     
-        this.setDiversityScale(scale); */
 
         let speciesToThreat = this.speciesToThreat;
 
@@ -1118,25 +1080,34 @@ class MapHelper {
                     let r = Math.min(this.rmax - 2 * strokeWidth - (n < 10 ? 12 : n < 100 ? 8 : n < 1000 ? 4 : 0), this.rmax); //Calculate clusterpie radius...
                     let iconDim = (r + strokeWidth) * 2; //...and divIcon dimensions (leaflet really want to know the size)
 
-                    this.countryClusterLayer.addLayer(L.marker(layer.getBounds().getCenter(), {
-                        data: data,
-                        icon: new L.DivIcon({
-                            html: this.bakeTheThreatPie({
-                                data: data,
-                                valueFunc: function (d) { return data.length; },
-                                strokeWidth: 2,
-                                outerRadius: r,
-                                innerRadius: r - 8,
-                                pieClass: 'cluster-pie',
-                                pieLabel: n,
-                                pieLabelClass: 'marker-cluster-pie-label',
-                                strokeColor: function (d) {return speciesToThreat[d.data].getColor(); },
-                                color: function (d) {return speciesToThreat[d.data].getColor(); },
-                                /* pathClassFunc: function (d) { return "category-path category-" + d.data.key.replaceSpecialCharacters(); },
-                                pathTitleFunc: function (d) { return d.data.key + ' (' + d.data.values.length + ' accident' + (d.data.values.length != 1 ? 's' : '') + ')'; } */
+
+                    if(this.iso3ToCapital[layer.feature.properties.ISO3CD] !== undefined) {
+                        let captialCoordinates = this.iso3ToCapital[layer.feature.properties.ISO3CD].geometry.coordinates;
+                        let newLayer = L.marker([captialCoordinates[1], captialCoordinates[0]], {
+                            data: data,
+                            icon: new L.DivIcon({
+                                html: this.bakeTheThreatPie({
+                                    data: data,
+                                    valueFunc: function (d) { return data.length; },
+                                    strokeWidth: 2,
+                                    outerRadius: r,
+                                    innerRadius: r - 8,
+                                    pieClass: 'cluster-pie',
+                                    pieLabel: n,
+                                    pieLabelClass: 'marker-cluster-pie-label',
+                                    strokeColor: function (d) {return speciesToThreat[d.data].getColor(); },
+                                    color: function (d) {return speciesToThreat[d.data].getColor(); },
+                                    /* pathClassFunc: function (d) { return "category-path category-" + d.data.key.replaceSpecialCharacters(); },
+                                    pathTitleFunc: function (d) { return d.data.key + ' (' + d.data.values.length + ' accident' + (d.data.values.length != 1 ? 's' : '') + ')'; } */
+                                })
                             })
                         })
-                    }));
+
+                        this.countryClusterLayer.addLayer(newLayer);
+                    }
+                    else {
+                        console.log("ISO Code not in iso3toCapital", layer.feature.properties.ISO3CD);
+                    }
                 }
             });
         }
@@ -1207,17 +1178,8 @@ class MapHelper {
             let scaleOpacity = scaleValue / heatMapMax;
 
             let scaleColor = "";
-            if (diversityMode) {
-                scaleColor = "rgba(5,74,145," + scaleOpacity + ")";
-            }
-            else {
-                scaleColor = treeThreatType ? getCitesColor(diversityAttribute) : (dangerColorMap[iucnToDangerMap[diversityAttribute]]).bg;
 
-                let rgbValues = scaleColor.replace("rgb", "").replace("(", "").replace(")", "").split(",").map(e => parseInt(e.trim()));
-
-                let hsvValues = colorsys.rgb_to_hsv(...rgbValues);
-                scaleColor = colorsys.hsvToHex({ h: hsvValues.h, s: scaleOpacity * hsvValues.s, v: hsvValues.v });
-            }
+            scaleColor = colorsys.hsvToHex(210, scaleOpacity * 100, 100);
 
             scale.push({ scaleColor, scaleValue: Math.ceil(scaleValue) });
         }
@@ -1226,7 +1188,7 @@ class MapHelper {
             let index = 0;
             for (let e of scale) {
 
-                if (value < e.scaleValue) {
+                if (value <= e.scaleValue) {
                     return index;
                 }
                 index++;
@@ -1234,7 +1196,8 @@ class MapHelper {
             return Math.min(scale.length - 1, index);
         }
 
-        this.setDiversityScale(scale);
+        this.diversityColorScale = scale;
+        this.setDiversityScale(this.diversityColorScale);
 
         function getZeroStyle() {
             return {
@@ -1257,20 +1220,20 @@ class MapHelper {
                 )));
                 let maxKey = Object.keys(aCount).reduce((a, b) => aCount[a] > aCount[b] ? a : b);
 
+                let val = heatMapData[feature.id].length;
+                let scaledIndex = getScaledIndex(val);
+
                 if (diversityMode) {
                     return {
                         color: "white",
                         stroke: 1,
                         opacity: 1,
                         weight: 1,
-                        fillOpacity: heatMapData[feature.id].length / heatMapMax,
-                        fillColor: "rgb(5, 74, 145)",
+                        fillOpacity: 1,
+                        fillColor: scale[scaledIndex].scaleColor,
                     };
                 }
                 else {
-
-                    let val = heatMapData[feature.id].length;
-                    let scaledIndex = getScaledIndex(val);
 
                     return {
                         color: "white",
@@ -1330,13 +1293,13 @@ class MapHelper {
             scale.push({ scaleColor, scaleValue: Math.ceil(scaleValue) });
         }
 
-        this.setDiversityScale(scale);
+        /* this.setDiversityScale(scale); */
 
         let getScaledIndex = function (value) {
             let index = 0;
             for (let e of scale) {
 
-                if (value < e.scaleValue) {
+                if (value <= e.scaleValue) {
                     return index;
                 }
                 index++;
@@ -1404,12 +1367,11 @@ class MapHelper {
 
             if (speciesHexas) {
                 for (let hexagon of speciesHexas) {
-                    pushOrCreate(heatMapData, hexagon.toString(), speciesName);
+                    pushOrCreate(heatMapData, hexagon.toString(), [speciesName, 1]);
                 }
             }
         }
 
-        let heatMapLength = Object.keys(heatMapData).length;
         let heatMapMax = Math.max(...Object.values(heatMapData).map(e => e.length));
 
         let scaleSteps = Math.min(10, heatMapMax);
@@ -1419,18 +1381,16 @@ class MapHelper {
             let scaleValue = i * (heatMapMax / scaleSteps);
             let scaleOpacity = scaleValue / heatMapMax;
 
-            let scaleColor = "rgba(5,74,145," + scaleOpacity + ")";
-
+            let scaleColor = colorsys.hsvToHex(210, scaleOpacity * 100, 100);
             scale.push({ scaleColor, scaleValue: Math.ceil(scaleValue) });
         }
 
-        this.setDiversityScale(scale);
+        this.hexagonColorScale = scale;
 
         let getScaledIndex = function (value) {
             let index = 0;
             for (let e of scale) {
-
-                if (value < e.scaleValue) {
+                if (value <= e.scaleValue) {
                     return index;
                 }
                 index++;
@@ -1441,7 +1401,7 @@ class MapHelper {
         function getZeroStyle() {
             return {
                 color: "rgb(244, 0, 0)",
-                stroke: 0.5,
+                stroke: 0.0,
                 opacity: 0.5,
                 weight: 0.5,
                 fillOpacity: 0.5
@@ -1449,18 +1409,14 @@ class MapHelper {
         }
 
         function calculateStlyle(feature) {
-            if (heatMapData.hasOwnProperty(feature.properties.HexagonID.toString())) {
-                let a = heatMapData[feature.properties.HexagonID.toString()];
-                const aCount = Object.fromEntries(new Map([...new Set(a)].map(
-                    x => [x, a.filter(y => y === x).length]
-                )));
-                let maxKey = Object.keys(aCount).reduce((a, b) => aCount[a] > aCount[b] ? a : b);
-
-                let val = heatMapData[feature.properties.HexagonID.toString()].length;
+            let hexID = feature.properties.HexagonID.toString();
+            if (heatMapData.hasOwnProperty(hexID)) {
+                let hexas = heatMapData[hexID];
+                let val = hexas.length;
                 let scaledIndex = getScaledIndex(val);
 
                 return {
-                    stroke: 1,
+                    stroke: 0,
                     opacity: 1,
                     weight: 1,
                     fillOpacity: 1,
@@ -1495,18 +1451,24 @@ class MapHelper {
     }
 
     overlayadd(event) {
+
         let treeName = event.group.name;
         let typ = event.name;
 
-        if (treeName !== "Cluster") {
-            if (typ.includes("Trees")) {
-                this.addTreeCoordinateLayer(treeName);
-            }
-
-            /* if (typ === "Countries") {
-                this.updateRegions();
-                this.updateDiversity();
-            } */
+        switch (event.name) {
+            case "Hexagons":
+                this.mymap.removeLayer(this.allCountries);
+                this.setDiversityScale(this.hexagonColorScale);
+                this.control._update();
+                break;
+            case "Diversity":
+                this.mymap.removeLayer(this.hexagons);
+                this.setDiversityScale(this.diversityColorScale);
+                this.control._update();
+                //this.control.addOverlay(this.hexagons, "Hexagons", "Additional");
+                break;
+            default:
+                break;
         }
     }
 

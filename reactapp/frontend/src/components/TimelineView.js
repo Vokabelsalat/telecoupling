@@ -176,6 +176,7 @@ class TimelineView extends Component {
         if (renderTimelines) {
             return (
                 <div>
+                    <div>{this.state.sortedKeys.length}</div>
                     {/*                     <div> {
                         this.state.sortedKeys.filter(key => this.state.data[key].timeTrade[0].length > 1).map(e => {
                             return (
@@ -218,7 +219,7 @@ class TimelineView extends Component {
                         zoomLevel={this.state.zoomLevel}
                         setTimeFrame={this.props.setTimeFrame}
                     />
-                    <div style={{ maxHeight: window.innerHeight / 2 + "px", overflowY: "scroll" }}> {
+                    <div style={{ maxHeight: window.innerHeight / 2 + "px", overflowY: "scroll", marginRight: "30px" }}> {
                         this.state.sortedKeys
                             .map(e => {
                                 return (

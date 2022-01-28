@@ -11,6 +11,7 @@ class Map extends Component {
 
         this.distributionQueue = [];
         this.expetedDistributionQueueLength = [];
+        this.processedDistributionQueue = [];
 
         this.state = {
             id: this.props.id
@@ -19,7 +20,7 @@ class Map extends Component {
 
     init() {
         this.treeCoordinateQueue = [];
-        this.MapHelper = new MapHelper(this.state.id, this.props.getTreeThreatLevel, this.props.initWidth, this.props.setDiversityScale, this.props.heatMap, this.props.diversity);
+        this.MapHelper = new MapHelper(this.state.id, this.props.getTreeThreatLevel, this.props.initWidth, this.props.setDiversityScale, this.props.heatMap, this.props.diversity, this.setProcessedSpecies.bind(this));
 
         this.addSpeciesFromMapSpecies();
 
@@ -31,92 +32,94 @@ class Map extends Component {
         }
     }
 
+    setProcessedSpecies(speciesName) {
+        console.log(this.processedDistributionQueue, speciesName);
+        this.processedDistributionQueue.push(speciesName);
+        if(this.processedDistributionQueue.length >= this.expetedDistributionQueueLength) {
+            this.MapHelper.updateDiversity(this.props.diversity, this.props.diversityMode, this.props.diversityAttribute);
+            this.MapHelper.updateHeatMap(true, this.props.treeThreatType);
+        }
+    } 
+
     addSpeciesFromMapSpecies() {
-        console.log("here trying to update the map", this.props.mapSpecies);
         this.MapHelper.speciesImageLinks = this.props.speciesImageLinks;
 
         if (this.props.data && this.props.mapSpecies) {
             let mapSpeciesData = {};
-            this.expetedDistributionQueueLength = Object.keys(this.props.mapSpecies).length;
+            this.expetedDistributionQueueLength = 0;
+            this.processedDistributionQueue = [];
 
             for (let species of Object.keys(this.props.mapSpecies)) {
 
                 if (this.props.data.hasOwnProperty(species)) {
-                    fetch("/distribution/" + species.replace(" ", "_LEL") + ".geojson")
-                        .then(res => res.json())
-                        .then(data => {
-                            this.pushAndCheckDistributionQueue({ type: "distribution", value: [species, data] });
-                        })
-                        .catch(e => {
+                    let justGenus = false;
+                    if (!species.includes(" ")) {
+                        justGenus = true;
+                    }
 
-                            let justGenus = false;
-                            if (!species.includes(" ")) {
-                                justGenus = true;
-                            }
+                    if (this.props.data.hasOwnProperty(species)) {
+                        if (this.props.data[species].hasOwnProperty("treeCountries")) {
+                            let countries = Object.keys(this.props.data[species]["treeCountries"]);
 
-                            if (this.props.data.hasOwnProperty(species)) {
-                                if (this.props.data[species].hasOwnProperty("treeCountries")) {
-                                    let countries = Object.keys(this.props.data[species]["treeCountries"]);
-
-                                    if (countries.length > 0) {
-                                        if (justGenus) {
-                                            let speciesCountries = {};
-                                            let acceptedTreeSpecies = Object.keys(this.props.data[species]["speciesNamesAndSyns"]);
-                                            for (let treeName of Object.keys(this.props.data[species]["speciesCountries"])) {
-                                                if (acceptedTreeSpecies.includes(treeName)) {
-                                                    speciesCountries[treeName] = this.props.data[species]["speciesCountries"][treeName];
-                                                }
-                                            }
-                                            this.pushAndCheckDistributionQueue({ type: "treeCountries", value: [species, countries, speciesCountries] });
-                                            //this.MapHelper.addTreeCountries(species, countries, speciesCountries);
-                                        }
-                                        else {
-                                            this.pushAndCheckDistributionQueue({ type: "treeCountries", value: [species, countries] });
-                                            //this.MapHelper.addTreeCountries(species, countries);
+                            if (countries.length > 0) {
+                                if (justGenus) {
+                                    let speciesCountries = {};
+                                    let acceptedTreeSpecies = Object.keys(this.props.data[species]["speciesNamesAndSyns"]);
+                                    for (let treeName of Object.keys(this.props.data[species]["speciesCountries"])) {
+                                        if (acceptedTreeSpecies.includes(treeName)) {
+                                            speciesCountries[treeName] = this.props.data[species]["speciesCountries"][treeName];
                                         }
                                     }
-                                    else {
-                                        this.pushAndCheckDistributionQueue({});
-                                    }
-
-                                    let mapHelper = this.MapHelper;
-
-                                    if (this.props.coordinates !== undefined &&
-                                        this.props.coordinates.hasOwnProperty(species) &&
-                                        this.props.coordinates[species].length > 0) {
-                                        mapHelper.addTreeCoordinates(species, this.props.coordinates[species]);
-                                    }
+                                    this.pushAndCheckDistributionQueue({ type: "treeCountries", value: [species, countries, speciesCountries] });
+                                    //this.MapHelper.addTreeCountries(species, countries, speciesCountries);
                                 }
                                 else {
-                                    this.pushAndCheckDistributionQueue({});
-                                }
-
-                                if (this.props.data[species].hasOwnProperty("ecoZones")) {
-                                    let ecoZones = Object.keys(this.props.data[species]["ecoZones"]);
-
-                                    if (ecoZones.length > 0) {
-                                        this.pushAndCheckDistributionQueue({ type: "ecoRegions", value: [species, ecoZones] });
-                                    }
-                                }
-
-                                if (this.props.data[species].hasOwnProperty("hexagons")) {
-                                    let hexagons = this.props.data[species]["hexagons"].map(e => e.HexagonID);
-                                    if (hexagons.length > 0) {
-                                        this.pushAndCheckDistributionQueue({ type: "hexagons", value: [species, hexagons] });
-                                    }
+                                    this.pushAndCheckDistributionQueue({ type: "treeCountries", value: [species, countries] });
+                                    //this.MapHelper.addTreeCountries(species, countries);
                                 }
                             }
+                            else {
+                                //this.pushAndCheckDistributionQueue({});
+                            }
 
-                        });
+                            let mapHelper = this.MapHelper;
+
+                            if (this.props.coordinates !== undefined &&
+                                this.props.coordinates.hasOwnProperty(species) &&
+                                this.props.coordinates[species].length > 0) {
+                                mapHelper.addTreeCoordinates(species, this.props.coordinates[species]);
+                            }
+                        }
+                        else {
+                            //this.pushAndCheckDistributionQueue({});
+                        }
+
+                        if (this.props.data[species].hasOwnProperty("ecoZones")) {
+                            let ecoZones = Object.keys(this.props.data[species]["ecoZones"]);
+
+                            if (ecoZones.length > 0) {
+                                this.pushAndCheckDistributionQueue({ type: "ecoRegions", value: [species, ecoZones] });
+                            }
+                        }
+
+                        if (this.props.data[species].hasOwnProperty("hexagons")) {
+                            let hexagons = this.props.data[species]["hexagons"];
+                            if (hexagons.length > 0) {
+                                this.pushAndCheckDistributionQueue({ type: "hexagons", value: [species, hexagons] });
+                            }
+                        }
+                    } 
                 }
                 else {
-                    this.pushAndCheckDistributionQueue({});
+                    //this.pushAndCheckDistributionQueue({});
                 }
             }
         }
     }
 
     pushAndCheckDistributionQueue(element) {
+        console.log("pushAndCheckDistributionQueue", element);
+        this.expetedDistributionQueueLength = this.expetedDistributionQueueLength + 1;
         this.distributionQueue.push(element);
         if (this.distributionQueue.length > 0) {
             for (let speciesObj of this.distributionQueue) {
@@ -161,16 +164,15 @@ class Map extends Component {
             let diff = Object.keys(prevProps.mapSpecies).filter(x => !newSpecies.includes(x));
 
             this.removeSpeciesByMapSpecies(diff);
-            if (this.props.heatMap) {
+/*             if (this.props.heatMap) {
                 this.MapHelper.updateHeatMap(this.props.heatMap, this.props.treeThreatType);
             }
             if (this.props.diversity) {
                 this.MapHelper.updateDiversity(this.props.diversity, this.props.diversityMode, this.props.diversityAttribute);
-            }
+            } */
         }
 
         if (JSON.stringify(this.props.timeFrame) !== JSON.stringify(prevProps.timeFrame)) {
-            console.log(JSON.stringify(this.props.timeFrame), JSON.stringify(prevProps.timeFrame));
             this.MapHelper.updateHeatMap(this.props.heatMap, this.props.treeThreatType);
             this.MapHelper.updateDiversity(this.props.diversity, this.props.diversityMode, this.props.diversityAttribute);
         }
@@ -182,8 +184,6 @@ class Map extends Component {
         }
 
         if (prevProps.diversity !== this.props.diversity) {
-            console.log("SET", this.props.diversity);
-
             this.MapHelper.setDiversity(this.props.diversity);
 
             if (this.props.diversity) {

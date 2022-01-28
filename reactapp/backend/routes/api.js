@@ -15,7 +15,7 @@ router.get("/", function (req, res, next) {
 
 router.get("/getInstrumentsFromGroup/:selectedGroup", function (req, res, next) {
     let group = req.params.selectedGroup;
-    knex.select("Instruments").from('materials4').where("Instrument groups", group).groupBy("Instruments").then(rows => {
+    knex.select("Instruments").from('materials').where("Instrument_groups", group).groupBy("Instruments").then(rows => {
         res.end(JSON.stringify(rows));
     });
 });
@@ -28,25 +28,25 @@ router.get("/getMaterial/:instrumentGroup/:instruments?/:mainPart?", (req, res) 
 
     if (instruments) {
         if (mainPart) {
-            knex.select().from("materials4").where({ "Instruments": instruments, "Main part": mainPart }).then(rows => {
+            knex.select().from("materials").where({ "Instruments": instruments, "Main part": mainPart }).then(rows => {
                 res.json(rows);
             });
         }
         else {
-            knex.select().from("materials4").where({ "Instruments": instruments }).then(rows => {
+            knex.select().from("materials").where({ "Instruments": instruments }).then(rows => {
                 res.json(rows);
             });
         }
     }
     else {
-        knex.select().from("materials4").where({ "Instrument groups": instrumentGroup }).then(rows => {
+        knex.select().from("materials").where({ "Instrument_groups": instrumentGroup }).then(rows => {
             res.json(rows);
         });
     }
 });
 
 router.get("/getAllMaterials", (req, res) => {
-    knex.select().from("materials4").then(rows => {
+    knex.select().from("materials").then(rows => {
         res.json(rows);
     });
     /* knex.select().from("materials4").offset(440).limit(60).then(rows => {
@@ -68,7 +68,7 @@ router.get("/getTestMaterial", (req, res) => {
 
     //knex.select().from("materials4").where({ "Genus": "Dalbergia", "Species": "" }).orWhere({ "Genus": "Paubrasilia", "Species": "Echinata" }).then(rows => {
     //knex.select().from("materials4").where({ "Instruments": "violin, viola, cello, double bass" }).then(rows => {
-    knex.select().from("materials4")
+    knex.select().from("materials")
         .where({ "Genus": "Paubrasilia", "Species": "Echinata" })
         .orWhere({ "Genus": "Brosimum", "Species": "guianense" })
         .orWhere({ "Genus": "Dalbergia", "Species": "melanoxylon" })
@@ -96,7 +96,7 @@ router.put("/saveThreatSignToDB", (req, res) => {
 
 router.get("/getMainParts/:instruments", (req, res) => {
     let instruments = req.params.instruments;
-    knex.select("Main part").from("materials4").where({ "Instruments": instruments }).whereNot({ "Main part": "" }).groupBy("Main part").then(rows => {
+    knex.select("Main_part").from("materials").where({ "Instruments": instruments }).whereNot({ "Main_part": "" }).groupBy("Main_part").then(rows => {
         res.json(rows);
     });
 });

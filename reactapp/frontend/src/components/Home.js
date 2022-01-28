@@ -7,7 +7,7 @@ import TimelineView from "./TimelineView";
 import { getOrCreate, iucnToDangerMap, dangerSorted, pushOrCreate, getThreatColor, replaceSpecialCharacters } from "../utils/utils";
 import { iucnScore, threatScore, citesScore, citesScoreReverse, threatScoreReverse, citesAppendixSorted, iucnColors, getCitesColor, getIucnColor, iucnAssessment, bgciAssessment, citesAssessment } from '../utils/timelineUtils';
 import Map from "./Map";
-import { cluster, json, scaleLog, scalePoint, treemap } from 'd3';
+import { cluster, json, scaleLog, scalePoint, thresholdScott, treemap } from 'd3';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 
@@ -19,9 +19,8 @@ class Home extends Component {
 
         this.tempSpeciesData = {};
         this.tempFetchedSpecies = [];
-        this.speciesDataCache = {};
-
-
+        this.tmpSpeciesDataCache = {};
+        this.species = {};
 
         let tabs = { "maps": { "diversityMapTab": true, "threatMapTab": false }, "charts": { "barChartTab": true, "treeMapTab": false } };
 
@@ -53,8 +52,31 @@ class Home extends Component {
             isThreat: false,
             tabs: tabs,
             hoverSpecies: [],
-            timeFrame: []
+            timeFrame: [],
+            speciesDataCache: {}
         };
+    }
+
+    importAllSpeciesFromGeneratedJSON() {
+        fetch("http://localhost:3000/generatedOutput/allSpecies.json")
+        .then(res => res.json())
+        .then(function (speciesData) {
+
+            let newMapData = {};
+            for(let speciesName of Object.keys(speciesData)) {
+                newMapData[speciesName] = 1;
+            }
+
+            this.setState({
+                speciesData: speciesData,
+                mapSpecies: newMapData,
+                speciesDataCache: speciesData,
+                finishedFetching: true
+            });
+        }.bind(this))
+        .catch((error) => {
+            console.log(`Couldn't find file allSpecies.json`, error);
+        });
     }
 
     setTimeFrame(timeFrame) {
@@ -75,14 +97,25 @@ class Home extends Component {
     }
 
     componentDidMount() {
-        this.readAndSetWoodMap();
-        this.fetchAndSetSpecies();
+        if(this.usePreGenerated) {
+            this.importAllSpeciesFromGeneratedJSON();
+        }
+        /* this.readAndSetWoodMap();*/
+        this.fetchAndSetSpecies(); 
     }
 
     componentDidUpdate(prevProps) {
+        /* this.setState(); */
+        
+
         if (this.state.finishedFetching) {
             this.onFishishFetching();
         }
+
+        /* if(JSON.stringify(this.state.speciesSignThreats) !== JSON.stringify(prevProps.speciesSignThreats) ) {
+            console.log("HERE!");
+            this.setState();
+        } */
     }
 
     onFishishFetching() {
@@ -132,7 +165,6 @@ class Home extends Component {
     }
 
     setInstrumentGroup(instrumentGroup) {
-        console.log("HERE", instrumentGroup);
         this.setState({ instrumentGroup, instrument: "", mainPart: "" });
         this.fetchAndSetSpecies();
     }
@@ -215,80 +247,100 @@ class Home extends Component {
     }
 
     generateTreeMapData(input) {
-        let subgroupData = {};
+        let kingdomGroupData = {};
 
         for (let species of Object.keys(input)) {
             if (this.state.speciesData.hasOwnProperty(species)) {
-
-                let groups = this.state.speciesData[species]["groups"];
-                let subgroups = this.state.speciesData[species]["instruments"];
-
-                for (let entry of this.state.speciesData[species]["origMat"]) {
-                    if (entry["Instrument groups"] !== "") {
-                        if (entry["main used material"] === "1")
-                            pushOrCreate(getOrCreate(subgroupData, entry["Instrument groups"], {}), species, 1);
-                    }
-                }
-
-                /* for (let group of groups) {
-                    if (group !== "") {
-                        if (this.state.speciesData[species]["main used material"] === "1")
-                            pushOrCreate(getOrCreate(subgroupData, group, {}), species, 1);
-                    }
-                } */
+                getOrCreate(kingdomGroupData, this.state.speciesData[species]["Kingdom"], []).push(this.state.speciesData[species]);
             }
         }
+
+        for(let kingdom of Object.keys(kingdomGroupData)) {
+            let subgroupData = {};
+            let speciesInKingdom = kingdomGroupData[kingdom];
+            for (let species of speciesInKingdom) {
+
+                let groups = species["groups"];
+                let subgroups = species["instruments"];
+
+             /*    for (let entry of species["origMat"]) {
+                    entry["Family"] = entry["Family"].trim();
+                    if (entry["Family"] !== "") {
+                        entry["Genus"] = entry["Genus"].trim();
+                        if (entry["Genus"] !== "") {
+                            pushOrCreate(getOrCreate(subgroupData, entry["Family"], {}), entry["Genus"].trim(), 1);
+                        }
+                    }
+                }   */   
+                for (let entry of species["origMat"]) {
+                    entry["Family"] = entry["Family"].trim();
+                    if (entry["Family"] !== "") {
+                        entry["Genus"] = entry["Genus"].trim();
+                        if (entry["Genus"] !== "") {
+                            //if (entry["main used material"] === "1")
+                                pushOrCreate(getOrCreate(getOrCreate(subgroupData, entry["Family"], {}), entry["Genus"], {}), entry["Genus"].trim() + " " + entry["Species"].trim(), 1);
+                        }
+                    }
+                }           
+            }
+            kingdomGroupData[kingdom] = subgroupData;
+        }
+
+        console.log(kingdomGroupData);
+
+        let returnImageLink = (speciesObj) => {
+            if(speciesObj["Foto assigment"] !== "") {
+                let photos = speciesObj["Foto assigment"].split("|");
+                if(photos.length > 0) {
+                    return "fotos/"+photos[0];
+                }
+            }
+            return null;
+        };
 
         let imageLinks = {};
 
-        let treeMapData = [];
-        for (let group of Object.keys(subgroupData)) {
-            let sum = 0;
-            let valueObjects = [];
-            for (let value of Object.keys(subgroupData[group])) {
-                let valueObject = {};
-                valueObject["name"] = value;
-                valueObject["kingdom"] = this.state.speciesData[value].kingdom;
-                valueObject["ecologically"] = this.getTreeThreatLevel(value, "ecologically");
-                valueObject["economically"] = this.getTreeThreatLevel(value, "economically");
-                valueObject["colname"] = "level3";
-                valueObject["value"] = subgroupData[group][value].reduce(function (a, b) {
-                    return a + b;
-                }, 0);
-                if (this.woodMap.hasOwnProperty(value)) {
-                    valueObject["link"] = this.woodMap[value];
-                }
-                else {
-                    for (let key of Object.keys(this.woodMap)) {
-                        if (key.includes(value)) {
-                            valueObject["link"] = this.woodMap[key];
-                            break;
+        let treeMap = [];
+        for(let kingdom of Object.keys(kingdomGroupData)) {
+            let subgroupData = kingdomGroupData[kingdom];
+            let familyData = [];
+            for (let family of Object.keys(subgroupData)) {
+                let treeMapData = [];
+                let genusData = [];
+                for (let group of Object.keys(subgroupData[family])) {
+                    let sum = 0;
+                    let valueObjects = [];
+                    for (let value of Object.keys(subgroupData[family][group])) {
+                        let valueObject = {};
+                        valueObject["name"] = value;
+                        valueObject["kingdom"] = this.state.speciesData[value].Kingdom;
+                        valueObject["ecologically"] = this.getSpeciesThreatLevel(value, "ecologically");
+                        valueObject["economically"] = this.getSpeciesThreatLevel(value, "economically");
+                        valueObject["colname"] = "level4";
+                        valueObject["value"] = subgroupData[family][group][value].reduce(function (a, b) {
+                            return a + b;
+                        }, 0);
+                        
+                        valueObject["link"] = returnImageLink(this.state.speciesData[value]);
+                            
+                        if (valueObject["link"] !== null) {
+                            sum += valueObject[value];
+                            valueObjects.push(valueObject);
                         }
+
+                        imageLinks[valueObject["name"]] = valueObject["link"]
                     }
 
-                    if (!valueObject.hasOwnProperty("link")) {
-                        let genus = value.split(" ")[0];
-                        for (let key of Object.keys(this.woodMap)) {
-                            if (key.includes(genus)) {
-                                valueObject["link"] = this.woodMap[key];
-                                break;
-                            }
-                        }
-                    }
+                    if (valueObjects.length > 0)
+                        genusData.push({ children: valueObjects, name: group, sum, colname: "level3" });
                 }
-                if (valueObject.hasOwnProperty("link")) {
-                    sum += valueObject[value];
-                    valueObjects.push(valueObject);
-                }
-
-                imageLinks[valueObject["name"]] = valueObject["link"]
+                familyData.push({children: genusData, name: family, sum: genusData.length, colname: "level2"});
             }
-
-            if (valueObjects.length > 0)
-                treeMapData.push({ children: valueObjects, name: group, sum, colname: "level2" });
+            treeMap.push({children: familyData, name: kingdom, sum: familyData.length, colname: "level1"});
         }
 
-        return [{ name: "Test", children: treeMapData }, imageLinks];
+
+        return [{ name: "Test", children: treeMap }, imageLinks];
     }
 
     generateBarChartDataAllTypes(input) {
@@ -353,7 +405,6 @@ class Home extends Component {
 
                 let groups = this.state.speciesData[species]["groups"];
                 let subgroups = this.state.speciesData[species]["instruments"];
-
                 for (let group of groups) {
                     if (group !== "")
                         pushOrCreate(getOrCreate(barChartData, group, {}), value, 1);
@@ -404,6 +455,45 @@ class Home extends Component {
         this.tempFetchedSpecies = [];
     }
 
+    createSpeciesTable() {
+        fetch("http://localhost:9000/api/getAllMaterials")
+            .then(res => res.json())
+            .then(data => { 
+                let speciesTable = {};
+                for (let e of data) {
+                    if (e.Species.trim() === "")
+                        continue;
+
+
+                    let speciesName = (e.Genus.trim() + " " + e.Species.trim()).trim();
+                    if (speciesTable.hasOwnProperty(speciesName)) {
+                        speciesTable[speciesName]["origMat"].push({ ...e });
+
+                        if (!speciesTable[speciesName]["groups"].includes(e["Instrument_groups"])) {
+                            speciesTable[speciesName]["groups"].push(e["Instrument_groups"]);
+                        }
+
+                        if (!speciesTable[speciesName]["instruments"].includes(e["Instruments"])) {
+                            speciesTable[speciesName]["instruments"].push(e["Instruments"]);
+                        }
+
+                        if (!speciesTable[speciesName]["main_parts"].includes(e["Main_part"])) {
+                            speciesTable[speciesName]["main_parts"].push(e["Main_part"]);
+                        }
+
+                    }
+                    else {
+                        e["origMat"] = [{ ...e }];
+                        e["groups"] = [e["Instrument_groups"]];
+                        e["instruments"] = [e["Instruments"]];
+                        e["main_parts"] = [e["Main_part"]];
+                        speciesTable[speciesName] = e;
+                    }
+                }
+                console.log("speciesTable", speciesTable, Object.keys(speciesTable).length);
+            });
+    }
+
     fetchAndSetSpecies() {
 
         let url, mainPart;
@@ -423,16 +513,15 @@ class Home extends Component {
             }
         }
 
-
         //fetch("http://localhost:9000/api/getMaterial/" + this.state.instrument + "/" + this.state.mainPart)
         //fetch("http://localhost:9000/api/getTestMaterial")
             fetch(url)
             .then(res => res.json())
             .then(data => {
                 let speciesObject = {};
-                //       for (let e of data) {
-                for (let e of data.slice(0, 140)) {
+                for (let e of data) {
                 //for (let e of data) {
+                /* for (let e of data) { */
                     if (e.Species.trim() === "")
                         continue;
 
@@ -440,22 +529,32 @@ class Home extends Component {
                     if (speciesObject.hasOwnProperty(speciesName)) {
                         speciesObject[speciesName]["origMat"].push({ ...e });
 
-                        if (!speciesObject[speciesName]["groups"].includes(e["Instrument groups"])) {
-                            speciesObject[speciesName]["groups"].push(e["Instrument groups"]);
+                        if (!speciesObject[speciesName]["groups"].includes(e["Instrument_groups"])) {
+                            speciesObject[speciesName]["groups"].push(e["Instrument_groups"]);
                         }
 
                         if (!speciesObject[speciesName]["instruments"].includes(e["Instruments"])) {
                             speciesObject[speciesName]["instruments"].push(e["Instruments"]);
                         }
 
+                        if (!speciesObject[speciesName]["main_parts"].includes(e["Main_part"])) {
+                            speciesObject[speciesName]["main_parts"].push(e["Main_part"]);
+                        }
+
                     }
                     else {
                         e["origMat"] = [{ ...e }];
-                        e["groups"] = [e["Instrument groups"]];
+                        e["groups"] = [e["Instrument_groups"]];
                         e["instruments"] = [e["Instruments"]];
+                        e["main_parts"] = [e["Main_part"]];
                         speciesObject[speciesName] = e;
                     }
                 }
+
+              /*   let slicedSpecies = Object.fromEntries(
+                    Object.entries(speciesObject).slice(0, 20)
+                )
+                this.setSpecies(slicedSpecies); */
                 this.setSpecies(speciesObject);
             });
     }
@@ -485,30 +584,42 @@ class Home extends Component {
             })
             .then(function (data) {
                 if (data) {
-                    let newSpeciesData = { ...this.state.speciesData };
+                    
+                    let newSpeciesData = { ...this.speciesData };
 
                     let newData = getOrCreate(newSpeciesData, species, {});
 
                     newSpeciesData[species] = { ...newData, threats: data };
 
-                    let newFetchedSpecies = [...this.state.fetchedSpecies, species];
+                    this.speciesData = newSpeciesData;
+                    this.tempFetchedSpecies.push(species);
+                    this.checkFetching();
 
-                    if (newFetchedSpecies.length >= Object.keys(newSpeciesData).length * 2) {
-                        this.setState({
+                    /* if (newFetchedSpecies.length >= Object.keys(newSpeciesData).length * 2) { */
+                      /*   this.setState({
                             speciesData: newSpeciesData,
                             fetchedSpecies: newFetchedSpecies,
-                            finishedFetching: true
-                        });
-                    }
+                            finishedFetching: false
+                        }); */
+                    /* }
                     else {
 
-                    }
+                    } */
 
                 }
             }.bind(this))
-            .catch((error) => {
+            .catch(function (error) {
                 console.log(`Couldn't find file ${replaceSpecialCharacters(species.trim())}_threats.json`);
-            });
+                let newSpeciesData = { ...this.speciesData };
+
+                let newData = getOrCreate(newSpeciesData, species, {});
+
+                newSpeciesData[species] = { ...newData };
+
+                this.speciesData = newSpeciesData;
+                this.tempFetchedSpecies.push(species);
+                this.checkFetching();
+            }.bind(this));
     }
 
     fetchSpeciesData(species) {
@@ -518,26 +629,37 @@ class Home extends Component {
             .then(function (data) {
                 if (data) {
 
-                    let newSpeciesData = { ...this.state.speciesData };
+                    let newSpeciesData = { ...this.speciesData };
 
                     let newData = getOrCreate(newSpeciesData, species, {});
 
                     newSpeciesData[species] = { ...newData, ...data };
 
-                    let newFetchedSpecies = [...this.state.fetchedSpecies, species];
+                    this.speciesData = newSpeciesData;
+                    this.tempFetchedSpecies.push(species);
+                    this.checkFetching();
 
                     //fetchSpeciesOccurrencesBound(species, data.species);
 
-                    this.setState({
+/*                     this.setState({
                         speciesData: newSpeciesData,
                         fetchedSpecies: newFetchedSpecies,
-                        finishedFetching: newFetchedSpecies.length >= Object.keys(newSpeciesData).length * 2 ? true : false
-                    });
+                        finishedFetching: false
+                    }); */
                 }
             }.bind(this))
-            .catch((error) => {
+            .catch(function(error) {
                 console.log(`Couldn't find file ${replaceSpecialCharacters(species.trim())}.json`);
-            });
+                let newSpeciesData = { ...this.speciesData };
+
+                let newData = getOrCreate(newSpeciesData, species, {});
+
+                newSpeciesData[species] = { ...newData };
+
+                this.speciesData = newSpeciesData;
+                this.tempFetchedSpecies.push(species);
+                this.checkFetching();
+            }.bind(this));
     }
 
     checkAndSet(species, data) {
@@ -546,6 +668,9 @@ class Home extends Component {
         let newData = getOrCreate(newSpeciesData, species, {});
 
         newSpeciesData[species] = { ...newData, ...data };
+        
+        this.tmpSpeciesDataCache = {...this.state.speciesDataCache, ...this.tmpSpeciesDataCache};
+        this.tmpSpeciesDataCache[species] = newSpeciesData[species];
 
         let newFetchedSpecies = [...this.state.fetchedSpecies, ...this.tempFetchedSpecies, species];
 
@@ -553,6 +678,7 @@ class Home extends Component {
 
         this.tempSpeciesData = newSpeciesData;
         this.tempFetchedSpecies = newFetchedSpecies;
+
 
         if (newFetchedSpecies.length >= Object.keys(newSpeciesData).length) {
             let newMapSpecies = {};
@@ -563,7 +689,18 @@ class Home extends Component {
                 speciesData: this.tempSpeciesData,
                 fetchedSpecies: this.tempFetchedSpecies,
                 finishedFetching: true,
-                mapSpecies: newMapSpecies
+                mapSpecies: newMapSpecies,
+                speciesDataCache: this.tmpSpeciesDataCache
+            });
+        }
+    }
+
+    checkFetching() {
+        if( Object.keys(this.state.species).length * 2 <= this.tempFetchedSpecies.length) {
+            this.setState({
+                speciesData: this.speciesData,
+                fetchedSpecies: this.tempFetchedSpecies,
+                finishedFetching: true
             });
         }
     }
@@ -635,16 +772,17 @@ class Home extends Component {
     }
 
     setSpecies(speciesObject) {
-        this.speciesDataCache = { ...this.speciesDataCache, ...this.state.speciesData };
+        let speciesDataCache = { ...this.state.speciesDataCache, ...this.state.speciesData };
 
-        let species = Object.keys(speciesObject);
+        let species = Object.keys(speciesObject)/* .slice(0, 20) */;
 
         this.resetSpeciesData();
+        this.speciesData = speciesObject;
         this.setState({ speciesData: speciesObject, species: species, mapSpecies: {}, addAllCountries: false, fetchedSpecies: [] });
 
         for (let spec of species) {
-            if (this.speciesDataCache.hasOwnProperty(spec)) {
-                let tmpSpecData = this.speciesDataCache[spec];
+            if (speciesDataCache.hasOwnProperty(spec)) {
+                let tmpSpecData = speciesDataCache[spec];
                 tmpSpecData.groups = speciesObject[spec].groups;
                 tmpSpecData.instruments = speciesObject[spec].instruments;
                 tmpSpecData.origMat = speciesObject[spec].origMat;
@@ -703,7 +841,7 @@ class Home extends Component {
         }
     }
 
-    getTreeThreatLevel(treeName, type = null) {
+    getSpeciesThreatLevel(treeName, type = null) {
 
         let threatsSigns = this.getSpeciesSignThreats(treeName);
         switch (type) {
@@ -821,10 +959,12 @@ class Home extends Component {
     }
 
     render() {
-        //console.log("SPECIES DATA", Object.keys(this.state.speciesData).length, this.state.speciesData, this.state.instrument);
+        console.log("SPECIES DATA", Object.keys(this.state.speciesData).length, this.state.speciesData, this.state.instrument);
 
         let [barChartData, showIcons] = this.generateBarChartDataAllTypes(this.state.speciesSignThreats);
         let [treeMapData, imageLinks] = this.generateTreeMapData(this.state.speciesSignThreats);
+
+        console.log(treeMapData, imageLinks);
 
         return (
             <div>
@@ -872,10 +1012,10 @@ class Home extends Component {
                                 position: "absolute",
                                 top: "30px"
                             }}>
-                            <TreeMapView id="treeMapView" data={treeMapData}></TreeMapView>
-                        </div>
-                    </div >
-                </div> */}
+                            </div>
+                            </div >
+                        </div> */}
+                {<TreeMapView id="treeMapView" data={treeMapData}></TreeMapView>}
 
                 <Orchestra id="orchestraVis"
                     mainPart={this.state.mainPart}
@@ -884,6 +1024,11 @@ class Home extends Component {
                     setInstrumentGroup={this.setInstrumentGroup.bind(this)}
                     setInstrument={this.setInstrument.bind(this)}
                     setInstrumentAndMainPart={this.setInstrumentAndMainPart.bind(this)}
+                    getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
+                    treeThreatType={this.state.treeThreatType}
+                    speciesData={this.state.speciesDataCache}
+                    finishedFetching={this.state.finishedFetching}
+                    speciesSignThreats={this.state.speciesSignThreats}
                 />
 
                { <div style={{ "display": "flex", "justifyContent": "center", "margin": "20px 0" }} >
@@ -945,7 +1090,7 @@ class Home extends Component {
                     gridTemplateColumns: "50% 50%",
                     gridTemplateRows: "auto auto"
                 }}>
-                    {/* {Object.keys(this.state.speciesData).length > 0 &&
+                    {Object.keys(this.state.speciesData).length > 0 &&
                         <div style={{
                             gridColumnStart: 1,
                             gridColumnEnd: 1,
@@ -968,7 +1113,7 @@ class Home extends Component {
                                 removeSpeciesFromMap={this.removeSpeciesFromMap.bind(this)}
                                 setSpeciesSignThreats={this.setSpeciesSignThreats.bind(this)}
                                 getSpeciesSignThreats={this.getSpeciesSignThreats.bind(this)}
-                                getTreeThreatLevel={this.getTreeThreatLevel.bind(this)}
+                                getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
                                 treeImageLinks={imageLinks}
                                 setHover={this.setHover.bind(this)}
                                 setTimeFrame={this.setTimeFrame.bind(this)}
@@ -980,7 +1125,7 @@ class Home extends Component {
                                 className="tooltip">
                             </div>
                         </div>
-                    } */}
+                    }
                     <div style={{
                         gridColumnStart: 2,
                         gridColumnEnd: 2,
@@ -1036,46 +1181,20 @@ class Home extends Component {
                                 this.getDiverstiyAttributeSelectOptions()
                             }
                         </select> */}
-                        {/* {
+                        {
                             <button onClick={(event) => { this.save(); }}>
                             {"Save"}
                             </button>
-                        } */}
+                        }
                         {
                             this.renderMapScale(this.state.diversityScale)
                         }
-                        <div className="tabPanel" style={{ width: this.state.initWidthForVis + "px", height: window.innerHeight / 2 + "px" }}>
-                            {/* <div
-                                className="tabButton"
-                                onClick={(event) => {
-                                    this.activateDiversity();
-                                }}
-                                style={{
-                                    //border: this.state.tabs["maps"]["diversityMapTab"] ? "1px solid gray" : "none"
-                                    border: this.state.diversity ? "1px solid gray" : "none"
-                                }}
-                            >
-                                {"Diversity"}
-                            </div>
-                            <div
-                                className="tabButton"
-                                onClick={(event) => {
-                                    //this.activateTab("maps", "threatMapTab");
-                                    this.activateHeatMap();
-                                }}
-                                style={{
-                                    //border: this.state.tabs["maps"]["threatMapTab"] ? "1px solid gray" : "none"
-                                    border: this.state.heatMap ? "1px solid gray" : "none"
-                                }}
-                            >
-                                {"Threat"}
-                            </div> */}
-                            {/* < Map
+                            {/* {< Map
                                 id="map"
                                 data={this.state.speciesData}
                                 initWidth={this.state.initWidthForVis}
                                 mapSpecies={this.state.mapSpecies}
-                                getTreeThreatLevel={this.getTreeThreatLevel.bind(this)}
+                                getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
                                 heatMap={this.state.heatMap}
                                 diversity={this.state.diversity}
                                 coordinates={this.state.speciesOccurrences}
@@ -1086,8 +1205,7 @@ class Home extends Component {
                                 speciesImageLinks={imageLinks}
                                 hoverSpecies={this.state.hoverSpecies}
                                 timeFrame={this.state.timeFrame}
-                            /> */}
-                        </div>
+                            />} */}
                     </div >
                 </div >
             </div >
