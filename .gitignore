@@ -125,6 +125,10 @@ data/material.csv
 
 *.sql
 
+reactapp/frontend/public/generatedOutput/
+reactapp/frontend/public/data/
+reactapp/frontend/public/fotos/
+
 reactapp/frontend/src/components/telecouplingreact.code-workspace
 reactapp/frontend/src/data/crawledData2.json
 reactapp/frontend/src/data/crawledData3.json

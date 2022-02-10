@@ -454,7 +454,7 @@ button {
 }
 
 .nodeImgContainer {
-  border: solid #272727 1px;
+  /* border: solid #272727 1px; */
 }
 
 .nodeImage {
