@@ -84,19 +84,14 @@ class D3BarChart {
     if (this.data) {
       let boundFunc = this.newPaint.bind(this);
 
-      console.log("sel", this.selected);
-
       let data = this.treemap(this.data);
 
       if (data.children) {
         //filter treemap for selected entry
         if (this.selected) {
-          console.log(data, this.selected);
           data = this.search(data, this.selected);
         }
       }
-
-      console.log("data", data);
 
       this.svgGroup = this.svg
         .append("g")

@@ -45,6 +45,7 @@ class Home extends Component {
 
     this.usePreGenerated = true;
     this.renderMap = true;
+    this.renderTreeMap = true;
 
     this.tempSpeciesData = {};
     this.tempFetchedSpecies = [];
@@ -95,6 +96,9 @@ class Home extends Component {
       .then((res) => res.json())
       .then(
         function (speciesData) {
+          /* speciesData = Object.fromEntries(
+            Object.entries(speciesData).slice(0, 170)
+          ); */
           let newMapData = {};
           for (let speciesName of Object.keys(speciesData)) {
             newMapData[speciesName] = 1;
@@ -647,10 +651,9 @@ class Home extends Component {
           }
         }
 
-        /*   let slicedSpecies = Object.fromEntries(
-                    Object.entries(speciesObject).slice(0, 20)
-                )
-                this.setSpecies(slicedSpecies); */
+        /* speciesObject = Object.fromEntries(
+          Object.entries(speciesObject).slice(0, 170)
+        ); */
         this.setSpecies(speciesObject);
       });
   }
@@ -922,7 +925,7 @@ class Home extends Component {
       ...this.state.speciesData
     };
 
-    let species = Object.keys(speciesObject); /* .slice(0, 20) */
+    let species = Object.keys(speciesObject);
 
     this.resetSpeciesData();
     this.speciesData = speciesObject;
@@ -1184,7 +1187,11 @@ class Home extends Component {
                             </div>
                             </div >
                         </div> */}
-        {<TreeMapView id="treeMapView" data={treeMapData}></TreeMapView>}
+        {this.renderTreeMap ? (
+          <TreeMapView id="treeMapView" data={treeMapData}></TreeMapView>
+        ) : (
+          []
+        )}
 
         <Orchestra
           id="orchestraVis"
