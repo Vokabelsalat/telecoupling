@@ -8,24 +8,16 @@ import proj4 from "proj4";
 import * as reproject from "reproject";
 import * as d3 from "d3";
 import {
-  rgbToRGBA,
   serializeXmlNode,
   watermarkColorSheme,
-  colorBrewerScheme8Qualitative,
+  colorBrewerScheme8,
   dangerColorMap,
   pushOrCreate,
   iucnToDangerMap,
   scaleValue,
-  replaceSpecialCharacters,
   pushOrCreateWithoutDuplicates
-} from "../utils/utils";
-import {
-  threatScore,
-  threatScoreReverse,
-  getCitesColor,
-  getIucnColor,
-  citesAppendixSorted
-} from "../utils/timelineUtils";
+} from "./../utils/utils";
+import { getCitesColor } from "../utils/timelineUtils";
 import { thresholdScott, tree } from "d3";
 var colorsys = require("colorsys");
 
@@ -782,7 +774,7 @@ class MapHelper {
         add = true;
       }
     } else {
-      let color = colorBrewerScheme8Qualitative[index];
+      let color = colorBrewerScheme8[index];
       treeColors[treeName] = color;
       this.trees[treeName] = { index: index, color: color };
       add = true;
@@ -815,7 +807,7 @@ class MapHelper {
         add = true;
       }
     } else {
-      let color = colorBrewerScheme8Qualitative[index];
+      let color = colorBrewerScheme8[index];
       treeColors[treeName] = color;
       this.trees[treeName] = { index: index, color: color };
       add = true;
@@ -835,7 +827,7 @@ class MapHelper {
         add = true;
       }
     } else {
-      let color = colorBrewerScheme8Qualitative[index];
+      let color = colorBrewerScheme8[index];
       treeColors[treeName] = color;
       this.trees[treeName] = { index: index, color: color };
       add = true;
@@ -882,7 +874,7 @@ class MapHelper {
     if (Object.keys(this.trees).includes(treeName)) {
       this.trees[treeName].exports = iexports;
     } else {
-      let color = colorBrewerScheme8Qualitative[index];
+      let color = colorBrewerScheme8[index];
       treeColors[treeName] = color;
       this.trees[treeName] = { exports: iexports, index: index, color: color };
     }
@@ -899,7 +891,7 @@ class MapHelper {
     if (Object.keys(this.trees).includes(treeName)) {
       this.trees[treeName].coordinates = coordinates;
     } else {
-      let color = colorBrewerScheme8Qualitative[index];
+      let color = colorBrewerScheme8[index];
       treeColors[treeName] = color;
       this.trees[treeName] = {
         coordinates: coordinates,

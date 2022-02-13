@@ -125,7 +125,7 @@ data/material.csv
 
 *.sql
 
-reactapp/frontend/public/generatedOutput/
+reactapp/frontend/public/generatedOutput/*
 reactapp/frontend/public/data/
 reactapp/frontend/public/fotos/
 
@@ -2463,3 +2463,4 @@ reactapp/frontend/public/data/Struthio_camelus.json
 reactapp/frontend/public/data/Varanus_niloticus_threats.json
 reactapp/frontend/public/data/Varanus_niloticus_trades.json
 reactapp/frontend/public/data/Varanus_niloticus.json
+reactapp/frontend/public/generatedOutput/*.json
