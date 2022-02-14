@@ -538,7 +538,7 @@ class D3Orchestra {
         d3.event.stopPropagation();
 
         if (value.trim() === "String instrument bow") {
-          fetch("http://localhost:3000/stringinstrumentbow.svg")
+          fetch("/stringinstrumentbow.svg")
             .then((response) => response.text())
             .then((str) =>
               new window.DOMParser().parseFromString(str, "text/xml")

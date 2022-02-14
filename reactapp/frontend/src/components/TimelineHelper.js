@@ -343,7 +343,7 @@ class D3Timeline {
                  .attr('fill', iucnColor); */
 
             if (this.data.Kingdom === "Animalia") {
-                d3.svg("http://localhost:3000/animalIcon.svg").then(function (xml) {
+                d3.svg("/animalIcon.svg").then(function (xml) {
                     let icon = speciesNameSVG.node().appendChild(xml.documentElement);
                     d3.select(icon).attr("width", 20).attr("height", 15).attr("y", 2.5);
 
@@ -352,7 +352,7 @@ class D3Timeline {
                 });
             }
             else {
-                d3.svg("http://localhost:3000/plantIcon2.svg").then(function (xml) {
+                d3.svg("/plantIcon2.svg").then(function (xml) {
                     let icon = speciesNameSVG.node().appendChild(xml.documentElement);
                     d3.select(icon).attr("width", 20).attr("height", 15).attr("y", 2.5);
 

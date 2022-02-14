@@ -290,7 +290,7 @@ class D3BarChart {
                 let secondColor = d.data.ecologically !== undefined ? d.data.ecologically.getColor() : "gray";
 
                  if (d.data.Kingdom === "Animalia") {
-                    d3.svg("http://localhost:3000/animalIcon.svg").then(function (xml) {
+                    d3.svg("/animalIcon.svg").then(function (xml) {
                         let icon = node.node().appendChild(xml.documentElement);
                         d3.select(icon).attr("width", 20).attr("height", 15).attr("y", 2.5);
 
@@ -299,7 +299,7 @@ class D3BarChart {
                     });
                 }
                 else {
-                    d3.svg("http://localhost:3000/plantIcon2.svg").then(function (xml) {
+                    d3.svg("/plantIcon2.svg").then(function (xml) {
                         let icon = node.node().appendChild(xml.documentElement);
                         d3.select(icon).attr("width", 20).attr("height", 15).attr("y", 2.5);
 

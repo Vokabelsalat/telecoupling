@@ -92,7 +92,7 @@ class Home extends Component {
   }
 
   importAllSpeciesFromGeneratedJSON() {
-    fetch("http://localhost:3000/generatedOutput/allSpecies.json")
+    fetch("/generatedOutput/allSpecies.json")
       .then((res) => res.json())
       .then(
         function (speciesData) {
@@ -127,7 +127,7 @@ class Home extends Component {
   }
 
   readAndSetWoodMap() {
-    fetch("http://localhost:3000/data/woodMapData.json")
+    fetch("/data/woodMapData.json")
       .then((res) => {
         return res.json();
       })
@@ -660,7 +660,7 @@ class Home extends Component {
 
   fetchSpeciesTrades(species) {
     fetch(
-      "http://localhost:3000/data/" +
+      "/data/" +
         replaceSpecialCharacters(species) +
         "_trades.json"
     )
@@ -684,7 +684,7 @@ class Home extends Component {
 
   fetchSpeciesThreats(species) {
     fetch(
-      "http://localhost:3000/data/" +
+      "/data/" +
         replaceSpecialCharacters(species) +
         "_threats.json"
     )
@@ -740,7 +740,7 @@ class Home extends Component {
   fetchSpeciesData(species) {
     let fetchSpeciesOccurrencesBound = this.fetchSpeciesOccurrences.bind(this);
     fetch(
-      "http://localhost:3000/data/" +
+      "/data/" +
         replaceSpecialCharacters(species.trim()) +
         ".json"
     )
@@ -842,7 +842,7 @@ class Home extends Component {
 
   fetchAllSpeciesData(species) {
     fetch(
-      "http://localhost:3000/generatedOutput/" +
+      "/generatedOutput/" +
         replaceSpecialCharacters(species.trim()) +
         ".json"
     )
