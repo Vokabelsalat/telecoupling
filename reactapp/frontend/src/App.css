@@ -4,6 +4,7 @@
   --black: rgba(45, 49, 66, 1);
   --gray: rgba(191, 192, 192, 1);
   --lightgray: rgba(255, 255, 255, 1);
+  --highlightpurple: rgb(115, 1, 136);
 }
 
 .App-logo {
@@ -63,6 +64,7 @@ html {
 body {
   padding: 20px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .select-wrapper {
@@ -463,6 +465,10 @@ button {
   object-fit: cover;
 }
 
+.axisTicks {
+  cursor: pointer;
+}
+
 .nodeText {
   position: absolute;
   left: 3px;
@@ -499,4 +505,58 @@ button {
   padding: 5px;
   border-radius: 5px 5px 0 0;
   cursor: pointer;
+}
+
+.MuiSwitch-root {
+  transform: scale(2);
+  width: 65px !important;
+}
+
+.MuiSwitch-root > .Mui-checked {
+  transform: translateX(70%) !important;
+}
+
+.MuiSwitch-track {
+  background-color: #9c27b0 !important;
+}
+
+.MuiSwitch-thumb {
+  color: #9c27b0 !important;
+}
+
+.MuiOutlinedInput-root {
+  border-radius: 25px !important;
+}
+
+.filterUsed .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: var(--highlightpurple) !important;
+  border-width: 3px !important;
+}
+
+.info {
+  display: inline-block;
+  padding: 0px 3px 3px 3px;
+  color: #e83188;
+  font-size: 22px;
+  border-radius: 50%;
+  border: solid 3px #e83188;
+  width: 20px;
+  height: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.infoI {
+  display: inline-flex;
+  background-color: var(--main);
+  color: white;
+  border-radius: 50%;
+  width: 1.2em;
+  height: 1.2em;
+  line-height: 1.2em;
+  font-weight: bold;
+  padding: 0;
+  box-sizing: border-box;
+  justify-content: center;
+  margin-left: 4px;
 }

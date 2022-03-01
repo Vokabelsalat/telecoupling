@@ -3,6 +3,8 @@ import Orchestra from "./Orchestra";
 import BarChartView from "./BarChartView";
 import TreeMapView from "./TreeMapView";
 import Legend from "./Legend";
+import CenterPieChart from "./CenterPieChart";
+import SearchBar from "./SearchBar";
 import TimelineView from "./TimelineView";
 import {
   getOrCreate,
@@ -46,6 +48,7 @@ class Home extends Component {
     this.usePreGenerated = true;
     this.renderMap = true;
     this.renderTreeMap = true;
+    this.slice = false;
 
     this.tempSpeciesData = {};
     this.tempFetchedSpecies = [];
@@ -87,8 +90,30 @@ class Home extends Component {
       hoverSpecies: [],
       timeFrame: [],
       speciesDataCache: {},
-      population: []
+      population: [],
+      filterSettings: {}
     };
+  }
+
+  resetFilterSettings(category) {
+    let filterSettings = { ...this.state.filterSettings };
+    if (category) {
+      filterSettings[category] = null;
+    } else {
+      filterSettings = {};
+    }
+
+    this.setState({ filterSettings });
+  }
+
+  setFilter(obj) {
+    let newSettings = { ...this.state.filterSettings };
+
+    for (let cat of Object.keys(obj)) {
+      newSettings[cat] = obj[cat];
+    }
+
+    this.setState({ filterSettings: newSettings });
   }
 
   importAllSpeciesFromGeneratedJSON() {
@@ -96,9 +121,12 @@ class Home extends Component {
       .then((res) => res.json())
       .then(
         function (speciesData) {
-          /* speciesData = Object.fromEntries(
-            Object.entries(speciesData).slice(0, 170)
-          ); */
+          speciesData = Object.fromEntries(
+            Object.entries(speciesData).slice(
+              0,
+              this.slice ? 70 : Object.keys(speciesData).length
+            )
+          );
           let newMapData = {};
           for (let speciesName of Object.keys(speciesData)) {
             newMapData[speciesName] = 1;
@@ -278,6 +306,10 @@ class Home extends Component {
     this.setState({ treeThreatType: !this.state.treeThreatType });
   }
 
+  setTreeThreatType(val) {
+    this.setState({ treeThreatType: val });
+  }
+
   toggleDiversityMapMode() {
     this.setState({ diversityMode: !this.state.diversityMode });
   }
@@ -291,6 +323,7 @@ class Home extends Component {
   }
 
   generateTreeMapData(input) {
+    console.log("generateTreeMapData", input);
     let kingdomGroupData = {};
 
     for (let species of Object.keys(input)) {
@@ -348,7 +381,7 @@ class Home extends Component {
           if (speciesObj["Family"] === "Balaenidae") {
             return "fotos/" + photos[1];
           }
-          return "fotos/" + photos[0];
+          return "fotos/" + photos[0].replace(" ", "");
         }
       }
       return null;
@@ -385,10 +418,10 @@ class Home extends Component {
               this.state.speciesData[value]
             );
 
-            if (valueObject["link"] !== null) {
-              sum += valueObject[value];
-              valueObjects.push(valueObject);
-            }
+            //if (valueObject["link"] !== null) {
+            sum += valueObject[value];
+            valueObjects.push(valueObject);
+            //}
 
             imageLinks[valueObject["name"]] = valueObject["link"];
           }
@@ -651,19 +684,18 @@ class Home extends Component {
           }
         }
 
-        /* speciesObject = Object.fromEntries(
-          Object.entries(speciesObject).slice(0, 170)
-        ); */
+        speciesObject = Object.fromEntries(
+          Object.entries(speciesObject).slice(
+            0,
+            this.slice ? 70 : Object.keys(speciesObject).length
+          )
+        );
         this.setSpecies(speciesObject);
       });
   }
 
   fetchSpeciesTrades(species) {
-    fetch(
-      "/data/" +
-        replaceSpecialCharacters(species) +
-        "_trades.json"
-    )
+    fetch("/data/" + replaceSpecialCharacters(species) + "_trades.json")
       .then((res) => {
         return res.json();
       })
@@ -683,11 +715,7 @@ class Home extends Component {
   }
 
   fetchSpeciesThreats(species) {
-    fetch(
-      "/data/" +
-        replaceSpecialCharacters(species) +
-        "_threats.json"
-    )
+    fetch("/data/" + replaceSpecialCharacters(species) + "_threats.json")
       .then((res) => {
         return res.json();
       })
@@ -739,11 +767,7 @@ class Home extends Component {
 
   fetchSpeciesData(species) {
     let fetchSpeciesOccurrencesBound = this.fetchSpeciesOccurrences.bind(this);
-    fetch(
-      "/data/" +
-        replaceSpecialCharacters(species.trim()) +
-        ".json"
-    )
+    fetch("/data/" + replaceSpecialCharacters(species.trim()) + ".json")
       .then((res) => res.json())
       .then(
         function (data) {
@@ -842,9 +866,7 @@ class Home extends Component {
 
   fetchAllSpeciesData(species) {
     fetch(
-      "/generatedOutput/" +
-        replaceSpecialCharacters(species.trim()) +
-        ".json"
+      "/generatedOutput/" + replaceSpecialCharacters(species.trim()) + ".json"
     )
       .then((res) => res.json())
       .then(
@@ -888,7 +910,7 @@ class Home extends Component {
         body: JSON.stringify(speciesKeys),
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "slication/json"
         }
       })
         .then((res) => {
@@ -1045,15 +1067,20 @@ class Home extends Component {
   renderMapScale(scale) {
     let scaleElements = [];
 
+    //let width =
+    let col = 1;
+
     for (let scaleValue of scale) {
       scaleElements.push(
         <div
           key={"scaleElement" + scaleValue.scaleValue}
           className="scaleElement"
           style={{
-            width: "70px",
-            height: "20px",
-            display: "inline-block"
+            gridColumnStart: col,
+            gridColumnEnd: col,
+            gridRowStart: 1,
+            gridRowEnd: 1,
+            height: "20px"
           }}
         >
           <div
@@ -1076,9 +1103,26 @@ class Home extends Component {
           </div>
         </div>
       );
+      col = col + 1;
     }
 
-    return <div style={{ margin: "10px" }}>{scaleElements}</div>;
+    return (
+      <div
+        style={{
+          width: "100%",
+          height: "auto",
+          display: "grid",
+          gridTemplateColumns: Array.from(Array(col).keys())
+            .map((e) => "auto")
+            .join(" "),
+          gridTemplateRows: "40px"
+        }}
+      >
+        {scaleElements}
+      </div>
+    );
+
+    //return <div style={{  }}></div>;
   }
 
   setDiversityScale(scale) {
@@ -1131,9 +1175,87 @@ class Home extends Component {
   render() {
     //console.log("SPECIES DATA", Object.keys(this.state.speciesData).length, this.state.speciesData, this.state.instrument);
 
-    let [barChartData, showIcons] = this.generateBarChartDataAllTypes(
+    /*     let [barChartData, showIcons] = this.generateBarChartDataAllTypes(
       this.state.speciesSignThreats
+    ); */
+
+    let filter = { ...this.state.filterSettings };
+
+    const instrumentGroup = filter["instrumentGroup"]
+      ? filter["instrumentGroup"][0]
+      : null;
+    const instrument = filter["instrument"] ? filter["instrument"][0] : null;
+    const mainPart = filter["mainPart"] ? filter["mainPart"][0] : null;
+
+    const asArray = Object.entries(this.state.speciesData);
+
+    let speciesWithOutOrchestraFilter = {};
+
+    const filtered = asArray.filter(([key, value]) => {
+      let hit = true;
+      if (filter["searchBarSpecies"] && hit) {
+        hit = key.includes(filter["searchBarSpecies"]);
+      }
+
+     /*  if (hit && filter["kingdom"]) {
+        hit = filter["kingdom"].includes(value.Kingdom);
+      }
+
+      if (hit && filter["familia"]) {
+        hit = filter["familia"].includes(value.Family);
+      }
+
+      if (hit && filter["genus"]) {
+        hit = filter["genus"].includes(value.Genus.trim());
+      }
+
+      if (hit && filter["species"]) {
+        hit = filter["species"].includes(value.Species);
+      } */
+
+      if (hit && filter["country"]) {
+        if (
+          value.hasOwnProperty("speciesCountries") &&
+          value.speciesCountries.hasOwnProperty(key)
+        ) {
+          let countries = value.speciesCountries[key];
+          hit = filter["country"].some((item) =>
+            value.speciesCountries[key].includes(item)
+          );
+        } else {
+          hit = false;
+        }
+      }
+
+      if (hit) {
+        speciesWithOutOrchestraFilter[key] = value;
+      }
+
+      if (hit && filter["instrumentGroup"]) {
+        hit = filter["instrumentGroup"].some((item) =>
+          value.groups.includes(item)
+        );
+      }
+
+      if (hit && filter["instrument"]) {
+        hit = filter["instrument"].some((item) =>
+          value.instruments.includes(item)
+        );
+      }
+
+      if (hit && filter["mainPart"]) {
+        let mainParts = value.main_parts.map((e) => e.toLowerCase());
+        hit = filter["mainPart"].some((item) => mainParts.includes(item));
+      }
+
+      return hit;
+    });
+
+    const filteredSpeciesData = Object.fromEntries(filtered);
+    const mapSpecies = Object.fromEntries(
+      Object.keys(filteredSpeciesData).map((e) => [e, 1])
     );
+
     let [treeMapData, imageLinks] = this.generateTreeMapData(
       this.state.speciesSignThreats
     );
@@ -1188,135 +1310,128 @@ class Home extends Component {
                             </div >
                         </div> */}
         {this.renderTreeMap ? (
-          <TreeMapView id="treeMapView" data={treeMapData}></TreeMapView>
+          <TreeMapView
+            id="treeMapView"
+            data={treeMapData}
+            filter={filter}
+            setFilter={this.setFilter.bind(this)}
+          ></TreeMapView>
         ) : (
           []
         )}
 
         <Orchestra
           id="orchestraVis"
-          mainPart={this.state.mainPart}
-          instrument={this.state.instrument}
-          instrumentGroup={this.state.instrumentGroup}
-          setInstrumentGroup={this.setInstrumentGroup.bind(this)}
-          setInstrument={this.setInstrument.bind(this)}
-          setInstrumentAndMainPart={this.setInstrumentAndMainPart.bind(this)}
+          mainPart={mainPart}
+          instrument={instrument}
+          instrumentGroup={instrumentGroup}
           getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
           treeThreatType={this.state.treeThreatType}
-          speciesData={this.state.speciesDataCache}
+          speciesData={speciesWithOutOrchestraFilter}
           finishedFetching={this.state.finishedFetching}
           speciesSignThreats={this.state.speciesSignThreats}
+          setFilter={this.setFilter.bind(this)}
         />
 
-        {/* {
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            margin: "20px 0",
+            paddingRight: "40px"
+          }}
+        >
           <div
             style={{
-              display: "flex",
-              justifyContent: "center",
-              margin: "20px 0"
+              width: "100%",
+              height: "auto",
+              display: "grid",
+              gridTemplateColumns: "45% 10% auto",
+              gridTemplateRows: "auto"
             }}
           >
             <div
               style={{
-                width: "25%",
-                height: "auto",
-                display: "grid",
-                gridTemplateColumns: "50% 50%",
-                gridTemplateRows: "auto auto"
+                gridColumnStart: 1,
+                gridColumnEnd: 1,
+                gridRowStart: 1,
+                gridRowEnd: 1
+              }}
+            >
+              <div className="legend">
+                <Legend
+                  onZoom={() => this.onZoom(1)}
+                  onZoomOut={() => this.onZoom(-1)}
+                  zoomLevel={this.state.zoomLevel}
+                  maxZoomLevel={this.state.maxZoomLevel}
+                  onPieStyle={this.onPieStyle.bind(this)}
+                  pieStyle={this.state.pieStyle}
+                  groupSame={this.state.groupSame}
+                  onGroupSame={this.onGroupSame.bind(this)}
+                  sortGrouped={this.state.sortGrouped}
+                  onSortGrouped={this.onSortGrouped.bind(this)}
+                  heatStyle={this.state.heatStyle}
+                  onHeatStyle={this.onHeatStyle.bind(this)}
+                  treeThreatType={this.state.treeThreatType}
+                  setTreeThreatType={this.setTreeThreatType.bind(this)}
+                />
+              </div>
+            </div>
+            <div
+              style={{
+                gridColumnStart: 2,
+                gridColumnEnd: 2,
+                gridRowStart: 1,
+                gridRowEnd: 1,
+                "align-self": "center",
+                "justify-self": "center"
+              }}
+            >
+              <div className="middlePieChart" style={{ position: "relative" }}>
+                <CenterPieChart
+                  data={filteredSpeciesData}
+                  getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
+                  treeThreatType={this.state.treeThreatType}
+                />
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  lineHeight: "2em",
+                  fontSize: "larger"
+                }}
+              >
+                Species
+              </div>
+            </div>
+            <div
+              style={{
+                gridColumnStart: 3,
+                gridColumnEnd: 3,
+                gridRowStart: 1,
+                gridRowEnd: 1
+                /*  "align-self": "center",
+                "justify-self": "center", */
               }}
             >
               <div
                 style={{
-                  gridColumnStart: 1,
-                  gridColumnEnd: 1,
-                  gridRowStart: 1,
-                  gridRowEnd: 1
+                  margin: 0,
+                  padding: 0,
+                  height: "100%",
+                  display: "table"
                 }}
+                className="searchBarWrapper"
               >
-                Instrument Group:
-              </div>
-              <div
-                style={{
-                  gridColumnStart: 2,
-                  gridColumnEnd: 2,
-                  gridRowStart: 1,
-                  gridRowEnd: 1
-                }}
-              >
-                {this.state.instrumentGroup}
-              </div>
-              <div
-                style={{
-                  gridColumnStart: 1,
-                  gridColumnEnd: 1,
-                  gridRowStart: 2,
-                  gridRowEnd: 2
-                }}
-              >
-                Instrument:
-              </div>
-              <div
-                style={{
-                  gridColumnStart: 2,
-                  gridColumnEnd: 2,
-                  gridRowStart: 2,
-                  gridRowEnd: 2
-                }}
-              >
-                {this.state.instrument}
-              </div>
-              <div
-                style={{
-                  gridColumnStart: 1,
-                  gridColumnEnd: 1,
-                  gridRowStart: 3,
-                  gridRowEnd: 3
-                }}
-              >
-                Main Part:
-              </div>
-              <div
-                style={{
-                  gridColumnStart: 2,
-                  gridColumnEnd: 2,
-                  gridRowStart: 3,
-                  gridRowEnd: 3
-                }}
-              >
-                <select
-                  id="mainPartSelect"
-                  value={this.state.mainPart}
-                  onChange={this.onSelectChange.bind(this)}
-                >
-                  {this.state.mainPartList.map((e) => (
-                    <option key={e} value={e} name={e}>
-                      {e}
-                    </option>
-                  ))}
-                </select>
+                <SearchBar
+                  data={this.state.speciesData}
+                  setFilter={this.setFilter.bind(this)}
+                />
               </div>
             </div>
-            <button onClick={this.fetchAndSetSpecies.bind(this)}>Run!</button>
+            {/* <button onClick={this.fetchAndSetSpecies.bind(this)}>Run!</button> */}
           </div>
-        } */}
-        {/* <DataTable data={this.state.speciesData}
-                    threatData={this.state.speciesThreats}
-                    tradeData={this.state.speciesTrades}
-                ></DataTable> */}
-        {/*  <Legend
-                        onZoom={() => this.onZoom(1)}
-                        onZoomOut={() => this.onZoom(-1)}
-                        zoomLevel={this.state.zoomLevel}
-                        maxZoomLevel={this.state.maxZoomLevel}
-                        onPieStyle={this.onPieStyle.bind(this)}
-                        pieStyle={this.state.pieStyle}
-                        groupSame={this.state.groupSame}
-                        onGroupSame={this.onGroupSame.bind(this)}
-                        sortGrouped={this.state.sortGrouped}
-                        onSortGrouped={this.onSortGrouped.bind(this)}
-                        heatStyle={this.state.heatStyle}
-                        onHeatStyle={this.onHeatStyle.bind(this)}
-                    /> */}
+        </div>
         <div
           style={{
             width: "100%",
@@ -1326,20 +1441,19 @@ class Home extends Component {
             gridTemplateRows: "auto auto"
           }}
         >
-          {Object.keys(this.state.speciesData).length > 0 && (
+          {Object.keys(filteredSpeciesData).length > 0 && (
             <div
               style={{
                 gridColumnStart: 1,
                 gridColumnEnd: 1,
                 gridRowStart: 1,
                 gridRowEnd: 1,
-                marginTop: "30px",
                 height: window.innerHeight / 2 + "px",
                 overflow: "unset"
               }}
             >
               <TimelineView
-                data={this.state.speciesData}
+                data={filteredSpeciesData}
                 initWidth={this.state.initWidthForVis}
                 tradeData={this.state.speciesTrades}
                 pieStyle="pie"
@@ -1365,8 +1479,7 @@ class Home extends Component {
               gridColumnStart: 2,
               gridColumnEnd: 2,
               gridRowStart: 1,
-              gridRowEnd: 1,
-              marginTop: "30px"
+              gridRowEnd: 1
             }}
           >
             {/* <button onClick={(event) => {
@@ -1399,13 +1512,13 @@ class Home extends Component {
                         }}>
                             {this.state.diversity ? "Deactivate Diversity" : "Activate Diversity"}
                         </button> */}
-            <button
+            {/*  <button
               onClick={(event) => {
                 this.toggleTreeThreatType();
               }}
             >
               {this.state.treeThreatType ? "Economically" : "Ecologically"}
-            </button>
+            </button> */}
             {/* <button onClick={(event) => {
                             this.toggleDiversityMapMode();
                         }}>
@@ -1434,7 +1547,7 @@ class Home extends Component {
                 id="map"
                 data={this.state.speciesData}
                 initWidth={this.state.initWidthForVis}
-                mapSpecies={this.state.mapSpecies}
+                mapSpecies={mapSpecies}
                 getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
                 heatMap={this.state.heatMap}
                 diversity={this.state.diversity}
@@ -1446,6 +1559,7 @@ class Home extends Component {
                 speciesImageLinks={imageLinks}
                 hoverSpecies={this.state.hoverSpecies}
                 timeFrame={this.state.timeFrame}
+                setFilter={this.setFilter.bind(this)}
               />
             ) : (
               []

@@ -1648,11 +1648,11 @@ class MapHelper {
       }
     }
 
-    if (this.ecoRegions !== undefined) {
+    /* if (this.ecoRegions !== undefined) {
       this.ecoRegions.eachLayer((layer) => {
         layer.setStyle(calculateStlyle(layer.feature));
       });
-    }
+    } */
 
     this.updateHexagonMap();
   }
@@ -1693,6 +1693,8 @@ class MapHelper {
     }
 
     this.hexagonColorScale = scale;
+
+    console.log("HEXAGON HEATMAP", heatMapData);
 
     let getScaledIndex = function (value) {
       let index = 0;
@@ -1751,6 +1753,7 @@ class MapHelper {
       hexas.eachLayer((feature) => {
         this.hexagons.addLayer(feature);
       });
+      this.hexagons.bringToFront();
     }
   }
 

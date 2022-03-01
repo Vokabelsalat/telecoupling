@@ -4,7 +4,8 @@ import {
   getGroupFileAndRotationFromID,
   pushOrCreate,
   pushOrCreateWithoutDuplicates,
-  dangerSorted
+  dangerSorted,
+  colorBrewerScheme14Qualitative
 } from "../utils/utils";
 import {
   getIucnColor,
@@ -14,13 +15,25 @@ import {
   iucnAssessment,
   bgciAssessment
 } from "../utils/timelineUtils";
+import { json, linkHorizontal } from "d3";
 
 class D3BarChart {
   constructor(param) {
+
+    console.log("NEW TREEMAP!");
+
     this.id = param.id;
     this.data = param.data;
+    this.setSelected = param.setSelected;
+    this.selected = param.selected;
+
+    this.filter = param.filter;
+    this.setFilter = param.setFilter;
 
     this.zoomArray = [];
+
+    this.node = null;
+    this.initial = true;
 
     this.margin = {
       top: 10,
@@ -29,8 +42,8 @@ class D3BarChart {
       left: 10
     };
 
-    this.initWidth = window.innerWidth / 2;
-    this.initHeight = window.innerHeight / 2;
+    this.initWidth = window.innerWidth / 2 - 20;
+    this.initHeight = window.innerHeight / 2 - 20;
 
     this.currentTransform = [
       this.initWidth / 2,
@@ -51,7 +64,43 @@ class D3BarChart {
       });
     };
 
-    this.paint();
+    //this.paint();
+    this.clearAndReset();
+  }
+
+  setNodeAsFilter(node) {
+    let filter = {};
+    switch (node.depth) {
+      case 0:
+        filter = {
+          kingdom: null,
+          familia: null,
+          genus: null,
+          species: null
+        };
+        break;
+      case 1:
+        filter["kingdom"] = [node.data.name];
+        filter["familia"] = null;
+        filter["genus"] = null;
+        filter["species"] = null;
+        break;
+      case 2:
+        filter["familia"] = [node.data.name];
+        filter["genus"] = null;
+        filter["species"] = null;
+        break;
+      case 3:
+        filter["genus"] = [node.data.name];
+        filter["species"] = null;
+        break;
+      case 4:
+        filter["species"] = [node.data.name];
+        break;
+      default:
+        break;
+    }
+    this.setFilter(filter);
   }
 
   clearAndReset() {
@@ -60,22 +109,48 @@ class D3BarChart {
     this.width = this.initWidth - this.margin.left - this.margin.right;
     this.height = this.initHeight - this.margin.top - this.margin.bottom;
 
+    this.x = d3.scaleLinear().rangeRound([0, this.width]);
+    this.y = d3.scaleLinear().rangeRound([0, this.height]);
+
     let content = d3.select("#" + this.id);
 
-    let svg = content
+    this.svg = content
       .append("svg")
       .attr("id", "chartArea")
+      .attr("viewBox", [0, -30.5, this.width, this.height + 30])
+      .style("font", "10px sans-serif")
       .attr("width", this.width)
       .attr("height", this.height)
       .style("border", "solid 1px gray");
 
-    this.svg = svg
-      .append("g")
-      .attr(
-        "transform",
-        "translate(" + this.padding.left + "," + this.padding.top + ")"
-      );
+    if (this.data) {
+      let boundFunc = this.newPaint.bind(this);
 
+      let data = this.treemap(this.data);
+
+      if (data.children) {
+        //filter treemap for selected entry
+        if (this.selected) {
+          data = this.search(data, this.selected);
+        }
+      }
+
+      this.svgGroup = this.svg
+        .append("g")
+        .attr(
+          "transform",
+          "translate(" + this.padding.left + "," + this.padding.top + ")"
+        )
+        .call(boundFunc, data);
+
+      /*       setTimeout(function () {
+        if (this.node) {
+          this.node.filter((d) =>
+            d.data.name === "Plantae" ? boundZoomIn(d) : false
+          );
+        }
+      }, 50); */
+    }
     /*  this.svg.append("text")
              .text(this.text)
              .attr("transform",
@@ -99,15 +174,12 @@ class D3BarChart {
   }
 
   transition(d) {
-    console.log(d);
     if (d) {
       const i = d3.interpolateZoom(this.currentTransform, [
         d.x0,
         d.y0,
         Math.max(d.y1 - d.y0, d.x1 - d.x0)
       ]);
-
-      console.log(i);
 
       this.svg
         .transition()
@@ -127,6 +199,456 @@ class D3BarChart {
         scale(${this.initHeight / w})
         translate(${-x}, ${-y})
         `;
+  }
+
+  tile(node, x0, y0, x1, y1) {
+    d3.treemapBinary(node, 0, 0, this.width, this.height);
+    for (const child of node.children) {
+      child.x0 = x0 + (child.x0 / this.width) * (x1 - x0);
+      child.x1 = x0 + (child.x1 / this.width) * (x1 - x0);
+      child.y0 = y0 + (child.y0 / this.height) * (y1 - y0);
+      child.y1 = y0 + (child.y1 / this.height) * (y1 - y0);
+    }
+  }
+
+  treemap = (data) =>
+    d3.treemap().tile(this.tile.bind(this))(
+      d3
+        .hierarchy(data)
+        .sum((d) => d.value)
+        .sort((a, b) => b.value - a.value)
+    );
+
+  newPaint(group, root) {
+    /* this.selected = root.data.name;
+    this.setSelected(root.data.name); */
+    if (!this.data) {
+      return;
+    }
+
+    let getName = (d) =>
+      d
+        .ancestors()
+        .reverse()
+        .map((d) => d.data.name)
+        .slice(1)
+        .join(" / ");
+
+    let format = d3.format(",d");
+
+    if (root.children) {
+      this.node = group
+        .selectAll("g.treeGroup")
+        .data(root.children.concat(root).filter((d) => d.value > 0))
+        .join("g")
+        .attr("class", "treeGroup");
+
+      let boundZoomOut = this.zoomout.bind(this);
+      let boundZoomIn = this.zoomin.bind(this);
+
+      this.node
+        .filter((d) => (d === root ? d.parent : d.children))
+        .attr("cursor", (d) => {
+          return d === root ? "" : "pointer";
+        })
+        .on("click", (d) => (d === root ? () => {} : boundZoomIn(d)));
+
+      this.node
+        .filter((d) => !d.children)
+        .attr("cursor", (d) => {
+          return d === root ? "" : "pointer";
+        })
+        .on("click", (d) => {
+          console.log("LAST HIT!", d);
+
+          /* return d === root ? () => {} : boundZoomIn(d); */
+        });
+
+      /* this.node
+        .append("title")
+        .text((d) => `${getName(d)}\n${format(d.value)}`); */
+
+      let boundSearch = this.searchForImage.bind(this);
+
+      let nodeContainers = this.node
+        .filter((d) => d.depth > root.depth)
+        .selectAll("foreignObject")
+        .data((d, i) => {
+          if (d.children) {
+            return d.children.flat().map((e) => {
+              e["parentX"] = d.x0;
+              e["parentY"] = d.y0;
+              e.i = i;
+              return e;
+            });
+          } else {
+            d["parentX"] = d.x0;
+            d["parentY"] = d.y0;
+
+            d.i = i;
+            return [d];
+          }
+        })
+        .enter()
+        .append("foreignObject")
+        .attr("class", "nodeImgContainer")
+        .attr("x", function (d) {
+          return 0;
+        })
+        .attr("y", function (d) {
+          return d.y0;
+        })
+        .append("xhtml:div")
+        .attr("class", "nodeImgContainerDiv")
+        .html((d) => {
+          let link = boundSearch(d);
+          if (link) {
+            return (
+              '<div class="nodeText">' +
+              "" +
+              '</div><img class="nodeImage" style="vertical-align:text-top" src="' +
+              link +
+              '"/>'
+            );
+          } else {
+            /* console.log(d);
+            let color = colorBrewerScheme14Qualitative[d.i % colorBrewerScheme14Qualitative.length]; */
+            return (
+              '<div class="nodeText">' +
+              "" +
+              '</div><div class="nodeImage" style="width=100%;height=100%;background-color:rgba(41,49,51,0.2);border:solid gray 1px !important;"></div>'
+            );
+          }
+        });
+
+      let nodeIconContaines = nodeContainers
+        .filter((d) => {
+          return d.depth === 4;
+        })
+        .append("xhtml:div")
+        .attr("class", "nodeIconContainerDiv")
+        .style("width", "25px")
+        .style("height", "25px")
+        .style("left", "5px")
+        .style("bottom", "5px")
+        .style("background-color", "rgba(41,49,51,0.7)")
+        .style("border-radius", "50%")
+        .style("position", "absolute");
+
+      nodeIconContaines.each(function (d, i) {
+        let node = d3.select(this);
+
+        let color =
+          d.data.economically !== undefined
+            ? d.data.economically.getColor()
+            : "gray";
+        let secondColor =
+          d.data.ecologically !== undefined
+            ? d.data.ecologically.getColor()
+            : "gray";
+
+        if (d.data.kingdom === "Animalia") {
+          d3.svg("/animalIcon.svg").then(function (xml) {
+            let icon = node.node().appendChild(xml.documentElement);
+            d3.select(icon)
+              .attr("width", 22)
+              .attr("height", 21)
+              .style("margin-top", "1.5px")
+              .style("margin-left", "1.5px");
+
+            d3.select(icon).select(".left").select("path").style("fill", color);
+            d3.select(icon)
+              .select(".right")
+              .select("path")
+              .style("fill", secondColor);
+          });
+        } else {
+          d3.svg("/plantIcon2.svg").then(function (xml) {
+            let icon = node.node().appendChild(xml.documentElement);
+            d3.select(icon)
+              .attr("width", 22)
+              .attr("height", 21)
+              .style("margin-top", "1.5px")
+              .style("margin-left", "1.5px");
+
+            d3.select(icon).select(".left").select("path").style("fill", color);
+            d3.select(icon)
+              .select(".right")
+              .select("path")
+              .style("fill", secondColor);
+          });
+        }
+      });
+
+      this.node
+        .append("rect")
+        .attr("id", (d) => {
+          d.leafUid = d.data.name + "rect";
+          return d.data.name + "rect";
+        })
+        .attr("fill", (d) =>
+          d === root ? "#fff" : d.depth === 0 ? "#fff" : "none"
+        )
+        .style("stroke", "#fff")
+        .style("stroke-width", 8);
+
+      this.node
+        .append("clipPath")
+        .attr("id", (d) => {
+          d.clipUid = d.data.name + "clip";
+          return d.data.name + "clip";
+        })
+        .append("use")
+        .attr("xlink:href", (d) => d.leafUid.href);
+
+      let rootTitle = (getName(root) + " " + format(root.value)).trim();
+
+      this.node
+        .append("text")
+        .attr("clip-path", (d) => d.clipUid)
+        .attr("font-weight", (d) => (d === root ? "bold" : null))
+        .selectAll("tspan")
+        .data((d) => {
+          return d === root ? [rootTitle] : [d.data.name, format(d.value)];
+        })
+        .join("tspan")
+        .attr("x", (d) => (d === rootTitle && rootTitle.includes(" ") ? 60 : 5))
+        .attr(
+          "y",
+          (d, i, nodes) => `${(i === nodes.length - 1) * 0.3 + 1.2 + i * 0.9}em`
+        )
+        .attr("fill-opacity", (d, i, nodes) =>
+          i === nodes.length - 1 ? 0.7 : null
+        )
+        .attr("font-weight", (d, i, nodes) =>
+          i === nodes.length - 1 ? "normal" : null
+        )
+        .style("fill", (d) => {
+          return rootTitle === d ? "black" : "white";
+          /* return "black"; */
+        })
+        .style("stroke", "none")
+        /* .style("stroke", (d, i, nodes) => {
+          return rootTitle === d ? "black" : "white";
+        }) */
+        .style("text-shadow", (d) => {
+          return rootTitle === d ? "none" : "1px 1px 2px #656565";
+        })
+        .style("font-size", (d) => (rootTitle === d ? "initial" : "small"))
+        .style("font-weight", "bold")
+        .text((d) => d);
+
+      let backButton = this.node
+        .filter((d) => d === root)
+        .append("g")
+        .attr("class", "backButton")
+        .attr("transform", "translate(" + 10 + " " + 5 + ")")
+        .style("cursor", "pointer")
+        .style("display", (d) => (d.depth > 0 ? "block" : "none"))
+        .on("mouseover", function (e) {
+          d3.select(this)
+            .select("path")
+            .style("stroke", "rgb(95, 77, 73)")
+            .style("stroke-opacity", 0.7)
+            .style("stroke-width", 2)
+            .style("stroke-linejoin", "round")
+            .style("fill", "var(--highlight)");
+        })
+        .on("mouseout", function (e) {
+          d3.select(this)
+            .select("path")
+            .style("stroke", "var(--black)")
+            .style("stroke-opacity", 1)
+            .style("stroke-width", 0.5)
+            .style("stroke-linejoin", "miter")
+            .style("fill", "var(--main)");
+        })
+        .on("click", () => boundZoomOut(root));
+
+      let backPath = backButton
+        .append("path")
+        .attr("d", "m 5 0 l 40 0 l 0 25 l -40 0 l -15 -12.5 z")
+        .style("fill", "var(--main)")
+        .style("stroke", "black")
+        .style("stroke-width", 0.5);
+
+      let pathForText = backButton
+        .append("path")
+        .attr("d", "m 5 12.5 l 40 0")
+        .attr("id", "backPathForText");
+
+      let backText = backButton
+        .append("text")
+        .append("textPath")
+        .attr("xlink:href", "#backPathForText")
+        .style("line-height", "1em")
+        .style("stroke", "var(--black)")
+        .style("fill", "var(--black)")
+        .style("font-size", "small")
+        .style("dominant-baseline", "central")
+        .attr("class", "textonpath noselect")
+        .text("Back");
+
+      group.call(this.position.bind(this), root);
+    }
+  }
+
+  position(group, root) {
+    group
+      .selectAll("g.treeGroup")
+      .attr("transform", (d) =>
+        d === root
+          ? `translate(0,-30)`
+          : `translate(${this.x(d.x0)},${this.y(d.y0)})`
+      )
+      .select("rect")
+      .attr("width", (d) =>
+        d === root ? this.width : this.x(d.x1) - this.x(d.x0)
+      )
+      .attr("height", (d) => (d === root ? 30 : this.y(d.y1) - this.y(d.y0)));
+
+    group
+      .selectAll("foreignObject")
+      .attr("transform", (d) => {
+        return d === root
+          ? `translate(0,-30)`
+          : `translate(${this.x(d.x0) - this.x(d["parentX"])},${
+              this.y(d.y0) - this.y(d["parentY"])
+            })`;
+      })
+      .attr("width", (d) =>
+        d === root ? this.width : this.x(d.x1) - this.x(d.x0)
+      )
+      .attr("height", (d) => (d === root ? 30 : this.y(d.y1) - this.y(d.y0)));
+
+    /* let boundZoomIn = this.searchAndZoom.bind(this);
+    if (this.initial) {
+      this.initial = false;
+      setTimeout(
+        function () {
+          this.node.filter((d) => {
+            boundZoomIn(d);
+            return true;
+          });
+        }.bind(this),
+        10
+      );
+    } */
+
+    //this.setNodeAsFilter(root);
+  }
+
+  searchForImage(elements) {
+
+    if (elements.data.link) {
+      return elements.data.link;
+    } else if (elements.children) {
+      return this.searchForImage(
+        elements.children.sort((a, b) => { 
+          let diff = b.value - a.value;
+
+          if(diff === 0) {
+            if(a.data.link)
+              return -1;
+            if(b.data.link)
+              return 1;
+          }
+          else {
+            return diff;
+          }
+          })[0]
+      );
+    }
+  }
+
+  searchAndZoom(elements) {
+    /* console.log(elements, this.selected); */
+    /* if (this.selected && elements.data.name === this.selected) {
+      this.zoomin(elements);
+    } else if (elements.children) {
+      for (let child of elements.children) {
+        this.searchAndZoom(child);
+      }
+    } */
+  }
+
+  flatten(root) {
+    /* if()
+    return; */
+    /* return i_arr.reduce(
+      (acc, cur) =>
+        acc.concat(
+          Array.isArray(cur.children)
+            ? this.flatten(cur.children.concat(i_arr))
+            : cur
+        ),
+      []
+    ); */
+  }
+
+  search(root, sel) {
+    let found = null;
+    root.each((e) => {
+      if (e.data.name === sel) {
+        found = e;
+      }
+    });
+    /*     let flattend = this.flatten(root.children.concat(root));
+    console.log(flattend);
+    flattend.filter((e) => {
+      console.log(e.data.name, sel, e.data.name === sel);
+      return e.data.name === sel;
+    }); */
+
+    return found;
+  }
+
+  // When zooming in, draw the new nodes on top, and fade them in.
+  zoomin(d) {
+    let boundPaint = this.newPaint.bind(this);
+
+    const group0 = this.svgGroup.attr("pointer-events", "none");
+    const group1 = (this.svgGroup = this.svg.append("g").call(boundPaint, d));
+
+    this.x.domain([d.x0, d.x1]);
+    this.y.domain([d.y0, d.y1]);
+
+    let boundPosition = this.position.bind(this);
+    this.svg
+      .transition()
+      .duration(750)
+      .call((t) => group0.transition(t).remove().call(boundPosition, d.parent))
+      .call((t) =>
+        group1
+          .transition(t)
+          .attrTween("opacity", () => d3.interpolate(0, 1))
+          .call(boundPosition, d)
+      );
+  }
+
+  // When zooming out, draw the old nodes on top, and fade them out.
+  zoomout(d) {
+    const group0 = this.svgGroup.attr("pointer-events", "none");
+    const group1 = (this.svgGroup = this.svg
+      .insert("g", "*")
+      .call(this.newPaint.bind(this), d.parent));
+
+    this.x.domain([d.parent.x0, d.parent.x1]);
+    this.y.domain([d.parent.y0, d.parent.y1]);
+
+    this.svg
+      .transition()
+      .duration(750)
+      .call((t) =>
+        group0
+          .transition(t)
+          .remove()
+          .attrTween("opacity", () => d3.interpolate(1, 0))
+          .call(this.position.bind(this), d)
+      )
+      .call((t) =>
+        group1.transition(t).call(this.position.bind(this), d.parent)
+      );
   }
 
   paint() {
@@ -246,7 +768,7 @@ class D3BarChart {
           .append("xhtml:div")
           .attr("class", "nodeImgContainerDiv")
           .html((d) => {
-            let link = d.data.children.sort((a, b) => a.value - b.value)[0]
+            let link = d.data.children.sort((a, b) => { return a.link ? 1 : a.value - b.value;})[0]
               .link;
             return (
               '<div class="nodeText">' +
@@ -309,7 +831,7 @@ class D3BarChart {
                 } 
             }); */
 
-      svg
+      /*       svg
         .selectAll("titles")
         .data(
           root.descendants().filter(function (d) {
@@ -328,9 +850,9 @@ class D3BarChart {
           return d.data.name;
         })
         .style("font-family", "sans-serif")
-        .attr("fill", "black");
+        .attr("fill", "black"); */
 
-      svg
+      /*       svg
         .selectAll("titles")
         .data(
           root.descendants().filter(function (d) {
@@ -350,10 +872,10 @@ class D3BarChart {
         })
         .style("font-size", "smaller")
         .style("font-family", "sans-serif")
-        .attr("fill", "black");
+        .attr("fill", "black"); */
 
       if (this.zoomArray.length > 0) {
-        svg
+        /*        svg
           .selectAll("titles")
           .data(
             root.descendants().filter(function (d) {
@@ -373,7 +895,7 @@ class D3BarChart {
           })
           .style("font-size", "smaller")
           .style("font-family", "sans-serif")
-          .attr("fill", "black");
+          .attr("fill", "black"); */
       }
     }
   }

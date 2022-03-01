@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import "../utils/utils";
 import TreeMapHelper from "./TreeMapHelper";
-import NewTreeMapHelper from "./NewTreeMapHelper";
 
 class TreeMap extends Component {
   constructor(props) {
@@ -9,21 +8,19 @@ class TreeMap extends Component {
     this.state = {
       id: this.props.id,
       data: this.props.data,
-      selected: null
+      selected: null,
+      filter: this.props.filter
     };
   }
 
   componentDidMount() {
-    /* TreeMapHelper.draw({
-            id: this.state.id,
-            data: this.state.data
-        }); */
-
-    NewTreeMapHelper.draw({
+    TreeMapHelper.draw({
       id: this.state.id,
       data: this.state.data,
       setSelected: this.setSelected.bind(this),
-      selected: this.state.selected
+      selected: this.state.selected,
+      filter: this.state.filter,
+      setFilter: this.props.setFilter
     });
   }
 
@@ -32,16 +29,14 @@ class TreeMap extends Component {
   }
 
   componentDidUpdate(newProps) {
-    /* TreeMapHelper.draw({
-            id: this.state.id,
-            data: this.props.data
-        }); */
-    if (JSON.stringify(this.props) !== JSON.stringify(newProps)) {
-      NewTreeMapHelper.draw({
+    if (JSON.stringify(this.props.data) !== JSON.stringify(newProps.data)) {
+      TreeMapHelper.draw({
         id: this.state.id,
         data: this.props.data,
         setSelected: this.setSelected.bind(this),
-        selected: this.state.selected
+        selected: this.state.selected,
+        filter: newProps.filter,
+        setFilter: this.props.setFilter
       });
     }
   }

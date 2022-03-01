@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import MapHelper from "./MapHelper";
+/* import MapHelper from "./MapHelper"; */
+import MapHelper from "./NewMapHelper";
 import "../utils/utils";
 
 class Map extends Component {
@@ -25,9 +26,8 @@ class Map extends Component {
       this.props.getTreeThreatLevel,
       this.props.initWidth,
       this.props.setDiversityScale,
-      this.props.heatMap,
-      this.props.diversity,
-      this.setProcessedSpecies.bind(this)
+      this.props.treeThreatType,
+      this.props.setFilter
     );
 
     this.addSpeciesFromMapSpecies();
@@ -63,6 +63,82 @@ class Map extends Component {
   }
 
   addSpeciesFromMapSpecies() {
+    console.log("addSpeciesFromMapSpecies", this.props.mapSpecies);
+
+    //this.MapHelper.speciesImageLinks = this.props.speciesImageLinks;
+    let speciesCountries = {};
+    let speciesEcoRegions = {};
+    let speciesHexagons = {};
+
+    if (this.props.data && this.props.mapSpecies) {
+      let mapSpeciesData = {};
+      this.expetedDistributionQueueLength = 0;
+      this.processedDistributionQueue = [];
+
+      for (let species of Object.keys(this.props.mapSpecies)) {
+        if (this.props.data.hasOwnProperty(species)) {
+          if (this.props.data[species].hasOwnProperty("treeCountries")) {
+            let countries = Object.keys(
+              this.props.data[species]["treeCountries"]
+            );
+
+            if (countries.length > 0) {
+              speciesCountries[species] = countries;
+            }
+          }
+
+          if (this.props.data[species].hasOwnProperty("ecoregions")) {
+            let ecoRegions = this.props.data[species]["ecoregions"];
+
+            if (ecoRegions.length > 0) {
+              speciesEcoRegions[species] = ecoRegions;
+            }
+          }
+
+          if (
+            this.props.data[species].hasOwnProperty("hexagons") &&
+            this.props.data[species]["Kingdom"] === "Plantae"
+          ) {
+            let hexagons = this.props.data[species]["hexagons"];
+
+            if (hexagons.length > 0) {
+              speciesHexagons[species] = hexagons;
+            }
+          }
+
+          /* if (this.props.data[species].hasOwnProperty("ecoZones")) {
+            let ecoZones = Object.keys(this.props.data[species]["ecoZones"]);
+
+            if (ecoZones.length > 0) {
+              this.pushAndCheckDistributionQueue({
+                type: "ecoRegions",
+                value: [species, ecoZones]
+              });
+            }
+          }
+
+          if (this.props.data[species].hasOwnProperty("hexagons")) {
+            let hexagons = this.props.data[species]["hexagons"];
+            if (hexagons.length > 0) {
+              this.pushAndCheckDistributionQueue({
+                type: "hexagons",
+                value: [species, hexagons]
+              });
+            }
+          } */
+        }
+      }
+    }
+    this.MapHelper.setSpeciesCountries(speciesCountries);
+    this.MapHelper.setEcoRegions(speciesEcoRegions);
+    this.MapHelper.setSpeciesHexagons(speciesHexagons);
+    this.MapHelper.updateDiversityPolygons();
+    this.MapHelper.updateThreatPies();
+    //this.MapHelper.updateEcoRegions();
+    //this.MapHelper.updateHexagons();
+  }
+
+  OldaddSpeciesFromMapSpecies() {
     this.MapHelper.speciesImageLinks = this.props.speciesImageLinks;
 
     if (this.props.data && this.props.mapSpecies) {
@@ -199,16 +275,16 @@ class Map extends Component {
   componentDidUpdate(prevProps) {
     if (
       JSON.stringify(prevProps.mapSpecies) !==
-      JSON.stringify(this.props.mapSpecies)
+        JSON.stringify(this.props.mapSpecies) ||
+      JSON.stringify(prevProps.data) !== JSON.stringify(this.props.data)
     ) {
-      console.log("UPDATE MAP", this.state.id);
       this.addSpeciesFromMapSpecies();
-      let newSpecies = Object.keys(this.props.mapSpecies);
+      /* let newSpecies = Object.keys(this.props.mapSpecies);
       let diff = Object.keys(prevProps.mapSpecies).filter(
         (x) => !newSpecies.includes(x)
       );
 
-      this.removeSpeciesByMapSpecies(diff);
+      this.removeSpeciesByMapSpecies(diff); */
       /*             if (this.props.heatMap) {
                 this.MapHelper.updateHeatMap(this.props.heatMap, this.props.treeThreatType);
             }
@@ -221,7 +297,8 @@ class Map extends Component {
       JSON.stringify(this.props.timeFrame) !==
       JSON.stringify(prevProps.timeFrame)
     ) {
-      this.MapHelper.updateHeatMap(
+      this.MapHelper.updateThreatPies();
+      /* this.MapHelper.updateHeatMap(
         this.props.heatMap,
         this.props.treeThreatType
       );
@@ -229,7 +306,7 @@ class Map extends Component {
         this.props.diversity,
         this.props.diversityMode,
         this.props.diversityAttribute
-      );
+      ); */
     }
 
     if (prevProps.heatMap !== this.props.heatMap) {
@@ -256,7 +333,7 @@ class Map extends Component {
     if (prevProps.treeThreatType !== this.props.treeThreatType) {
       this.MapHelper.setTreeThreatType(this.props.treeThreatType);
 
-      this.MapHelper.updateHeatMap(
+      /* this.MapHelper.updateHeatMap(
         this.props.heatMap,
         this.props.treeThreatType
       );
@@ -264,15 +341,15 @@ class Map extends Component {
         this.props.diversity,
         this.props.diversityMode,
         this.props.diversityAttribute
-      );
+      ); */
     }
 
-    if (
+  /*   if (
       JSON.stringify(prevProps.hoverSpecies) !==
       JSON.stringify(this.props.hoverSpecies)
     ) {
       this.MapHelper.highlight(this.props.hoverSpecies);
-    }
+    } */
   }
 
   render() {
@@ -281,7 +358,7 @@ class Map extends Component {
         <div
           id={this.state.id}
           style={{
-            height: "50vh",
+            height: "calc(50vh - 20px)",
             width: "70vw"
           }}
         ></div>
