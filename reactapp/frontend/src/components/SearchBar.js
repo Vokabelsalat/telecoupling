@@ -33,7 +33,14 @@ class SearchBar extends Component {
   }
 
   setValue(val) {
-    this.state.setFilter({ searchBarSpecies: val ? val.title : null });
+    console.log(val);
+    this.state.setFilter({
+      searchBarSpecies: val ? val.title : null,
+      kingdom: [val.kingdom],
+      familia: [val.family],
+      genus: [val.genus],
+      species: val.species ? [val.species] : null
+    });
     this.setState({ value: val });
   }
 
@@ -49,9 +56,23 @@ class SearchBar extends Component {
         let keyGenus = data[key].Genus.trim();
         if (!genus.includes(keyGenus)) {
           genus.push(keyGenus);
-          options.push({ title: keyGenus, type: "genus" });
+          options.push({
+            title: keyGenus,
+            type: "genus",
+            kingdom: data[key].Kingdom.trim(),
+            family: data[key].Family.trim(),
+            genus: data[key].Genus.trim(),
+            species: null
+          });
         }
-        options.push({ title: key, type: "species" });
+        options.push({
+          title: key,
+          type: "species",
+          kingdom: data[key].Kingdom.trim(),
+          family: data[key].Family.trim(),
+          genus: data[key].Genus.trim(),
+          species: key
+        });
       }
     }
 
@@ -59,18 +80,7 @@ class SearchBar extends Component {
       <Autocomplete
         value={value}
         onChange={(event, newValue) => {
-          if (typeof newValue === "string") {
-            setValue({
-              title: newValue
-            });
-          } else if (newValue && newValue.inputValue) {
-            // Create a new value from the user input
-            setValue({
-              title: newValue.inputValue
-            });
-          } else {
-            setValue(newValue);
-          }
+          setValue(newValue);
         }}
         filterOptions={(options, params) => {
           const filtered = filter(options, params);
@@ -113,8 +123,14 @@ class SearchBar extends Component {
         )}
         sx={{ width: 300 }}
         freeSolo
-        renderInput={(params) => <TextField {...params} className={value ? "filterUsed" : ""} label="Search" />}
-        style={{display: "table-cell", verticalAlign: "middle"}}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            className={value ? "filterUsed" : ""}
+            label="Search"
+          />
+        )}
+        style={{ display: "table-cell", verticalAlign: "middle" }}
       />
     );
   }

@@ -17,7 +17,7 @@ class TreeMapView extends Component {
   componentDidMount() {}
 
   componentDidUpdate(prevProps) {
-     if (JSON.stringify(this.props.data) !== JSON.stringify(prevProps.data)) {
+    if (JSON.stringify(this.props.data) !== JSON.stringify(prevProps.data)) {
       this.setState({ data: this.props.data });
     }
   }

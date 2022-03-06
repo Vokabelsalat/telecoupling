@@ -68,7 +68,7 @@ class MapHelper {
       minZoom: 0,
       maxZoom: 20,
       crs: L.CRS.EPSG4326
-    }).setView([0, 0], 1);
+    }).setView([0, 0], 2);
 
     this.mymap.on("overlayadd", this.overlayadd.bind(this));
 
@@ -229,13 +229,6 @@ class MapHelper {
             boundHighlight(d.layer, false);
           })
           .on("click", function (d) {
-            //d.layer.feature.selected = true;
-            /* d.layer.setStyle({
-              color: "var(--highlightpurple)",
-              weight: 2
-            });
-            d.layer.bringToFront(); */
-            //setFilter({ country: [d.layer.feature.properties.ROMNAM] });
             if (d.layer.feature.selected) {
               resetSelected("countries");
             } else {
@@ -279,7 +272,7 @@ class MapHelper {
         );
         this.diversityCountries.addTo(this.mymap);
         this.updateDiversity();
-        this.updateThreatPiesCountries();
+        this.updateThreatPiesCountries(true);
       });
   }
 
@@ -613,7 +606,7 @@ class MapHelper {
     }
   }
 
-  updateThreatPiesCountries() {
+  updateThreatPiesCountries(first = false) {
     let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
     let getTreeThreatLevel = this.getTreeThreatLevel;
     if (this.countryClusterLayer) this.countryClusterLayer.clearLayers();
@@ -708,6 +701,11 @@ class MapHelper {
           }
         }
       });
+      if (first) {
+        this.mymap.fitBounds(this.countryClusterLayer.getBounds(), {
+          padding: [50, 50]
+        });
+      }
     }
   }
 

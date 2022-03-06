@@ -1,7 +1,7 @@
 import React, { Component, useEffect } from "react";
 import Orchestra from "./Orchestra";
 import BarChartView from "./BarChartView";
-import TreeMapView from "./TreeMapView";
+import TreeMap from "./TreeMap";
 import Legend from "./Legend";
 import CenterPieChart from "./CenterPieChart";
 import SearchBar from "./SearchBar";
@@ -48,7 +48,7 @@ class Home extends Component {
     this.usePreGenerated = true;
     this.renderMap = true;
     this.renderTreeMap = true;
-    this.slice = false;
+    this.slice = true;
 
     this.tempSpeciesData = {};
     this.tempFetchedSpecies = [];
@@ -323,7 +323,6 @@ class Home extends Component {
   }
 
   generateTreeMapData(input) {
-    console.log("generateTreeMapData", input);
     let kingdomGroupData = {};
 
     for (let species of Object.keys(input)) {
@@ -402,6 +401,7 @@ class Home extends Component {
           for (let value of Object.keys(subgroupData[family][group])) {
             let valueObject = {};
             valueObject["name"] = value;
+            valueObject["species"] = value;
             valueObject["kingdom"] = this.state.speciesData[value].Kingdom;
             valueObject["ecologically"] = this.getSpeciesThreatLevel(
               value,
@@ -430,6 +430,7 @@ class Home extends Component {
             genusData.push({
               children: valueObjects,
               name: group,
+              genus: group,
               sum,
               colname: "level3"
             });
@@ -437,6 +438,8 @@ class Home extends Component {
         familyData.push({
           children: genusData,
           name: family,
+          kingodm: kingdom,
+          family: family,
           sum: genusData.length,
           colname: "level2"
         });
@@ -444,6 +447,7 @@ class Home extends Component {
       treeMap.push({
         children: familyData,
         name: kingdom,
+        kingdom: kingdom,
         sum: familyData.length,
         colname: "level1"
       });
@@ -1187,31 +1191,36 @@ class Home extends Component {
     const instrument = filter["instrument"] ? filter["instrument"][0] : null;
     const mainPart = filter["mainPart"] ? filter["mainPart"][0] : null;
 
+    let kingdom = filter["kingdom"] ? filter["kingdom"][0] : null;
+    const familia = filter["familia"] ? filter["familia"][0] : null;
+    const genus = filter["genus"] ? filter["genus"][0] : null;
+    const species = filter["species"] ? filter["species"][0] : null;
+
     const asArray = Object.entries(this.state.speciesData);
 
     let speciesWithOutOrchestraFilter = {};
 
     const filtered = asArray.filter(([key, value]) => {
       let hit = true;
-      if (filter["searchBarSpecies"] && hit) {
+      /* if (filter["searchBarSpecies"] && hit) {
         hit = key.includes(filter["searchBarSpecies"]);
-      }
-
-     /*  if (hit && filter["kingdom"]) {
-        hit = filter["kingdom"].includes(value.Kingdom);
-      }
-
-      if (hit && filter["familia"]) {
-        hit = filter["familia"].includes(value.Family);
-      }
-
-      if (hit && filter["genus"]) {
-        hit = filter["genus"].includes(value.Genus.trim());
-      }
-
-      if (hit && filter["species"]) {
-        hit = filter["species"].includes(value.Species);
       } */
+
+      if (hit && kingdom) {
+        hit = kingdom === value.Kingdom;
+      }
+
+      if (hit && familia) {
+        hit = familia === value.Family;
+      }
+
+      if (hit && genus) {
+        hit = genus === value.Genus;
+      }
+
+      if (hit && species) {
+        hit = species === key;
+      }
 
       if (hit && filter["country"]) {
         if (
@@ -1251,13 +1260,16 @@ class Home extends Component {
       return hit;
     });
 
+    console.log("FILTER", filter);
+
     const filteredSpeciesData = Object.fromEntries(filtered);
     const mapSpecies = Object.fromEntries(
       Object.keys(filteredSpeciesData).map((e) => [e, 1])
     );
 
     let [treeMapData, imageLinks] = this.generateTreeMapData(
-      this.state.speciesSignThreats
+      //this.state.speciesSignThreats
+      filteredSpeciesData
     );
 
     return (
@@ -1310,12 +1322,16 @@ class Home extends Component {
                             </div >
                         </div> */}
         {this.renderTreeMap ? (
-          <TreeMapView
+          <TreeMap
             id="treeMapView"
             data={treeMapData}
             filter={filter}
+            kingdom={kingdom}
+            familia={familia}
+            genus={genus}
+            species={species}
             setFilter={this.setFilter.bind(this)}
-          ></TreeMapView>
+          ></TreeMap>
         ) : (
           []
         )}
@@ -1331,6 +1347,7 @@ class Home extends Component {
           finishedFetching={this.state.finishedFetching}
           speciesSignThreats={this.state.speciesSignThreats}
           setFilter={this.setFilter.bind(this)}
+          timeFrame={this.state.timeFrame}
         />
 
         <div

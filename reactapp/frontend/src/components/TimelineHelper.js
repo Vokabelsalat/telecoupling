@@ -116,12 +116,7 @@ class D3Timeline {
       .style("display", "inline-block")
       .style(
         "width",
-        this.width -
-          this.x(timeFrameMax) +
-          this.x.bandwidth() / 2 -
-          30 +
-          1 +
-          "px"
+        this.width - this.x(timeFrameMax) + this.x.bandwidth() / 2 - 1 + "px"
       )
       .style("min-height", "10px")
       .style("top", "0")
@@ -3506,7 +3501,7 @@ class D3Timeline {
       .style("font-size", "9")
       .text("BGCI");
 
-    if (this.groupSame && keyData.length > 1) {
+    /* if (this.groupSame && keyData.length > 1) {
       g.selectAll("g myCircleText")
         .data(keyData)
         .enter()
@@ -3544,7 +3539,7 @@ class D3Timeline {
             ")"
           );
         });
-    }
+    } */
 
     if (keyData.length > 1) {
       g.selectAll("g myCircleText")
@@ -4481,21 +4476,29 @@ class D3Timeline {
 
       svgScale
         .selectAll(".tick")
+        .append("rect")
+        .attr("width", this.x.bandwidth())
+        .attr("x", -this.x.bandwidth() / 2)
+        .attr("height", 25)
+        .attr("y", this.speciesName === "scaleTop" ? -25 : 0)
+        .style("fill", "white")
+        .style("opacity", 0);
+
+      svgScale
+        .selectAll(".tick")
+        .style("cursor", "pointer")
         .select("text")
         .attr("y", this.speciesName === "scaleTop" ? -15 : 15)
-        .classed("axisTicks", true)
-        .on("click", (e) => {
-          /* d3.selectAll(".timeframeHandle").attr("cx", (d) => {
-            console.log(this.x.bandwidth(), e, this.x(e));
-            return "" + this.x.bandwidth() / 2 + this.x(e);
-          }); */
-          this.setTimeFrame([this.domainYears.minYear, e]);
-        });
+        .classed("axisTicks", true);
 
       svgScale
         .selectAll(".tick")
         .selectAll("line")
         .attr("y2", this.speciesName === "scaleTop" ? -12 : 12);
+
+      svgScale.selectAll(".tick").on("click", (e) => {
+        this.setTimeFrame([this.domainYears.minYear, e]);
+      });
 
       // Delete every second tick text
       let contentWidth = this.width;

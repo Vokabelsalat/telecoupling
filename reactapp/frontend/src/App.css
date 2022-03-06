@@ -560,3 +560,10 @@ button {
   justify-content: center;
   margin-left: 4px;
 }
+
+/* .treeMapHeadlineElement:last-of-type {
+  border: 2px solid var(--highlightpurple);
+  box-sizing: border-box;
+  border-radius: 10px;
+}
+ */

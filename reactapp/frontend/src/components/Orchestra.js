@@ -33,33 +33,33 @@ class Orchestra extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    /* if(prevProps.treeThreatType !== this.props.treeThreatType ||
-        JSON.stringify(this.props.speciesData) !== JSON.stringify(prevProps.speciesData) ||
-        JSON.stringify(this.props.speciesSignThreats) !== JSON.stringify(prevProps.speciesSignThreats)
-        ) { */
-
     if (
-      prevProps.treeThreatType !== this.props.treeThreatType ||
-      JSON.stringify(this.props.speciesData) !==
-        JSON.stringify(prevProps.speciesData) ||
-        prevProps.instrumentGroup !== this.props.instrumentGroup ||
-        prevProps.instrument !== this.props.instrument ||
-        prevProps.mainPart !== this.props.mainPart
+      prevProps.instrumentGroup !== this.props.instrumentGroup ||
+      prevProps.instrument !== this.props.instrument ||
+      prevProps.mainPart !== this.props.mainPart
     ) {
-     /*  OrchestraHelper.draw({
-        id: this.state.id,
-        instrumentGroup: this.props.instrumentGroup,
-        instrument: this.props.instrument,
-        mainPart: this.props.mainPart,
-        getTreeThreatLevel: this.props.getTreeThreatLevel,
-        treeThreatType: this.props.treeThreatType,
-        speciesData: this.props.speciesData,
-        setFilter: this.props.setFilter
-      }); */
       this.OrchestraHelper.setInstrument(this.props.instrument);
       this.OrchestraHelper.setInstrumentGroup(this.props.instrumentGroup);
       this.OrchestraHelper.setMainPart(this.props.mainPart);
       this.OrchestraHelper.setTreeThreatType(this.props.treeThreatType);
+      this.OrchestraHelper.updateThreatPies(this.props.speciesData);
+    }
+
+    if (prevProps.treeThreatType !== this.props.treeThreatType) {
+      this.OrchestraHelper.updateThreatPies(this.props.speciesData);
+    }
+
+    if (
+      JSON.stringify(this.props.speciesData) !==
+      JSON.stringify(prevProps.speciesData)
+    ) {
+      this.OrchestraHelper.updateThreatPies(this.props.speciesData);
+    }
+
+    if (
+      JSON.stringify(this.props.timeFrame) !==
+      JSON.stringify(prevProps.timeFrame)
+    ) {
       this.OrchestraHelper.updateThreatPies(this.props.speciesData);
     }
   }
