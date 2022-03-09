@@ -294,8 +294,12 @@ class D3Orchestra {
     /* setTimeout(() => this.zoomAndRotate(path), this.animationTime / 1.5); */
     this.zoomAndRotate(path);
 
-    if(this.instrumentGroup !== id)
-      this.setFilter({ instrumentGroup: [id], instrument: null, mainPart: null });
+    if (this.instrumentGroup !== id)
+      this.setFilter({
+        instrumentGroup: [id],
+        instrument: null,
+        mainPart: null
+      });
 
     return;
   }
@@ -379,7 +383,6 @@ class D3Orchestra {
 
     speciesList = [...new Set(speciesList)];
 
-
     let heatMap = {};
 
     let speciesToThreat = {};
@@ -460,9 +463,7 @@ class D3Orchestra {
       let instrumentGroup = groupAndFile.group;
 
       width = width + 10;
-      fetch(
-        "http://localhost:9000/api/getInstrumentsFromGroup/" + instrumentGroup
-      )
+      fetch("/api/getInstrumentsFromGroup/" + instrumentGroup)
         .then((res) => res.json())
         .then((data) => {
           let lowerAmount = false;
@@ -693,7 +694,7 @@ class D3Orchestra {
                     .classed("selected", true);
 
                   let text = d3.select(this).select("title").text();
-                  if(this.mainPart !== text.trim())
+                  if (this.mainPart !== text.trim())
                     setFilter({ mainPart: [text.trim()] });
                   //setInstrumentAndMainPart(value.trim(), text);
                 })
@@ -731,7 +732,7 @@ class D3Orchestra {
         d3.select(this)
           .select("path")
           .style("stroke", "var(--highlightpurple)");
-        if(this.instrument !== value.trim())
+        if (this.instrument !== value.trim())
           setFilter({ instrument: [value.trim()] });
       });
 
@@ -765,17 +766,32 @@ class D3Orchestra {
         .text("m");
 
       let innerGroup = group
-      .append("g")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("width", "10px" )
-      .attr("height", "10px")
-      .attr("class", "pieChartTest")
-      .style("display", "none");
+        .append("g")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", "10px")
+        .attr("height", "10px")
+        .attr("class", "pieChartTest")
+        .style("display", "none");
 
-
-      this.pies[text] = {text, innerGroup, textPathForPie, start, end, parentGroup, main: false};
-      this.makePie(text, innerGroup, textPathForPie, start, end, parentGroup, false);
+      this.pies[text] = {
+        text,
+        innerGroup,
+        textPathForPie,
+        start,
+        end,
+        parentGroup,
+        main: false
+      };
+      this.makePie(
+        text,
+        innerGroup,
+        textPathForPie,
+        start,
+        end,
+        parentGroup,
+        false
+      );
     } else {
       textElement
         .append("textPath")
@@ -839,7 +855,7 @@ class D3Orchestra {
                 .then(res => res.json())
                 .then(data => { */
 
-     /*  let speciesList = Object.values(this.speciesData)
+      /*  let speciesList = Object.values(this.speciesData)
         .filter((e) => {
           return e.Species.trim() !== "" && e.groups.includes(id);
         })
@@ -864,15 +880,23 @@ class D3Orchestra {
       /* }); */
 
       let innerGroup = group
-      .append("g")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("width", "40px")
-      .attr("height", "40px")
-      .attr("class", "pieChartTest")
-      .style("display", "block");
+        .append("g")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", "40px")
+        .attr("height", "40px")
+        .attr("class", "pieChartTest")
+        .style("display", "block");
 
-      this.pies[id+"MAIN"] = {text: id, innerGroup, textPathForPie, start, end, parentGroup: id, main: true};
+      this.pies[id + "MAIN"] = {
+        text: id,
+        innerGroup,
+        textPathForPie,
+        start,
+        end,
+        parentGroup: id,
+        main: true
+      };
       this.makePie(id, innerGroup, textPathForPie, start, end, id, true);
 
       let filename = groupAndFile.filename;
@@ -1274,19 +1298,17 @@ class D3Orchestra {
           }, 700);
         }
       }
-    } 
+    }
   }
 
   setTreeThreatType(val) {
-      this.treeThreatType = val
-      ? "economically"
-      : "ecologically";
+    this.treeThreatType = val ? "economically" : "ecologically";
   }
 
   updateThreatPies(newSpeciesData) {
     this.speciesData = newSpeciesData;
     /* d3.select("#selectChartSVG").selectAll(".pieChartTest").remove(); */
-    for(let pie of Object.keys(this.pies)) {
+    for (let pie of Object.keys(this.pies)) {
       let pieObj = this.pies[pie];
       /* if(pie.includes("MAIN") && this.instrumentGroup === pieObj.text) {
         continue;
@@ -1294,23 +1316,31 @@ class D3Orchestra {
 
       pieObj.innerGroup.selectAll("*").remove();
 
-      this.makePie(pieObj.text, pieObj.innerGroup, pieObj.textPathForPie, pieObj.start, pieObj.end, pieObj.parentGroup, pieObj.main);
+      this.makePie(
+        pieObj.text,
+        pieObj.innerGroup,
+        pieObj.textPathForPie,
+        pieObj.start,
+        pieObj.end,
+        pieObj.parentGroup,
+        pieObj.main
+      );
     }
   }
 
   setInstrument(instrument) {
     this.instrument = instrument;
   }
-  
+
   setInstrumentGroup(instrumentGroup) {
     this.instrumentGroup = instrumentGroup;
   }
-  
+
   setMainPart(mainPart) {
     this.mainPart = mainPart;
   }
 }
- 
+
 const TimelineHelper = {
   draw: (input) => {
     return new D3Orchestra(input);
