@@ -65,6 +65,8 @@ body {
   padding: 20px;
   width: 100%;
   box-sizing: border-box;
+  font-size: 16px;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .select-wrapper {
@@ -126,11 +128,6 @@ img {
   width: 300px;
 }
 
-#mapid {
-  margin-top: 5px;
-  height: 90vh;
-}
-
 .leaflet-control-container {
   height: 100%;
 }
@@ -187,12 +184,11 @@ img {
   display: inline-block;
   width: 100%;
   height: 500px;
+  font-size: 16px;
 }
 
-#map2 {
-  display: inline-block;
-  width: 100%;
-  height: 500px;
+#map .cluster-pie {
+  font-size: 12px;
 }
 
 #legend {
@@ -376,14 +372,15 @@ button {
 .tooltip {
   background-color: white;
   position: absolute;
-  border: solid;
-  border-width: 2px;
+  /*   border: solid;
+  border-width: 2px; */
   border-radius: 5px;
   padding: 5px;
   max-width: 250px;
-  font-size: 12px;
+  /* font-size: 12px; */
   display: none;
   z-index: 9999;
+  box-shadow: 0 3px 14px rgb(0 0 0 / 40%);
 }
 
 .timelineSVG {

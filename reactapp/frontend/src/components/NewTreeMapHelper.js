@@ -125,7 +125,14 @@ class D3BarChart {
       .style("font", "10px sans-serif")
       .attr("width", this.width)
       .attr("height", this.height)
-      .style("border", "solid 1px gray");
+      .style("border", () => {
+        if (this.kingdom || this.genus || this.species || this.familia) {
+          return "3px solid var(--highlightpurple)";
+        } else {
+          return "1px solid gray";
+        }
+      })
+      .style("box-sizing", "border-box");
 
     if (this.data) {
       let data = this.treemap(this.data);

@@ -155,6 +155,7 @@ class CenterPieChartD3 {
       .attr("text-anchor", "middle")
       .attr("dy", ".3em")
       .style("font-size", options.instrument ? "5" : "initital")
+      .style("font-weight", "bold")
       .style("display", options.data.length === 0 ? "none" : "block")
       .text(pieLabel);
 

@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import Timeline from "./Timeline.js";
 import { TimelineDatagenerator } from "../utils/TimelineDatagenerator";
 import { replaceSpecialCharacters } from "../utils/utils";
-import timelinedata from "../data/timelinedata.json";
 
 class TimelineView extends Component {
   constructor(props) {

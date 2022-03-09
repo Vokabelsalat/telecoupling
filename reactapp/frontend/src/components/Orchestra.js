@@ -41,11 +41,11 @@ class Orchestra extends Component {
       this.OrchestraHelper.setInstrument(this.props.instrument);
       this.OrchestraHelper.setInstrumentGroup(this.props.instrumentGroup);
       this.OrchestraHelper.setMainPart(this.props.mainPart);
-      this.OrchestraHelper.setTreeThreatType(this.props.treeThreatType);
       this.OrchestraHelper.updateThreatPies(this.props.speciesData);
     }
 
     if (prevProps.treeThreatType !== this.props.treeThreatType) {
+      this.OrchestraHelper.setTreeThreatType(this.props.treeThreatType);
       this.OrchestraHelper.updateThreatPies(this.props.speciesData);
     }
 

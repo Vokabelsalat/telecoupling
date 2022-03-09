@@ -48,7 +48,7 @@ class Home extends Component {
     this.usePreGenerated = true;
     this.renderMap = true;
     this.renderTreeMap = true;
-    this.slice = true;
+    this.slice = false;
 
     this.tempSpeciesData = {};
     this.tempFetchedSpecies = [];
@@ -1415,7 +1415,8 @@ class Home extends Component {
                 style={{
                   position: "absolute",
                   lineHeight: "2em",
-                  fontSize: "larger"
+                  fontSize: "larger",
+                  fontWeight: "bold"
                 }}
               >
                 Species
@@ -1549,7 +1550,7 @@ class Home extends Component {
                                 this.getDiverstiyAttributeSelectOptions()
                             }
                         </select> */}
-            {/* {
+            {/*  {
               <button
                 onClick={(event) => {
                   this.save();
