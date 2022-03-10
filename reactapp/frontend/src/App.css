@@ -564,3 +564,24 @@ button {
   border-radius: 10px;
 }
  */
+
+path.handle {
+  fill: var(--highlightpurple);
+  stroke: var(--highlightpurple);
+}
+
+#scaleBottom2 .track {
+  display: none !important;
+}
+
+#scaleBottom2 .track-inset {
+  display: none !important;
+}
+
+#scaleBottom2 .parameter-value > path.handle {
+  display: none !important;
+}
+
+.tick > text {
+  opacity: 1 !important;
+}

@@ -111,7 +111,7 @@ class D3BarChart {
     d3.selectAll("#" + this.id + " > *").remove();
 
     this.width = this.initWidth - this.margin.left - this.margin.right;
-    this.height = this.initHeight - this.margin.top - this.margin.bottom;
+    this.height = this.initHeight - this.margin.top - this.margin.bottom - 47;
 
     this.x = d3.scaleLinear().rangeRound([0, this.width]);
     this.y = d3.scaleLinear().rangeRound([0, this.height]);
@@ -125,13 +125,6 @@ class D3BarChart {
       .style("font", "10px sans-serif")
       .attr("width", this.width)
       .attr("height", this.height)
-      .style("border", () => {
-        if (this.kingdom || this.genus || this.species || this.familia) {
-          return "3px solid var(--highlightpurple)";
-        } else {
-          return "1px solid gray";
-        }
-      })
       .style("box-sizing", "border-box");
 
     if (this.data) {
@@ -679,7 +672,6 @@ class D3BarChart {
 
   // When zooming out, draw the old nodes on top, and fade them out.
   zoomout(d) {
-    console.log(d);
     this.setNodeAsFilter(d.parent);
     /*  const group0 = this.svgGroup.attr("pointer-events", "none");
     const group1 = (this.svgGroup = this.svg

@@ -19,7 +19,6 @@ import { json, linkHorizontal } from "d3";
 
 class D3BarChart {
   constructor(param) {
-
     console.log("NEW TREEMAP!");
 
     this.id = param.id;
@@ -120,8 +119,7 @@ class D3BarChart {
       .attr("viewBox", [0, -30.5, this.width, this.height + 30])
       .style("font", "10px sans-serif")
       .attr("width", this.width)
-      .attr("height", this.height)
-      .style("border", "solid 1px gray");
+      .attr("height", this.height);
 
     if (this.data) {
       let boundFunc = this.newPaint.bind(this);
@@ -539,24 +537,20 @@ class D3BarChart {
   }
 
   searchForImage(elements) {
-
     if (elements.data.link) {
       return elements.data.link;
     } else if (elements.children) {
       return this.searchForImage(
-        elements.children.sort((a, b) => { 
+        elements.children.sort((a, b) => {
           let diff = b.value - a.value;
 
-          if(diff === 0) {
-            if(a.data.link)
-              return -1;
-            if(b.data.link)
-              return 1;
-          }
-          else {
+          if (diff === 0) {
+            if (a.data.link) return -1;
+            if (b.data.link) return 1;
+          } else {
             return diff;
           }
-          })[0]
+        })[0]
       );
     }
   }
@@ -768,8 +762,9 @@ class D3BarChart {
           .append("xhtml:div")
           .attr("class", "nodeImgContainerDiv")
           .html((d) => {
-            let link = d.data.children.sort((a, b) => { return a.link ? 1 : a.value - b.value;})[0]
-              .link;
+            let link = d.data.children.sort((a, b) => {
+              return a.link ? 1 : a.value - b.value;
+            })[0].link;
             return (
               '<div class="nodeText">' +
               "" +

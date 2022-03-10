@@ -48,8 +48,8 @@ class Legend extends Component {
               gridColumnEnd: 1,
               gridRowStart: 1,
               gridRowEnd: "span 2",
-              "align-self": "center",
-              "justify-self": "center",
+              alignSelf: "center",
+              justifySelf: "center",
               opacity: !treeThreatType ? 0.5 : 1.0,
               marginTop: "-1.7em"
             }}
@@ -59,7 +59,8 @@ class Legend extends Component {
               <a
                 href="https://cites.org/eng/app/index.php"
                 target="_blank"
-                style={{ "text-decoration": "none" }}
+                style={{ textDecoration: "none" }}
+                rel="noreferrer"
               >
                 <div className="infoI">i</div>
               </a>
@@ -69,6 +70,7 @@ class Legend extends Component {
                 display: "inline-block",
                 minWidth: "60px",
                 height: "20px",
+                lineHeight: "20px",
                 backgroundColor: citesAssessment.get(e).getColor(),
                 color: citesAssessment.get(e).getForegroundColor(),
                 textAlign: "center"
@@ -86,10 +88,10 @@ class Legend extends Component {
               gridColumnEnd: 2,
               gridRowStart: 1,
               gridRowEnd: "span 2",
-              "align-self": "center",
-              "justify-self": "center",
-              "font-weight": treeThreatType ? "bold" : "normal",
-              "font-size": "larger",
+              alignSelf: "center",
+              justifySelf: "center",
+              fontWeight: treeThreatType ? "bold" : "normal",
+              fontSize: "larger",
               opacity: !treeThreatType ? 0.5 : 1.0
             }}
           >
@@ -101,8 +103,8 @@ class Legend extends Component {
               gridColumnEnd: 3,
               gridRowStart: 1,
               gridRowEnd: "span 2",
-              "align-self": "center",
-              "justify-self": "center"
+              alignSelf: "center",
+              justifySelf: "center"
             }}
           >
             <div className="switchWrapper">
@@ -119,10 +121,10 @@ class Legend extends Component {
               gridColumnEnd: 4,
               gridRowStart: 1,
               gridRowEnd: "span 2",
-              "align-self": "center",
-              "justify-self": "center",
-              "font-weight": !treeThreatType ? "bold" : "normal",
-              "font-size": "larger",
+              alignSelf: "center",
+              justifySelf: "center",
+              fontWeight: !treeThreatType ? "bold" : "normal",
+              fontSize: "larger",
               opacity: treeThreatType ? 0.5 : 1.0
             }}
           >
@@ -142,7 +144,8 @@ class Legend extends Component {
               <a
                 href="https://www.iucnredlist.org/about/regional"
                 target="_blank"
-                style={{ "text-decoration": "none" }}
+                style={{ textDecoration: "none" }}
+                rel="noreferrer"
               >
                 <div className="infoI">i</div>
               </a>
@@ -159,6 +162,7 @@ class Legend extends Component {
                 display: "inline-block",
                 minWidth: width,
                 height: "20px",
+                lineHeight: "20px",
                 backgroundColor: iucnAssessment.get(e).getColor(),
                 color: iucnAssessment.get(e).getForegroundColor(),
                 textAlign: "center"
@@ -196,6 +200,7 @@ class Legend extends Component {
                 display: "inline-block",
                 minWidth: width,
                 height: "20px",
+                lineHeight: "20px",
                 backgroundColor: bgciAssessment.get(e).getColor(),
                 color: bgciAssessment.get(e).getForegroundColor(),
                 textAlign: "center"
@@ -211,7 +216,8 @@ class Legend extends Component {
               <a
                 href="https://www.bgci.org/resources/bgci-databases/threatsearch/"
                 target="_blank"
-                style={{ "text-decoration": "none" }}
+                style={{ textDecoration: "none" }}
+                rel="noreferrer"
               >
                 <div className="infoI">i</div>
               </a>

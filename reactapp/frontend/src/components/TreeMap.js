@@ -37,7 +37,7 @@ class TreeMap extends Component {
   componentDidUpdate(newProps) {
     if (
       this.props.kingdom !== newProps.kingdom ||
-      this.props.familie !== newProps.familia ||
+      this.props.familia !== newProps.familia ||
       this.props.genus !== newProps.genus ||
       this.props.species !== newProps.species ||
       JSON.stringify(this.props.data) !== JSON.stringify(newProps.data)
@@ -84,8 +84,21 @@ class TreeMap extends Component {
   }
 
   render() {
+    let border = "1px solid gray";
+    if (
+      this.props.kingdom ||
+      this.props.genus ||
+      this.props.species ||
+      this.props.familia
+    ) {
+      border = "3px solid var(--highlightpurple)";
+    }
+
     return (
-      <div id={this.state.id} style={{ display: "inline-block" }}>
+      <div
+        id={this.state.id}
+        style={{ display: "inline-block", border: border }}
+      >
         <div
           className="treeMapHeader"
           style={{
@@ -107,8 +120,8 @@ class TreeMap extends Component {
               gridColumnEnd: 1,
               gridRowStart: 1,
               gridRowEnd: "span 2",
-              "align-self": "center",
-              "justify-self": "center"
+              alignSelf: "center",
+              justifySelf: "center"
             }}
           >
             <svg height="25" width="55"></svg>
@@ -138,7 +151,13 @@ class TreeMap extends Component {
                   }}
                 >
                   <div>{e.key}</div>
-                  <div style={{ fontWeight: "bold", whiteSpace: "nowrap" }}>
+                  <div
+                    style={{
+                      fontWeight: "bold",
+                      whiteSpace: "nowrap",
+                      fontStyle: "italic"
+                    }}
+                  >
                     {e.value}
                   </div>
                 </div>

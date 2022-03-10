@@ -54,8 +54,7 @@ class TimelineView extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (JSON.stringify(prevProps) !== JSON.stringify(this.props)) {
-      //console.log("update timeline");
+    if (JSON.stringify(prevProps.data) !== JSON.stringify(this.props.data)) {
       this.create();
     }
 

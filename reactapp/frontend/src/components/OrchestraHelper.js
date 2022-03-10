@@ -14,8 +14,6 @@ import {
 
 class D3Orchestra {
   constructor(param) {
-    console.log("DRAW", param);
-
     this.id = param.id;
     this.instrumentGroup = param.instrumentGroup;
     this.instrument = param.instrument;

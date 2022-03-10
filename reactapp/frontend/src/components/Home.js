@@ -258,7 +258,7 @@ class Home extends Component {
 
   getMainParts(instrument) {
     let setMainPartList = this.setMainPartList.bind(this);
-    fetch("http://localhost:9000/api/getMainParts/" + instrument)
+    fetch("/api/getMainParts/" + instrument)
       .then((res) => res.json())
       .then(function (data) {
         let options = ["All"];
@@ -579,7 +579,7 @@ class Home extends Component {
   }
 
   createSpeciesTable() {
-    fetch("http://localhost:9000/api/getAllMaterials")
+    fetch("/api/getAllMaterials")
       .then((res) => res.json())
       .then((data) => {
         let speciesTable = {};
@@ -630,10 +630,9 @@ class Home extends Component {
       this.state.instrument === "Test (all)" ||
       this.state.instrumentGroup === undefined
     ) {
-      url = "http://localhost:9000/api/getAllMaterials";
+      url = "/api/getAllMaterials";
     } else {
-      url =
-        "http://localhost:9000/api/getMaterial/" + this.state.instrumentGroup;
+      url = "/api/getMaterial/" + this.state.instrumentGroup;
       if (this.state.instrument !== "") {
         url += "/" + this.state.instrument;
       }
@@ -643,8 +642,8 @@ class Home extends Component {
       }
     }
 
-    //fetch("http://localhost:9000/api/getMaterial/" + this.state.instrument + "/" + this.state.mainPart)
-    //fetch("http://localhost:9000/api/getTestMaterial")
+    //fetch("/api/getMaterial/" + this.state.instrument + "/" + this.state.mainPart)
+    //fetch("/api/getTestMaterial")
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
@@ -910,7 +909,7 @@ class Home extends Component {
       let speciesKeys = Object.values(speciesObject).map(
         (entry) => entry.speciesKey
       );
-      fetch("http://localhost:9000/api/getTreeOccurrences/species", {
+      fetch("/api/getTreeOccurrences/species", {
         body: JSON.stringify(speciesKeys),
         method: "POST",
         headers: {
@@ -924,7 +923,7 @@ class Home extends Component {
           callback(data);
         });
     } else {
-      fetch("http://localhost:9000/api/getTreeOccurrences/genus/" + species)
+      fetch("/api/getTreeOccurrences/genus/" + species)
         .then((res) => {
           return res.json();
         })
@@ -984,7 +983,7 @@ class Home extends Component {
 
   saveSpeciesSignThreatsToDB(genus, species, signThreats, index) {
     setTimeout(() => {
-      fetch("http://localhost:9000/api/saveThreatSignToDB", {
+      fetch("/api/saveThreatSignToDB", {
         body: JSON.stringify({ genus, species, signThreats }),
         method: "PUT",
         headers: {
@@ -1228,6 +1227,7 @@ class Home extends Component {
           value.speciesCountries.hasOwnProperty(key)
         ) {
           let countries = value.speciesCountries[key];
+          console.log("countries", countries);
           hit = filter["country"].some((item) =>
             value.speciesCountries[key].includes(item)
           );
@@ -1400,8 +1400,8 @@ class Home extends Component {
                 gridColumnEnd: 2,
                 gridRowStart: 1,
                 gridRowEnd: 1,
-                "align-self": "center",
-                "justify-self": "center"
+                alignSelf: "center",
+                justifySelf: "center"
               }}
             >
               <div className="middlePieChart" style={{ position: "relative" }}>

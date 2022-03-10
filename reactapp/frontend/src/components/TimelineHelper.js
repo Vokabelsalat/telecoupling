@@ -23,6 +23,7 @@ import {
   bgciAssessment
 } from "../utils/timelineUtils";
 import { scaleLinear, stackOffsetNone } from "d3";
+import { sliderBottom, sliderTop } from "d3-simple-slider";
 
 class D3Timeline {
   constructor(param) {
@@ -323,146 +324,117 @@ class D3Timeline {
       .style("border-top", "1px solid var(--black)");
 
     if (this.id.toLowerCase().includes("scale")) {
-      if (this.speciesName === "scaleTop") {
+      /* if (this.speciesName === "scaleTop") {
         speciesNameDiv.style("border-top", "none");
         this.wrapper
           .style("border-bottom", "1px solid black")
           .style("border-top", "none");
+      } */
+      speciesNameDiv.remove();
+      if (this.speciesName === "scaleTop") {
+        this.wrapper.style("border", "none");
       }
     } else {
       let speciesNameSVG = speciesNameDiv
         .append("svg")
-        .attr("width", 20)
-        .attr("height", 20);
+        .attr("width", 24)
+        .attr("height", 24);
 
       let citesThreat = "DD";
       let iucnThreat = "DD";
       let iucnColor = getIucnColor("DD");
       if (typeof this.getSpeciesSignThreats == "function") {
-        let speciesSignThreats = this.getSpeciesSignThreats(this.speciesName);
+        let getTreeThreatLevel = this.getTreeThreatLevel.bind(this);
+        let speciesName = this.speciesName;
 
-        citesThreat = speciesSignThreats["cites"];
-        iucnThreat = speciesSignThreats["iucn"];
-        let threatThreat = speciesSignThreats["threat"];
+        if (this.data.Kingdom === "Animalia") {
+          d3.svg("/animalIcon.svg").then(function (xml) {
+            let icon = speciesNameSVG.node().appendChild(xml.documentElement);
+            d3.select(icon).attr("width", 24).attr("height", 18).attr("y", 2.5);
 
-        /*  let iucnScoreVal = iucnScore(iucnThreat);
-                 let threatScoreVal = threatScore(threatThreat);
- 
-                 if (iucnScoreVal > threatScoreVal) {
-                     iucnColor = getIucnColor(iucnThreat);
-                     iucnThreat = iucnThreat;
-                 }
-                 else if (threatScoreVal > iucnScoreVal) {
-                     iucnColor = dangerColorMap[threatThreat]["bg"];
-                     iucnThreat = threatThreat;
-                 }
-                 else {
-                     iucnColor = getIucnColor(iucnThreat);
-                     iucnThreat = iucnThreat;
-                 } */
+            let iucnThreat = getTreeThreatLevel(speciesName, "ecologically");
+            let citesThreat = getTreeThreatLevel(speciesName, "economically");
 
-        iucnThreat = this.getTreeThreatLevel(this.speciesName, "ecologically");
+            d3.select(icon)
+              .select(".left")
+              .select("path")
+              .attr("class", "leftPath")
+              .style("fill", citesThreat.getColor());
+            d3.select(icon)
+              .select(".right")
+              .select("path")
+              .attr("class", "rightPath")
+              .style("fill", iucnThreat.getColor());
+          });
+        } else {
+          d3.svg("/plantIcon2.svg").then(function (xml) {
+            let icon = speciesNameSVG.node().appendChild(xml.documentElement);
+            d3.select(icon).attr("width", 24).attr("height", 18).attr("y", 2.5);
 
-        iucnColor = iucnThreat.getColor();
-        /* iucnThreat = iucnScoreReverse(Math.max(iucnScore(iucnThreat), threatScore(threatThreat))); */
-      }
+            let iucnThreat = getTreeThreatLevel(speciesName, "ecologically");
+            let citesThreat = getTreeThreatLevel(speciesName, "economically");
 
-      /*          this.citesSign = speciesNameSVG.append("path")
-                         .attr("transform", "translate(10,10)")
-                         .attr("d", d3.arc()
-                             .innerRadius(0)
-                             .outerRadius(5)
-                             .startAngle(3.14)     // It's in radian, so Pi = 3.14 = bottom.
-                             .endAngle(6.28)       // 2*Pi = 6.28 = top
-                         )
-                         .attr('fill', getCitesColor(citesThreat)); */
+            d3.select(icon)
+              .select(".left")
+              .select("path")
+              .attr("class", "leftPath")
+              .style("fill", citesThreat.getColor());
+            d3.select(icon)
+              .select(".right")
+              .select("path")
+              .attr("class", "rightPath")
+              .style("fill", iucnThreat.getColor());
+          });
+        }
 
-      /*  this.iucnSign = speciesNameSVG.append("path")
-                 .attr("transform", "translate(10,10)")
-                 .attr("d", d3.arc()
-                     .innerRadius(0)
-                     .outerRadius(5)
-                     .startAngle(-3.14)     // It's in radian, so Pi = 3.14 = bottom.
-                     .endAngle(-6.28)       // 2*Pi = 6.28 = top
-                 )
-                 .attr('fill', iucnColor); */
+        speciesNameDiv
+          .append("text")
+          .text(this.speciesName)
+          .style("cursor", "pointer")
+          .style("font-style", this.justGenus ? "" : "italic")
+          .style("font-size", 15 + "px")
+          .style("line-height", 24 + "px")
+          /* .style("font-weight", this.justGenus ? "bold" : "") */
+          .on("click", () => {
+            if (this.zoomLevel === 0) {
+              this.addSpeciesToMap(this.speciesName);
+              this.setZoomLevel(2);
+            } else {
+              this.removeSpeciesFromMap(this.speciesName);
+              this.setZoomLevel(0);
+            }
+          });
 
-      if (this.data.Kingdom === "Animalia") {
-        d3.svg("/animalIcon.svg").then(function (xml) {
-          let icon = speciesNameSVG.node().appendChild(xml.documentElement);
-          d3.select(icon).attr("width", 20).attr("height", 15).attr("y", 2.5);
-
-          d3.select(icon)
-            .select(".left")
-            .select("path")
-            .style("fill", citesAssessment.get(citesThreat).getColor());
-          d3.select(icon)
-            .select(".right")
-            .select("path")
-            .style("fill", iucnColor);
-        });
-      } else {
-        d3.svg("/plantIcon2.svg").then(function (xml) {
-          let icon = speciesNameSVG.node().appendChild(xml.documentElement);
-          d3.select(icon).attr("width", 20).attr("height", 15).attr("y", 2.5);
-
-          d3.select(icon)
-            .select(".left")
-            .select("path")
-            .style("fill", citesAssessment.get(citesThreat).getColor());
-          d3.select(icon)
-            .select(".right")
-            .select("path")
-            .style("fill", iucnColor);
-        });
-      }
-
-      speciesNameDiv
-        .append("text")
-        .text(this.speciesName)
-        .style("cursor", "pointer")
-        .style("font-style", this.justGenus ? "" : "italic")
-        .style("font-size", 10 + "px")
-        /* .style("font-weight", this.justGenus ? "bold" : "") */
-        .on("click", () => {
-          if (this.zoomLevel === 0) {
-            this.addSpeciesToMap(this.speciesName);
-            this.setZoomLevel(2);
-          } else {
-            this.removeSpeciesFromMap(this.speciesName);
-            this.setZoomLevel(0);
-          }
-        });
-
-      speciesNameDiv
-        .on("mouseover", () => {
-          this.setHover([this.speciesName]);
-        })
-        .on("mouseout", () => {
-          this.setHover([]);
-        });
-
-      if (this.speciesImageLinks[this.speciesName]) {
-        //let imageWidth = this.zoomLevel > 0 ? this.margin.left / 3 : 2 * this.margin.left / 3;
-        let imageWidth = (2 * this.margin.left) / 3;
-        this.wrapper
-          .append("div")
-          .attr("class", "speciesImageWrapper")
-          .style("width", imageWidth + "px")
-          .style("height", "-webkit-fill-available")
-          .style("position", "absolute")
-          .style("left", 0)
-          .style("top", 0)
-          .style(
-            "background-image",
-            "url(" + this.speciesImageLinks[this.speciesName] + ")"
-          )
+        speciesNameDiv
           .on("mouseover", () => {
             this.setHover([this.speciesName]);
           })
           .on("mouseout", () => {
             this.setHover([]);
           });
+
+        if (this.speciesImageLinks[this.speciesName]) {
+          //let imageWidth = this.zoomLevel > 0 ? this.margin.left / 3 : 2 * this.margin.left / 3;
+          let imageWidth = (2 * this.margin.left) / 3;
+          this.wrapper
+            .append("div")
+            .attr("class", "speciesImageWrapper")
+            .style("width", imageWidth + "px")
+            .style("height", "-webkit-fill-available")
+            .style("position", "absolute")
+            .style("left", 0)
+            .style("top", 0)
+            .style(
+              "background-image",
+              "url(" + this.speciesImageLinks[this.speciesName] + ")"
+            )
+            .on("mouseover", () => {
+              this.setHover([this.speciesName]);
+            })
+            .on("mouseout", () => {
+              this.setHover([]);
+            });
+        }
       }
     }
   }
@@ -819,7 +791,7 @@ class D3Timeline {
       )
       .style("text-anchor", "end")
       .style("dominant-baseline", "central")
-      .style("font-size", "9")
+      .style("font-size", "12px")
       .text(this.justGenus && this.zoomLevel > 0 ? this.speciesName : "CITES");
 
     //let radius = (height - y(1)) / 2;
@@ -1253,7 +1225,7 @@ class D3Timeline {
             ")"
         )
         .style("dominant-baseline", "central")
-        .style("font-size", "9")
+        .style("font-size", "12px")
         .style("text-anchor", "end")
         .text("CITES");
     }
@@ -1913,7 +1885,7 @@ class D3Timeline {
     g.append("text")
       .attr("transform", "translate(-" + 5 + "," + svgHeight / 2 + ")")
       .style("dominant-baseline", "central")
-      .style("font-size", "9")
+      .style("font-size", "12px")
       .style("text-anchor", "end")
       .text("CITES");
 
@@ -2413,7 +2385,7 @@ class D3Timeline {
       )
       .style("text-anchor", "end")
       .style("dominant-baseline", "central")
-      .style("font-size", "9")
+      .style("font-size", "12px")
       .text("IUCN");
 
     //let radius = (height - y(1)) / 2;
@@ -2844,7 +2816,7 @@ class D3Timeline {
         "translate(-" + this.margin.left + "," + svgHeight / 2 + ")"
       )
       .style("dominant-baseline", "central")
-      .style("font-size", "9")
+      .style("font-size", "12px")
       .text("IUCN");
 
     let rect = g
@@ -2930,7 +2902,7 @@ class D3Timeline {
         .append("text")
         .style("text-anchor", "end")
         .style("dominant-baseline", "central")
-        .style("font-size", "9")
+        .style("font-size", "12px")
         .style("font-style", (d) => "italic")
         .attr("transform", (d) => {
           let rowNum = 0;
@@ -3061,7 +3033,6 @@ class D3Timeline {
           switch (d.type) {
             case "iucn":
               return "gray";
-              break;
             default:
               break;
           }
@@ -3070,7 +3041,6 @@ class D3Timeline {
           switch (d.type) {
             case "iucn":
               return 1;
-              break;
             default:
               break;
           }
@@ -3179,7 +3149,7 @@ class D3Timeline {
       .attr("transform", "translate(-" + 5 + "," + svgHeight / 2 + ")")
       .style("text-anchor", "end")
       .style("dominant-baseline", "central")
-      .style("font-size", "9")
+      .style("font-size", "12px")
       .text("IUCN");
 
     let rect = g
@@ -3498,7 +3468,7 @@ class D3Timeline {
       .attr("transform", "translate(-" + 5 + "," + svgHeight / 2 + ")")
       .style("text-anchor", "end")
       .style("dominant-baseline", "central")
-      .style("font-size", "9")
+      .style("font-size", "12px")
       .text("BGCI");
 
     /* if (this.groupSame && keyData.length > 1) {
@@ -4169,12 +4139,9 @@ class D3Timeline {
         return barScale(d[0][0]) - barScale(d[0][1]);
       })
       .attr("x", 2)
-      .attr(
-        "y",
-        function (d) {
-          return barScale(d[0][1]);
-        }.bind(this)
-      )
+      .attr("y", function (d) {
+        return barScale(d[0][1]);
+      })
       .attr("fill", function (d) {
         return dangerColorMap[d.key].bg;
       })
@@ -4313,15 +4280,11 @@ class D3Timeline {
      
         let tmpMinYear = Math.floor(this.domainYears.minYear / 10) * 10; */
 
-    let xDomain = Array(yearDiff + 1)
+    this.xDomain = Array(yearDiff + 1)
       .fill()
       .map((_, i) => this.domainYears.minYear - 1 + i + 1);
 
-    this.x = d3
-      .scaleBand()
-      .domain(xDomain)
-      .rangeRound([0, this.width])
-      .padding(0.1);
+    this.x = d3.scaleBand().domain(this.xDomain).rangeRound([0, this.width]);
 
     this.y = d3.scaleLinear().rangeRound([this.height, 0]);
 
@@ -4435,25 +4398,80 @@ class D3Timeline {
         this.appendGrayBox(this.timeFrame[1]);
       }
     } else if (this.id.includes("scale")) {
-      let svgScale = this.wrapper
-        .append("svg")
-        .attr("id", this.id + "Scale")
-        .attr("width", this.initWidth)
-        .attr("height", "40px")
-        .style("display", "block");
+      var dataTime = d3
+        .range(this.domainYears.minYear, this.domainYears.maxYear + 1)
+        .map(function (d) {
+          return new Date(d, 1, 1);
+        });
 
-      let top = 10;
+      let year2year = d3
+        .scaleTime()
+        .domain([
+          new Date(this.domainYears.minYear, 1, 1),
+          new Date(this.domainYears.maxYear, 1, 1)
+        ])
+        .range([0, this.width - this.x.bandwidth()]);
+
+      var sliderTime;
+
+      let top = -7;
 
       this.ticks = this.domainYears.maxYear - this.domainYears.minYear;
 
       let axis = d3.axisBottom(this.x);
 
       if (this.speciesName === "scaleTop") {
-        top = 25;
-        axis = d3.axisTop(this.x);
+        top = 40;
+        /* axis = d3.axisTop(this.x); */
+        sliderTime = sliderTop(year2year)
+          .step(1000 * 60 * 60 * 24 * 365)
+          .tickFormat(d3.timeFormat("%Y"))
+          .tickValues(dataTime)
+          .default(
+            new Date(
+              this.timeFrame[1] ? this.timeFrame[1] : this.domainYears.maxYear,
+              1,
+              1
+            )
+          )
+          .on("onchange", (val) => {
+            this.setTimeFrame([this.domainYears.minYear, val.getFullYear()]);
+          });
+      } else {
+        sliderTime = sliderBottom(year2year)
+          .step(1000 * 60 * 60 * 24 * 365)
+          .tickFormat(d3.timeFormat("%Y"))
+          .tickValues(dataTime)
+          .default(
+            new Date(
+              this.timeFrame[1] ? this.timeFrame[1] : this.domainYears.maxYear,
+              1,
+              1
+            )
+          );
       }
 
-      let g = svgScale
+      const sliderGroup = this.wrapper
+        .append("svg")
+        .attr("width", this.initWidth)
+        .attr("height", 50)
+        .append("g")
+        .attr(
+          "transform",
+          "translate(" +
+            (this.margin.left + this.x.bandwidth() / 2) +
+            "," +
+            top +
+            ")"
+        );
+
+      sliderGroup.call(sliderTime);
+
+      if (this.speciesName === "scaleBottom") {
+        sliderGroup.select(".slider").remove();
+      }
+
+      /* let g = svgScale
         .append("g")
         .attr("transform", "translate(" + this.margin.left + "," + top + ")");
 
@@ -4499,12 +4517,13 @@ class D3Timeline {
       svgScale.selectAll(".tick").on("click", (e) => {
         this.setTimeFrame([this.domainYears.minYear, e]);
       });
+      */
 
       // Delete every second tick text
       let contentWidth = this.width;
       while (contentWidth < this.ticks * 25) {
-        svgScale
-          .selectAll(".axisTicks")
+        this.wrapper
+          .selectAll(".tick > text")
           .select(function (e, i) {
             return i % 2 !== 0 ? this : null;
           })
