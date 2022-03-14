@@ -380,8 +380,8 @@ class D3BarChart {
       })
       .append("xhtml:div")
       .attr("class", "nodeIconContainerDiv")
-      .style("width", "25px")
-      .style("height", "25px")
+      .style("width", "20px")
+      .style("height", "20px")
       .style("left", "5px")
       .style("bottom", "5px")
       .style("background-color", "rgba(41,49,51,0.7)")
@@ -403,8 +403,8 @@ class D3BarChart {
         d3.svg("/animalIcon.svg").then(function (xml) {
           let icon = node.node().appendChild(xml.documentElement);
           d3.select(icon)
-            .attr("width", 22)
-            .attr("height", 21)
+            .attr("width", 18)
+            .attr("height", 17)
             .style("margin-top", "1.5px")
             .style("margin-left", "1.5px");
 
@@ -418,8 +418,8 @@ class D3BarChart {
         d3.svg("/plantIcon2.svg").then(function (xml) {
           let icon = node.node().appendChild(xml.documentElement);
           d3.select(icon)
-            .attr("width", 22)
-            .attr("height", 21)
+            .attr("width", 18)
+            .attr("height", 17)
             .style("margin-top", "1.5px")
             .style("margin-left", "1.5px");
 
@@ -498,6 +498,16 @@ class D3BarChart {
       .style("font-weight", "bold")
       .style("font-style", "italic")
       .text((d) => d);
+
+    nodeContainers
+      .filter((e) => e.data.dummylink)
+      .append("div")
+      .style("width", "100%")
+      .style("height", "100%")
+      .style("position", "absolute")
+      .style("top", "0")
+      .style("left", "0")
+      .style("background-color", "rgba(128,128,128,0.26)");
 
     d3.select("#treeMapBackButtonWrapper > svg > *").remove();
 
@@ -603,6 +613,8 @@ class D3BarChart {
   searchForImage(elements) {
     if (elements.data.link) {
       return elements.data.link;
+    } else if (elements.data.dummylink) {
+      return elements.data.dummylink;
     } else if (elements.children) {
       return this.searchForImage(
         elements.children.sort((a, b) => {

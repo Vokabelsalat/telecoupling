@@ -50,7 +50,7 @@ class Home extends Component {
     this.usePreGenerated = true;
     this.renderMap = true;
     this.renderTreeMap = true;
-    this.slice = true;
+    this.slice = false;
 
     this.tempSpeciesData = {};
     this.tempFetchedSpecies = [];
@@ -384,10 +384,14 @@ class Home extends Component {
 
     let returnImageLink = (speciesObj) => {
       if (speciesObj["Foto assigment"] !== "") {
-        let photos = speciesObj["Foto assigment"].split("|");
+        let splitter = "|";
+        if (speciesObj["Foto assigment"].includes(",")) {
+          splitter = ",";
+        }
+        let photos = speciesObj["Foto assigment"].split(splitter);
         if (photos.length > 0) {
           if (speciesObj["Family"] === "Balaenidae") {
-            return "fotos/" + photos[1];
+            return "fotos/" + photos[1].trim();
           }
           return "fotos/" + photos[0].replace(" ", "");
         }
@@ -426,6 +430,12 @@ class Home extends Component {
             valueObject["link"] = returnImageLink(
               this.state.speciesData[value]
             );
+
+            valueObject["dummylink"] =
+              this.state.speciesData[value]["Foto dummy"].trim() !== ""
+                ? "fotos/" +
+                  this.state.speciesData[value]["Foto dummy"].replace(" ", "")
+                : null;
 
             //if (valueObject["link"] !== null) {
             sum += valueObject[value];
@@ -1636,7 +1646,7 @@ class Home extends Component {
                                 this.getDiverstiyAttributeSelectOptions()
                             }
                         </select> */}
-            {/*  {
+            {/* {
               <button
                 onClick={(event) => {
                   this.save();
