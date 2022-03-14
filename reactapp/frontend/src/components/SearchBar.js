@@ -19,7 +19,10 @@ class SearchBar extends Component {
     this.state = {
       id: "SearchBar",
       data: this.props.data,
-      value: "",
+      kingdom: this.props.kingdom,
+      familia: this.props.familia,
+      species: this.props.species,
+      genus: this.props.genus,
       setFilter: this.props.setFilter
     };
   }
@@ -30,22 +33,58 @@ class SearchBar extends Component {
     if (JSON.stringify(prevProps.data) !== JSON.stringify(this.props.data)) {
       this.setState({ data: this.props.data });
     }
+    if (
+      JSON.stringify(prevProps.kingdom) !== JSON.stringify(this.props.kingdom)
+    ) {
+      this.setState({ kingdom: this.props.kingdom });
+    }
+    if (
+      JSON.stringify(prevProps.familia) !== JSON.stringify(this.props.familia)
+    ) {
+      this.setState({ familia: this.props.familia });
+    }
+    if (JSON.stringify(prevProps.genus) !== JSON.stringify(this.props.genus)) {
+      this.setState({ genus: this.props.genus });
+    }
+    if (
+      JSON.stringify(prevProps.species) !== JSON.stringify(this.props.species)
+    ) {
+      this.setState({ species: this.props.species });
+    }
   }
 
   setValue(val) {
-    console.log(val);
     this.state.setFilter({
       searchBarSpecies: val ? val.title : null,
-      kingdom: [val.kingdom],
-      familia: [val.family],
-      genus: [val.genus],
-      species: val.species ? [val.species] : null
+      kingdom: val ? [val.kingdom] : null,
+      familia: val ? [val.family] : null,
+      genus: val ? [val.genus] : null,
+      species: val ? (val.species ? [val.species] : null) : null
     });
     this.setState({ value: val });
   }
 
   render() {
-    let value = this.state.value;
+    let value = this.state.species
+      ? {
+          title: this.state.species,
+          type: "species",
+          kingdom: this.state.kingdom,
+          family: this.state.familia,
+          genus: this.state.genus,
+          species: this.state.species
+        }
+      : this.state.genus
+      ? {
+          title: this.state.genus,
+          type: "genus",
+          kingdom: this.state.kingdom,
+          family: this.state.familia,
+          genus: this.state.genus,
+          species: null
+        }
+      : null;
+
     let setValue = this.setValue.bind(this);
     let data = this.state.data;
     let options = [];
@@ -127,7 +166,7 @@ class SearchBar extends Component {
           <TextField
             {...params}
             className={value ? "filterUsed" : ""}
-            label="Search"
+            label="Species Search"
           />
         )}
         style={{ display: "table-cell", verticalAlign: "middle" }}

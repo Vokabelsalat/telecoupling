@@ -11,6 +11,7 @@ import {
   serializeXmlNode,
   pushOrCreateWithoutDuplicates
 } from "./../utils/utils";
+import { tooltipClasses } from "@mui/material";
 
 var colorsys = require("colorsys");
 
@@ -38,7 +39,9 @@ class MapHelper {
     initWidth,
     setDiversityScale,
     treeThreatType,
-    setFilter
+    setFilter,
+    colorBlind,
+    setMapSearchBarData
   ) {
     this.id = id;
     this.initWidth = initWidth;
@@ -46,12 +49,14 @@ class MapHelper {
     this.getTreeThreatLevel = getTreeThreatLevel;
     this.treeThreatType = treeThreatType;
     this.setFilter = setFilter;
+    this.setMapSearchBarData = setMapSearchBarData;
 
     this.speciesCountries = null;
     this.highlightCountriesLayer = null;
 
     this.treeClusterCache = {};
     this.rmax = 25;
+    this.colorBlind = colorBlind;
 
     this.countriesToID = {};
 
@@ -113,33 +118,55 @@ class MapHelper {
     }
   }
 
-  setSelected(type, feature) {
+  setSelected(type, feature, external = false) {
     switch (type) {
       case "countries":
-        this.diversityCountries.eachLayer((layer) => {
-          if (feature.id === layer.feature.id) {
-            layer.feature.selected = true;
-            layer.setStyle({
-              weight: 2,
-              color: "var(--highlightpurple)"
-            });
-          } else {
-            layer.feature.selected = false;
-            layer.setStyle({
-              weight: 1,
-              color: "rgb(244,244,244)"
-            });
-          }
-        });
-        this.setFilter({ country: [feature.properties.ROMNAM] });
+        if (this.diversityCountries) {
+          this.diversityCountries.eachLayer((layer) => {
+            if (
+              feature &&
+              ((feature.properties.bgciName !== undefined &&
+                feature.properties.bgciName ===
+                  layer.feature.properties.bgciName) ||
+                feature.properties.ROMNAM === layer.feature.properties.ROMNAM ||
+                feature.properties.MAPLAB === layer.feature.properties.MAPLAB)
+            ) {
+              layer.feature.selected = true;
+              layer.setStyle({
+                weight: 2,
+                color: "var(--highlightpurple)"
+              });
+              layer.bringToFront();
+            } else {
+              layer.feature.selected = false;
+              layer.setStyle({
+                weight: 1,
+                color: "rgb(244,244,244)"
+              });
+            }
+          });
+        }
+        if (!external) {
+          this.setFilter({
+            country: [
+              {
+                bgciName: feature.properties.bgciName,
+                MAPLAB: feature.properties.MAPLAB,
+                ROMNAM: feature.properties.ROMNAM
+              }
+            ].filter((e) => e !== undefined)
+          });
+        }
         break;
-
       default:
         break;
     }
   }
 
   setUpEcoRegions() {
+    let tooltip = this.tooltip.bind(this);
+    let tooltipMove = this.tooltipMove.bind(this);
+
     fetch("/WWF_Terrestrial_Ecoregions2017-3.json")
       .then((res) => res.json())
       .then((data) => {
@@ -159,10 +186,13 @@ class MapHelper {
             if (feature.properties) {
               let biom = parseInt(feature.properties.BIOME) - 1;
               let popupText = feature.properties.ECO_NAME;
+
               if (biom < 14) {
                 popupText += "<br>Biome: " + biomes[biom];
               }
-              layer.bindPopup(popupText);
+              /* layer.bindPopup(popupText); */
+
+              feature.options = { popupText: popupText, type: "ecoregion" };
 
               let color = "rgba(255,255,255,0.0)";
 
@@ -179,7 +209,20 @@ class MapHelper {
               });
             }
           }
-        });
+        })
+          .on("mouseover", function (d) {
+            tooltip(d, true);
+            //boundHighlight(d.layer, true);
+          })
+          .on("mouseout", function (d) {
+            tooltip(d, false);
+            //boundHighlight(d.layer, false);
+          })
+          .on("mousemove", function (d) {
+            tooltipMove(d);
+            //boundHighlight(d.layer, true);
+          });
+
         this.ecoRegions = ecos;
 
         this.control.addOverlay(
@@ -192,14 +235,89 @@ class MapHelper {
       });
   }
 
+  tooltipMove(event) {
+    let tooltip = d3.select(".tooltip");
+    tooltip
+      .style("left", event.originalEvent.pageX + 25 + "px")
+      .style("top", event.originalEvent.pageY + 25 + "px");
+  }
+
+  getTooltip(layer) {
+    let text = "";
+    switch (layer.feature.options.type) {
+      case "country":
+        if (layer.feature.properties.hasOwnProperty("bgciName")) {
+          text = "<b>" + layer.feature.properties.bgciName + "</b>";
+        } else if (layer.feature.properties.hasOwnProperty("ROMNAM")) {
+          text = "<b>" + layer.feature.properties.ROMNAM + "</b>";
+        }
+
+        if (layer.feature.options.hasOwnProperty("species")) {
+          text += "<br>" + layer.feature.options.species.length + " Species";
+
+          if (layer.feature.options.species.length < 8) {
+            text += ": <br><i>";
+            text += layer.feature.options.species.join("<br>");
+          }
+        }
+        break;
+      case "hexagon":
+        if (layer.feature.options.hasOwnProperty("species")) {
+          text = layer.feature.options.species.length + " Species";
+
+          if (layer.feature.options.species.length < 8) {
+            text += ": <br>";
+            text += layer.feature.options.species.join("<br>");
+          }
+        }
+        break;
+      case "ecoregion":
+        if (layer.feature.options.hasOwnProperty("popupText")) {
+          text = "<b>" + layer.feature.options.popupText + "</b>";
+        }
+
+        if (layer.feature.options.hasOwnProperty("species")) {
+          text += "<br>" + layer.feature.options.species.length + " Species";
+
+          if (layer.feature.options.species.length < 8) {
+            text += ": <br>";
+            text += layer.feature.options.species.join("<br>");
+          }
+        }
+        break;
+      default:
+        break;
+    }
+
+    return text;
+  }
+
+  tooltip(event, highlight) {
+    let tooltip = d3.select(".tooltip");
+
+    if (highlight) {
+      tooltip
+        .html(this.getTooltip(event.layer))
+        .style("display", "block")
+        .style("left", event.originalEvent.pageX + 25 + "px")
+        .style("top", event.originalEvent.pageY + 25 + "px");
+    } else {
+      tooltip.style("display", "none");
+    }
+  }
+
   setUpCountries() {
     let boundHighlight = this.highlightPolygons.bind(this);
+    let tooltip = this.tooltip.bind(this);
+    let tooltipMove = this.tooltipMove.bind(this);
     let setSelected = this.setSelected.bind(this);
     let resetSelected = this.resetSelected.bind(this);
 
     fetch("/UN_Worldmap_FeaturesToJSON10percentCorrected.json")
       .then((res) => res.json())
       .then((data) => {
+        let mapSearchBarData = [];
+        let mapSearchBarDataKeys = [];
         this.diversityCountries = L.geoJson(data, {
           style: {
             fillOpacity: 0.65,
@@ -209,7 +327,7 @@ class MapHelper {
             if (feature.properties) {
               let popupText =
                 feature.properties.ROMNAM + "<br>" + feature.properties.MAPLAB;
-              layer.bindPopup(popupText);
+              /* layer.bindPopup(popupText); */
 
               let color = "rgb(0,0,0)";
 
@@ -218,15 +336,33 @@ class MapHelper {
                 color: color
               });
 
+              feature.options = { type: "country" };
               layer.options.polyID = feature.properties.ISO3CD;
+
+              if (!mapSearchBarDataKeys.includes(feature.properties.ISO3CD)) {
+                mapSearchBarData.push({
+                  type: "country",
+                  ROMNAM: feature.properties.ROMNAM,
+                  MAPLAB: feature.properties.MAPLAB,
+                  bgciName: feature.properties.bgciName,
+                  polyID: feature.properties.ISO3CD
+                });
+                mapSearchBarDataKeys.push(feature.properties.ISO3CD);
+              }
             }
           }
         })
           .on("mouseover", function (d) {
+            tooltip(d, true);
             boundHighlight(d.layer, true);
           })
           .on("mouseout", function (d) {
+            tooltip(d, false);
             boundHighlight(d.layer, false);
+          })
+          .on("mousemove", function (d) {
+            tooltipMove(d);
+            boundHighlight(d.layer, true);
           })
           .on("click", function (d) {
             if (d.layer.feature.selected) {
@@ -235,6 +371,8 @@ class MapHelper {
               setSelected("countries", d.layer.feature);
             }
           });
+
+        this.setMapSearchBarData(mapSearchBarData);
 
         this.highlightCountriesLayer = L.geoJson(data, {
           style: {
@@ -336,10 +474,10 @@ class MapHelper {
     );
     let iconDim = (r + strokeWidth) * 2; //...and divIcon dimensions (leaflet really want to know the size)
 
-    let cacheKey = data.reduce(
-      (prev, curr) => prev + (curr.key + curr.values.length),
-      ""
-    );
+    let colorBlind = this.colorBlind;
+    let cacheKey =
+      data.reduce((prev, curr) => prev + (curr.key + curr.values.length), "") +
+      colorBlind;
 
     let html;
     if (Object.keys(this.treeClusterCache).includes(cacheKey)) {
@@ -356,10 +494,10 @@ class MapHelper {
         pieClass: "cluster-pie",
         pieLabelClass: "marker-cluster-pie-label",
         strokeColor: function (d) {
-          return d.data.values[0].getColor();
+          return d.data.values[0].getColor(colorBlind);
         },
         color: function (d) {
-          return d.data.values[0].getColor();
+          return d.data.values[0].getColor(colorBlind);
         }
       });
 
@@ -579,11 +717,15 @@ class MapHelper {
           let val = a.length;
           let scaledIndex = getScaledIndex(val, scale);
 
+          feature.options.species = a;
+
           return {
-            color: "white",
+            color: feature.selected
+              ? "var(--highlightpurple)"
+              : "rgb(244,244,244)",
+            weight: feature.selected ? 2 : 1,
             stroke: 1,
             opacity: 1,
-            weight: 1,
             fillOpacity: 1,
             fillColor: scale[scaledIndex].scaleColor,
             fill: scale[scaledIndex].scaleColor
@@ -631,6 +773,7 @@ class MapHelper {
     }
 
     let maxCount = Math.max(...Object.values(heatMapData).map((e) => e.length));
+    let colorBlind = this.colorBlind;
 
     if (this.highlightCountriesLayer) {
       this.highlightCountriesLayer.eachLayer((layer) => {
@@ -677,13 +820,13 @@ class MapHelper {
                       return getTreeThreatLevel(
                         d.data,
                         treeThreatType
-                      ).getColor();
+                      ).getColor(colorBlind);
                     },
                     color: function (d) {
                       return getTreeThreatLevel(
                         d.data,
                         treeThreatType
-                      ).getColor();
+                      ).getColor(colorBlind);
                     }
                     /* pathClassFunc: function (d) { return "category-path category-" + d.data.key.replaceSpecialCharacters(); },
                                     pathTitleFunc: function (d) { return d.data.key + ' (' + d.data.values.length + ' accident' + (d.data.values.length != 1 ? 's' : '') + ')'; } */
@@ -760,6 +903,8 @@ class MapHelper {
           let val = heatMapData[feature.properties.ECO_ID.toString()].length;
           let scaledIndex = getScaledIndex(val, scale);
 
+          feature.options.species = a;
+
           return {
             color: "white",
             stroke: 1,
@@ -808,6 +953,8 @@ class MapHelper {
         }
       }
 
+      let colorBlind = this.colorBlind;
+
       let maxCount = Math.max(
         ...Object.values(heatMapData).map((e) => e.length)
       );
@@ -855,13 +1002,13 @@ class MapHelper {
                       return getTreeThreatLevel(
                         d.data,
                         treeThreatType
-                      ).getColor();
+                      ).getColor(colorBlind);
                     },
                     color: function (d) {
                       return getTreeThreatLevel(
                         d.data,
                         treeThreatType
-                      ).getColor();
+                      ).getColor(colorBlind);
                     }
                   }),
                   iconSize: new L.Point(iconDim, iconDim)
@@ -920,6 +1067,8 @@ class MapHelper {
         this.setDiversityScale(this.diversityColorScale);
 
         let getScaledIndex = this.getScaledIndex.bind(this);
+        let tooltip = this.tooltip.bind(this);
+        let tooltipMove = this.tooltipMove.bind(this);
 
         function calculateStlyle(feature) {
           if (
@@ -934,6 +1083,8 @@ class MapHelper {
             let maxKey = Object.keys(aCount).reduce((a, b) =>
               aCount[a] > aCount[b] ? a : b
             );
+
+            feature.options = { type: "hexagon", species: a };
 
             let val =
               heatMapData[feature.properties.HexagonID.toString()].length;
@@ -973,7 +1124,19 @@ class MapHelper {
               }
             },
             className: "hexagon"
-          });
+          })
+            .on("mouseover", function (d) {
+              tooltip(d, true);
+              //boundHighlight(d.layer, true);
+            })
+            .on("mouseout", function (d) {
+              tooltip(d, false);
+              //boundHighlight(d.layer, false);
+            })
+            .on("mousemove", function (d) {
+              tooltipMove(d);
+              //boundHighlight(d.layer, true);
+            });
 
           this.hexagons.clearLayers();
           hexas.eachLayer((feature) => {
@@ -1104,9 +1267,16 @@ class MapHelper {
     this.updateThreatPies();
   }
 
+  updateColorBlind(colorBlind) {
+    console.log("UPDATE COLOR!");
+    this.colorBlind = colorBlind;
+    this.updateThreatPies();
+  }
+
   updateThreatPies() {
     switch (this.activeLayer) {
       case "Hexagons":
+        this.updateThreatPiesEcoRegions();
         break;
       case "Countries":
         this.updateThreatPiesCountries();

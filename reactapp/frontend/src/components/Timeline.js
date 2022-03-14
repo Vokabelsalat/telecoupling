@@ -48,7 +48,9 @@ class Timeline extends Component {
       treeImageLinks: this.props.treeImageLinks,
       setHover: this.props.setHover,
       setTimeFrame: this.props.setTimeFrame,
-      timeFrame: this.props.timeFrame
+      timeFrame: this.props.timeFrame,
+      colorBlind: this.props.colorBlind,
+      setFilter: this.props.setFilter
     });
   }
 
@@ -57,7 +59,11 @@ class Timeline extends Component {
       (JSON.stringify(prevProps.timeFrame) !==
         JSON.stringify(this.props.timeFrame) &&
         !this.state.id.includes("scale")) ||
-      JSON.stringify(prevProps.data) !== JSON.stringify(this.props.data)
+      JSON.stringify(prevProps.colorBlind) !==
+        JSON.stringify(this.props.colorBlind) ||
+      JSON.stringify(prevProps.data) !== JSON.stringify(this.props.data) ||
+      JSON.stringify(prevProps.domainYears) !==
+        JSON.stringify(this.props.domainYears)
     ) {
       TimelineHelper.draw({
         id: this.state.id,
@@ -84,7 +90,9 @@ class Timeline extends Component {
         treeImageLinks: this.props.treeImageLinks,
         setHover: this.props.setHover,
         setTimeFrame: this.props.setTimeFrame,
-        timeFrame: this.props.timeFrame
+        timeFrame: this.props.timeFrame,
+        colorBlind: this.props.colorBlind,
+        setFilter: this.props.setFilter
       });
     }
   }

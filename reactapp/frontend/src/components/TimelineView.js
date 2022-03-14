@@ -58,6 +58,13 @@ class TimelineView extends Component {
       this.create();
     }
 
+    if (
+      JSON.stringify(prevProps.colorBlind) !==
+      JSON.stringify(this.props.colorBlind)
+    ) {
+      this.create();
+    }
+
     /*  let create = false;
          for (let species of Object.keys(this.props.data)) {
              if (!prevProps.data.hasOwnProperty(species)) {
@@ -231,12 +238,12 @@ class TimelineView extends Component {
           />
           <div
             style={{
-              maxHeight: window.innerHeight / 2 - 20 + "px",
+              maxHeight: window.innerHeight / 2 - 80 + "px",
               overflowY: "scroll",
-              marginRight: "30px"
+              marginRight: "30px",
+              width: "fit-content"
             }}
           >
-            {" "}
             {this.state.sortedKeys.map((e) => {
               return (
                 <Timeline
@@ -260,6 +267,8 @@ class TimelineView extends Component {
                   getTreeThreatLevel={this.props.getTreeThreatLevel}
                   addSpeciesToMap={this.props.addSpeciesToMap}
                   removeSpeciesFromMap={this.props.removeSpeciesFromMap}
+                  colorBlind={this.props.colorBlind}
+                  setFilter={this.props.setFilter}
                   muted={
                     Object.keys(this.state.unmutedSpecies).includes(e)
                       ? false
@@ -278,7 +287,7 @@ class TimelineView extends Component {
                   timeFrame={this.props.timeFrame}
                 />
               );
-            })}{" "}
+            })}
           </div>
           <Timeline
             id={"scaleBottom2"}

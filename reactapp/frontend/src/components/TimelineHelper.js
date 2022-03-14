@@ -37,6 +37,8 @@ class D3Timeline {
     this.maxPerYear = param.maxPerYear;
     this.justTrade = param.justTrade;
     this.justGenus = param.justGenus;
+    this.colorBlind = param.colorBlind;
+    this.setFilter = param.setFilter;
 
     this.pieStyle = param.pieStyle;
     this.groupSame = param.groupSame;
@@ -63,7 +65,7 @@ class D3Timeline {
 
     this.rowHeight = 20;
 
-    this.rightGroupWidth = 50;
+    this.rightGroupWidth = 15;
 
     this.setSpeciesSignThreats = param.setSpeciesSignThreats;
     this.getSpeciesSignThreats = param.getSpeciesSignThreats;
@@ -219,6 +221,8 @@ class D3Timeline {
       }
     ];
 
+    let colorBlind = this.colorBlind;
+
     if (this.groupSame && this.sortGrouped === "trend") {
       let trends = destination
         .selectAll("g myCircleText")
@@ -226,13 +230,13 @@ class D3Timeline {
         .enter()
         .append("g")
         .attr("transform", (d) => {
-          return "translate(" + 3 + ", " + 0 + ")";
+          return "translate(" + 0 + ", " + 0 + ")";
         });
 
       trends
         .append("rect")
         .attr("width", (d) => {
-          return 15 + "px";
+          return 14 + "px";
         })
         .attr("height", (d) => {
           return this.getRowHeight(genusLine) * d.length;
@@ -240,11 +244,11 @@ class D3Timeline {
         .style("fill", (d) => {
           switch (d.type) {
             case "Decreasing":
-              return "#d6000391";
+              return iucnAssessment.get("EX").getColor(colorBlind);
             case "Increasing":
-              return "#61c65970";
+              return iucnAssessment.get("LC").getColor(colorBlind);
             case "Stable":
-              return "#f9e81191";
+              return iucnAssessment.get("NT").getColor(colorBlind);
             case null:
               return "transparent";
             case "Unknown":
@@ -257,16 +261,16 @@ class D3Timeline {
 
       trends
         .append("text")
-        .attr("x", 15 / 2 - 5)
+        .attr("x", 12 / 2 - 5)
         .attr("y", (d) => {
           return (this.getRowHeight(genusLine) * d.length) / 2;
         })
         .attr("dy", ".25em")
         .style("font-size", (d) => {
-          if (d.type === "up" || d.type === "down") {
+          if (d.type === "Stable") {
             return "14px";
           } else {
-            return "12px";
+            return "18px";
           }
         })
         .html((d) => {
@@ -285,6 +289,24 @@ class D3Timeline {
               return "&#8658;";
           }
         });
+
+      destination
+        .style("cursor", "default")
+        .on("mouseenter", (d) =>
+          this.tooltipTrend(
+            { speciesName: this.speciesName, type: populationTrend },
+            d3.event,
+            true
+          )
+        )
+        .on("mouseleave", (d) =>
+          this.tooltipTrend(
+            { speciesName: this.speciesName, type: populationTrend },
+            d3.event,
+            false
+          )
+        )
+        .on("mousemove", () => this.tooltipMove(d3.event));
     }
   }
 
@@ -296,7 +318,6 @@ class D3Timeline {
 
   clearAndReset() {
     d3.selectAll("#" + this.id + " > *").remove();
-
     let content = d3.select("#" + this.id);
 
     if (this.muted) {
@@ -311,17 +332,26 @@ class D3Timeline {
     let speciesNameDiv = content
       .append("div")
       .attr("class", "speciesNameDiv")
-      .style("width", this.width + "px")
+      .style("width", "fit-content")
       /* .style("border-top", "1px solid var(--black)") */
-      .style("vertical-align", "middle");
+      .style("vertical-align", "middle")
+      .on("click", () => {
+        this.setFilter({
+          kingdom: [this.data.Kingdom],
+          familia: [this.data.Family],
+          genus: [this.data.Genus.trim()],
+          species: [this.speciesName]
+        });
+      })
+      .on("mouseenter", () => this.tooltip(this.speciesName, d3.event, true))
+      .on("mouseleave", () => this.tooltip(this.speciesName, d3.event, false))
+      .on("mousemove", () => this.tooltipMove(d3.event));
     /* .style("display", "table-cell"); */
 
     this.wrapper = content.append("div").attr("id", this.id + "wrapper");
 
-    this.wrapper
-      .style("display", "table-cell")
-      .style("position", "relative")
-      .style("border-top", "1px solid var(--black)");
+    this.wrapper.style("display", "table-cell").style("position", "relative");
+    //.style("border", "1px solid var(--black)");
 
     if (this.id.toLowerCase().includes("scale")) {
       /* if (this.speciesName === "scaleTop") {
@@ -333,6 +363,9 @@ class D3Timeline {
       speciesNameDiv.remove();
       if (this.speciesName === "scaleTop") {
         this.wrapper.style("border", "none");
+      }
+      if (this.speciesName === "scaleBottom") {
+        this.wrapper.style("border-top", "1px solid gray");
       }
     } else {
       let speciesNameSVG = speciesNameDiv
@@ -346,11 +379,16 @@ class D3Timeline {
       if (typeof this.getSpeciesSignThreats == "function") {
         let getTreeThreatLevel = this.getTreeThreatLevel.bind(this);
         let speciesName = this.speciesName;
+        let colorBlind = this.colorBlind;
 
         if (this.data.Kingdom === "Animalia") {
           d3.svg("/animalIcon.svg").then(function (xml) {
             let icon = speciesNameSVG.node().appendChild(xml.documentElement);
-            d3.select(icon).attr("width", 24).attr("height", 18).attr("y", 2.5);
+            d3.select(icon)
+              .attr("width", 24)
+              .attr("height", 18)
+              .attr("y", 2.5)
+              .attr("class", "iconSVG");
 
             let iucnThreat = getTreeThreatLevel(speciesName, "ecologically");
             let citesThreat = getTreeThreatLevel(speciesName, "economically");
@@ -359,17 +397,21 @@ class D3Timeline {
               .select(".left")
               .select("path")
               .attr("class", "leftPath")
-              .style("fill", citesThreat.getColor());
+              .style("fill", citesThreat.getColor(colorBlind));
             d3.select(icon)
               .select(".right")
               .select("path")
               .attr("class", "rightPath")
-              .style("fill", iucnThreat.getColor());
+              .style("fill", iucnThreat.getColor(colorBlind));
           });
         } else {
           d3.svg("/plantIcon2.svg").then(function (xml) {
             let icon = speciesNameSVG.node().appendChild(xml.documentElement);
-            d3.select(icon).attr("width", 24).attr("height", 18).attr("y", 2.5);
+            d3.select(icon)
+              .attr("width", 24)
+              .attr("height", 18)
+              .attr("y", 2.5)
+              .attr("class", "iconSVG");
 
             let iucnThreat = getTreeThreatLevel(speciesName, "ecologically");
             let citesThreat = getTreeThreatLevel(speciesName, "economically");
@@ -378,12 +420,12 @@ class D3Timeline {
               .select(".left")
               .select("path")
               .attr("class", "leftPath")
-              .style("fill", citesThreat.getColor());
+              .style("fill", citesThreat.getColor(colorBlind));
             d3.select(icon)
               .select(".right")
               .select("path")
               .attr("class", "rightPath")
-              .style("fill", iucnThreat.getColor());
+              .style("fill", iucnThreat.getColor(colorBlind));
           });
         }
 
@@ -393,9 +435,9 @@ class D3Timeline {
           .style("cursor", "pointer")
           .style("font-style", this.justGenus ? "" : "italic")
           .style("font-size", 15 + "px")
-          .style("line-height", 24 + "px")
-          /* .style("font-weight", this.justGenus ? "bold" : "") */
-          .on("click", () => {
+          .style("line-height", 24 + "px");
+        /* .style("font-weight", this.justGenus ? "bold" : "") */
+        /* .on("click", () => {
             if (this.zoomLevel === 0) {
               this.addSpeciesToMap(this.speciesName);
               this.setZoomLevel(2);
@@ -403,15 +445,15 @@ class D3Timeline {
               this.removeSpeciesFromMap(this.speciesName);
               this.setZoomLevel(0);
             }
-          });
+          }); */
 
-        speciesNameDiv
+        /* speciesNameDiv
           .on("mouseover", () => {
             this.setHover([this.speciesName]);
           })
           .on("mouseout", () => {
             this.setHover([]);
-          });
+          }); */
 
         if (this.speciesImageLinks[this.speciesName]) {
           //let imageWidth = this.zoomLevel > 0 ? this.margin.left / 3 : 2 * this.margin.left / 3;
@@ -424,16 +466,26 @@ class D3Timeline {
             .style("position", "absolute")
             .style("left", 0)
             .style("top", 0)
+            .style("cursor", "pointer")
             .style(
               "background-image",
               "url(" + this.speciesImageLinks[this.speciesName] + ")"
             )
-            .on("mouseover", () => {
-              this.setHover([this.speciesName]);
+            .on("click", () => {
+              this.setFilter({
+                kingdom: [this.data.Kingdom],
+                familia: [this.data.Family],
+                genus: [this.data.Genus.trim()],
+                species: [this.speciesName]
+              });
             })
-            .on("mouseout", () => {
-              this.setHover([]);
-            });
+            .on("mouseenter", () =>
+              this.tooltip(this.speciesName, d3.event, true)
+            )
+            .on("mouseleave", () =>
+              this.tooltip(this.speciesName, d3.event, false)
+            )
+            .on("mousemove", () => this.tooltipMove(d3.event));
         }
       }
     }
@@ -505,1003 +557,6 @@ class D3Timeline {
         .on("mouseover", this.mouseover)
         .on("mousemove", this.mousemove)
         .on("mouseleave", this.mouseleave);
-    }
-  }
-
-  appendCitesTrade(tradeData, groupedBySource) {
-    let svgCITESTrade = this.wrapper
-      .append("svg")
-      .attr("id", this.id + "Trade")
-      .attr("width", this.initWidth)
-      .attr("height", this.height)
-      .style("display", "block");
-
-    svgCITESTrade.style("display", "block");
-
-    let g = svgCITESTrade
-      .append("g")
-      .attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
-
-    g.append("path")
-      .datum(Object.values(tradeData))
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 1.5)
-      .attr(
-        "d",
-        d3
-          .line()
-          .x(
-            function (d) {
-              return this.x(d.year) + this.x.bandwidth() / 2;
-            }.bind(this)
-          )
-          .y(
-            function (d) {
-              return this.y(d.count);
-            }.bind(this)
-          )
-      );
-  }
-
-  appendCitesHeatMap(listingData) {
-    let listingHeatMap = {};
-
-    let speciesMap = {};
-
-    let yearCount = {};
-    for (let entry of listingData) {
-      let year = entry.year.toString();
-      let name = `${entry.genus} ${entry.species}`.trim();
-
-      pushOrCreate(speciesMap, name, entry);
-      pushOrCreate(yearCount, year, 1);
-      pushOrCreate(
-        getOrCreate(listingHeatMap, year, {}),
-        entry.appendix,
-        entry
-      );
-    }
-
-    let years = Object.keys(yearCount).map((e) => parseInt(e));
-    let maxYear = Math.max(...years);
-    let minYear = Math.min(...years);
-
-    let newListingHeatMap = {};
-
-    for (let species of Object.keys(speciesMap)) {
-      let yearData = {};
-      let lastState = null;
-      for (let entry of speciesMap[species]) {
-        pushOrCreate(yearData, entry.year, entry);
-      }
-
-      for (let year = minYear; year <= maxYear; year++) {
-        if (yearData.hasOwnProperty(year.toString())) {
-          //get the highest assesments if there are multiple in the same year for the same species
-          let highest = yearData[year.toString()].reduce(
-            (a, b) =>
-              citesAssessment.get(a.appendix).sort <
-              citesAssessment.get(b.appendix).sort
-                ? a.appendix
-                : b.appendix,
-            []
-          );
-
-          pushOrCreate(getOrCreate(newListingHeatMap, year, {}), highest, 1);
-          lastState = yearData[year.toString()][0].appendix;
-        } else if (lastState) {
-          pushOrCreate(getOrCreate(newListingHeatMap, year, {}), lastState, 1);
-        }
-      }
-    }
-
-    let heatMapData = [];
-    let maxKeyPrevious = null;
-    let maxValuePrevious = null;
-
-    let maxSpecies = Math.max(...Object.values(yearCount).map((e) => e.length));
-
-    let lastResult = 0;
-
-    for (let year of Object.keys(newListingHeatMap).sort(
-      (a, b) => parseInt(a) - parseInt(b)
-    )) {
-      let yearData = newListingHeatMap[year.toString()];
-      let push = true;
-      let countSum;
-
-      let tmp = {};
-      let maxKey, maxValue, opacity;
-
-      switch (this.heatStyle) {
-        /*                 case "dom":
-                                    maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
-                                    countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
-                                        return accumulator + yearData[currentValue].length;
-                                    }, 0);
-                                    maxValue = yearData[maxKey];
-                
-                                    if (maxKeyPrevious !== null) {
-                                        if (maxValue.length <= maxValuePrevious.length) {
-                                            maxKey = maxKeyPrevious;
-                                            maxValue = maxValuePrevious;
-                                            push = false;
-                                        }
-                                    }
-                
-                                    maxKeyPrevious = maxKey;
-                                    maxValuePrevious = maxValue;
-                
-                                    opacity = maxValue.length / maxSpecies;
-                                    break;
-                                case "avg":
-                
-                                    let scoreSum = Object.keys(yearData).reduce(((a, b) => a + yearData[b].length * citesScore(b)), 0);
-                                    countSum = Object.values(yearData).reduce((accumulator, currentValue) => {
-                                        return accumulator + currentValue.length;
-                                    }, 0);
-                
-                                    let avg = scoreSum / countSum;
-                
-                                    if (maxValuePrevious !== null) {
-                                        if (maxValuePrevious === avg) {
-                                            avg = maxValuePrevious;
-                                            push = false;
-                                        }
-                                    }
-                
-                                    let reverseScore = citesScoreReverse(avg);
-                
-                                    maxValuePrevious = avg;
-                
-                                    maxKey = reverseScore;
-                
-                                    opacity = countSum / maxSpecies;
-                                    break; */
-        case "max":
-          maxKey = Object.keys(yearData).reduce((a, b) =>
-            citesAssessment.get(a).sort < citesAssessment.get(b).sort ? a : b
-          );
-          countSum = Object.keys(yearData).reduce(
-            (accumulator, currentValue) => {
-              return accumulator + yearData[currentValue].length;
-            },
-            0
-          );
-          maxValue = yearData[maxKey];
-
-          if (maxKeyPrevious !== null) {
-            if (
-              maxValue.length === maxValuePrevious.length &&
-              maxKey === maxKeyPrevious
-            ) {
-              maxKey = maxKeyPrevious;
-              maxValue = maxValuePrevious;
-              push = false;
-            }
-          }
-
-          maxKeyPrevious = maxKey;
-          maxValuePrevious = maxValue;
-
-          opacity = yearData[maxKey].length / maxSpecies;
-        default:
-          break;
-      }
-
-      if (push) {
-        tmp = {
-          appendix: maxKey,
-          year: year,
-          sciName: this.speciesName + " (" + countSum + ")",
-          rank: "ALL",
-          text: maxKey,
-          type: "listingHistory",
-          opacity: 1.0
-        };
-
-        heatMapData.push(tmp);
-      }
-    }
-
-    lastResult = heatMapData
-      .filter((e) => {
-        if (this.timeFrame[1] !== undefined) {
-          return e.year >= this.timeFrame[1];
-        } else {
-          return e;
-        }
-      })
-      .sort((a, b) => parseInt(a.year) - parseInt(b.year));
-
-    lastResult = lastResult[lastResult.length - 1].appendix;
-
-    this.citesSignThreat = lastResult;
-
-    this.setSpeciesSignThreats(this.speciesName, "cites", this.citesSignThreat);
-
-    listingData = heatMapData;
-
-    let circleYearCountIUCN = {};
-
-    let rowHeight = this.rowHeight + 1;
-
-    let svgCITES = this.wrapper
-      .append("svg")
-      .attr("id", this.id + "Cites")
-      .attr("width", this.initWidth)
-      .attr("height", rowHeight)
-      .style("display", "block");
-
-    let maxCount = 0;
-
-    svgCITES.style("display", "block");
-
-    let g = svgCITES
-      .append("g")
-      .attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
-
-    let rect = g
-      .append("rect")
-      .attr("width", this.width)
-      .attr("height", (maxCount + 1) * rowHeight)
-      .attr("fill", "none")
-      .attr("stroke", "gray");
-    //.style("fill", "url(#mainGradient)")
-    /*.style("stroke", "black")*/
-    //.style("fill", "url(#myGradient)");
-
-    let elem = g.selectAll("g myCircleText").data(listingData);
-
-    let elemEnter = elem
-      .enter()
-      .append("g")
-      .attr("class", "noselect")
-      .attr(
-        "transform",
-        function (d) {
-          let count = this.yearCount(d.year, circleYearCountIUCN);
-          maxCount = Math.max(maxCount, count);
-          rect.attr("height", (maxCount + 1) * rowHeight);
-          svgCITES.attr("height", (maxCount + 1) * rowHeight);
-          return (
-            "translate(" +
-            (this.x(Number(d.year)) + this.x.bandwidth() / 2) +
-            "," +
-            rowHeight * count +
-            ")"
-          );
-        }.bind(this)
-      )
-      .attr(
-        "x",
-        function (d) {
-          return this.x(Number(d.year) + this.x.bandwidth() / 2);
-        }.bind(this)
-      )
-      .on("mouseover", this.mouseover)
-      .on("mousemove", this.mousemove)
-      .on("mouseleave", this.mouseleave);
-
-    g.append("text")
-      .attr(
-        "transform",
-        "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")"
-      )
-      .style("text-anchor", "end")
-      .style("dominant-baseline", "central")
-      .style("font-size", "12px")
-      .text(this.justGenus && this.zoomLevel > 0 ? this.speciesName : "CITES");
-
-    //let radius = (height - y(1)) / 2;
-
-    elemEnter
-      .append("rect")
-      .attr("class", "pinarea")
-      .attr("height", rowHeight - 2)
-      .attr("y", 1)
-      /* .attr("width", function (d) {
-              return width - x(Number(d.year));
-            }) */
-      .attr(
-        "width",
-        function (d) {
-          return this.width - this.x(Number(d.year));
-        }.bind(this)
-      )
-      .style("fill", "white");
-
-    elemEnter
-      .append("rect")
-      .attr("class", "pinarea")
-      .attr("height", rowHeight - 2)
-      .attr("y", 1)
-      /* .attr("width", function (d) {
-              return width - x(Number(d.year));
-            }) */
-      .attr(
-        "width",
-        function (d) {
-          return this.width - this.x(Number(d.year));
-        }.bind(this)
-      )
-      /*.attr("r", radius)*/
-      /*.attr("cx", function(d) {
-                                return x.bandwidth() / 2;
-                            })
-                            .attr("cy", function(d) {
-                                return radius;
-                            })*/
-      .style("stroke-width", 1)
-      .style("stroke", function (d) {
-        return citesAssessment.get(d.appendix).getColor();
-      })
-      .style("fill-opacity", (d) => d.opacity)
-      .style("fill", function (d) {
-        return citesAssessment.get(d.appendix).getColor();
-      });
-  }
-
-  appendCites(listingData, genusLine = false, withGenusLineOnTop = false) {
-    let speciesListing = {};
-
-    let listingKeys = [];
-    let newListingData = [];
-
-    let characteristicsMap = {};
-    let trendMap = {};
-
-    let maxHeightScale = 5;
-
-    let genusListing = null;
-    for (let listing of listingData.sort(
-      (a, b) => parseInt(a.year) - parseInt(b.year)
-    )) {
-      let push = true;
-      let name = listing.sciName;
-
-      if (listing.rank === "GENUS") {
-        genusListing = name;
-        push = false;
-      }
-
-      if (listing.rank === "SPECIESfromGENUS") {
-        /* push = false;
-                SPECIESfromGENUSfiltered.push(listing); */
-      }
-
-      let listingKey = `${listing.year}${listing.appendix}${listing.genus}${listing.species}${listing.countries}${listing.rank}`;
-      let characteristic = `${listing.year}${listing.appendix}${listing.countries}`;
-
-      if (speciesListing.hasOwnProperty(name)) {
-        if (!listingKeys.includes(listingKey)) {
-          speciesListing[name].push(listing);
-          if (push) {
-            newListingData.push(listing);
-          }
-          characteristicsMap[name][listing.year] = characteristic;
-
-          trendMap[name][listing.year] = listing.appendix;
-        }
-      } else {
-        speciesListing[name] = [listing];
-        if (push) {
-          newListingData.push(listing);
-        }
-        characteristicsMap[name] = {};
-        characteristicsMap[name][listing.year] = characteristic;
-        trendMap[name] = {};
-        trendMap[name][listing.year] = listing.appendix;
-      }
-
-      listingKeys.push(listingKey);
-    }
-
-    let newTrendMap = {};
-    let sumMap = {};
-    let characteristicsTrend = {};
-    for (let key of Object.keys(characteristicsMap)) {
-      let prevYear = 0;
-      newTrendMap[key] = [];
-      sumMap[key] = [];
-      characteristicsMap[key] = Object.keys(characteristicsMap[key])
-        .sort((a, b) => parseInt(b) - parseInt(a))
-        .reverse()
-        .map((year, index) => {
-          let curr = citesAssessment.get(trendMap[key][year]).numvalue;
-
-          /* let curr = citesScore(trendMap[key][year]);
-                    if (curr < 0) {
-                        curr = 0.5;
-                    } */
-
-          sumMap[key].push(curr);
-          if (index > 0) {
-            let prev = citesAssessment.get(trendMap[key][prevYear]).numvalue;
-
-            let trend;
-            if (curr < prev) {
-              trend = 1;
-            } else if (curr > prev) {
-              trend = -1;
-            } else {
-              trend = 0;
-            }
-
-            newTrendMap[key].push(trend);
-          } else {
-            newTrendMap[key].push(0);
-          }
-
-          prevYear = year;
-
-          characteristicsTrend[key] = newTrendMap[key];
-
-          return characteristicsMap[key][year];
-        })
-        .join("");
-    }
-
-    let charCounting = Object.values(characteristicsMap).reduce(function (
-      countMap,
-      word
-    ) {
-      countMap[word] = ++countMap[word] || 1;
-      return countMap;
-    },
-    {});
-
-    if (genusListing) {
-      let genusChar = characteristicsMap[genusListing];
-      charCounting[genusChar] -= 1;
-    }
-
-    let uniqueCharacteristics = Object.keys(charCounting);
-
-    let characteristicsToTrend = {};
-
-    let newSumMap = {};
-    Object.keys(characteristicsMap).forEach((species) => {
-      characteristicsToTrend[characteristicsMap[species]] =
-        characteristicsTrend[species];
-      newSumMap[characteristicsMap[species]] =
-        sumMap[species].reduce((acc, cur) => acc + cur) /
-        sumMap[species].length;
-    });
-
-    let characteristicsToTrendResult = {};
-
-    for (let char of Object.keys(characteristicsToTrend)) {
-      let indexA = null;
-      for (let idx = characteristicsToTrend[char].length - 1; idx > 0; idx--) {
-        if (indexA === null && characteristicsToTrend[char][idx] !== 0) {
-          indexA = idx;
-          break;
-        }
-      }
-
-      if (indexA === null) {
-        characteristicsToTrendResult[char] = 0;
-      } else {
-        let len =
-          characteristicsToTrend[char].length > 1
-            ? characteristicsToTrend[char].length - 1
-            : 1;
-        let scale = indexA / len;
-        characteristicsToTrendResult[char] =
-          scale * characteristicsToTrend[char][indexA];
-      }
-    }
-
-    uniqueCharacteristics.sort((a, b) => {
-      if (this.sortGrouped === "trend") {
-        let valA = characteristicsToTrendResult[a];
-        let valB = characteristicsToTrendResult[b];
-
-        if (valA > valB) {
-          return 1;
-        } else if (valA < valB) {
-          return -1;
-        }
-      }
-
-      if (this.sortGrouped === "avg") {
-        let sumA = newSumMap[a];
-        let sumB = newSumMap[b];
-
-        if (sumB !== sumA) {
-          return sumA - sumB;
-        } else {
-          return b.localeCompare(a);
-        }
-      }
-
-      let countA = charCounting[a];
-      let countB = charCounting[b];
-
-      if (countB !== countA) {
-        return countB - countA;
-      } else {
-        return b.localeCompare(a);
-      }
-    });
-
-    let speciesCount = Object.keys(speciesListing).length;
-
-    if (genusListing) {
-      speciesCount -= 1;
-    }
-
-    if (genusLine) {
-      speciesCount = 1;
-      speciesListing = {};
-
-      speciesListing[genusListing] = listingData;
-
-      newListingData = listingData;
-    }
-
-    let heightMap = {};
-    if (this.groupSame) {
-      let charsAlready = [];
-      let newData = [];
-      let filteredSpecies = [];
-
-      for (let entry of newListingData) {
-        let char = characteristicsMap[entry.sciName];
-
-        if (
-          !charsAlready.includes(char) ||
-          filteredSpecies.includes(entry.sciName)
-        ) {
-          let charCount = charCounting[characteristicsMap[entry.sciName]];
-          let heightScale = (charCount > 1 ? charCount : 0) / speciesCount;
-
-          entry.heightScale = heightScale;
-
-          newData.push(entry);
-          filteredSpecies.push(entry.sciName);
-          charsAlready.push(char);
-
-          if (!Object.keys(heightMap).includes(char)) {
-            heightMap[char] = heightScale;
-          }
-        }
-      }
-
-      newListingData = newData;
-
-      this.heightScaleSum = Object.values(heightMap).reduce(function (
-        prev,
-        curr
-      ) {
-        return prev + curr;
-      },
-      0);
-    }
-
-    let speciesNamesSorted = Object.keys(speciesListing)
-      .filter((key) => key !== genusListing || genusLine)
-      .sort((a, b) => {
-        return (
-          Math.min(...speciesListing[b].map((e) => parseInt(e.year))) -
-          Math.min(...speciesListing[a].map((e) => parseInt(e.year)))
-        );
-      });
-
-    let classString = "timelineSVG";
-    if (genusLine) {
-      classString += " genusLine";
-    } else {
-      classString += this.firstSVGAdded ? "" : " topper";
-    }
-
-    let justUp = Object.keys(characteristicsToTrendResult).filter(
-      (e) => characteristicsToTrendResult[e] > 0
-    );
-    let firstUpTrend = Math.min(
-      ...justUp.map((e) => uniqueCharacteristics.indexOf(e))
-    );
-
-    let justDown = Object.keys(characteristicsToTrendResult).filter(
-      (e) => characteristicsToTrendResult[e] < 0
-    );
-    let firstDownTrend = Math.min(
-      ...justDown.map((e) => uniqueCharacteristics.indexOf(e))
-    );
-
-    if (!isFinite(firstDownTrend)) {
-      firstDownTrend = 0;
-    }
-
-    if (!isFinite(firstUpTrend)) {
-      firstUpTrend = uniqueCharacteristics.length;
-    }
-
-    let trendObject = {};
-
-    let trendData = [];
-
-    if (uniqueCharacteristics.length - justDown.length - justUp.length > 0) {
-      trendData.push({
-        rowNum: firstDownTrend + justDown.length,
-        type: "",
-        length: uniqueCharacteristics.length - justDown.length - justUp.length
-      });
-      trendObject[firstDownTrend + justDown.length] = {
-        type: "",
-        length: uniqueCharacteristics.length - justDown.length - justUp.length
-      };
-    }
-
-    if (justDown.length > 0) {
-      trendData.push({
-        rowNum: firstDownTrend,
-        type: "down",
-        length: justDown.length
-      });
-      trendObject[firstDownTrend] = { type: "down", length: justDown.length };
-    }
-
-    if (justUp.length > 0) {
-      trendData.push({
-        rowNum: firstUpTrend,
-        type: "up",
-        length: justUp.length
-      });
-      trendObject[firstUpTrend] = { type: "up", length: justUp.length };
-    }
-
-    let rowCount = this.groupSame ? uniqueCharacteristics.length : speciesCount;
-
-    let sortedTrendKeys = Object.keys(trendObject).sort(
-      (a, b) => parseInt(a) - parseInt(b)
-    );
-
-    let trendRows = [];
-
-    let addIdx = 0;
-    for (let key of sortedTrendKeys) {
-      for (let tmp = 0; tmp < trendObject[key]["length"]; tmp++) {
-        trendRows.push(addIdx);
-      }
-      addIdx++;
-    }
-
-    let svgHeight = 0;
-
-    if (this.groupSame) {
-      if (genusLine) {
-        svgHeight = this.getRowHeight(genusLine);
-      } else {
-        if (this.sortGrouped === "trend") {
-          let add = withGenusLineOnTop ? 0.5 * trendData.length : 0;
-          svgHeight = (rowCount + add) * this.rowHeight;
-        } else {
-          svgHeight = rowCount * this.rowHeight;
-        }
-      }
-    } else {
-      svgHeight = rowCount * this.getRowHeight(genusLine);
-    }
-
-    let svgCITES = this.wrapper
-      .append("svg")
-      .attr("class", classString)
-      .attr("id", this.id + "Cites" + genusLine)
-      .attr("width", this.initWidth + this.rightGroupWidth)
-      .attr("height", svgHeight)
-      .style("display", "block");
-
-    svgCITES.style("display", "block");
-
-    let defs = svgCITES.append("defs");
-
-    let g = svgCITES
-      .append("g")
-      .attr("transform", "translate(" + this.margin.left + "," + 0 + ")")
-      .attr("height", svgHeight);
-
-    let trendGroup = svgCITES
-      .append("g")
-      .attr("transform", "translate(" + this.initWidth + ",0)")
-      .attr("height", svgHeight);
-
-    trendGroup
-      .append("rect")
-      .attr("width", this.rightGroupWidth)
-      .attr("height", svgHeight)
-      .style("fill", "white");
-
-    if (!genusLine) {
-      g.append("text")
-        .attr(
-          "transform",
-          "translate(-" +
-            (this.justGenus ? this.margin.left : 5) +
-            "," +
-            svgHeight / 2 +
-            ")"
-        )
-        .style("dominant-baseline", "central")
-        .style("font-size", "12px")
-        .style("text-anchor", "end")
-        .text("CITES");
-    }
-
-    let rect = g
-      .append("rect")
-      .attr("width", this.width)
-      .attr("height", svgHeight)
-      .attr("stroke", "gray")
-      .style("fill", "none");
-
-    let keyData = [];
-    if (this.groupSame) {
-      let already = [];
-      let newData = [];
-      for (let entry of newListingData) {
-        if (!already.includes(entry.sciName)) {
-          newData.push(entry);
-          already.push(entry.sciName);
-        }
-      }
-      keyData = newData;
-    } else {
-      keyData = Object.values(speciesListing).map((e) => e[0]);
-    }
-
-    if (this.groupSame && keyData.length > 1) {
-      g.selectAll("g myCircleText")
-        .data(keyData)
-        .enter()
-        .append("rect")
-        .attr("width", (d) => {
-          if (genusLine) {
-            return 0;
-          } else {
-            return scaleValue(
-              charCounting[characteristicsMap[d.sciName]],
-              [0, speciesCount],
-              [1, 100]
-            );
-          }
-        })
-        .attr("height", (d) => {
-          return this.getRowHeight(genusLine);
-        })
-        .style("fill", "var(--main)")
-        .attr("transform", (d) => {
-          let rowNum = 0;
-          if (this.groupSame) {
-            rowNum = uniqueCharacteristics.indexOf(
-              characteristicsMap[d.sciName]
-            );
-          } else {
-            rowNum = speciesNamesSorted.indexOf(d.sciName);
-          }
-
-          let yPos = this.calcYPos(
-            rowNum,
-            trendRows,
-            genusLine,
-            withGenusLineOnTop
-          );
-          return (
-            "translate(" +
-            -scaleValue(
-              charCounting[characteristicsMap[d.sciName]],
-              [0, speciesCount],
-              [1, 100]
-            ) +
-            ", " +
-            yPos +
-            ")"
-          );
-        });
-    }
-
-    if (keyData.length > 1 || genusLine) {
-      g.selectAll("g myCircleText")
-        .data(keyData)
-        .enter()
-        .append("text")
-        .style("text-anchor", "end")
-        .style("dominant-baseline", "central")
-        .style("font-size", "9")
-        .style("font-style", (d) => {
-          return genusLine ? "" : "italic";
-        })
-        .attr("transform", (d) => {
-          let rowNum = 0;
-          if (this.groupSame) {
-            rowNum = uniqueCharacteristics.indexOf(
-              characteristicsMap[d.sciName]
-            );
-          } else {
-            rowNum = speciesNamesSorted.indexOf(d.sciName);
-          }
-
-          let yPos =
-            this.calcYPos(rowNum, trendRows, genusLine, withGenusLineOnTop) +
-            this.getRowHeight(genusLine) / 2;
-
-          if (genusLine) {
-            return "translate(" + -3 + ", " + yPos + ")";
-          } else if (this.groupSame) {
-            return (
-              "translate(" +
-              (-3 -
-                scaleValue(
-                  charCounting[characteristicsMap[d.sciName]],
-                  [0, speciesCount],
-                  [0, 100]
-                )) +
-              ", " +
-              yPos +
-              ")"
-            );
-          } else {
-            return "translate(" + -3 + ", " + yPos + ")";
-          }
-        })
-        .text((d) => {
-          if (genusLine) {
-            return d.genus;
-          } else {
-            if (this.groupSame) {
-              let counting = charCounting[characteristicsMap[d.sciName]];
-
-              if (counting === 1) {
-                return d.species;
-              } else {
-                return counting;
-              }
-            } else {
-              return d.species;
-            }
-          }
-        });
-    }
-
-    this.appendTrends(
-      trendGroup,
-      trendData,
-      trendRows,
-      genusLine,
-      withGenusLineOnTop
-    );
-
-    appendCitesRects.bind(this)(newListingData);
-
-    function appendCitesRects(lData) {
-      let elem = g.selectAll("g myCircleText").data(lData);
-
-      let elemEnter = elem
-        .enter()
-        .append("g")
-        .attr("class", "noselect")
-        .attr(
-          "transform",
-          function (d) {
-            let rowNum = 0;
-            if (this.groupSame) {
-              rowNum = uniqueCharacteristics.indexOf(
-                characteristicsMap[d.sciName]
-              );
-            } else {
-              rowNum = speciesNamesSorted.indexOf(d.sciName);
-            }
-
-            let yPos = this.calcYPos(
-              rowNum,
-              trendRows,
-              genusLine,
-              withGenusLineOnTop
-            );
-            return (
-              "translate(" +
-              (this.x(Number(d.year)) + this.x.bandwidth() / 2) +
-              "," +
-              yPos +
-              ")"
-            );
-          }.bind(this)
-        )
-        .attr(
-          "x",
-          function (d) {
-            return this.x(Number(d.year) + this.x.bandwidth() / 2);
-          }.bind(this)
-        )
-        .on("mouseover", this.mouseover)
-        .on("mousemove", this.mousemove)
-        .on("mouseleave", this.mouseleave);
-
-      elemEnter
-        .append("rect")
-        .attr("class", "pinarea")
-        .attr("height", (d) => {
-          if (d.rank === "GENUS") {
-            return (speciesCount + 1) * this.getRowHeight(genusLine);
-          } else {
-            return this.getRowHeight(genusLine);
-          }
-        })
-        .attr(
-          "width",
-          function (d) {
-            return this.width - this.x(Number(d.year));
-          }.bind(this)
-        )
-        .style("fill", "white");
-
-      elemEnter
-        .append("rect")
-        .attr("class", "pinarea")
-        .attr("height", (d) => {
-          if (d.rank === "GENUS") {
-            return (speciesCount + 1) * this.getRowHeight(genusLine);
-          } else {
-            return this.getRowHeight(genusLine);
-          }
-        })
-        .attr(
-          "width",
-          function (d) {
-            return this.width - this.x(Number(d.year));
-          }.bind(this)
-        )
-        .style("fill", function (d) {
-          switch (d.type) {
-            case "listingHistory":
-              if (d.hasOwnProperty("countries")) {
-                let id = "diagonalHatch" + d.appendix + "6";
-
-                if (defs.select("#" + id).empty()) {
-                  defs
-                    .append("pattern")
-                    .attr("id", id)
-                    .attr("patternUnits", "userSpaceOnUse")
-                    .attr("width", 6)
-                    .attr("height", 6)
-                    .attr("patternTransform", "rotate(45)")
-                    .append("line")
-                    .attr("x1", 0)
-                    .attr("y", 0)
-                    .attr("x2", 0)
-                    .attr("y2", 6)
-                    .attr("stroke", () => {
-                      return citesAssessment.get(d.appendix).getColor();
-                    })
-                    .attr("stroke-width", 6);
-                }
-
-                return "url(#" + id + ")";
-              } else {
-                return citesAssessment.get(d.appendix).getColor();
-              }
-            default:
-              break;
-          }
-        })
-        .style("stroke", function (d) {
-          switch (d.type) {
-            case "listingHistory":
-              return "gray";
-            default:
-              break;
-          }
-        })
-        .style("stroke-width", function (d) {
-          switch (d.type) {
-            case "listingHistory":
-              return 1;
-            default:
-              break;
-          }
-        });
     }
   }
 
@@ -1869,7 +924,7 @@ class D3Timeline {
       .append("svg")
       .attr("class", classString)
       .attr("id", this.id + "Cites" + genusLine)
-      .attr("width", this.initWidth)
+      .attr("width", this.width + 130)
       .attr("height", svgHeight)
       .style("display", "block");
 
@@ -2025,6 +1080,8 @@ class D3Timeline {
     function appendCitesRects(lData) {
       let elem = g.selectAll("g myCircleText").data(lData);
 
+      let colorBlind = this.colorBlind;
+
       let elemEnter = elem
         .enter()
         .append("g")
@@ -2064,7 +1121,7 @@ class D3Timeline {
         .append("rect")
         .attr("class", "pinarea")
         .attr("height", (d) => {
-          return this.rowHeight - 1;
+          return this.rowHeight - 2;
         })
         .attr(
           "width",
@@ -2074,7 +1131,8 @@ class D3Timeline {
             );
           }.bind(this)
         )
-        .style("fill", "white");
+        .style("fill", "white")
+        .style("transform", "translateY(1px)");
 
       elemEnter
         .append("rect")
@@ -2120,14 +1178,16 @@ class D3Timeline {
                     .attr("x2", 0)
                     .attr("y2", 6)
                     .attr("stroke", () => {
-                      return citesAssessment.get(d.appendix).getColor();
+                      return citesAssessment
+                        .get(d.appendix)
+                        .getColor(colorBlind);
                     })
                     .attr("stroke-width", 6);
                 }
 
                 return "url(#" + id + ")";
               } else {
-                return citesAssessment.get(d.appendix).getColor();
+                return citesAssessment.get(d.appendix).getColor(colorBlind);
               }
             default:
               break;
@@ -2150,900 +1210,7 @@ class D3Timeline {
             " z"
         )
         .attr("fill", function (d) {
-          return citesAssessment.get(d.appendix).getColor();
-        });
-    }
-  }
-
-  appendIUCNHeatMap(iucnData) {
-    let iucnHeatMap = {};
-    let speciesMap = {};
-
-    let yearCount = {};
-    for (let entry of iucnData) {
-      let year = entry.year.toString();
-      let name = entry.sciName;
-
-      pushOrCreate(speciesMap, name, entry);
-      pushOrCreate(getOrCreate(iucnHeatMap, year, {}), entry.code, entry);
-      pushOrCreateWithoutDuplicates(yearCount, year, name);
-    }
-
-    let years = Object.keys(yearCount).map((e) => parseInt(e));
-    let maxYear = Math.max(...years);
-    let minYear = Math.min(...years);
-
-    let newIUCNHeatMap = {};
-
-    for (let species of Object.keys(speciesMap)) {
-      let yearData = {};
-      let lastState = null;
-      for (let entry of speciesMap[species]) {
-        pushOrCreate(yearData, entry.year, entry);
-      }
-
-      for (let year = minYear; year <= maxYear; year++) {
-        if (yearData.hasOwnProperty(year.toString())) {
-          let highest = yearData[year.toString()].reduce(
-            (max, p) =>
-              iucnAssessment.get(p.code).sort <
-              iucnAssessment.get(max.code).sort
-                ? p
-                : max,
-            yearData[year.toString()][0]
-          );
-          let highestScore = iucnAssessment.get(highest.code).sort;
-          //let highest = yearData[year.toString()].reduce((a, b) => iucnScore(a) > iucnScore(b.code) ? a : b.code, []);
-
-          pushOrCreate(getOrCreate(newIUCNHeatMap, year, {}), highest.code, 1);
-          lastState = highest.code;
-        } else if (lastState) {
-          pushOrCreate(getOrCreate(newIUCNHeatMap, year, {}), lastState, 1);
-        }
-      }
-    }
-
-    let heatMapData = [];
-    let maxKeyPrevious = null;
-    let maxValuePrevious = null;
-
-    let maxSpecies = Math.max(...Object.values(yearCount).map((e) => e.length));
-
-    for (let year of Object.keys(newIUCNHeatMap).sort(
-      (a, b) => parseInt(a) - parseInt(b)
-    )) {
-      let yearData = newIUCNHeatMap[year.toString()];
-      let push = true;
-      let countSum;
-
-      let tmp, maxKey, maxValue;
-      let opacity;
-
-      switch (this.heatStyle) {
-        /*                 case "dom":
-                                    maxKey = Object.keys(yearData).reduce((a, b) => yearData[a].length > yearData[b].length ? a : b);
-                                    countSum = Object.keys(yearData).reduce((accumulator, currentValue) => {
-                                        return accumulator + yearData[currentValue].length;
-                                    }, 0);
-                                    maxValue = yearData[maxKey];
-                
-                                    if (maxKeyPrevious !== null) {
-                                        if (maxKey === maxKeyPrevious && maxValue.length <= maxValuePrevious.length) {
-                                            maxKey = maxKeyPrevious;
-                                            maxValue = maxValuePrevious;
-                                            push = false;
-                                        }
-                                    }
-                
-                                    maxKeyPrevious = maxKey;
-                                    maxValuePrevious = maxValue;
-                
-                                    opacity = maxValue.length / maxSpecies;
-                                    break;
-                                case "avg":
-                
-                                    let scoreSum = Object.keys(yearData).reduce(((a, b) => a + yearData[b].length * iucnScore(b)), 0);
-                                    countSum = Object.values(yearData).reduce((accumulator, currentValue) => {
-                                        return accumulator + currentValue.length;
-                                    }, 0);
-                
-                                    let avg = scoreSum / countSum;
-                
-                                    if (maxValuePrevious !== null) {
-                                        if (maxValuePrevious === avg) {
-                                            avg = maxValuePrevious;
-                                            push = false;
-                                        }
-                                    }
-                
-                                    maxKey = iucnScoreReverse(avg);
-                
-                                    maxValuePrevious = avg;
-                
-                                    opacity = countSum / maxSpecies;
-                                    break; */
-        case "max":
-          maxKey = Object.keys(yearData).reduce((a, b) =>
-            iucnAssessment.get(a).sort < iucnAssessment.get(b).sort ? a : b
-          );
-          countSum = Object.keys(yearData).reduce(
-            (accumulator, currentValue) => {
-              return accumulator + yearData[currentValue].length;
-            },
-            0
-          );
-          maxValue = yearData[maxKey];
-
-          if (maxKeyPrevious !== null) {
-            if (
-              maxValue.length === maxValuePrevious.length &&
-              maxKey === maxKeyPrevious
-            ) {
-              maxKey = maxKeyPrevious;
-              maxValue = maxValuePrevious;
-              push = false;
-            }
-          }
-
-          maxKeyPrevious = maxKey;
-          maxValuePrevious = maxValue;
-
-          opacity = yearData[maxKey].length / maxSpecies;
-        default:
-          break;
-      }
-
-      if (push) {
-        tmp = {
-          category: iucnCategories[maxKey],
-          code: maxKey,
-          year: year,
-          sciName: this.speciesName + " (" + countSum + ")",
-          rank: "ALL",
-          text: maxKey,
-          type: "iucn",
-          opacity: 1.0
-        };
-        heatMapData.push(tmp);
-      }
-    }
-
-    let lastResult = heatMapData.sort(
-      (a, b) => parseInt(a.year) - parseInt(b.year)
-    );
-    lastResult = lastResult[lastResult.length - 1].code;
-
-    this.setSpeciesSignThreats(this.speciesName, "iucn", lastResult);
-
-    let listingData = heatMapData;
-
-    let circleYearCountIUCN = {};
-
-    let rowHeight = this.rowHeight + 1;
-
-    let svgCITES = this.wrapper
-      .append("svg")
-      .attr("id", this.id + "IUCN")
-      .attr("width", this.initWidth)
-      .attr("height", rowHeight)
-      .style("display", "block");
-
-    let maxCount = 0;
-
-    svgCITES.style("display", "block");
-
-    let g = svgCITES
-      .append("g")
-      .attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
-
-    let rect = g
-      .append("rect")
-      .attr("width", this.width)
-      .attr("height", (maxCount + 1) * rowHeight)
-      .attr("fill", "none")
-      .attr("stroke", "gray");
-    //.style("fill", "url(#mainGradient)")
-    /*.style("stroke", "black")*/
-    //.style("fill", "url(#myGradient)");
-
-    let elem = g.selectAll("g myCircleText").data(listingData);
-
-    let elemEnter = elem
-      .enter()
-      .append("g")
-      .attr("class", "noselect")
-      .attr(
-        "transform",
-        function (d) {
-          let count = this.yearCount(d.year, circleYearCountIUCN);
-          maxCount = Math.max(maxCount, count);
-          rect.attr("height", (maxCount + 1) * rowHeight);
-          svgCITES.attr("height", (maxCount + 1) * rowHeight);
-          return (
-            "translate(" +
-            (this.x(Number(d.year)) + this.x.bandwidth() / 2) +
-            "," +
-            rowHeight * count +
-            ")"
-          );
-        }.bind(this)
-      )
-      .attr(
-        "x",
-        function (d) {
-          return this.x(Number(d.year) + this.x.bandwidth() / 2);
-        }.bind(this)
-      )
-      .on("mouseover", this.mouseover)
-      .on("mousemove", this.mousemove)
-      .on("mouseleave", this.mouseleave);
-
-    g.append("text")
-      .attr(
-        "transform",
-        "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")"
-      )
-      .style("text-anchor", "end")
-      .style("dominant-baseline", "central")
-      .style("font-size", "12px")
-      .text("IUCN");
-
-    //let radius = (height - y(1)) / 2;
-    elemEnter
-      .append("rect")
-      .attr("class", "pinarea")
-      .attr("height", rowHeight - 2)
-      .attr("y", 1)
-      /* .attr("width", function (d) {
-              return width - x(Number(d.year));
-            }) */
-      .attr(
-        "width",
-        function (d) {
-          return this.width - this.x(Number(d.year));
-        }.bind(this)
-      )
-      .style("fill", "white");
-    /*.attr("r", radius)*/
-    /*.attr("cx", function(d) {
-                            return x.bandwidth() / 2;
-                        })
-                        .attr("cy", function(d) {
-                            return radius;
-                        })*/
-
-    elemEnter
-      .append("rect")
-      .attr("class", "pinarea")
-      .attr("height", rowHeight - 2)
-      .attr("y", 1)
-      /* .attr("width", function (d) {
-              return width - x(Number(d.year));
-            }) */
-      .attr(
-        "width",
-        function (d) {
-          return this.width - this.x(Number(d.year));
-        }.bind(this)
-      )
-      /*.attr("r", radius)*/
-      /*.attr("cx", function(d) {
-                                return x.bandwidth() / 2;
-                            })
-                            .attr("cy", function(d) {
-                                return radius;
-                            })*/
-      .style("stroke-width", 1)
-      .style("stroke", function (d) {
-        switch (d.type) {
-          case "iucn":
-            return getIucnColor(d);
-          default:
-            break;
-        }
-      })
-      .style("fill-opacity", (d) => d.opacity)
-      .style("fill", function (d) {
-        switch (d.type) {
-          case "iucn":
-            return getIucnColor(d);
-          default:
-            break;
-        }
-      });
-
-    if (this.zoomLevel > 0) {
-      elemEnter
-        .append("text")
-        .attr("class", "circleLabel noselect")
-        .text(function (d) {
-          return d.text;
-        })
-        .attr(
-          "x",
-          function (d) {
-            return this.x.bandwidth() / 2;
-          }.bind(this)
-        )
-        .attr(
-          "y",
-          function (d) {
-            return this.radius;
-          }.bind(this)
-        )
-        .style("font-size", this.radius)
-        .attr(
-          "width",
-          function (d) {
-            return this.width - this.x(Number(d.year));
-          }.bind(this)
-        )
-        .style("fill", function (d) {
-          return iucnAssessment.get(d.code).getColor();
-        })
-        .style("font-family", (d) =>
-          d.type === "listingHistory" ? "serif" : "sans-serif"
-        );
-    }
-  }
-
-  appendIUCN(iucnData) {
-    let speciesListing = {};
-
-    let listingKeys = [];
-    let newListingData = [];
-
-    let characteristicsMap = {};
-    let trendMap = {};
-
-    let maxHeightScale = 5;
-
-    for (let listing of iucnData.sort((a, b) => {
-      if (parseInt(a.year) === parseInt(b.year)) {
-        /* return iucnScore(a.code) - iucnScore(b.code); */
-        return (
-          iucnAssessment.get(b.code).sort - iucnAssessment.get(a.code).sort
-        );
-      } else {
-        return parseInt(a.year) - parseInt(b.year);
-      }
-    })) {
-      let push = true;
-      let name = listing.sciName;
-
-      let listingKey = `${listing.year}${listing.code}${listing.sciName}`;
-      let characteristic = `${listing.year}${
-        iucnAssessment.get(listing.code).sort
-      }`;
-      if (speciesListing.hasOwnProperty(name)) {
-        if (!listingKeys.includes(listingKey)) {
-          speciesListing[name].push(listing);
-          if (push) {
-            newListingData.push(listing);
-          }
-          characteristicsMap[name][listing.year] = characteristic;
-          trendMap[name][listing.year] = listing.code;
-        }
-      } else {
-        speciesListing[name] = [listing];
-        if (push) {
-          newListingData.push(listing);
-        }
-        characteristicsMap[name] = {};
-        characteristicsMap[name][listing.year] = characteristic;
-        trendMap[name] = {};
-        trendMap[name][listing.year] = listing.code;
-      }
-
-      listingKeys.push(listingKey);
-    }
-
-    let newTrendMap = {};
-    let sumMap = {};
-    let characteristicsTrend = {};
-    for (let key of Object.keys(characteristicsMap)) {
-      /* characteristicsMap[key] = Object.values(characteristicsMap[key]).join(""); */
-
-      let prevYear = 0;
-      newTrendMap[key] = [];
-      sumMap[key] = [];
-      characteristicsMap[key] = Object.keys(characteristicsMap[key])
-        .sort((a, b) => parseInt(b) - parseInt(a))
-        .reverse()
-        .map((year, index) => {
-          let curr = iucnAssessment.get(trendMap[key][year]).sort;
-          sumMap[key].push(curr);
-          if (index > 0) {
-            let prev = iucnAssessment.get(trendMap[key][prevYear]).sort;
-
-            let trend;
-            if (curr < prev) {
-              trend = 1;
-            } else if (curr > prev) {
-              trend = -1;
-            } else {
-              trend = 0;
-            }
-
-            newTrendMap[key].push(trend);
-          } else {
-            newTrendMap[key].push(0);
-          }
-
-          prevYear = year;
-
-          characteristicsTrend[key] = newTrendMap[key];
-
-          return characteristicsMap[key][year];
-        })
-        .join("");
-    }
-
-    let charCounting = Object.values(characteristicsMap).reduce(function (
-      countMap,
-      word
-    ) {
-      countMap[word] = ++countMap[word] || 1;
-      return countMap;
-    },
-    {});
-
-    let uniqueCharacteristics = Object.keys(charCounting);
-
-    let characteristicsToTrend = {};
-
-    let newSumMap = {};
-    Object.keys(characteristicsMap).forEach((species) => {
-      characteristicsToTrend[characteristicsMap[species]] =
-        characteristicsTrend[species];
-      newSumMap[characteristicsMap[species]] =
-        sumMap[species].reduce((acc, cur) => acc + cur) /
-        sumMap[species].length;
-    });
-
-    let speciesCount = Object.keys(speciesListing).length;
-
-    let heightMap = {};
-    if (this.groupSame) {
-      let charsAlready = [];
-      let newData = [];
-      let filteredSpecies = [];
-
-      for (let entry of newListingData) {
-        let char = characteristicsMap[entry.sciName];
-
-        if (
-          !charsAlready.includes(char) ||
-          filteredSpecies.includes(entry.sciName)
-        ) {
-          let charCount = charCounting[characteristicsMap[entry.sciName]];
-          let heightScale = (charCount > 1 ? charCount : 0) / speciesCount;
-
-          entry.heightScale = heightScale;
-
-          newData.push(entry);
-          filteredSpecies.push(entry.sciName);
-          charsAlready.push(char);
-
-          if (!Object.keys(heightMap).includes(char)) {
-            heightMap[char] = heightScale;
-          }
-        }
-      }
-
-      newListingData = newData;
-
-      this.heightScaleSum = Object.values(heightMap).reduce(
-        (prev, curr) => prev + curr
-      );
-    }
-
-    let characteristicsToTrendResult = {};
-
-    for (let char of Object.keys(characteristicsToTrend)) {
-      let indexA = null;
-      for (let idx = characteristicsToTrend[char].length - 1; idx > 0; idx--) {
-        if (indexA === null && characteristicsToTrend[char][idx] !== 0) {
-          indexA = idx;
-          break;
-        }
-      }
-
-      if (indexA === null) {
-        characteristicsToTrendResult[char] = 0;
-      } else {
-        let len =
-          characteristicsToTrend[char].length > 1
-            ? characteristicsToTrend[char].length - 1
-            : 1;
-        let scale = indexA / len;
-        characteristicsToTrendResult[char] =
-          scale * characteristicsToTrend[char][indexA];
-      }
-    }
-
-    uniqueCharacteristics.sort((a, b) => {
-      if (this.sortGrouped === "trend") {
-        let valA = characteristicsToTrendResult[a];
-        let valB = characteristicsToTrendResult[b];
-
-        if (valA > valB) {
-          return 1;
-        } else if (valA < valB) {
-          return -1;
-        }
-      }
-
-      if (this.sortGrouped === "avg") {
-        let sumA = newSumMap[a];
-        let sumB = newSumMap[b];
-
-        if (sumB !== sumA) {
-          return sumA - sumB;
-        } else {
-          return b.localeCompare(a);
-        }
-      }
-
-      let countA = charCounting[a];
-      let countB = charCounting[b];
-
-      if (countB !== countA) {
-        return countB - countA;
-      } else {
-        return b.localeCompare(a);
-      }
-    });
-
-    let speciesNamesSorted = Object.keys(speciesListing).sort((a, b) => {
-      return (
-        Math.min(...speciesListing[b].map((e) => parseInt(e.year))) -
-        Math.min(...speciesListing[a].map((e) => parseInt(e.year)))
-      );
-    });
-
-    let justUp = Object.keys(characteristicsToTrendResult).filter(
-      (e) => characteristicsToTrendResult[e] > 0
-    );
-    let firstUpTrend = Math.min(
-      ...justUp.map((e) => uniqueCharacteristics.indexOf(e))
-    );
-
-    let justDown = Object.keys(characteristicsToTrendResult).filter(
-      (e) => characteristicsToTrendResult[e] < 0
-    );
-    let firstDownTrend = Math.min(
-      ...justDown.map((e) => uniqueCharacteristics.indexOf(e))
-    );
-
-    if (!isFinite(firstDownTrend)) {
-      firstDownTrend = 0;
-    }
-
-    if (!isFinite(firstUpTrend)) {
-      firstUpTrend = uniqueCharacteristics.length;
-    }
-
-    let trendObject = {};
-
-    let trendData = [];
-
-    if (uniqueCharacteristics.length - justDown.length - justUp.length > 0) {
-      trendData.push({
-        rowNum: firstDownTrend + justDown.length,
-        type: "",
-        length: uniqueCharacteristics.length - justDown.length - justUp.length
-      });
-      trendObject[firstDownTrend + justDown.length] = {
-        type: "",
-        length: uniqueCharacteristics.length - justDown.length - justUp.length
-      };
-    }
-
-    if (justDown.length > 0) {
-      trendData.push({
-        rowNum: firstDownTrend,
-        type: "down",
-        length: justDown.length
-      });
-      trendObject[firstDownTrend] = { type: "down", length: justDown.length };
-    }
-
-    if (justUp.length > 0) {
-      trendData.push({
-        rowNum: firstUpTrend,
-        type: "up",
-        length: justUp.length
-      });
-      trendObject[firstUpTrend] = { type: "up", length: justUp.length };
-    }
-
-    let rowCount = this.groupSame ? uniqueCharacteristics.length : speciesCount;
-
-    let sortedTrendKeys = Object.keys(trendObject).sort(
-      (a, b) => parseInt(a) - parseInt(b)
-    );
-
-    let trendRows = [];
-    let addIdx = 0;
-    for (let key of sortedTrendKeys) {
-      for (let tmp = 0; tmp < trendObject[key]["length"]; tmp++) {
-        trendRows.push(addIdx);
-      }
-      addIdx++;
-    }
-
-    let svgHeight = 0;
-    if (this.groupSame && this.sortGrouped === "trend") {
-      svgHeight = (rowCount + 0.5 * (trendData.length - 1)) * this.rowHeight;
-    } else {
-      svgHeight = rowCount * this.rowHeight;
-    }
-
-    let svgIUCN = this.wrapper
-      .append("svg")
-      .attr("id", this.id + "IUCN")
-      .attr("class", this.firstSVGAdded ? "timelineSVG" : "timelineSVG topper")
-      .attr("width", this.initWidth + this.rightGroupWidth)
-      .attr("height", svgHeight)
-      .style("display", "inline-block");
-
-    let maxCount = 0;
-
-    svgIUCN.style("display", "block");
-
-    let defs = svgIUCN.append("defs");
-
-    let g = svgIUCN
-      .append("g")
-      .attr("transform", "translate(" + this.margin.left + "," + 0 + ")")
-      .attr("height", svgHeight);
-
-    let trendGroup = svgIUCN
-      .append("g")
-      .attr("transform", "translate(" + this.initWidth + ",0)")
-      .attr("height", svgHeight);
-
-    trendGroup
-      .append("rect")
-      .attr("width", this.rightGroupWidth)
-      .attr("height", svgHeight)
-      .style("fill", "white");
-
-    g.append("text")
-      .attr(
-        "transform",
-        "translate(-" + this.margin.left + "," + svgHeight / 2 + ")"
-      )
-      .style("dominant-baseline", "central")
-      .style("font-size", "12px")
-      .text("IUCN");
-
-    let rect = g
-      .append("rect")
-      .attr("width", this.width)
-      .attr("height", svgHeight)
-      .attr("stroke", "gray")
-      .style("fill", "none"); /*  */
-    //.style("fill", "url(#mainGradient)")
-    /*.style("stroke", "black")*/
-    //.style("fill", "url(#myGradient)");
-
-    let keyData = [];
-    if (this.groupSame) {
-      let already = [];
-      let newData = [];
-      for (let entry of newListingData) {
-        if (!already.includes(entry.sciName)) {
-          newData.push(entry);
-          already.push(entry.sciName);
-        }
-      }
-      keyData = newData;
-    } else {
-      keyData = Object.values(speciesListing).map((e) => e[0]);
-    }
-
-    let calcYPos = function (rowNum) {
-      let addY = 0;
-      if (this.groupSame && this.sortGrouped === "trend") {
-        addY = trendRows[rowNum] * (this.rowHeight / 2);
-      } else {
-        addY = 0;
-      }
-      return this.rowHeight * rowNum + addY;
-    }.bind(this);
-
-    if (this.groupSame && keyData.length > 1) {
-      g.selectAll("g myCircleText")
-        .data(keyData)
-        .enter()
-        .append("rect")
-        .attr("width", (d) => {
-          return scaleValue(
-            charCounting[characteristicsMap[d.sciName]],
-            [0, speciesCount],
-            [1, 100]
-          );
-        })
-        .attr("height", (d) => {
-          return this.rowHeight;
-        })
-        .style("fill", "var(--main)")
-        .attr("transform", (d) => {
-          let rowNum = 0;
-          if (this.groupSame) {
-            rowNum = uniqueCharacteristics.indexOf(
-              characteristicsMap[d.sciName]
-            );
-          } else {
-            rowNum = speciesNamesSorted.indexOf(d.sciName);
-          }
-
-          let yPos = this.calcYPos(rowNum, trendRows, false, false);
-          return (
-            "translate(" +
-            -scaleValue(
-              charCounting[characteristicsMap[d.sciName]],
-              [0, speciesCount],
-              [1, 100]
-            ) +
-            ", " +
-            yPos +
-            ")"
-          );
-        });
-    }
-
-    if (keyData.length > 1)
-      g.selectAll("g myCircleText")
-        .data(keyData)
-        .enter()
-        .append("text")
-        .style("text-anchor", "end")
-        .style("dominant-baseline", "central")
-        .style("font-size", "12px")
-        .style("font-style", (d) => "italic")
-        .attr("transform", (d) => {
-          let rowNum = 0;
-          if (this.groupSame) {
-            rowNum = uniqueCharacteristics.indexOf(
-              characteristicsMap[d.sciName]
-            );
-          } else {
-            rowNum = speciesNamesSorted.indexOf(d.sciName);
-          }
-
-          let yPos =
-            this.calcYPos(rowNum, trendRows, false, false) + this.rowHeight / 2;
-          if (this.groupSame) {
-            return (
-              "translate(" +
-              (-3 -
-                scaleValue(
-                  charCounting[characteristicsMap[d.sciName]],
-                  [0, speciesCount],
-                  [0, 100]
-                )) +
-              ", " +
-              yPos +
-              ")"
-            );
-          } else {
-            return "translate(" + -3 + ", " + yPos + ")";
-          }
-        })
-        .text((d) => {
-          if (this.groupSame) {
-            let counting = charCounting[characteristicsMap[d.sciName]];
-
-            if (counting === 1) {
-              return d.sciName.replace(d.genus, "").trim();
-            } else {
-              return counting;
-            }
-          } else {
-            return d.sciName.replace(d.genus, "").trim();
-          }
-        });
-
-    this.appendTrends(trendGroup, trendData, trendRows);
-
-    appendIUCNRects.bind(this)(newListingData);
-
-    function appendIUCNRects(lData) {
-      let elem = g.selectAll("g myCircleText").data(lData);
-
-      let elemEnter = elem
-        .enter()
-        .append("g")
-        .attr("class", "noselect")
-        .attr(
-          "transform",
-          function (d) {
-            let rowNum = 0;
-            if (this.groupSame) {
-              rowNum = uniqueCharacteristics.indexOf(
-                characteristicsMap[d.sciName]
-              );
-            } else {
-              rowNum = speciesNamesSorted.indexOf(d.sciName);
-            }
-
-            /* let addY = 0;
-                    for (let idx = 0; idx < rowNum; idx++) {
-                        addY += heightMap[uniqueCharacteristics[idx]];
-                    } */
-
-            let yPos = this.calcYPos(rowNum, trendRows, false, false);
-            return (
-              "translate(" +
-              (this.x(Number(d.year)) + this.x.bandwidth() / 2) +
-              "," +
-              yPos +
-              ")"
-            );
-          }.bind(this)
-        )
-        .attr(
-          "x",
-          function (d) {
-            return this.x(Number(d.year) + this.x.bandwidth() / 2);
-          }.bind(this)
-        )
-        .on("mouseover", this.mouseover)
-        .on("mousemove", this.mousemove)
-        .on("mouseleave", this.mouseleave);
-
-      elemEnter
-        .append("rect")
-        .attr("class", "pinarea")
-        .attr("height", (d) => {
-          return this.rowHeight;
-        })
-        .attr(
-          "width",
-          function (d) {
-            return this.width - this.x(Number(d.year));
-          }.bind(this)
-        )
-        .style("fill", "white");
-
-      elemEnter
-        .append("rect")
-        .attr("class", "pinarea")
-        .attr("height", (d) => {
-          return this.rowHeight;
-        })
-        .attr(
-          "width",
-          function (d) {
-            return this.width - this.x(Number(d.year));
-          }.bind(this)
-        )
-        .style("fill", function (d) {
-          switch (d.type) {
-            case "iucn":
-              return getIucnColor(d);
-            default:
-              break;
-          }
-        })
-        .style("stroke", function (d) {
-          switch (d.type) {
-            case "iucn":
-              return "gray";
-            default:
-              break;
-          }
-        })
-        .style("stroke-width", function (d) {
-          switch (d.type) {
-            case "iucn":
-              return 1;
-            default:
-              break;
-          }
+          return citesAssessment.get(d.appendix).getColor(colorBlind);
         });
     }
   }
@@ -3119,7 +1286,7 @@ class D3Timeline {
       .attr("id", this.id + "IUCN")
       /* .attr("class", this.firstSVGAdded ? "timelineSVG" : "timelineSVG topper") */
       .attr("class", "timelineSVG topper")
-      .attr("width", this.initWidth + this.rightGroupWidth)
+      .attr("width", this.width + 130 + this.rightGroupWidth)
       .attr("height", svgHeight)
       .style("display", "inline-block");
 
@@ -3134,7 +1301,8 @@ class D3Timeline {
 
     let trendGroup = svgIUCN
       .append("g")
-      .attr("transform", "translate(" + this.initWidth + ",0)")
+      .attr("class", "trendGroud")
+      .attr("transform", "translate(" + (this.width + 130) + ",0)")
       .attr("height", svgHeight);
 
     trendGroup
@@ -3194,6 +1362,7 @@ class D3Timeline {
 
     function appendIUCNRects(lData) {
       let elem = g.selectAll("g myCircleText").data(lData);
+      let colorBlind = this.colorBlind;
 
       let elemEnter = elem
         .enter()
@@ -3227,7 +1396,7 @@ class D3Timeline {
         .append("rect")
         .attr("class", "pinarea")
         .attr("height", (d) => {
-          return svgHeight - 1;
+          return this.rowHeight - 2;
         })
         .attr(
           "width",
@@ -3237,7 +1406,8 @@ class D3Timeline {
             );
           }.bind(this)
         )
-        .style("fill", "white");
+        .style("fill", "white")
+        .style("transform", "translateY(1px)");
 
       elemEnter
         .append("rect")
@@ -3258,7 +1428,7 @@ class D3Timeline {
           }.bind(this)
         )
         .style("fill", function (d) {
-          return iucnAssessment.get(d.code).getColor();
+          return iucnAssessment.get(d.code).getColor(colorBlind);
         });
       /* .style("stroke", "gray")
             .style("stroke-width", 1); */
@@ -3279,7 +1449,7 @@ class D3Timeline {
             " z"
         )
         .attr("fill", function (d) {
-          return iucnAssessment.get(d.code).getColor();
+          return iucnAssessment.get(d.code).getColor(colorBlind);
         });
     }
   }
@@ -3453,7 +1623,7 @@ class D3Timeline {
       .attr("id", this.id + "Threat")
       /* .attr("class", this.firstSVGAdded ? "timelineSVG" : "timelineSVG topper") */
       .attr("class", "timelineSVG topper")
-      .attr("width", this.initWidth)
+      .attr("width", this.width + 130)
       .attr("height", svgHeight);
 
     let maxCount = 0;
@@ -3555,6 +1725,7 @@ class D3Timeline {
       .style("stroke", "gray");
 
     let elem = g.selectAll("g myCircleText").data(threatData);
+    let colorBlind = this.colorBlind;
 
     let elemEnter = elem
       .enter()
@@ -3616,7 +1787,7 @@ class D3Timeline {
         }.bind(this)
       )
       .style("fill", (d) => {
-        return bgciAssessment.get(d.danger).getColor();
+        return bgciAssessment.get(d.danger).getColor(colorBlind);
       });
 
     //Add arrows / triangles
@@ -3635,530 +1806,336 @@ class D3Timeline {
           " z"
       )
       .attr("fill", function (d) {
-        return bgciAssessment.get(d.danger).getColor();
+        return bgciAssessment.get(d.danger).getColor(colorBlind);
       });
-  }
-
-  appendThreatPies(threatData) {
-    // ############# THREATS #############
-    let rowHeight = this.rowHeight + 1;
-    let strokeWidth = 0.5;
-
-    // let circleYearCountThreats = {};
-
-    let svgThreat = this.wrapper
-      .append("svg")
-      .attr("id", this.id + "Threat")
-      .attr("width", this.initWidth)
-      .attr("height", rowHeight);
-
-    let maxCount = 0;
-
-    svgThreat.style("display", "block");
-
-    let g = svgThreat
-      .append("g")
-      .attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
-
-    g.append("rect")
-      .attr("width", this.width)
-      .attr("height", rowHeight)
-      .style("fill", "none")
-      .style("stroke", "grey");
-
-    g.append("text")
-      .attr(
-        "transform",
-        "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")"
-      )
-      .style("text-anchor", "end")
-      .style("dominant-baseline", "central")
-      .style("font-size", "9")
-      .text("Threats");
-
-    let piedData = {};
-    for (let threat of threatData.values()) {
-      if (threat.scope !== "Global") {
-        pushOrCreate(
-          getOrCreate(piedData, threat.year.toString(), {
-            year: threat.year.toString(),
-            type: "threatpie",
-            data: {}
-          }).data,
-          threat.danger,
-          threat
-        );
-      }
-    }
-
-    // Compute the position of each group on the pie:
-    var pie = d3.pie().value(function (d) {
-      return d.value.length;
-    });
-
-    piedData = Object.values(piedData);
-
-    let elem = g.selectAll("wayne").data(threatData);
-
-    let elemEnter = elem
-      .enter()
-      .append("g")
-      .attr("class", "noselect")
-      .attr(
-        "transform",
-        function (d) {
-          return (
-            "translate(" +
-            (this.x(parseInt(d.year)) + this.x.bandwidth() / 2) +
-            "," +
-            -strokeWidth +
-            ")"
-          );
-        }.bind(this)
-      )
-      .attr(
-        "x",
-        function (d) {
-          return this.x(parseInt(d.year)) + this.x.bandwidth() / 2;
-        }.bind(this)
-      )
-      .on("mouseover", this.mouseover)
-      .on("mousemove", this.mousemove)
-      .on("mouseleave", this.mouseleave);
-
-    elemEnter
-      .filter((d) => {
-        return d.scope === "Global";
-      })
-      .append("rect")
-      .attr("class", "pinarea")
-      .attr("height", rowHeight + 2 * strokeWidth)
-      .attr(
-        "width",
-        function (d) {
-          return this.width - this.x(Number(d.year));
-        }.bind(this)
-      )
-      .style("fill", (d) => {
-        return dangerColorMap[d.danger].bg;
-      })
-      .style("stroke-width", strokeWidth + "px")
-      .style("stroke", "gray");
-
-    elem = g.selectAll("g myCircleText").data(piedData);
-
-    strokeWidth = 0.5;
-
-    elemEnter = elem
-      .enter()
-      .append("g")
-      .attr("class", "noselect")
-      .attr(
-        "transform",
-        function (d) {
-          return (
-            "translate(" +
-            (this.x(parseInt(d.year)) + this.x.bandwidth() / 2) +
-            "," +
-            rowHeight / 2 +
-            ")"
-          );
-        }.bind(this)
-      )
-      .attr(
-        "x",
-        function (d) {
-          return this.x(parseInt(d.year)) + this.x.bandwidth() / 2;
-        }.bind(this)
-      )
-      .on("mouseover", this.mouseover)
-      .on("mousemove", this.mousemove)
-      .on("mouseleave", this.mouseleave);
-
-    elemEnter
-      .selectAll("whatever")
-      .data(function (d) {
-        return pie(d3.entries(d.data));
-      })
-      .enter()
-      .append("path")
-      .attr(
-        "d",
-        d3
-          .arc()
-          .innerRadius(0)
-          .outerRadius(rowHeight / 2 - 0.5 * strokeWidth)
-      )
-      .attr("fill", function (d) {
-        return dangerColorMap[d.data.key].bg;
-      })
-      .attr("stroke", "var(--black)")
-      .style("stroke-width", strokeWidth + "px");
-  }
-
-  appendThreatBars(threatData) {
-    // ############# THREATS #############
-    let rowHeight = 2 * this.radius + 1;
-    let strokeWidth = 0.5;
-
-    // let circleYearCountThreats = {};
-
-    let svgThreat = this.wrapper
-      .append("svg")
-      .attr("id", this.id + "Threat")
-      .attr("width", this.initWidth)
-      .attr("height", rowHeight);
-
-    let maxCount = 0;
-
-    svgThreat.style("display", "block");
-
-    let g = svgThreat
-      .append("g")
-      .attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
-
-    g.append("rect")
-      .attr("width", this.width)
-      .attr("height", rowHeight)
-      .style("fill", "none")
-      .style("stroke", "grey");
-
-    g.append("text")
-      .attr(
-        "transform",
-        "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")"
-      )
-      .style("text-anchor", "end")
-      .style("dominant-baseline", "central")
-      .style("font-size", "9")
-      .text("Threats");
-
-    let piedData = {};
-    for (let threat of threatData.values()) {
-      if (threat.scope !== "Global") {
-        pushOrCreate(
-          getOrCreate(piedData, threat.year.toString(), {
-            year: threat.year.toString(),
-            type: "threatpie",
-            data: {}
-          }).data,
-          threat.danger,
-          threat
-        );
-      }
-    }
-
-    let barScale = d3
-      .scaleLinear()
-      .domain([0, this.maxPerYear])
-      .range([this.x.bandwidth(), 0]);
-
-    piedData = Object.values(piedData);
-
-    let elem = g.selectAll("wayne").data(threatData);
-
-    let elemEnter = elem
-      .enter()
-      .append("g")
-      .attr("class", "noselect")
-      .attr(
-        "transform",
-        function (d) {
-          return (
-            "translate(" +
-            (this.x(parseInt(d.year)) + this.x.bandwidth() / 2) +
-            "," +
-            -strokeWidth +
-            ")"
-          );
-        }.bind(this)
-      )
-      .attr(
-        "x",
-        function (d) {
-          return this.x(parseInt(d.year)) + this.x.bandwidth() / 2;
-        }.bind(this)
-      )
-      .on("mouseover", this.mouseover)
-      .on("mousemove", this.mousemove)
-      .on("mouseleave", this.mouseleave);
-
-    elemEnter
-      .filter((d) => {
-        return d.scope === "Global";
-      })
-      .append("rect")
-      .attr("class", "pinarea")
-      .attr("height", rowHeight + 2 * strokeWidth)
-      .attr(
-        "width",
-        function (d) {
-          return this.width - this.x(Number(d.year));
-        }.bind(this)
-      )
-      .style("fill", (d) => {
-        return dangerColorMap[d.danger].bg;
-      })
-      .style("stroke-width", strokeWidth + "px")
-      .style("stroke", "gray");
-
-    elem = g.selectAll("g myCircleText").data(piedData);
-
-    strokeWidth = 0.5;
-
-    elemEnter = elem
-      .enter()
-      .append("g")
-      .attr("class", "noselect")
-      .attr(
-        "transform",
-        function (d) {
-          return (
-            "translate(" +
-            (this.x(parseInt(d.year)) + this.x.bandwidth() / 2) +
-            "," +
-            0 +
-            ")"
-          );
-        }.bind(this)
-      )
-      .attr(
-        "x",
-        function (d) {
-          return this.x(parseInt(d.year)) + this.x.bandwidth() / 2;
-        }.bind(this)
-      )
-      .on("mouseover", this.mouseover)
-      .on("mousemove", this.mousemove)
-      .on("mouseleave", this.mouseleave);
-
-    elemEnter
-      .selectAll("whatever")
-      .data(function (d) {
-        let data = {};
-        Object.keys(dangerColorMap).forEach((key, i) => {
-          data[key] = d.data.hasOwnProperty(key) ? d.data[key].length : 0;
-        });
-        var stackedData = d3.stack().keys(Object.keys(dangerColorMap))([data]);
-
-        return stackedData;
-      })
-      .enter()
-      .append("rect")
-      .attr("width", (d) => {
-        return barScale(d[0][0]) - barScale(d[0][1]);
-      })
-      .attr("height", rowHeight)
-      .attr(
-        "x",
-        function (d) {
-          return this.x.bandwidth() + 4 * strokeWidth - barScale(d[0][0]);
-        }.bind(this)
-      )
-      .attr("fill", function (d) {
-        return dangerColorMap[d.key].bg;
-      })
-      .attr("stroke", "none");
-
-    elemEnter
-      .append("rect")
-      .attr("width", this.x.bandwidth() + 2 * strokeWidth)
-      .attr("height", rowHeight - 2 * strokeWidth)
-      .attr(
-        "transform",
-        "translate(" + 3 * strokeWidth + "," + strokeWidth + ")"
-      )
-      .style("fill", "none")
-      .style("stroke", "grey");
-  }
-
-  appendThreatVerticalBars(threatData) {
-    // ############# THREATS #############
-    let localMaxPerYear = Math.max(
-      ...Object.values(threatData).map((e) => e.maxPerYear)
-    );
-
-    let rowHeight = localMaxPerYear * 2 * this.radius + 1;
-    let strokeWidth = 0.5;
-
-    // let circleYearCountThreats = {};
-
-    let svgThreat = this.wrapper
-      .append("svg")
-      .attr("id", this.id + "Threat")
-      .attr("width", this.initWidth)
-      .attr("height", rowHeight);
-
-    let maxCount = 0;
-
-    svgThreat.style("display", "block");
-
-    let g = svgThreat
-      .append("g")
-      .attr("transform", "translate(" + this.margin.left + "," + 0 + ")");
-
-    g.append("rect")
-      .attr("width", this.width)
-      .attr("height", rowHeight)
-      .style("fill", "none")
-      .style("stroke", "grey");
-
-    g.append("text")
-      .attr(
-        "transform",
-        "translate(-5," + ((maxCount + 1) * rowHeight) / 2 + ")"
-      )
-      .style("text-anchor", "end")
-      .style("dominant-baseline", "central")
-      .style("font-size", "9")
-      .text("Threats");
-
-    let piedData = {};
-    for (let threat of threatData.values()) {
-      if (threat.scope !== "Global") {
-        pushOrCreate(
-          getOrCreate(piedData, threat.year.toString(), {
-            year: threat.year.toString(),
-            type: "threatpie",
-            data: {}
-          }).data,
-          threat.danger,
-          threat
-        );
-      }
-    }
-
-    let barScale = d3
-      .scaleLinear()
-      .domain([0, localMaxPerYear])
-      .range([rowHeight, 0]);
-
-    piedData = Object.values(piedData);
-
-    let elem = g.selectAll("wayne").data(threatData);
-
-    let elemEnter = elem
-      .enter()
-      .append("g")
-      .attr("class", "noselect")
-      .attr(
-        "transform",
-        function (d) {
-          return (
-            "translate(" +
-            (this.x(parseInt(d.year)) + this.x.bandwidth() / 2) +
-            "," +
-            -strokeWidth +
-            ")"
-          );
-        }.bind(this)
-      )
-      .attr(
-        "x",
-        function (d) {
-          return this.x(parseInt(d.year)) + this.x.bandwidth() / 2;
-        }.bind(this)
-      )
-      .on("mouseover", this.mouseover)
-      .on("mousemove", this.mousemove)
-      .on("mouseleave", this.mouseleave);
-
-    elemEnter
-      .filter((d) => {
-        return d.scope === "Global";
-      })
-      .append("rect")
-      .attr("class", "pinarea")
-      .attr("height", rowHeight + 2 * strokeWidth)
-      .attr(
-        "width",
-        function (d) {
-          return this.width - this.x(Number(d.year));
-        }.bind(this)
-      )
-      .style("fill", (d) => {
-        return dangerColorMap[d.danger].bg;
-      })
-      .style("stroke-width", strokeWidth + "px")
-      .style("stroke", "gray");
-
-    elem = g.selectAll("g myCircleText").data(piedData);
-
-    strokeWidth = 0.5;
-
-    elemEnter = elem
-      .enter()
-      .append("g")
-      .attr("class", "noselect")
-      .attr(
-        "transform",
-        function (d) {
-          return "translate(" + this.x(parseInt(d.year)) + "," + 0 + ")";
-        }.bind(this)
-      )
-      .attr(
-        "x",
-        function (d) {
-          return this.x(parseInt(d.year));
-        }.bind(this)
-      )
-      .on("mouseover", this.mouseover)
-      .on("mousemove", this.mousemove)
-      .on("mouseleave", this.mouseleave);
-
-    elemEnter
-      .selectAll("whatever")
-      .data(function (d) {
-        let data = {};
-        Object.keys(dangerColorMap).forEach((key, i) => {
-          data[key] = d.data.hasOwnProperty(key) ? d.data[key].length : 0;
-        });
-        var stackedData = d3.stack().keys(Object.keys(dangerColorMap))([data]);
-
-        let newStackedData = [];
-        for (let entry of stackedData.values()) {
-          if (entry[0].data[entry.key] > 1) {
-            for (let i = entry[0][0]; i < entry[0][1]; i++) {
-              let newEntry = {
-                0: { 0: i, 1: i + 1, data: entry[0].data },
-                key: entry.key,
-                index: entry.index
-              };
-              newStackedData.push(newEntry);
-            }
-          } else {
-            newStackedData.push(entry);
-          }
-        }
-        return newStackedData;
-      })
-      .enter()
-      .append("rect")
-      .attr("width", this.x.bandwidth() / 2)
-      .attr("height", (d) => {
-        return barScale(d[0][0]) - barScale(d[0][1]);
-      })
-      .attr("x", 2)
-      .attr("y", function (d) {
-        return barScale(d[0][1]);
-      })
-      .attr("fill", function (d) {
-        return dangerColorMap[d.key].bg;
-      })
-      .attr("stroke", "grey")
-      .attr("stroke-width", strokeWidth);
-
-    /* elemEnter
-            .append("rect")
-            .attr("width", this.x.bandwidth() / 2 + 2 * strokeWidth)
-            .attr("height", rowHeight - 2 * strokeWidth)
-            .attr("transform", "translate(" + 3 * strokeWidth + "," + strokeWidth + ")")
-            .style("fill", "none")
-            .style("stroke", "grey"); */
   }
 
   mouseover(d) {
     d3.select(".tooltip").style("display", "block");
+  }
+
+  tooltipMove(event) {
+    let tooltip = d3.select(".tooltip");
+    tooltip
+      .style("left", event.pageX + 25 + "px")
+      .style("top", event.pageY + 25 + "px");
+  }
+
+  getTooltip(d) {
+    let text = "<b><i>" + d.data.name + "</i></b><br>";
+    text += d.value + " Species";
+
+    return text;
+  }
+
+  tooltip(d, event, highlight) {
+    let colorBlind = this.colorBlind;
+    function createThreatLegend(threat, type) {
+      let ret = d3
+        .create("div")
+        .style("width", "fit-content")
+        .style("height", "20px");
+
+      switch (type) {
+        case "CITES":
+          ret
+            .style(
+              "background-color",
+              citesAssessment.get(threat.cites).getColor(colorBlind)
+            )
+            .style(
+              "color",
+              citesAssessment.get(threat.cites).getForegroundColor(colorBlind)
+            )
+            .text(threat.cites ? threat.cites : "n/a");
+          return ret;
+        case "IUCN":
+          ret
+            .style(
+              "background-color",
+              iucnAssessment.get(threat.iucn).getColor(colorBlind)
+            )
+            .style(
+              "color",
+              iucnAssessment.get(threat.iucn).getForegroundColor(colorBlind)
+            )
+            .text(threat.iucn ? threat.iucn : "n/a");
+          return ret;
+        case "BGCI":
+          ret
+            .style(
+              "background-color",
+              bgciAssessment.get(threat.threat).getColor(colorBlind)
+            )
+            .style(
+              "color",
+              bgciAssessment.get(threat.threat).getForegroundColor(colorBlind)
+            )
+            .text(threat.threat ? threat.threat : "n/a");
+          return ret;
+
+        default:
+          break;
+      }
+    }
+
+    console.log(d);
+    let tooltip = d3.select(".tooltip");
+
+    let content = d3.select("#" + this.id);
+    let copyImage = content
+      .select(".speciesImageWrapper")
+      .clone(true)
+      .remove()
+      .style("position", "relative")
+      .style("width", "250px")
+      .style("height", "150px")
+      .style("grid-column-start", 1)
+      .style("grid-column-end", 1)
+      .style("grid-row-start", 2)
+      .style("grid-row-end", 2)
+      .style("align-self", "center")
+      .style("justify-self", "center");
+
+    let scale = 4;
+
+    let copyIcon = content.select(".iconSVG").clone(true).remove();
+
+    let width = copyIcon.attr("width");
+
+    copyIcon
+      .attr("width", width * scale - 10)
+      .style("transform", "scale(" + scale + ")");
+
+    if (highlight) {
+      let wrapper = tooltip
+        .html("")
+        .style("display", "block")
+        .style("padding", "10px")
+        .style("left", event.pageX + 25 + "px")
+        .style("top", event.pageY + 25 + "px")
+        .append("div")
+        /*  .style("max-width", this.width + "px")
+        .style("min-width", "250px") */
+        /* .style("height", "150px") */
+        .style("display", "grid")
+        .style("grid-template-columns", "auto auto auto auto auto auto auto")
+        .style("grid-template-rows", "auto auto")
+        .style("row-gap", "8px")
+        .style("column-gap", "8px");
+
+      wrapper
+        .append("div")
+        .style("grid-column-start", 1)
+        .style("grid-column-end", 1)
+        .style("grid-row-start", 1)
+        .style("grid-row-end", 1)
+        .style("align-self", "center")
+        .style("justify-self", "center")
+        .append("text")
+        .style("font-weight", "bold")
+        .text(d);
+
+      wrapper.append(() => copyImage.node());
+
+      let tradeWrapper = wrapper
+        .append("div")
+        .style("grid-column-start", 2)
+        .style("grid-column-end", 2)
+        .style("grid-row-start", 1)
+        .style("grid-row-end", "span 2")
+        .style("align-self", "center")
+        .style("justify-self", "center");
+
+      tradeWrapper
+        .append("div")
+        .style("white-space", "nowrap")
+        .style("font-weight", "normal")
+        .style("margin-bottom", "5px")
+        .html(this.getTreeThreatLevel(d, "economically").getName());
+
+      let tradeTable = tradeWrapper
+        .append("div")
+        .style("white-space", "nowrap")
+        .style("font-weight", "normal")
+        .style("display", "grid")
+        .style("grid-template-columns", "auto auto")
+        .style("grid-template-rows", "auto auto");
+
+      tradeTable
+        .append("div")
+        .style("grid-column-start", 1)
+        .style("grid-column-end", 1)
+        .style("grid-row-start", 1)
+        .style("grid-row-end", 1)
+        .style("align-self", "start")
+        .text("Cites:");
+
+      tradeTable
+        .append("div")
+        .style("grid-column-start", 2)
+        .style("grid-column-end", 2)
+        .style("grid-row-start", 1)
+        .style("grid-row-end", 1)
+        .style("align-self", "end")
+        .append(() =>
+          createThreatLegend(this.getSpeciesSignThreats(d), "CITES").node()
+        );
+
+      wrapper
+        .append("div")
+        .style("grid-column-start", 3)
+        .style("grid-column-end", 3)
+        .style("grid-row-start", 1)
+        .style("grid-row-end", "span 2")
+        .style("align-self", "center")
+        .style("justify-self", "center")
+        .style("margin-left", "10px")
+        .style("margin-right", "-10px")
+        .append("text")
+        .text("Trade");
+
+      let threatWrapper = wrapper
+        .append("div")
+        .style("grid-column-start", 6)
+        .style("grid-column-end", 6)
+        .style("grid-row-start", 1)
+        .style("grid-row-end", "span 2")
+        .style("align-self", "center")
+        .style("justify-self", "center");
+
+      threatWrapper
+        .append("div")
+        .style("white-space", "nowrap")
+        .style("font-weight", "normal")
+        .style("margin-bottom", "5px")
+        .html(this.getTreeThreatLevel(d, "ecologically").getName());
+
+      let threatTable = threatWrapper
+        .append("div")
+        .style("display", "grid")
+        .style("font-weight", "normal")
+        .style("grid-template-columns", "auto auto")
+        .style("grid-template-rows", "auto auto");
+      /* .style("row-gap", "5px")
+        .style("column-gap", "5px"); */
+
+      threatTable
+        .append("div")
+        .style("grid-column-start", 1)
+        .style("grid-column-end", 1)
+        .style("grid-row-start", 1)
+        .style("grid-row-end", 1)
+        .style("align-self", "start")
+        .text("IUCN:");
+
+      threatTable
+        .append("div")
+        .style("grid-column-start", 2)
+        .style("grid-column-end", 2)
+        .style("grid-row-start", 1)
+        .style("grid-row-end", 1)
+        .style("align-self", "end")
+        .append(() =>
+          createThreatLegend(this.getSpeciesSignThreats(d), "IUCN").node()
+        );
+
+      threatTable
+        .append("div")
+        .style("grid-column-start", 1)
+        .style("grid-column-end", 1)
+        .style("grid-row-start", 2)
+        .style("grid-row-end", 2)
+        .style("align-self", "start")
+        .text("BGCI:");
+
+      threatTable
+        .append("div")
+        .style("grid-column-start", 2)
+        .style("grid-column-end", 2)
+        .style("grid-row-start", 2)
+        .style("grid-row-end", 2)
+        .style("align-self", "end")
+        .append(() =>
+          createThreatLegend(this.getSpeciesSignThreats(d), "BGCI").node()
+        );
+
+      wrapper
+        .append("div")
+        .style("grid-column-start", 5)
+        .style("grid-column-end", 5)
+        .style("grid-row-start", 1)
+        .style("grid-row-end", "span 2")
+        .style("align-self", "center")
+        .style("justify-self", "center")
+        .style("margin-left", "-10px")
+        .style("margin-right", "10px")
+        .append("text")
+        .text("Threat");
+
+      let iconWrapper = wrapper
+        .append("div")
+        .style("width", width * scale - 10 + "px")
+        .style("grid-column-start", 4)
+        .style("grid-column-end", 4)
+        .style("grid-row-start", 1)
+        .style("grid-row-end", "span 2")
+        .style("align-self", "center")
+        .style("justify-self", "center");
+      iconWrapper.append(() => copyIcon.node());
+
+      d3.select("#" + this.id).style(
+        "border",
+        "2px solid var(--highlightpurple)"
+      );
+    } else {
+      tooltip.html("").style("display", "none");
+      d3.select("#" + this.id).style("border", "none");
+    }
+  }
+
+  tooltipTrend(d, event, highlight) {
+    console.log(d);
+    let tooltip = d3.select(".tooltip");
+
+    if (highlight) {
+      tooltip.html("").style("display", "block");
+
+      let content = d3.select("#" + this.id);
+      /* let copyTrend = content
+        .selectAll("svg")
+        .select(".trendGroud")
+        .clone()
+        .remove(); */
+
+      /* .clone(true).remove(); */
+      /* .style("position", "relative")
+      .style("width", "250px")
+      .style("height", "150px")
+      .style("grid-column-start", 1)
+      .style("grid-column-end", 1)
+      .style("grid-row-start", 2)
+      .style("grid-row-end", 2)
+      .style("align-self", "center")
+      .style("justify-self", "center"); */
+
+      tooltip.append("div").html("<b>" + d.speciesName + "</b>");
+
+      tooltip.append("div").html("IUCN Red List<br>Population Trend:");
+
+      let svg = tooltip
+        .append("div")
+        .style("display", "inline-block")
+        .append("svg")
+        .attr("width", 15)
+        .attr("height", 25);
+
+      tooltip.append("div").style("display", "inline-block").html(d.type);
+
+      this.appendTrend(svg, d.type);
+    } else {
+      tooltip.html("").style("display", "none");
+    }
   }
 
   mousemove(d) {
@@ -4264,10 +2241,14 @@ class D3Timeline {
   }
 
   paint() {
-    this.clearAndReset();
-
-    this.width = this.initWidth - this.margin.left - this.margin.right;
+    this.width =
+      this.initWidth -
+      this.margin.left -
+      this.margin.right -
+      this.rightGroupWidth;
     this.height = this.initHeight - this.margin.top - this.margin.bottom;
+
+    this.clearAndReset();
 
     if (this.zoomLevel === 0 && this.justTrade === true) {
       this.height = this.height / 2.5;
@@ -4398,19 +2379,119 @@ class D3Timeline {
         this.appendGrayBox(this.timeFrame[1]);
       }
     } else if (this.id.includes("scale")) {
-      var dataTime = d3
-        .range(this.domainYears.minYear, this.domainYears.maxYear + 1)
-        .map(function (d) {
-          return new Date(d, 1, 1);
-        });
+      /* let svgScale = this.wrapper
+        .append("svg")
+        .attr("id", this.id + "Scale")
+        .attr("width", this.initWidth)
+        .attr("height", "40px")
+        .style("display", "block");
+
+      let top = 10;
+
+      this.ticks = this.domainYears.maxYear - this.domainYears.minYear;
+
+      let axis = d3.axisBottom(this.x);
+
+      if (this.speciesName === "scaleTop") {
+        top = 25;
+        axis = d3.axisTop(this.x);
+      }
+
+      let g = svgScale
+        .append("g")
+        .attr("transform", "translate(" + this.margin.left + "," + top + ")");
+
+      g.append("g")
+        .attr("transform", "translate(0," + 0 + ")")
+        .call(axis);
+
+      g.append("circle")
+        .attr("class", "timeframeHandle")
+        .attr("r", "8")
+        .attr(
+          "cx",
+          this.x.bandwidth() / 2 +
+            this.x(
+              this.timeFrame[1] ? this.timeFrame[1] : this.domainYears.maxYear
+            )
+        )
+        //.attr("cy", "5")
+        .style("fill", "var(--highlightpurple)");
+
+      svgScale
+        .selectAll(".tick")
+        .append("rect")
+        .attr("width", this.x.bandwidth())
+        .attr("x", -this.x.bandwidth() / 2)
+        .attr("height", 25)
+        .attr("y", this.speciesName === "scaleTop" ? -25 : 0)
+        .style("opacity", "0.0")
+        .style("fill", "white")
+        .style("stroke", "gray");
+
+      svgScale
+        .selectAll(".tick")
+        .style("cursor", "pointer")
+        .select("text")
+        .attr("y", this.speciesName === "scaleTop" ? -15 : 15)
+        .classed("axisTicks", true);
+
+      svgScale
+        .selectAll(".tick")
+        .selectAll("line")
+        .attr("y2", this.speciesName === "scaleTop" ? -12 : 12);
+
+      svgScale.selectAll(".tick").on("click", (e) => {
+        this.setTimeFrame([this.domainYears.minYear, e]);
+      }); */
+
+      // Delete every second tick text
+      /*  let contentWidth = this.width;
+      while (contentWidth < this.ticks * 25) {
+        svgScale
+          .selectAll(".axisTicks")
+          .select(function (e, i) {
+            return i % 2 !== 0 ? this : null;
+          })
+          .remove();
+        this.ticks = this.ticks / 2;
+      } */
+
+      /*  svgScale
+        .append("foreignObject")
+        .attr("width", this.width)
+        .attr("height", 50) */
+      /* this.wrapper
+        .append("div")
+        .style("width", this.width + "px")
+        .style("height", "50px")
+        .style(
+          "transform",
+          "translate(" + (130 + this.x.bandwidth()) + "px , 0)"
+        )
+        .append("input")
+        .attr("type", "range")
+        .attr("min", this.domainYears.minYear)
+        .attr("max", this.domainYears.maxYear)
+        .attr("step", 1)
+        .attr(
+          "value",
+          this.timeFrame[1] ? this.timeFrame[1] : this.domainYears.maxYear
+        )
+        .style("width", this.width - 2 * this.x.bandwidth() + "px"); */
+
+      var dataTime = d3.range(
+        this.domainYears.minYear,
+        this.domainYears.maxYear + 1
+      );
 
       let year2year = d3
-        .scaleTime()
-        .domain([
-          new Date(this.domainYears.minYear, 1, 1),
-          new Date(this.domainYears.maxYear, 1, 1)
-        ])
-        .range([0, this.width - this.x.bandwidth()]);
+        .scaleLinear()
+        .domain([this.domainYears.minYear, this.domainYears.maxYear])
+        .range([
+          0,
+          this.x(this.domainYears.maxYear) - this.x(this.domainYears.minYear)
+        ]);
 
       var sliderTime;
 
@@ -4418,38 +2499,30 @@ class D3Timeline {
 
       this.ticks = this.domainYears.maxYear - this.domainYears.minYear;
 
-      let axis = d3.axisBottom(this.x);
-
       if (this.speciesName === "scaleTop") {
         top = 40;
-        /* axis = d3.axisTop(this.x); */
         sliderTime = sliderTop(year2year)
-          .step(1000 * 60 * 60 * 24 * 365)
-          .tickFormat(d3.timeFormat("%Y"))
+          .step(1)
+          .tickFormat((x) => x.toString())
           .tickValues(dataTime)
           .default(
-            new Date(
-              this.timeFrame[1] ? this.timeFrame[1] : this.domainYears.maxYear,
-              1,
-              1
-            )
+            this.timeFrame[1] ? this.timeFrame[1] : this.domainYears.maxYear
           )
           .on("onchange", (val) => {
-            this.setTimeFrame([this.domainYears.minYear, val.getFullYear()]);
+            console.log(val);
+            this.setTimeFrame([this.domainYears.minYear, val]);
           });
       } else {
         sliderTime = sliderBottom(year2year)
-          .step(1000 * 60 * 60 * 24 * 365)
-          .tickFormat(d3.timeFormat("%Y"))
+          .step(1)
+          .tickFormat((x) => x.toString())
           .tickValues(dataTime)
           .default(
-            new Date(
-              this.timeFrame[1] ? this.timeFrame[1] : this.domainYears.maxYear,
-              1,
-              1
-            )
+            this.timeFrame[1] ? this.timeFrame[1] : this.domainYears.maxYear
           );
       }
+
+      console.log(this.x(this.domainYears.minYear));
 
       const sliderGroup = this.wrapper
         .append("svg")
@@ -4459,7 +2532,9 @@ class D3Timeline {
         .attr(
           "transform",
           "translate(" +
-            (this.margin.left + this.x.bandwidth() / 2) +
+            (this.margin.left +
+              this.x(this.domainYears.minYear) +
+              this.x.bandwidth() / 2) +
             "," +
             top +
             ")"
@@ -4470,6 +2545,50 @@ class D3Timeline {
       if (this.speciesName === "scaleBottom") {
         sliderGroup.select(".slider").remove();
       }
+
+      sliderGroup.select(".slider > .parameter-value > text").remove();
+
+      sliderGroup
+        .select(".slider > .parameter-value > path")
+        .attr("transform", "rotate(180) translate(-1, 0) scale(1.8)")
+        .style("opacity", 0.0);
+
+      sliderGroup
+        .select(".slider > .parameter-value > path")
+        .clone()
+        .attr("transform", "rotate(180) translate(-1, 0) scale(1.1)")
+        .style("opacity", 1.0);
+
+      sliderGroup
+        .select(".slider > .parameter-value")
+        .on("mouseover", () =>
+          sliderGroup.select(".handle").style("opacity", 0.05)
+        )
+        .on("mouseout", () =>
+          sliderGroup.select(".handle").style("opacity", 0.0)
+        );
+
+      // Delete every second tick text
+      let contentWidth = this.width;
+      while (contentWidth < this.ticks * 25) {
+        sliderGroup
+          .selectAll(".tick > text")
+          .select(function (e, i) {
+            return i % 2 !== 0 ? this : null;
+          })
+          .remove();
+        this.ticks = this.ticks / 2;
+      }
+
+      /* sliderGroup
+        .select(".slider > .parameter-value")
+        .append("foreignObject")
+        .attr("width", 20)
+        .attr("height", 20)
+        .append("xhtml:div")
+        .style("width", "20px")
+        .style("height", "20px")
+        .style("background-color", "lime"); */
 
       /* let g = svgScale
         .append("g")
@@ -4517,7 +2636,7 @@ class D3Timeline {
       svgScale.selectAll(".tick").on("click", (e) => {
         this.setTimeFrame([this.domainYears.minYear, e]);
       });
-      */
+     
 
       // Delete every second tick text
       let contentWidth = this.width;
@@ -4529,7 +2648,7 @@ class D3Timeline {
           })
           .remove();
         this.ticks = this.ticks / 2;
-      }
+      } */
     }
   }
 }

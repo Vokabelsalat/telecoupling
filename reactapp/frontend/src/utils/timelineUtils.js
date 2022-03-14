@@ -46,12 +46,24 @@ class ThreatLevel {
     this.sort = sort;
   }
 
-  getColor() {
-    return IUCNColorScheme.colors[this.numvalue][0];
+  getName() {
+    return this.name;
   }
 
-  getForegroundColor() {
-    return IUCNColorScheme.colors[this.numvalue][1];
+  getColor(colorBlind = false) {
+    if (colorBlind) {
+      return ColorBlindColorScheme.colors[this.numvalue][0];
+    } else {
+      return IUCNColorScheme.colors[this.numvalue][0];
+    }
+  }
+
+  getForegroundColor(colorBlind = false) {
+    if (colorBlind) {
+      return ColorBlindColorScheme.colors[this.numvalue][1];
+    } else {
+      return IUCNColorScheme.colors[this.numvalue][1];
+    }
   }
 
   getHashCode() {
@@ -184,16 +196,12 @@ export const citesScore = function (appendix) {
   switch (appendix) {
     case "I":
       return 1.0;
-      break;
     case "II":
       return 2 / 3;
-      break;
     case "III":
       return 1 / 3;
-      break;
     default:
       return -1;
-      break;
   }
 };
 export const citesScoreReverse = function (value) {

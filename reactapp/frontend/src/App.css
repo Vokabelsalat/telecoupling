@@ -62,7 +62,7 @@ html {
 }
 
 body {
-  padding: 20px;
+  padding: 10px;
   width: 100%;
   box-sizing: border-box;
   font-size: 16px;
@@ -376,7 +376,7 @@ button {
   border-width: 2px; */
   border-radius: 5px;
   padding: 5px;
-  max-width: 250px;
+  /* max-width: 250px; */
   /* font-size: 12px; */
   display: none;
   z-index: 9999;
@@ -440,6 +440,8 @@ button {
 
 .timelineVis {
   position: relative;
+  box-sizing: border-box;
+  border: none;
 }
 
 .barCharAxisTickText {
@@ -504,9 +506,13 @@ button {
   cursor: pointer;
 }
 
+.switchWrapper {
+  text-align: center;
+}
+
 .MuiSwitch-root {
-  transform: scale(2);
   width: 65px !important;
+  transform: scale(1.5);
 }
 
 .MuiSwitch-root > .Mui-checked {
@@ -514,11 +520,11 @@ button {
 }
 
 .MuiSwitch-track {
-  background-color: #9c27b0 !important;
+  background-color: var(--highlightpurple) !important;
 }
 
 .MuiSwitch-thumb {
-  color: #9c27b0 !important;
+  color: var(--highlightpurple) !important;
 }
 
 .MuiOutlinedInput-root {
@@ -528,6 +534,16 @@ button {
 .filterUsed .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
   border-color: var(--highlightpurple) !important;
   border-width: 3px !important;
+}
+
+.colorBlindSwitch .MuiSwitch-thumb,
+.MuiSwitch-track {
+  color: var(--gray) !important;
+}
+
+.colorBlindSwitch > .Mui-checked > .MuiSwitch-thumb,
+.MuiSwitch-track {
+  color: var(--highlightpurple) !important;
 }
 
 .info {
@@ -570,6 +586,16 @@ path.handle {
   stroke: var(--highlightpurple);
 }
 
+path.handle:focus {
+  outline: none;
+}
+
+.track,
+.track-inset {
+  stroke: var(--highlightpurple) !important;
+  opacity: 0.3 !important;
+}
+
 #scaleBottom2 .track {
   display: none !important;
 }
@@ -584,4 +610,21 @@ path.handle {
 
 .tick > text {
   opacity: 1 !important;
+  fill: black !important;
+}
+
+.tooltipTable {
+  display: table;
+}
+
+.tooltipTableCell {
+  display: table-cell;
+}
+
+#mainPartSelectorDiv .MuiFormControl-root {
+  margin: 0 !important;
+}
+
+#mainPartSelectorDiv.filterUsed fieldset.MuiOutlinedInput-notchedOutline {
+  border: solid 3px var(--highlightpurple);
 }

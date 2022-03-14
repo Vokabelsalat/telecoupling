@@ -21,25 +21,27 @@ class CenterPieChart extends Component {
   }
 
   componentDidMount() {
-    console.log("MOUNT CenterPieChart");
     CenterPieChartHelper.draw({
       id: this.state.id,
       data: this.props.data,
       getTreeThreatLevel: this.props.getTreeThreatLevel,
-      treeThreatType: this.props.treeThreatType
+      treeThreatType: this.props.treeThreatType,
+      colorBlind: this.props.colorBlind
     });
   }
 
   componentDidUpdate(prevProps) {
     if (
       this.props.treeThreatType !== prevProps.treeThreatType ||
+      this.props.colorBlind !== prevProps.colorBlind ||
       JSON.stringify(this.props.data) !== JSON.stringify(prevProps.data)
     ) {
       CenterPieChartHelper.draw({
         id: this.state.id,
         data: this.props.data,
         getTreeThreatLevel: this.props.getTreeThreatLevel,
-        treeThreatType: this.props.treeThreatType
+        treeThreatType: this.props.treeThreatType,
+        colorBlind: this.props.colorBlind
       });
     }
   }

@@ -5,7 +5,9 @@ import TreeMap from "./TreeMap";
 import Legend from "./Legend";
 import CenterPieChart from "./CenterPieChart";
 import SearchBar from "./SearchBar";
+import MapSearchBar from "./MapSearchBar";
 import TimelineView from "./TimelineView";
+import Switch from "@mui/material/Switch";
 import {
   getOrCreate,
   iucnToDangerMap,
@@ -48,7 +50,7 @@ class Home extends Component {
     this.usePreGenerated = true;
     this.renderMap = true;
     this.renderTreeMap = true;
-    this.slice = false;
+    this.slice = true;
 
     this.tempSpeciesData = {};
     this.tempFetchedSpecies = [];
@@ -78,7 +80,7 @@ class Home extends Component {
       addAllCountries: true,
       heatMap: false,
       diversity: true,
-      initWidthForVis: parseInt(Math.floor(window.innerWidth / 2)) - 50,
+      initWidthForVis: parseInt(Math.floor(window.innerWidth / 2)) - 20,
       fetchedSpecies: [],
       finishedFetching: false,
       diversityScale: [],
@@ -91,7 +93,10 @@ class Home extends Component {
       timeFrame: [],
       speciesDataCache: {},
       population: [],
-      filterSettings: {}
+      filterSettings: {},
+      colorBlind: false,
+      mapSearchMode: "country",
+      mapSearchBarData: []
     };
   }
 
@@ -104,6 +109,10 @@ class Home extends Component {
     }
 
     this.setState({ filterSettings });
+  }
+
+  setMapSearchBarData(newVal) {
+    this.setState({ mapSearchBarData: newVal });
   }
 
   setFilter(obj) {
@@ -1190,10 +1199,14 @@ class Home extends Component {
     const instrument = filter["instrument"] ? filter["instrument"][0] : null;
     const mainPart = filter["mainPart"] ? filter["mainPart"][0] : null;
 
+    console.log("mainPartFilter", mainPart);
+
     let kingdom = filter["kingdom"] ? filter["kingdom"][0] : null;
     const familia = filter["familia"] ? filter["familia"][0] : null;
     const genus = filter["genus"] ? filter["genus"][0] : null;
     const species = filter["species"] ? filter["species"][0] : null;
+
+    const country = filter["country"] ? filter["country"][0] : null;
 
     const asArray = Object.entries(this.state.speciesData);
 
@@ -1206,34 +1219,35 @@ class Home extends Component {
       } */
 
       if (hit && kingdom) {
-        hit = kingdom === value.Kingdom;
+        hit = kingdom === value.Kingdom.trim();
       }
 
       if (hit && familia) {
-        hit = familia === value.Family;
+        hit = familia === value.Family.trim();
       }
 
       if (hit && genus) {
-        hit = genus === value.Genus;
+        hit = genus === value.Genus.trim();
       }
 
       if (hit && species) {
         hit = species === key;
       }
 
-      if (hit && filter["country"]) {
-        if (
-          value.hasOwnProperty("speciesCountries") &&
-          value.speciesCountries.hasOwnProperty(key)
-        ) {
-          let countries = value.speciesCountries[key];
-          console.log("countries", countries);
-          hit = filter["country"].some((item) =>
-            value.speciesCountries[key].includes(item)
-          );
+      if (hit && country !== null && country !== undefined) {
+        let countries = [];
+        if (value.hasOwnProperty("treeCountriesShort")) {
+          countries = value.treeCountriesShort;
         } else {
-          hit = false;
+          if (value.hasOwnProperty("iucnCountriesShort")) {
+            countries = value.iucnCountriesShort;
+          } else {
+            if (value.hasOwnProperty("allCountries")) {
+              countries = value.allCountries;
+            }
+          }
         }
+        hit = Object.values(country).some((item) => countries.includes(item));
       }
 
       if (hit) {
@@ -1254,7 +1268,9 @@ class Home extends Component {
 
       if (hit && filter["mainPart"]) {
         let mainParts = value.main_parts.map((e) => e.toLowerCase());
-        hit = filter["mainPart"].some((item) => mainParts.includes(item));
+        hit = filter["mainPart"].some((item) =>
+          mainParts.includes(item.toLowerCase())
+        );
       }
 
       return hit;
@@ -1348,14 +1364,15 @@ class Home extends Component {
           speciesSignThreats={this.state.speciesSignThreats}
           setFilter={this.setFilter.bind(this)}
           timeFrame={this.state.timeFrame}
+          colorBlind={this.state.colorBlind}
         />
 
         <div
           style={{
             display: "flex",
             justifyContent: "center",
-            margin: "20px 0",
-            paddingRight: "40px"
+            margin: "5px 0",
+            marginRight: "15px"
           }}
         >
           <div
@@ -1391,6 +1408,7 @@ class Home extends Component {
                   onHeatStyle={this.onHeatStyle.bind(this)}
                   treeThreatType={this.state.treeThreatType}
                   setTreeThreatType={this.setTreeThreatType.bind(this)}
+                  colorBlind={this.state.colorBlind}
                 />
               </div>
             </div>
@@ -1409,6 +1427,7 @@ class Home extends Component {
                   data={filteredSpeciesData}
                   getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
                   treeThreatType={this.state.treeThreatType}
+                  colorBlind={this.state.colorBlind}
                 />
               </div>
               <div
@@ -1443,8 +1462,73 @@ class Home extends Component {
               >
                 <SearchBar
                   data={this.state.speciesData}
+                  kingdom={kingdom}
+                  familia={familia}
+                  species={species}
+                  genus={genus}
                   setFilter={this.setFilter.bind(this)}
                 />
+              </div>
+            </div>
+            <div
+              style={{
+                gridColumnStart: 4,
+                gridColumnEnd: 4,
+                gridRowStart: 1,
+                gridRowEnd: 1
+                /*  "align-self": "center",
+                "justify-self": "center", */
+              }}
+            >
+              <div
+                style={{
+                  margin: 0,
+                  padding: 0,
+                  height: "100%",
+                  display: "table"
+                }}
+                className="searchBarWrapper"
+              >
+                <MapSearchBar
+                  data={this.state.speciesData}
+                  setFilter={this.setFilter.bind(this)}
+                  mapSearchMode={this.state.mapSearchMode}
+                  mapSearchBarData={this.state.mapSearchBarData}
+                  country={country}
+                />
+              </div>
+            </div>
+            <div
+              style={{
+                gridColumnStart: 5,
+                gridColumnEnd: 5,
+                gridRowStart: 1,
+                gridRowEnd: 1,
+                alignSelf: "center"
+                /*  
+                "justify-self": "center", */
+              }}
+            >
+              <div
+                style={{
+                  margin: 0,
+                  padding: 0,
+                  height: "100%",
+                  display: "table"
+                }}
+                className="searchBarWrapper"
+              >
+                <div>Color Blind Mode</div>
+                <div className="switchWrapper">
+                  <Switch
+                    onChange={(e, value) =>
+                      this.setState({ colorBlind: !this.state.colorBlind })
+                    }
+                    checked={this.state.colorBlind}
+                    className="colorBlindSwitch"
+                    color="secondary"
+                  />
+                </div>
               </div>
             </div>
             {/* <button onClick={this.fetchAndSetSpecies.bind(this)}>Run!</button> */}
@@ -1488,6 +1572,8 @@ class Home extends Component {
                 setHover={this.setHover.bind(this)}
                 setTimeFrame={this.setTimeFrame.bind(this)}
                 timeFrame={this.state.timeFrame}
+                colorBlind={this.state.colorBlind}
+                setFilter={this.setFilter.bind(this)}
               />
               <div key="tooltip" id="tooltip" className="tooltip"></div>
             </div>
@@ -1578,6 +1664,9 @@ class Home extends Component {
                 hoverSpecies={this.state.hoverSpecies}
                 timeFrame={this.state.timeFrame}
                 setFilter={this.setFilter.bind(this)}
+                colorBlind={this.state.colorBlind}
+                setMapSearchBarData={this.setMapSearchBarData.bind(this)}
+                country={country}
               />
             ) : (
               []

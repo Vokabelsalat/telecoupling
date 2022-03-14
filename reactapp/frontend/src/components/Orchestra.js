@@ -2,6 +2,11 @@ import React, { Component } from "react";
 import OrchestraHelper from "./OrchestraHelper";
 import "../utils/utils";
 
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+
 class Orchestra extends Component {
   constructor(props) {
     super(props);
@@ -13,12 +18,12 @@ class Orchestra extends Component {
       getTreeThreatLevel: this.props.getTreeThreatLevel,
       treeThreatType: this.props.treeThreatType,
       speciesData: this.props.speciesData,
-      finishedFetching: this.props.finishedFetching
+      finishedFetching: this.props.finishedFetching,
+      mainPartOptions: []
     };
   }
 
   componentDidMount() {
-    console.log("componentDidMount");
     this.OrchestraHelper = OrchestraHelper.draw({
       id: this.state.id,
       instrumentGroup: this.state.instrumentGroup,
@@ -28,7 +33,9 @@ class Orchestra extends Component {
       treeThreatType: this.state.treeThreatType,
       speciesData: this.state.speciesData,
       finishedFetching: this.props.finishedFetching,
-      setFilter: this.props.setFilter
+      setFilter: this.props.setFilter,
+      colorBlind: this.props.colorBlind,
+      setMainPartOptions: this.setMainPartOptions.bind(this)
     });
   }
 
@@ -41,34 +48,104 @@ class Orchestra extends Component {
       this.OrchestraHelper.setInstrument(this.props.instrument);
       this.OrchestraHelper.setInstrumentGroup(this.props.instrumentGroup);
       this.OrchestraHelper.setMainPart(this.props.mainPart);
-      this.OrchestraHelper.updateThreatPies(this.props.speciesData);
+      this.OrchestraHelper.updateThreatPies(
+        this.props.speciesData,
+        this.props.colorBlind
+      );
     }
 
     if (prevProps.treeThreatType !== this.props.treeThreatType) {
       this.OrchestraHelper.setTreeThreatType(this.props.treeThreatType);
-      this.OrchestraHelper.updateThreatPies(this.props.speciesData);
+      this.OrchestraHelper.updateThreatPies(
+        this.props.speciesData,
+        this.props.colorBlind
+      );
     }
 
     if (
       JSON.stringify(this.props.speciesData) !==
       JSON.stringify(prevProps.speciesData)
     ) {
-      this.OrchestraHelper.updateThreatPies(this.props.speciesData);
+      this.OrchestraHelper.updateThreatPies(
+        this.props.speciesData,
+        this.props.colorBlind
+      );
+    }
+
+    if (
+      JSON.stringify(this.props.colorBlind) !==
+      JSON.stringify(prevProps.colorBlind)
+    ) {
+      this.OrchestraHelper.updateThreatPies(
+        this.props.speciesData,
+        this.props.colorBlind
+      );
     }
 
     if (
       JSON.stringify(this.props.timeFrame) !==
       JSON.stringify(prevProps.timeFrame)
     ) {
-      this.OrchestraHelper.updateThreatPies(this.props.speciesData);
+      this.OrchestraHelper.updateThreatPies(
+        this.props.speciesData,
+        this.props.colorBlind
+      );
     }
   }
 
+  setMainPartOptions(newVal) {
+    this.setState({ mainPartOptions: newVal });
+  }
+
+  setMainPart(event) {
+    this.props.setFilter({ mainPart: [event.target.value] });
+  }
+
   render() {
+    let mainPartOptions = this.state.mainPartOptions;
+
     return (
-      <div style={{ display: "inline-block", verticalAlign: "top" }}>
+      <div
+        style={{
+          display: "inline-block",
+          verticalAlign: "top",
+          position: "relative"
+        }}
+      >
         <div id={this.state.id}></div>
-        <div id={"selectmainpartWrapper"}></div>
+        <div
+          id={"mainPartSelectorDiv"}
+          className={this.props.mainPart ? "filterUsed" : ""}
+          style={{
+            textAlign: "center",
+            position: "absolute",
+            bottom: "0px",
+            width: "100%",
+            left: "40px",
+            display: "none"
+          }}
+        >
+          <FormControl sx={{ m: 1, minWidth: 80 }}>
+            <InputLabel id="demo-simple-select-label">
+              Select Main Part
+            </InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="mainPartSelector"
+              value={this.props.mainPart ? this.props.mainPart : ""}
+              label="Select Main Part"
+              sx={{
+                width: 300,
+                height: 50
+              }}
+              onChange={this.setMainPart.bind(this)}
+            >
+              {mainPartOptions.map((e) => (
+                <MenuItem value={e}>{e}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
       </div>
     );
   }

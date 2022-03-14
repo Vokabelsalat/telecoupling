@@ -16,6 +16,7 @@ class CenterPieChartD3 {
   constructor(param) {
     this.id = param.id;
     this.data = param.data;
+    this.colorBlind = param.colorBlind;
     this.treeThreatType = param.treeThreatType
       ? "economically"
       : "ecologically";
@@ -175,6 +176,7 @@ class CenterPieChartD3 {
       })
       .entries(threats, d3.map);
 
+    let colorBlind = this.colorBlind;
     let pie = this.bakeTheThreatPie({
       data: data,
       strokeWidth: 2,
@@ -182,7 +184,7 @@ class CenterPieChartD3 {
       innerRadius: 18,
       instrument: false,
       color: function (d) {
-        return d.data.values[0].getColor();
+        return d.data.values[0].getColor(colorBlind);
       },
       pieClass: "clusterPie",
       pieLabelClass: "marker-cluster-pie-label",

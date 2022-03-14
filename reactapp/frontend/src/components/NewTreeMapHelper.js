@@ -40,13 +40,13 @@ class D3BarChart {
 
     this.margin = {
       top: 10,
-      right: 40,
+      right: 10,
       bottom: 10,
       left: 10
     };
 
-    this.initWidth = window.innerWidth / 2 - 20;
-    this.initHeight = window.innerHeight / 2 - 20;
+    this.initWidth = window.innerWidth / 2 - 10;
+    this.initHeight = window.innerHeight / 2 - 50;
 
     this.currentTransform = [
       this.initWidth / 2,
@@ -72,7 +72,6 @@ class D3BarChart {
   }
 
   setNodeAsFilter(node) {
-    console.log("setNodeAsFilter", node);
     let filter = {};
     switch (node.depth) {
       case 0:
@@ -105,6 +104,34 @@ class D3BarChart {
         break;
     }
     this.setFilter(filter);
+  }
+
+  tooltipMove(event) {
+    let tooltip = d3.select(".tooltip");
+    tooltip
+      .style("left", event.pageX + 25 + "px")
+      .style("top", event.pageY + 25 + "px");
+  }
+
+  getTooltip(d) {
+    let text = "<b><i>" + d.data.name + "</i></b><br>";
+    text += d.value + " Species";
+
+    return text;
+  }
+
+  tooltip(d, event, highlight) {
+    let tooltip = d3.select(".tooltip");
+
+    if (highlight) {
+      tooltip
+        .html(this.getTooltip(d))
+        .style("display", "block")
+        .style("left", event.pageX + 25 + "px")
+        .style("top", event.pageY + 25 + "px");
+    } else {
+      tooltip.style("display", "none");
+    }
   }
 
   clearAndReset() {
@@ -264,7 +291,10 @@ class D3BarChart {
       .selectAll("g.treeGroup")
       .data(data)
       .join("g")
-      .attr("class", "treeGroup");
+      .attr("class", "treeGroup")
+      .on("mouseenter", (e) => this.tooltip(e, d3.event, true))
+      .on("mouseleave", (e) => this.tooltip(e, d3.event, false))
+      .on("mousemove", (e) => this.tooltipMove(d3.event));
 
     let boundZoomOut = this.zoomout.bind(this);
     let boundZoomIn = this.zoomin.bind(this);
@@ -431,7 +461,15 @@ class D3BarChart {
       .attr("font-weight", (d) => (d === root ? "bold" : null))
       .selectAll("tspan")
       .data((d) => {
-        return d === root ? [rootTitle] : [d.data.name, format(d.value)];
+        if (d === root) {
+          return [rootTitle];
+        } else {
+          if (d.depth === 4) {
+            return [d.data.name.split(" ").slice(1).join(" "), format(d.value)];
+          } else {
+            return [d.data.name, format(d.value)];
+          }
+        }
       })
       .join("tspan")
       .attr("x", (d) => (d === rootTitle && rootTitle.includes(" ") ? 60 : 5))
@@ -456,8 +494,9 @@ class D3BarChart {
       .style("text-shadow", (d) => {
         return rootTitle === d ? "none" : "1px 1px 2px #656565";
       })
-      .style("font-size", (d) => (rootTitle === d ? "initial" : "small"))
+      .style("font-size", (d) => "initial")
       .style("font-weight", "bold")
+      .style("font-style", "italic")
       .text((d) => d);
 
     d3.select("#treeMapBackButtonWrapper > svg > *").remove();
@@ -567,14 +606,9 @@ class D3BarChart {
     } else if (elements.children) {
       return this.searchForImage(
         elements.children.sort((a, b) => {
-          let diff = b.value - a.value;
-
-          if (diff === 0) {
-            if (a.data.link) return -1;
-            if (b.data.link) return 1;
-          } else {
-            return diff;
-          }
+          if (a.data.link) return -50;
+          if (b.data.link) return 50;
+          return b.value - a.value;
         })[0]
       );
     }
@@ -817,7 +851,9 @@ class D3BarChart {
           .attr("class", "nodeImgContainerDiv")
           .html((d) => {
             let link = d.data.children.sort((a, b) => {
-              return a.link ? 1 : a.value - b.value;
+              if (a.data.link) return -50;
+              if (b.data.link) return 50;
+              return b.value - a.value;
             })[0].link;
             return (
               '<div class="nodeText">' +

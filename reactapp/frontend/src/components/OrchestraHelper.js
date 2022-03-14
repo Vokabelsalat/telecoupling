@@ -23,13 +23,18 @@ class D3Orchestra {
       ? "economically"
       : "ecologically";
 
+    this.instrumentGroups = {};
+    this.instrumentGroupsToSpecies = {};
+
     this.speciesData = param.speciesData;
     this.setFilter = param.setFilter;
+    this.colorBlind = param.colorBlind;
+    this.setMainPartOptions = param.setMainPartOptions;
 
     this.pies = {};
 
-    this.initWidth = window.innerWidth / 2 - 20;
-    this.initHeight = window.innerHeight / 2 - 20;
+    this.initWidth = window.innerWidth / 2 - 10;
+    this.initHeight = window.innerHeight / 2 - 51;
 
     this.positionX = this.initWidth / 2;
     this.positionY = this.initHeight / 2 + 100;
@@ -42,7 +47,7 @@ class D3Orchestra {
       top: 0,
       right: 0,
       bottom: 30,
-      left: 40
+      left: 10
     };
 
     d3.selection.prototype.moveToFront = function () {
@@ -52,6 +57,167 @@ class D3Orchestra {
     };
 
     this.paint();
+  }
+
+  clickSubArc(d, group, classStr) {
+    let thisWidth = this.width;
+    let thisHeight = this.height;
+    let thisPadding = this.padding;
+    let setInstrumentAndMainPart = this.setInstrumentAndMainPart;
+    let setInstrument = this.setInstrument;
+    let setInstrumentGroup = this.setInstrumentGroup;
+    let setFilter = this.setFilter;
+    let speciesData = this.speciesData;
+    let setMainPartOptions = this.setMainPartOptions;
+
+    let value = d;
+
+    //func1($("#instrumentsSelect"), d3.select(this).attr("name"));
+    /* $("#instrumentsSelect").val(value).change(); */
+
+    //setInstrument(value.trim());
+    d3.event.stopPropagation();
+
+    d3.select("#selectChartSVG").select(".selectMainWrapper").remove();
+    d3.select("#mainPartSelectorDiv").style("display", "none");
+
+    if (value.trim() === "String instrument bow") {
+      fetch("/stringinstrumentbow.svg")
+        .then((response) => response.text())
+        .then((str) => new window.DOMParser().parseFromString(str, "text/xml"))
+        .then((data) => {
+          let svg = d3
+            .select("#selectChartSVG")
+            .append("g")
+            .attr("class", "selectInstrumentPart");
+
+          var svgNode = d3.select(data.documentElement).select("g");
+
+          svg.append(() => svgNode.node());
+
+          //scale it to the height of svg window
+          let bbox = svgNode.node().getBBox();
+
+          let largest = Math.max(bbox.width, bbox.height);
+          let smallest = Math.min(bbox.width, bbox.height);
+
+          let scale = (thisWidth - 2 * thisPadding) / largest;
+
+          let h = smallest * scale + thisPadding * 2;
+          let w = svg.style("display", "block");
+
+          d3.select("#selectChartSVG")
+            .select("#wrapper")
+            .style("transform", "translate(0px, " + -h + "px)");
+
+          svgNode.attr(
+            "transform",
+            "translate(" +
+              thisPadding +
+              " " +
+              (thisHeight - h + thisPadding) +
+              ") rotate(90) scale(" +
+              scale +
+              ", " +
+              -scale +
+              ")"
+          );
+
+          svg.attr("height", h).attr("width", w);
+
+          svgNode
+            .selectAll("path")
+            .style("cursor", "pointer")
+            .attr("origFill", function (d) {
+              return d3.select(this).style("fill");
+            })
+            .on("click", function () {
+              let sel = d3.select(this);
+              let text = sel.select("title").text();
+
+              if (!sel.classed("selected")) {
+                svgNode
+                  .selectAll("path")
+                  .style("opacity", 0.2)
+                  .classed("selected", false)
+                  .style("fill", function (d) {
+                    return d3.select(this).attr("origFill");
+                  });
+
+                sel
+                  .style("opacity", 1.0)
+                  .style("fill", "var(--highlightpurple)")
+                  .classed("selected", true);
+
+                setFilter({ mainPart: [text.trim()] });
+              } else {
+                svgNode
+                  .selectAll("path")
+                  .style("opacity", 1.0)
+                  .classed("selected", false)
+                  .style("fill", function (d) {
+                    return d3.select(this).attr("origFill");
+                  });
+
+                setFilter({ mainPart: null });
+              }
+              //setInstrumentAndMainPart(value.trim(), text);
+            })
+            .on("mouseover", function () {
+              let sel = d3.select(this);
+              svgNode.selectAll("path:not(.selected)").style("opacity", 0.2);
+              sel.style("opacity", 1.0);
+            })
+            .on("mouseout", function () {
+              d3.select(this);
+              if (d3.selectAll("path.selected").size() === 0) {
+                svgNode.selectAll("path:not(.selected)").style("opacity", 1.0);
+              } else {
+                svgNode.selectAll("path:not(.selected)").style("opacity", 0.2);
+              }
+            });
+        });
+    } else {
+      d3.selectAll("g.selectInstrumentPart").remove();
+      d3.select("#selectChartSVG")
+        .select("#wrapper")
+        .style("transform", "translate(0, -60px)");
+
+      let options = [];
+      for (let spec of Object.values(speciesData)) {
+        for (let mat of spec.origMat) {
+          if (
+            value.trim() !== "" &&
+            mat.Main_part !== "" &&
+            mat.Instruments.includes(value.trim()) &&
+            !options.includes(mat.Main_part)
+          ) {
+            options.push(mat.Main_part);
+          }
+        }
+      }
+
+      /* options = options.map((e) => "<option>" + e + "</option>"); */
+
+      setMainPartOptions(options);
+      d3.select("#mainPartSelectorDiv").style("display", "block");
+    }
+
+    //setInstrument(value.trim());
+    /* .style("fill", "rgb(115,1,136)"); */
+    d3.selectAll(".arc.subarc").style("stroke", "none");
+    group.select("path").style("stroke", "var(--highlightpurple)");
+
+    if (classStr.includes("heading")) {
+      d3.select("#mainPartSelectorDiv").style("display", "none");
+      setFilter({
+        instrumentGroup: [value.trim()],
+        instrument: null,
+        mainPart: null
+      });
+    } else {
+      setFilter({ instrument: [value.trim()], mainPart: null });
+    }
   }
 
   bakeTheThreatPie(options) {
@@ -186,6 +352,7 @@ class D3Orchestra {
       })
       .entries(threats, d3.map);
 
+    let colorBlind = this.colorBlind;
     let pie = this.bakeTheThreatPie({
       data: data,
       strokeWidth: 2,
@@ -193,7 +360,7 @@ class D3Orchestra {
       innerRadius: width ? width - 2 : 16,
       instrument: width ? true : false,
       color: function (d) {
-        return d.data.values[0].getColor();
+        return d.data.values[0].getColor(colorBlind);
       },
       pieClass: "clusterPie",
       pieLabelClass: "marker-cluster-pie-label",
@@ -390,6 +557,8 @@ class D3Orchestra {
       threats.push(threat);
     }
 
+    this.instrumentGroupsToSpecies[parentGroup] = speciesList;
+
     this.appendPie(
       innerGroup,
       threats,
@@ -473,6 +642,8 @@ class D3Orchestra {
             newstroke = strokewidth / (data.length + 2);
           }
 
+          this.instrumentGroups[instrumentGroup] = data;
+
           data = data
             .map((e) => e.Instruments)
             .sort((a, b) => {
@@ -498,6 +669,7 @@ class D3Orchestra {
             "subarc heading",
             instrumentGroup
           );
+
           d3.select("#" + newId + "text").style("text-decoration", "underline");
 
           /*                    d3.select("#"+newId).transition().duration(animationTime * 1.5).style("opacity", 1.0);
@@ -611,128 +783,7 @@ class D3Orchestra {
       /* bindMouseOver(group, mouseover); */
       /* .on("mouseout", mouseout) */
 
-      let thisWidth = this.width;
-      let thisPadding = this.padding;
-      let setInstrumentAndMainPart = this.setInstrumentAndMainPart;
-      let setInstrument = this.setInstrument;
-      let setInstrumentGroup = this.setInstrumentGroup;
-      let setFilter = this.setFilter;
-
-      group.on("click", function () {
-        let value = d3.select(this).attr("name");
-
-        //func1($("#instrumentsSelect"), d3.select(this).attr("name"));
-        /* $("#instrumentsSelect").val(value).change(); */
-
-        //setInstrument(value.trim());
-        d3.event.stopPropagation();
-
-        if (value.trim() === "String instrument bow") {
-          fetch("/stringinstrumentbow.svg")
-            .then((response) => response.text())
-            .then((str) =>
-              new window.DOMParser().parseFromString(str, "text/xml")
-            )
-            .then((data) => {
-              let svg = d3.select("#selectmainpartSVG");
-
-              svg
-                .attr("width", this.width)
-                .attr("height", this.height)
-                .style("display", "block");
-
-              var svgNode = d3.select(data.documentElement).select("g");
-
-              svg.append(() => svgNode.node());
-
-              //scale it to the height of svg window
-              let bbox = svgNode.node().getBBox();
-
-              let largest = Math.max(bbox.width, bbox.height);
-              let smallest = Math.min(bbox.width, bbox.height);
-
-              let scale = (thisWidth - 2 * thisPadding) / largest;
-
-              svgNode.attr(
-                "transform",
-                "translate(" +
-                  thisPadding +
-                  " " +
-                  thisPadding +
-                  ") rotate(90) scale(" +
-                  scale +
-                  ", " +
-                  -scale +
-                  ")"
-              );
-
-              svg
-                .attr("height", smallest * scale + thisPadding * 2)
-                .attr("width", largest * scale + thisPadding * 2);
-
-              svgNode
-                .selectAll("path")
-                .style("cursor", "pointer")
-                .attr("origFill", function (d) {
-                  return d3.select(this).style("fill");
-                })
-                .on("click", function () {
-                  let sel = d3.select(this);
-
-                  svgNode
-                    .selectAll("path")
-                    .style("opacity", 0.2)
-                    .classed("selected", false)
-                    .style("fill", function (d) {
-                      return d3.select(this).attr("origFill");
-                    });
-                  sel
-                    .style("opacity", 1.0)
-                    .style("fill", "var(--highlight)")
-                    .classed("selected", true);
-
-                  let text = d3.select(this).select("title").text();
-                  if (this.mainPart !== text.trim())
-                    setFilter({ mainPart: [text.trim()] });
-                  //setInstrumentAndMainPart(value.trim(), text);
-                })
-                .on("mouseover", function () {
-                  let sel = d3.select(this);
-                  d3.select("#selectmainpartSVG")
-                    .selectAll("path:not(.selected)")
-                    .style("opacity", 0.2);
-                  sel.style("opacity", 1.0);
-                })
-                .on("mouseout", function () {
-                  d3.select(this);
-                  if (d3.selectAll("path.selected").size() === 0) {
-                    d3.select("#selectmainpartSVG")
-                      .selectAll("path:not(.selected)")
-                      .style("opacity", 1.0);
-                  } else {
-                    d3.select("#selectmainpartSVG")
-                      .selectAll("path:not(.selected)")
-                      .style("opacity", 0.2);
-                  }
-                });
-            });
-        } else {
-          d3.select("#selectmainpartSVG").selectAll("*").remove();
-        }
-
-        d3.select("#selectmainpartSVG")
-          .node()
-          .scrollIntoView({ behavior: "smooth" });
-
-        //setInstrument(value.trim());
-        /* .style("fill", "rgb(115,1,136)"); */
-        d3.selectAll(".arc.subarc").style("stroke", "none");
-        d3.select(this)
-          .select("path")
-          .style("stroke", "var(--highlightpurple)");
-        if (this.instrument !== value.trim())
-          setFilter({ instrument: [value.trim()] });
-      });
+      group.on("click", (d) => this.clickSubArc(text, group, classStr));
 
       let textElementForIcon = group
         .append("text")
@@ -959,13 +1010,45 @@ class D3Orchestra {
         }.bind(this)
       );
 
+      group.on("mouseenter", (e) => this.tooltip(id, d3.event, true));
+      group.on("mouseleave", (e) => this.tooltip(id, d3.event, false));
+      group.on("mousemove", (e) => this.tooltipMove(d3.event));
+
       group.moveToFront();
     }
 
-    if (classStr.includes("heading")) {
+    /*  if (classStr.includes("heading")) {
       group.on("mouseover", null);
       group.on("mouseout", null);
       group.on("click", null);
+    } */
+  }
+
+  tooltipMove(event) {
+    let tooltip = d3.select(".tooltip");
+    tooltip
+      .style("left", event.pageX + 25 + "px")
+      .style("top", event.pageY + 25 + "px");
+  }
+
+  getTooltip(d) {
+    let text = "<b>" + d + "</b><br>";
+    text += this.instrumentGroups[d].length + " Instruments<br>";
+    text += this.instrumentGroupsToSpecies[d].length + " Species";
+    return text;
+  }
+
+  tooltip(d, event, highlight) {
+    let tooltip = d3.select(".tooltip");
+
+    if (highlight) {
+      tooltip
+        .html(this.getTooltip(d))
+        .style("display", "block")
+        .style("left", event.pageX + 25 + "px")
+        .style("top", event.pageY + 25 + "px");
+    } else {
+      tooltip.style("display", "none");
     }
   }
 
@@ -990,13 +1073,6 @@ class D3Orchestra {
     this.container = svg.append("g").attr("id", "wrapper");
 
     this.container.append("g").attr("id", "selectChart");
-
-    d3.select("#selectmainpartWrapper")
-      .append("svg")
-      .attr("id", "selectmainpartSVG")
-      .style("display", "none");
-
-    /* svg.append("rect").attr("width", 10).attr("height", 10).style("fill", "lime"); */
   }
 
   zoomAndRotate(path, center = false) {
@@ -1097,6 +1173,12 @@ class D3Orchestra {
   reset() {
     let selectchart = d3.select("#selectChart");
     d3.select("#selectChartSVG").select(".backButton").style("display", "none");
+    d3.select("#mainPartSelectorDiv").style("display", "none");
+
+    d3.select("g.selectInstrumentPart").remove();
+    d3.select("#selectChartSVG")
+      .select("#wrapper")
+      .style("transform", "translate(0px, 0px)");
 
     /* bindMouseOver(d3.selectAll('g.arcgroup:not(.subarc)'), mouseover); */
 
@@ -1136,7 +1218,7 @@ class D3Orchestra {
           .style("stroke-opacity", 0.7)
           .style("stroke-width", 2)
           .style("stroke-linejoin", "round")
-          .style("fill", "var(--highlight)");
+          .style("fill", "var(--highlightpurple)");
       })
       .on("mouseout", function (e) {
         d3.select(this)
@@ -1303,8 +1385,9 @@ class D3Orchestra {
     this.treeThreatType = val ? "economically" : "ecologically";
   }
 
-  updateThreatPies(newSpeciesData) {
+  updateThreatPies(newSpeciesData, colorBlind = false) {
     this.speciesData = newSpeciesData;
+    this.colorBlind = colorBlind;
     /* d3.select("#selectChartSVG").selectAll(".pieChartTest").remove(); */
     for (let pie of Object.keys(this.pies)) {
       let pieObj = this.pies[pie];

@@ -27,7 +27,9 @@ class Map extends Component {
       this.props.initWidth,
       this.props.setDiversityScale,
       this.props.treeThreatType,
-      this.props.setFilter
+      this.props.setFilter,
+      this.props.colorBlind,
+      this.props.setMapSearchBarData
     );
 
     this.addSpeciesFromMapSpecies();
@@ -35,7 +37,8 @@ class Map extends Component {
     if (this.props.heatMap) {
       this.MapHelper.updateHeatMap(
         this.props.heatMap,
-        this.props.treeThreatType
+        this.props.treeThreatType,
+        this.props.colorBlind
       );
     }
     if (this.props.diversity) {
@@ -58,7 +61,11 @@ class Map extends Component {
         this.props.diversityMode,
         this.props.diversityAttribute
       );
-      this.MapHelper.updateHeatMap(true, this.props.treeThreatType);
+      this.MapHelper.updateHeatMap(
+        true,
+        this.props.treeThreatType,
+        this.props.colorBlind
+      );
     }
   }
 
@@ -77,14 +84,39 @@ class Map extends Component {
 
       for (let species of Object.keys(this.props.mapSpecies)) {
         if (this.props.data.hasOwnProperty(species)) {
-          if (this.props.data[species].hasOwnProperty("treeCountries")) {
-            let countries = Object.keys(
-              this.props.data[species]["treeCountries"]
-            );
-
-            if (countries.length > 0) {
-              speciesCountries[species] = countries;
+          let countries = [];
+          if (this.props.data[species].hasOwnProperty("treeCountriesShort")) {
+            countries = this.props.data[species]["treeCountriesShort"];
+          } else {
+            if (this.props.data[species].hasOwnProperty("iucnCountriesShort")) {
+              countries = this.props.data[species]["iucnCountriesShort"];
+            } else {
+              if (this.props.data[species].hasOwnProperty("allCountries")) {
+                countries = this.props.data[species]["allCountries"];
+              }
             }
+          }
+          /* let countries = [];
+          if (this.props.data[species].hasOwnProperty("treeCountries")) {
+            countries.push(
+              ...Object.keys(this.props.data[species]["treeCountries"])
+            );
+          }
+
+          if (countries.length > 0) {
+            speciesCountries[species] = countries;
+          } else {
+            if (this.props.data[species].hasOwnProperty("iucnCountries")) {
+              countries.push(
+                ...this.props.data[species]["iucnCountries"][species].map(
+                  (e) => e.country
+                )
+              );
+            }
+          } */
+
+          if (countries.length > 0) {
+            speciesCountries[species] = countries;
           }
 
           if (this.props.data[species].hasOwnProperty("ecoregions")) {
@@ -97,7 +129,21 @@ class Map extends Component {
 
           if (
             this.props.data[species].hasOwnProperty("hexagons") &&
-            this.props.data[species]["Kingdom"] === "Plantae"
+            ![
+              "Balaena",
+              "Eubalaena",
+              "Balaenoptera",
+              "Megaptera",
+              "Eretmochelys",
+              "Eschrichtius",
+              "Fontitrygon",
+              "Haliotis",
+              "Monodon",
+              "Odebenus",
+              "Pinctada",
+              "Salmo",
+              "Sepia"
+            ].includes(this.props.data[species]["Genus"].trim())
           ) {
             let hexagons = this.props.data[species]["hexagons"];
 
@@ -128,6 +174,17 @@ class Map extends Component {
           } */
         }
       }
+    }
+    if (this.props.country) {
+      this.MapHelper.setSelected(
+        "countries",
+        {
+          properties: { ...this.props.country }
+        },
+        true
+      );
+    } else {
+      this.MapHelper.setSelected("countries", null, true);
     }
     this.MapHelper.setSpeciesCountries(speciesCountries);
     this.MapHelper.setEcoRegions(speciesEcoRegions);
@@ -309,6 +366,13 @@ class Map extends Component {
       ); */
     }
 
+    if (
+      JSON.stringify(this.props.colorBlind) !==
+      JSON.stringify(prevProps.colorBlind)
+    ) {
+      this.MapHelper.updateColorBlind(this.props.colorBlind);
+    }
+
     if (prevProps.heatMap !== this.props.heatMap) {
       if (this.props.heatMap) {
         this.MapHelper.updateHeatMap(
@@ -344,7 +408,7 @@ class Map extends Component {
       ); */
     }
 
-  /*   if (
+    /*   if (
       JSON.stringify(prevProps.hoverSpecies) !==
       JSON.stringify(this.props.hoverSpecies)
     ) {
@@ -358,8 +422,8 @@ class Map extends Component {
         <div
           id={this.state.id}
           style={{
-            height: "calc(50vh - 20px)",
-            width: "70vw"
+            height: "calc(50vh - 50px)",
+            width: "calc(50vw - 10px)"
           }}
         ></div>
       </div>

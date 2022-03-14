@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import * as d3 from "d3";
+
 import {
   iucnColors,
   iucnAssessment,
@@ -26,6 +28,46 @@ class Legend extends Component {
     this.props.setTreeThreatType(!this.props.treeThreatType);
   }
 
+  tooltipMove(event) {
+    let tooltip = d3.select(".tooltip");
+    tooltip
+      .style("left", event.pageX + 25 + "px")
+      .style("top", event.pageY + 25 + "px");
+  }
+
+  getTooltip(element) {
+    let text = "";
+    switch (element.dataset.info) {
+      case "CITES":
+        text = citesAssessment.get(element.dataset.key).getName();
+        break;
+      case "IUCN":
+        text = iucnAssessment.get(element.dataset.key).getName();
+        break;
+      case "BGCI":
+        text = bgciAssessment.get(element.dataset.key).getName();
+        break;
+      default:
+        break;
+    }
+
+    return text;
+  }
+
+  tooltip(event, highlight) {
+    let tooltip = d3.select(".tooltip");
+
+    if (highlight) {
+      tooltip
+        .html(this.getTooltip(event.target))
+        .style("display", "block")
+        .style("left", event.pageX + 25 + "px")
+        .style("top", event.pageY + 25 + "px");
+    } else {
+      tooltip.style("display", "none");
+    }
+  }
+
   render() {
     let setTreeThreatType = this.props.setTreeThreatType.bind(this);
     let treeThreatType = this.props.treeThreatType;
@@ -39,7 +81,7 @@ class Legend extends Component {
             display: "grid",
             gridTemplateColumns: "auto auto auto",
             gridTemplateRows: "auto auto",
-            gap: "10px"
+            gap: "5px"
           }}
         >
           <div
@@ -69,14 +111,27 @@ class Legend extends Component {
               let style = {
                 display: "inline-block",
                 minWidth: "60px",
-                height: "20px",
-                lineHeight: "20px",
-                backgroundColor: citesAssessment.get(e).getColor(),
-                color: citesAssessment.get(e).getForegroundColor(),
+                height: "15px",
+                lineHeight: "15px",
+                fontSize: "smaller",
+                backgroundColor: citesAssessment
+                  .get(e)
+                  .getColor(this.props.colorBlind),
+                color: citesAssessment
+                  .get(e)
+                  .getForegroundColor(this.props.colorBlind),
                 textAlign: "center"
               };
               return (
-                <div key={e} style={style}>
+                <div
+                  key={e}
+                  style={style}
+                  data-info="CITES"
+                  data-key={e}
+                  onMouseEnter={(e) => this.tooltip(e, true)}
+                  onMouseLeave={(e) => this.tooltip(e, false)}
+                  onMouseMove={(e) => this.tooltipMove(e)}
+                >
                   {e}
                 </div>
               );
@@ -150,29 +205,44 @@ class Legend extends Component {
                 <div className="infoI">i</div>
               </a>
             </div>
-            {iucnAssessment.getSortedLevels().map((e, i) => {
-              let width;
-              if (["LR/cd"].includes(e)) {
-                width = "50px";
-              } else {
-                width = "35px";
-              }
+            <div>
+              {iucnAssessment.getSortedLevels().map((e, i) => {
+                let width;
+                if (["LR/cd"].includes(e)) {
+                  width = "50px";
+                } else {
+                  width = "35px";
+                }
 
-              let style = {
-                display: "inline-block",
-                minWidth: width,
-                height: "20px",
-                lineHeight: "20px",
-                backgroundColor: iucnAssessment.get(e).getColor(),
-                color: iucnAssessment.get(e).getForegroundColor(),
-                textAlign: "center"
-              };
-              return (
-                <div key={e} style={style}>
-                  {e}
-                </div>
-              );
-            })}
+                let style = {
+                  display: "inline-block",
+                  minWidth: width,
+                  height: "15px",
+                  lineHeight: "15px",
+                  fontSize: "smaller",
+                  backgroundColor: iucnAssessment
+                    .get(e)
+                    .getColor(this.props.colorBlind),
+                  color: iucnAssessment
+                    .get(e)
+                    .getForegroundColor(this.props.colorBlind),
+                  textAlign: "center"
+                };
+                return (
+                  <div
+                    key={e}
+                    style={style}
+                    data-info="IUCN"
+                    data-key={e}
+                    onMouseEnter={(e) => this.tooltip(e, true)}
+                    onMouseLeave={(e) => this.tooltip(e, false)}
+                    onMouseMove={(e) => this.tooltipMove(e)}
+                  >
+                    {e}
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           <div
@@ -199,14 +269,27 @@ class Legend extends Component {
               let style = {
                 display: "inline-block",
                 minWidth: width,
-                height: "20px",
-                lineHeight: "20px",
-                backgroundColor: bgciAssessment.get(e).getColor(),
-                color: bgciAssessment.get(e).getForegroundColor(),
+                height: "15px",
+                lineHeight: "15px",
+                fontSize: "smaller",
+                backgroundColor: bgciAssessment
+                  .get(e)
+                  .getColor(this.props.colorBlind),
+                color: bgciAssessment
+                  .get(e)
+                  .getForegroundColor(this.props.colorBlind),
                 textAlign: "center"
               };
               return (
-                <div key={e} style={style}>
+                <div
+                  key={e}
+                  style={style}
+                  data-info="BGCI"
+                  data-key={e}
+                  onMouseEnter={(e) => this.tooltip(e, true)}
+                  onMouseLeave={(e) => this.tooltip(e, false)}
+                  onMouseMove={(e) => this.tooltipMove(e)}
+                >
                   {e}
                 </div>
               );
