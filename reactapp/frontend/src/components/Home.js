@@ -131,10 +131,9 @@ class Home extends Component {
       .then(
         function (speciesData) {
           speciesData = Object.fromEntries(
-            Object.entries(speciesData).slice(
-              0,
-              this.slice ? 170 : Object.keys(speciesData).length
-            )
+            Object.entries(speciesData)
+              .slice(0, this.slice ? 170 : Object.keys(speciesData).length)
+              .filter((t) => t.Genus.trim() !== "" && t.Kingdom.trim() !== "")
           );
           let newMapData = {};
           for (let speciesName of Object.keys(speciesData)) {
@@ -681,7 +680,9 @@ class Home extends Component {
       .then((res) => res.json())
       .then((data) => {
         let speciesObject = {};
-        for (let e of data) {
+        for (let e of data.filter(
+          (t) => t.Genus.trim() !== "" && t.Kingdom.trim() !== ""
+        )) {
           //for (let e of data) {
           /* for (let e of data) { */
           if (e.Species.trim() === "") continue;
