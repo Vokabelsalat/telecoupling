@@ -167,6 +167,7 @@ class SearchBar extends Component {
             {...params}
             className={value ? "filterUsed" : ""}
             label="Species Search"
+            size="small"
           />
         )}
         style={{ display: "table-cell", verticalAlign: "middle" }}

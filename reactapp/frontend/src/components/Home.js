@@ -133,7 +133,7 @@ class Home extends Component {
           speciesData = Object.fromEntries(
             Object.entries(speciesData).slice(
               0,
-              this.slice ? 70 : Object.keys(speciesData).length
+              this.slice ? 170 : Object.keys(speciesData).length
             )
           );
           let newMapData = {};
@@ -400,6 +400,7 @@ class Home extends Component {
     };
 
     let imageLinks = {};
+    let dummyLinks = {};
 
     let treeMap = [];
     for (let kingdom of Object.keys(kingdomGroupData)) {
@@ -415,6 +416,11 @@ class Home extends Component {
             let valueObject = {};
             valueObject["name"] = value;
             valueObject["species"] = value;
+            valueObject["iucnThreat"] = this.getSpeciesSignThreats(value).iucn;
+            valueObject["citesThreat"] =
+              this.getSpeciesSignThreats(value).cites;
+            valueObject["bgciThreat"] =
+              this.getSpeciesSignThreats(value).threat;
             valueObject["kingdom"] = this.state.speciesData[value].Kingdom;
             valueObject["ecologically"] = this.getSpeciesThreatLevel(
               value,
@@ -442,7 +448,15 @@ class Home extends Component {
             valueObjects.push(valueObject);
             //}
 
-            imageLinks[valueObject["name"]] = valueObject["link"];
+            if (valueObject["link"]) {
+              valueObject["FotoSource"] =
+                this.state.speciesData[value]["Foto source"];
+              imageLinks[valueObject["name"]] = valueObject["link"];
+            }
+            if (valueObject["dummylink"])
+              valueObject["FotoSource"] =
+                this.state.speciesData[value]["Foto source"];
+            dummyLinks[valueObject["name"]] = valueObject["dummylink"];
           }
 
           if (valueObjects.length > 0)
@@ -472,7 +486,7 @@ class Home extends Component {
       });
     }
 
-    return [{ name: "Kingdoms", children: treeMap }, imageLinks];
+    return [{ name: "Kingdoms", children: treeMap }, imageLinks, dummyLinks];
   }
 
   generateBarChartDataAllTypes(input) {
@@ -709,7 +723,7 @@ class Home extends Component {
         speciesObject = Object.fromEntries(
           Object.entries(speciesObject).slice(
             0,
-            this.slice ? 70 : Object.keys(speciesObject).length
+            this.slice ? 170 : Object.keys(speciesObject).length
           )
         );
         this.setSpecies(speciesObject);
@@ -1293,7 +1307,7 @@ class Home extends Component {
       Object.keys(filteredSpeciesData).map((e) => [e, 1])
     );
 
-    let [treeMapData, imageLinks] = this.generateTreeMapData(
+    let [treeMapData, imageLinks, dummyLinks] = this.generateTreeMapData(
       //this.state.speciesSignThreats
       filteredSpeciesData
     );
@@ -1356,6 +1370,7 @@ class Home extends Component {
             familia={familia}
             genus={genus}
             species={species}
+            colorBlind={this.state.colorBlind}
             setFilter={this.setFilter.bind(this)}
           ></TreeMap>
         ) : (
@@ -1381,7 +1396,7 @@ class Home extends Component {
           style={{
             display: "flex",
             justifyContent: "center",
-            margin: "5px 0",
+            margin: "10px 0",
             marginRight: "15px"
           }}
         >
@@ -1390,7 +1405,7 @@ class Home extends Component {
               width: "100%",
               height: "auto",
               display: "grid",
-              gridTemplateColumns: "45% 10% auto",
+              gridTemplateColumns: "calc(50% - 50px) 90px auto",
               gridTemplateRows: "auto"
             }}
           >
@@ -1438,14 +1453,15 @@ class Home extends Component {
                   getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
                   treeThreatType={this.state.treeThreatType}
                   colorBlind={this.state.colorBlind}
+                  speciesSignThreats={this.state.speciesSignThreats}
                 />
               </div>
               <div
                 style={{
-                  position: "absolute",
-                  lineHeight: "2em",
-                  fontSize: "larger",
-                  fontWeight: "bold"
+                  lineHeight: "1.5em",
+                  fontSize: "larg",
+                  fontWeight: "bold",
+                  textAlign: "center"
                 }}
               >
                 Species
@@ -1456,17 +1472,16 @@ class Home extends Component {
                 gridColumnStart: 3,
                 gridColumnEnd: 3,
                 gridRowStart: 1,
-                gridRowEnd: 1
-                /*  "align-self": "center",
-                "justify-self": "center", */
+                gridRowEnd: 1,
+                alignSelf: "center",
+                justifySelf: "center"
               }}
             >
               <div
                 style={{
                   margin: 0,
                   padding: 0,
-                  height: "100%",
-                  display: "table"
+                  marginLeft: "10px"
                 }}
                 className="searchBarWrapper"
               >
@@ -1485,17 +1500,16 @@ class Home extends Component {
                 gridColumnStart: 4,
                 gridColumnEnd: 4,
                 gridRowStart: 1,
-                gridRowEnd: 1
-                /*  "align-self": "center",
-                "justify-self": "center", */
+                gridRowEnd: 1,
+                alignSelf: "center",
+                justifySelf: "center"
               }}
             >
               <div
                 style={{
                   margin: 0,
-                  padding: 0,
-                  height: "100%",
-                  display: "table"
+                  marginLeft: "10px",
+                  padding: 0
                 }}
                 className="searchBarWrapper"
               >
@@ -1514,17 +1528,14 @@ class Home extends Component {
                 gridColumnEnd: 5,
                 gridRowStart: 1,
                 gridRowEnd: 1,
-                alignSelf: "center"
-                /*  
-                "justify-self": "center", */
+                alignSelf: "center",
+                justifySelf: "center"
               }}
             >
               <div
                 style={{
                   margin: 0,
-                  padding: 0,
-                  height: "100%",
-                  display: "table"
+                  padding: 0
                 }}
                 className="searchBarWrapper"
               >
@@ -1579,11 +1590,13 @@ class Home extends Component {
                 getSpeciesSignThreats={this.getSpeciesSignThreats.bind(this)}
                 getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
                 treeImageLinks={imageLinks}
+                dummyImageLinks={dummyLinks}
                 setHover={this.setHover.bind(this)}
                 setTimeFrame={this.setTimeFrame.bind(this)}
                 timeFrame={this.state.timeFrame}
                 colorBlind={this.state.colorBlind}
                 setFilter={this.setFilter.bind(this)}
+                species={species}
               />
               <div key="tooltip" id="tooltip" className="tooltip"></div>
             </div>
@@ -1646,7 +1659,7 @@ class Home extends Component {
                                 this.getDiverstiyAttributeSelectOptions()
                             }
                         </select> */}
-            {/* {
+            {!this.usePreGenerated ? (
               <button
                 onClick={(event) => {
                   this.save();
@@ -1654,7 +1667,9 @@ class Home extends Component {
               >
                 {"Save"}
               </button>
-            } */}
+            ) : (
+              []
+            )}
             {this.renderMapScale(this.state.diversityScale)}
             {this.renderMap ? (
               <Map

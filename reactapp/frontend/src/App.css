@@ -470,11 +470,15 @@ button {
 
 .nodeText {
   position: absolute;
-  left: 3px;
-  bottom: 3px;
+  transform-origin: 0 0;
+  left: 5px;
+  top: 5px;
+  z-index: 900;
   color: rgb(247, 247, 247);
   font-family: sans-serif;
-  font-size: small;
+  font-size: initial;
+  font-weight: bold;
+  font-style: italic;
   text-shadow: 1px 1px 0px #656565;
 }
 
@@ -529,6 +533,7 @@ button {
 
 .MuiOutlinedInput-root {
   border-radius: 25px !important;
+  background-color: white;
 }
 
 .filterUsed .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
@@ -627,4 +632,20 @@ path.handle:focus {
 
 #mainPartSelectorDiv.filterUsed fieldset.MuiOutlinedInput-notchedOutline {
   border: solid 3px var(--highlightpurple);
+}
+
+.dummyDiv {
+  /*background-color: rgb(172 172 172 / 51%) !important; */
+  text-align: center;
+  vertical-align: middle;
+  font-size: larger;
+  font-weight: bolder;
+  font-size: 1em;
+  /* text-shadow: 2px 2px grey; */
+  color: #ffffff85;
+  writing-mode: vertical-lr;
+  text-orientation: upright;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

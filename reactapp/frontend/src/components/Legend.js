@@ -110,7 +110,7 @@ class Legend extends Component {
             {citesAssessment.getSortedLevels().map((e) => {
               let style = {
                 display: "inline-block",
-                minWidth: "60px",
+                minWidth: "40px",
                 height: "15px",
                 lineHeight: "15px",
                 fontSize: "smaller",

@@ -119,6 +119,7 @@ class MapSearchBar extends Component {
             {...params}
             className={country ? "filterUsed" : ""}
             label="Country Search"
+            size="small"
           />
         )}
         style={{ display: "table-cell", verticalAlign: "middle" }}

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import "../utils/utils";
 //import TreeMapHelper from "./TreeMapHelper";
-import TreeMapHelper from "./NewTreeMapHelper";
+import TreeMapHelper from "./TreeMapHelper";
 
 class TreeMap extends Component {
   constructor(props) {
@@ -26,7 +26,8 @@ class TreeMap extends Component {
       kingdom: this.props.kingdom,
       genus: this.props.genus,
       species: this.props.species,
-      familia: this.props.familia
+      familia: this.props.familia,
+      colorBlind: this.props.colorBlind
     });
   }
 
@@ -40,6 +41,7 @@ class TreeMap extends Component {
       this.props.familia !== newProps.familia ||
       this.props.genus !== newProps.genus ||
       this.props.species !== newProps.species ||
+      this.props.colorBlind !== newProps.colorBlind ||
       JSON.stringify(this.props.data) !== JSON.stringify(newProps.data)
     ) {
       TreeMapHelper.draw({
@@ -52,7 +54,8 @@ class TreeMap extends Component {
         kingdom: this.props.kingdom,
         genus: this.props.genus,
         species: this.props.species,
-        familia: this.props.familia
+        familia: this.props.familia,
+        colorBlind: this.props.colorBlind
       });
     }
   }
@@ -84,7 +87,7 @@ class TreeMap extends Component {
   }
 
   render() {
-    let border = "1px solid gray";
+    /* let border = "1px solid gray";
     if (
       this.props.kingdom ||
       this.props.genus ||
@@ -92,78 +95,82 @@ class TreeMap extends Component {
       this.props.familia
     ) {
       border = "3px solid var(--highlightpurple)";
-    }
+    } */
 
     return (
       <div
         id={this.state.id}
-        style={{ display: "inline-block", border: border }}
+        style={{ display: "inline-block", border: "none" }}
       >
-        <div
-          className="treeMapHeader"
-          style={{
-            width: "100%",
-            height: "auto",
-            display: "grid",
-            columnGap: "5px",
-            rowGap: "5px",
-            gridTemplateColumns:
-              "min-content min-content min-content min-content min-content",
-            padding: "3px",
-            gridTemplateRows: "15px 20px"
-          }}
-        >
+        {this.props.kingdom ? (
           <div
-            id="treeMapBackButtonWrapper"
+            className="treeMapHeader"
             style={{
-              gridColumnStart: 1,
-              gridColumnEnd: 1,
-              gridRowStart: 1,
-              gridRowEnd: "span 2",
-              alignSelf: "center",
-              justifySelf: "center"
+              width: "100%",
+              height: "auto",
+              display: "grid",
+              columnGap: "5px",
+              rowGap: "5px",
+              gridTemplateColumns:
+                "min-content min-content min-content min-content min-content",
+              padding: "3px",
+              gridTemplateRows: "15px 20px"
             }}
           >
-            <svg height="25" width="55"></svg>
-          </div>
-          {[
-            { key: "Kingdom", value: this.props.kingdom },
-            { key: "Family", value: this.props.familia },
-            { key: "Genus", value: this.props.genus },
-            { key: "Species", value: this.props.species }
-          ]
-            .filter((e) => (e.value ? true : false))
-            .map((e, i) => {
-              return (
-                <div
-                  className="treeMapHeadlineElement"
-                  style={{
-                    gridColumnStart: i + 2,
-                    gridColumnEnd: i + 2,
-                    gridRowStart: 1,
-                    gridRowEnd: "span 2",
-                    borderLeft: "2px solid gray",
-                    padding: "0 5px",
-                    cursor: "pointer"
-                  }}
-                  onClick={(cE) => {
-                    this.setNodeAsFilter(e);
-                  }}
-                >
-                  <div>{e.key}</div>
+            <div
+              id="treeMapBackButtonWrapper"
+              style={{
+                gridColumnStart: 1,
+                gridColumnEnd: 1,
+                gridRowStart: 1,
+                gridRowEnd: "span 2",
+                alignSelf: "center",
+                justifySelf: "center"
+              }}
+            >
+              <svg height="25" width="55"></svg>
+            </div>
+            {[
+              { key: "Kingdom", value: this.props.kingdom },
+              { key: "Family", value: this.props.familia },
+              { key: "Genus", value: this.props.genus },
+              { key: "Species", value: this.props.species }
+            ]
+              .filter((e) => (e.value ? true : false))
+              .map((e, i) => {
+                return (
                   <div
+                    className="treeMapHeadlineElement"
                     style={{
-                      fontWeight: "bold",
-                      whiteSpace: "nowrap",
-                      fontStyle: "italic"
+                      gridColumnStart: i + 2,
+                      gridColumnEnd: i + 2,
+                      gridRowStart: 1,
+                      gridRowEnd: "span 2",
+                      borderLeft: "2px solid gray",
+                      padding: "0 5px",
+                      cursor: "pointer"
+                    }}
+                    onClick={(cE) => {
+                      this.setNodeAsFilter(e);
                     }}
                   >
-                    {e.value}
+                    <div>{e.key}</div>
+                    <div
+                      style={{
+                        fontWeight: "bold",
+                        whiteSpace: "nowrap",
+                        fontStyle: "italic"
+                      }}
+                    >
+                      {e.value}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-        </div>
+                );
+              })}
+          </div>
+        ) : (
+          []
+        )}
         <div id={"woodTreeMap"} style={{ display: "inline-block" }}></div>
       </div>
     );

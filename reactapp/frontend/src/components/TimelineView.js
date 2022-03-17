@@ -95,7 +95,7 @@ class TimelineView extends Component {
       return accumulator + currentValue.length;
     };
     let sortedKeys = Object.keys(tmpdata).sort((a, b) => {
-      if (!tmpdata[b].hasOwnProperty("timeIUCN")) {
+      /*       if (!tmpdata[b].hasOwnProperty("timeIUCN")) {
         return -1;
       } else if (!tmpdata[a].hasOwnProperty("timeIUCN")) {
         return 1;
@@ -108,7 +108,8 @@ class TimelineView extends Component {
             tmpdata[a].timeListing.length +
             tmpdata[a].timeThreat.length)
         );
-      }
+      } */
+      return a.localeCompare(b);
     });
 
     let maxPerYear = Math.max(
@@ -238,7 +239,7 @@ class TimelineView extends Component {
           />
           <div
             style={{
-              maxHeight: window.innerHeight / 2 - 80 + "px",
+              maxHeight: window.innerHeight / 2 - 120 + "px",
               overflowY: "scroll",
               marginRight: "30px",
               width: "fit-content"
@@ -269,6 +270,7 @@ class TimelineView extends Component {
                   removeSpeciesFromMap={this.props.removeSpeciesFromMap}
                   colorBlind={this.props.colorBlind}
                   setFilter={this.props.setFilter}
+                  species={this.props.species}
                   muted={
                     Object.keys(this.state.unmutedSpecies).includes(e)
                       ? false
@@ -282,6 +284,7 @@ class TimelineView extends Component {
                   addUnmutedSpecies={this.addUnmutedSpecies.bind(this)}
                   removeUnmutedSpecies={this.removeUnmutedSpecies.bind(this)}
                   treeImageLinks={this.props.treeImageLinks}
+                  dummyImageLinks={this.props.dummyImageLinks}
                   setHover={this.props.setHover}
                   setTimeFrame={this.props.setTimeFrame}
                   timeFrame={this.props.timeFrame}

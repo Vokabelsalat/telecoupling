@@ -25,6 +25,7 @@ class D3Orchestra {
 
     this.instrumentGroups = {};
     this.instrumentGroupsToSpecies = {};
+    this.instrumentsToSpecies = {};
 
     this.speciesData = param.speciesData;
     this.setFilter = param.setFilter;
@@ -34,7 +35,7 @@ class D3Orchestra {
     this.pies = {};
 
     this.initWidth = window.innerWidth / 2 - 10;
-    this.initHeight = window.innerHeight / 2 - 51;
+    this.initHeight = window.innerHeight / 2 - 91;
 
     this.positionX = this.initWidth / 2;
     this.positionY = this.initHeight / 2 + 100;
@@ -45,7 +46,7 @@ class D3Orchestra {
 
     this.margin = {
       top: 0,
-      right: 0,
+      right: 5,
       bottom: 30,
       left: 10
     };
@@ -78,20 +79,32 @@ class D3Orchestra {
     //setInstrument(value.trim());
     d3.event.stopPropagation();
 
+    d3.select("#selectChartSVG")
+      .selectAll(".subarc")
+      .classed("selected", false);
+    group.classed("selected", true);
+
     d3.select("#selectChartSVG").select(".selectMainWrapper").remove();
-    d3.select("#mainPartSelectorDiv").style("display", "none");
+    d3.select("#mainPartSelectorDiv").style("display", "block");
 
     if (value.trim() === "String instrument bow") {
       fetch("/stringinstrumentbow.svg")
         .then((response) => response.text())
         .then((str) => new window.DOMParser().parseFromString(str, "text/xml"))
         .then((data) => {
-          let svg = d3
+          /* let svg = d3
             .select("#selectChartSVG")
             .append("g")
-            .attr("class", "selectInstrumentPart");
+            .attr("class", "selectInstrumentPart"); */
 
           var svgNode = d3.select(data.documentElement).select("g");
+
+          let w = thisWidth - 100 - 2 * thisPadding;
+          let svg = d3
+            .select("#mainPartSelectSVGWrapper")
+            .style("display", "block")
+            .append("svg")
+            .attr("width", w + "px");
 
           svg.append(() => svgNode.node());
 
@@ -101,21 +114,16 @@ class D3Orchestra {
           let largest = Math.max(bbox.width, bbox.height);
           let smallest = Math.min(bbox.width, bbox.height);
 
-          let scale = (thisWidth - 2 * thisPadding) / largest;
+          let scale = (w - 2 * thisPadding) / largest;
 
-          let h = smallest * scale + thisPadding * 2;
-          let w = svg.style("display", "block");
-
-          d3.select("#selectChartSVG")
-            .select("#wrapper")
-            .style("transform", "translate(0px, " + -h + "px)");
+          let h = (smallest + 2 * thisPadding) * scale;
 
           svgNode.attr(
             "transform",
             "translate(" +
               thisPadding +
               " " +
-              (thisHeight - h + thisPadding) +
+              thisPadding +
               ") rotate(90) scale(" +
               scale +
               ", " +
@@ -123,7 +131,9 @@ class D3Orchestra {
               ")"
           );
 
-          svg.attr("height", h).attr("width", w);
+          svg.attr("height", h);
+
+          setMainPartOptions([]);
 
           svgNode
             .selectAll("path")
@@ -176,12 +186,41 @@ class D3Orchestra {
                 svgNode.selectAll("path:not(.selected)").style("opacity", 0.2);
               }
             });
+
+          d3.select("#mainPartSelectSVGWrapper").style("display", "none");
         });
     } else {
       d3.selectAll("g.selectInstrumentPart").remove();
-      d3.select("#selectChartSVG")
+
+      d3.select("#mainPartSelectSVGWrapper > *").remove();
+
+      /*  d3.select("#selectChartSVG")
         .select("#wrapper")
-        .style("transform", "translate(0, -60px)");
+        .style("transform", "translate(0, " + -75 + "px)"); */
+
+      let bbox = d3
+        .select("#mainPartSelectorDiv")
+        .style("display", "block")
+        .node()
+        .getBoundingClientRect();
+
+      /*  let smallest = Math.min(bbox.width, bbox.height);
+
+      let scale = thisHeight / smallest;
+
+      let h = smallest * scale; */
+
+      let wrapperBBox = d3
+        .select("#selectChartSVG")
+        .select("#wrapper")
+        .node()
+        .getBBox();
+
+      let diff = thisHeight - (wrapperBBox.y + wrapperBBox.height);
+
+      /*  d3.select("#selectChartSVG")
+        .select("#wrapper")
+        .style("transform", "translate(0px, " + (-bbox.height + diff) + "px)"); */
 
       let options = [];
       for (let spec of Object.values(speciesData)) {
@@ -200,7 +239,6 @@ class D3Orchestra {
       /* options = options.map((e) => "<option>" + e + "</option>"); */
 
       setMainPartOptions(options);
-      d3.select("#mainPartSelectorDiv").style("display", "block");
     }
 
     //setInstrument(value.trim());
@@ -416,13 +454,29 @@ class D3Orchestra {
     let icon = group.select(".icon");
     let pie = group.select(".pieChartTest");
 
-    d3.selectAll(".arc.subarc").style("stroke", "none");
-    d3.selectAll(".arc.subarc").style("paint-order", "fill");
-    group.select(".arc.subarc.heading").style("stroke", "rgb(115,1,136)");
+    d3.selectAll(".arc.subarc")
+      .style("stroke", "none")
+      .style("paint-order", "fill");
+    d3.selectAll(".arcgroup.subarc").classed("selected", false);
+    d3.selectAll(".arcgroup").classed("selectedMain", false);
+
+    d3.selectAll(".arcgroup:not(.subarc)")
+      .select("path")
+      .style("stroke-width", "1px")
+      .style("stroke", "rgb(95, 77, 73)");
+
+    group
+      .select(".arcgroup.subarc")
+      .classed("selected", true)
+      .select(".arc.subarc.heading")
+      .style("stroke", "var(--highlightpurple)");
+
+    group.classed("selectedMain", true);
     //d3.selectAll(".subarc.text").style("fill", "black");
     //group.select(".subarc.heading.text").style("fill", "white");
 
     d3.select("#selectChartSVG")
+      .style("border", "solid 1px gray")
       .select(".backButton")
       .style("display", "block");
 
@@ -557,7 +611,8 @@ class D3Orchestra {
       threats.push(threat);
     }
 
-    this.instrumentGroupsToSpecies[parentGroup] = speciesList;
+    if (main) this.instrumentGroupsToSpecies[parentGroup] = speciesList;
+    else this.instrumentsToSpecies[text] = speciesList;
 
     this.appendPie(
       innerGroup,
@@ -780,8 +835,28 @@ class D3Orchestra {
         .style("display", "none");
       group.classed("subarc", true);
 
-      /* bindMouseOver(group, mouseover); */
-      /* .on("mouseout", mouseout) */
+      group.on("mouseenter", (e) => {
+        let sel = d3.select(d3.event.target);
+        if (!sel.classed("selected")) {
+          sel
+            .select("path")
+            .style("stroke", "var(--highlightpurple)")
+            .style("stroke-width", "1px");
+        }
+        this.tooltip(text, d3.event, true);
+        d3.event.stopPropagation();
+      });
+      group.on("mouseleave", (e) => {
+        let sel = d3.select(d3.event.target);
+        if (!sel.classed("selected")) {
+          sel
+            .select("path")
+            .style("stroke", "initial")
+            .style("stroke-width", "initial");
+        }
+        this.tooltip(text, d3.event, false);
+        d3.event.stopPropagation();
+      });
 
       group.on("click", (d) => this.clickSubArc(text, group, classStr));
 
@@ -1010,8 +1085,26 @@ class D3Orchestra {
         }.bind(this)
       );
 
-      group.on("mouseenter", (e) => this.tooltip(id, d3.event, true));
-      group.on("mouseleave", (e) => this.tooltip(id, d3.event, false));
+      group.on("mouseenter", (e) => {
+        let sel = d3.select(d3.event.target);
+        if (!sel.classed("selectedMain")) {
+          sel
+            .select("path")
+            .style("stroke", "var(--highlightpurple)")
+            .style("stroke-width", "3px");
+        }
+        this.tooltip(id, d3.event, true);
+      });
+      group.on("mouseleave", (e) => {
+        let sel = d3.select(d3.event.target);
+        if (!sel.classed("selectedMain")) {
+          sel
+            .select("path")
+            .style("stroke", "rgb(95, 77, 73)")
+            .style("stroke-width", "1px");
+        }
+        this.tooltip(id, d3.event, false);
+      });
       group.on("mousemove", (e) => this.tooltipMove(d3.event));
 
       group.moveToFront();
@@ -1033,8 +1126,18 @@ class D3Orchestra {
 
   getTooltip(d) {
     let text = "<b>" + d + "</b><br>";
-    text += this.instrumentGroups[d].length + " Instruments<br>";
-    text += this.instrumentGroupsToSpecies[d].length + " Species";
+    if (this.instrumentGroups.hasOwnProperty(d)) {
+      text += this.instrumentGroups[d].length + " Instruments<br>";
+    }
+
+    if (this.instrumentGroupsToSpecies.hasOwnProperty(d)) {
+      text += this.instrumentGroupsToSpecies[d].length + " Species";
+    }
+    if (this.instrumentsToSpecies.hasOwnProperty(d)) {
+      text += this.instrumentsToSpecies[d].length + " Species";
+    }
+
+    text += "<br><i>Click to filter!</i>";
     return text;
   }
 
@@ -1067,8 +1170,7 @@ class D3Orchestra {
       .style(
         "transform",
         "translate(" + this.margin.left + "px , " + this.margin.top + "px)"
-      )
-      .style("border", "solid 1px gray");
+      );
 
     this.container = svg.append("g").attr("id", "wrapper");
 
@@ -1082,97 +1184,62 @@ class D3Orchestra {
 
     let strokewidth = parseInt(path.attr("arcwidth"));
 
+    /*  d3.select("#selectChart")
+      .style("transform-origin", "50% 50%")
+      .style("transform", "scale(2) translate(0, 20px)");
+ */
+    let wrapperHeight = d3
+      .select("#orchestraVis")
+      .select("svg")
+      .node()
+      .getBoundingClientRect().height;
+
+    let wrapperWidth = d3
+      .select("#orchestraVis")
+      .select("svg")
+      .node()
+      .getBoundingClientRect().width;
+
     /* let angle = 0.0, distance = 0, toBeScaled = 0; */
     let distance;
     let toBeScaled;
-    if (startEnd && strokewidth) {
-      //distance = getDistance(startEnd.start.x, startEnd.start.y, startEnd.end.x, startEnd.end.y); //+ strokewidth / 2;
+
+    if (center) {
       distance = bbox.height;
-      toBeScaled = this.height / 1.25 / distance;
-      /* angle = getAngle(startEnd.start.x, startEnd.start.y, startEnd.end.x, startEnd.end.y); */
+      toBeScaled = wrapperHeight / (distance + this.padding);
     } else {
       distance = bbox.height;
-      toBeScaled = this.height / 1.25 / distance;
+      toBeScaled = wrapperHeight / (distance + this.padding);
     }
 
     var cx = bbox.x + bbox.width / 2,
       cy = bbox.y + bbox.height / 2; // finding center of element
 
-    /* let differenceToCenterX = this.positionX - cx;
-        let differenceToCenterY = this.positionY - cy; */
-
-    /*     d3.select("#selectchart").append("rect")
-             .style("fill", "blue")
-             .attr("width", 3)
-             .attr("height", 3)
-             .attr("x", cx-1)
-             .attr("y", cy-1);*/
-
-    /*        d3.select("#selectchart").append("rect")
-                .style("fill", "red")
-                .attr("width", 3)
-                .attr("height", 3)
-                .attr("x", svgWidth/2-1)
-                .attr("y", svgHeight/2-1);*/
-
-    /*        if(isSafari) {
-                    container.transition().duration(animationTime).attr('transform', 'translate('+ (cx) + ' ' + (cy) +') scale('+ toBeScaled + ' ' + toBeScaled +') rotate('+angle+') translate('+ (-cx) + ' ' + (-cy) +')');
-                }
-                else {
-                    container.style("transform-box", "fill-box").style("transform-origin", "center").transition().duration(animationTime).attr('transform', 'scale('+ toBeScaled + ' ' + toBeScaled +') rotate('+angle+') translate('+ (differenceToCenterX) + ' ' + (differenceToCenterY) +')');
-                }*/
-
-    /* let box = this.container.node().getBBox();
-        let boxCenterX = box.x + (box.width / 2);
-        let boxCenterY = box.y + (box.height);
-
-        let rotateCenterX = this.positionX;
-        let rotateCenterY = this.positionY; */
-
-    /*         d3.select("#selectchart").append("rect")
-                .style("fill", "red")
-                .attr("width", 3)
-                .attr("height", 3)
-                .attr("x", rotateCenterX-1)
-                .attr("y", rotateCenterY-1);
-        
-                 d3.select("#selectchart").append("rect")
-                .style("fill", "purple")
-                .attr("width", 3)
-                .attr("height", 3)
-                .attr("x", differenceToCenterX)
-                .attr("y", differenceToCenterY);*/
+    let my = wrapperHeight / 2 - cy;
+    let mx = wrapperWidth / 2 - cx;
 
     var saclestr = toBeScaled + "," + toBeScaled;
-    var tx = -cx * (toBeScaled - 1);
-    var ty = -cy * (toBeScaled - 1);
-    var translatestr = tx + "," + ty;
 
     d3.select("#selectChart").attr(
       "transform",
-      "\
-            translate(" +
-        translatestr +
+      "translate(" +
+        (cx - mx) +
+        "," +
+        (cy - my) +
         ") scale(" +
         saclestr +
-        ") \
-            "
+        ") translate(" +
+        (-cx + mx / 2) +
+        "," +
+        (-cy + my / 2 + (center ? 10 : 0)) +
+        ")"
     );
-
-    //translate(" + differenceToCenterX + " " + differenceToCenterY + ") \
-    //rotate("+angle+" "+cx+" "+cy+") \
-
-    /*         d3.select("svg").append("rect")
-                .style("fill", "lime")
-                .attr("width", 3)
-                .attr("height", 3)
-                .attr("x", positionX-1)
-                .attr("y", positionY-1);*/
   }
 
   reset() {
     let selectchart = d3.select("#selectChart");
     d3.select("#selectChartSVG").select(".backButton").style("display", "none");
+    d3.select("#selectChartSVG").style("border", "none");
     d3.select("#mainPartSelectorDiv").style("display", "none");
 
     d3.select("g.selectInstrumentPart").remove();
@@ -1208,7 +1275,7 @@ class D3Orchestra {
       .select("#selectChartSVG")
       .append("g")
       .attr("class", "backButton")
-      .attr("transform", "translate(" + this.padding + " " + 10 + ")")
+      .attr("transform", "translate(" + this.padding + " " + 18 + ")")
       .style("cursor", "pointer")
       .style("display", "none")
       .on("mouseover", function (e) {
@@ -1218,7 +1285,7 @@ class D3Orchestra {
           .style("stroke-opacity", 0.7)
           .style("stroke-width", 2)
           .style("stroke-linejoin", "round")
-          .style("fill", "var(--highlightpurple)");
+          .style("fill", "var(--highlight)");
       })
       .on("mouseout", function (e) {
         d3.select(this)
@@ -1250,9 +1317,10 @@ class D3Orchestra {
       .style("line-height", "1em")
       .style("stroke", "var(--black)")
       .style("fill", "var(--black)")
-      .style("dominant-baseline", "middle")
+      .style("font-size", "small")
+      .style("dominant-baseline", "central")
       .attr("class", "textonpath noselect")
-      .text("Back");
+      .text("Reset");
 
     /*   dst,
     id,

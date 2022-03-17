@@ -19,7 +19,8 @@ class Orchestra extends Component {
       treeThreatType: this.props.treeThreatType,
       speciesData: this.props.speciesData,
       finishedFetching: this.props.finishedFetching,
-      mainPartOptions: []
+      mainPartOptions: [],
+      open: false
     };
   }
 
@@ -63,6 +64,16 @@ class Orchestra extends Component {
     }
 
     if (
+      JSON.stringify(this.props.speciesSignThreats) !==
+      JSON.stringify(prevProps.speciesSignThreats)
+    ) {
+      this.OrchestraHelper.updateThreatPies(
+        this.props.speciesData,
+        this.props.colorBlind
+      );
+    }
+
+    if (
       JSON.stringify(this.props.speciesData) !==
       JSON.stringify(prevProps.speciesData)
     ) {
@@ -72,10 +83,7 @@ class Orchestra extends Component {
       );
     }
 
-    if (
-      JSON.stringify(this.props.colorBlind) !==
-      JSON.stringify(prevProps.colorBlind)
-    ) {
+    if (this.props.colorBlind !== prevProps.colorBlind) {
       this.OrchestraHelper.updateThreatPies(
         this.props.speciesData,
         this.props.colorBlind
@@ -103,6 +111,14 @@ class Orchestra extends Component {
 
   render() {
     let mainPartOptions = this.state.mainPartOptions;
+    let mainPart = this.props.mainPart;
+
+    if (mainPartOptions.length === 0 && mainPart) {
+      mainPartOptions.push(mainPart);
+    }
+
+    let open = this.state.open;
+    let instrument = this.props.instrument;
 
     return (
       <div
@@ -117,16 +133,17 @@ class Orchestra extends Component {
           id={"mainPartSelectorDiv"}
           className={this.props.mainPart ? "filterUsed" : ""}
           style={{
-            textAlign: "center",
             position: "absolute",
-            bottom: "0px",
-            width: "100%",
-            left: "40px",
+            top: "10px",
+            left: "100px",
             display: "none"
           }}
         >
-          <FormControl sx={{ m: 1, minWidth: 80 }}>
-            <InputLabel id="demo-simple-select-label">
+          <FormControl sx={{ m: 1, minWidth: 80 }} size="small">
+            <InputLabel
+              style={{ backgroundColor: "white" }}
+              id="demo-simple-select-label"
+            >
               Select Main Part
             </InputLabel>
             <Select
@@ -136,16 +153,39 @@ class Orchestra extends Component {
               label="Select Main Part"
               sx={{
                 width: 300,
-                height: 50
+                boxShadow: "0 3px 14px rgb(0 0 0 / 40%)"
+                //height: 50
               }}
               onChange={this.setMainPart.bind(this)}
+              onOpen={(e) => {
+                this.setState({ open: true });
+              }}
+              onClose={(e) => {
+                this.setState({ open: false });
+              }}
             >
               {mainPartOptions.map((e) => (
-                <MenuItem value={e}>{e}</MenuItem>
+                <MenuItem key={"option" + e} value={e}>
+                  {e}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
         </div>
+        <div
+          id="mainPartSelectSVGWrapper"
+          style={{
+            position: "absolute",
+            top: "50px",
+            left: "100px",
+            backgroundColor: "white",
+            display: open && instrument ? "block" : "none",
+            zIndex: 9999,
+            borderRadius: "4px",
+            boxShadow:
+              "0px 5px 5px -3px rgb(0 0 0 / 20%), 0px 8px 10px 1px rgb(0 0 0 / 14%), 0px 3px 14px 2px rgb(0 0 0 / 12%)"
+          }}
+        ></div>
       </div>
     );
   }

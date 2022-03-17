@@ -51,6 +51,7 @@ class D3Timeline {
     this.setTimeFrame = param.setTimeFrame;
 
     this.timeFrame = param.timeFrame;
+    this.species = param.species;
 
     //this.heatStyle = param.heatStyle;
     this.heatStyle = "max";
@@ -73,6 +74,7 @@ class D3Timeline {
     this.getTreeThreatLevel = param.getTreeThreatLevel;
 
     this.speciesImageLinks = param.treeImageLinks;
+    this.dummyImageLinks = param.dummyImageLinks;
 
     this.muted = param.muted;
 
@@ -318,7 +320,14 @@ class D3Timeline {
 
   clearAndReset() {
     d3.selectAll("#" + this.id + " > *").remove();
-    let content = d3.select("#" + this.id);
+    let content = d3
+      .select("#" + this.id)
+      .style(
+        "border-top",
+        this.species === this.speciesName
+          ? "2px solid var(--highlightpurple)"
+          : "none"
+      );
 
     if (this.muted) {
       content.style("opacity", 0.5);
@@ -333,7 +342,7 @@ class D3Timeline {
       .append("div")
       .attr("class", "speciesNameDiv")
       .style("width", "fit-content")
-      /* .style("border-top", "1px solid var(--black)") */
+
       .style("vertical-align", "middle")
       .on("click", () => {
         this.setFilter({
@@ -455,7 +464,10 @@ class D3Timeline {
             this.setHover([]);
           }); */
 
-        if (this.speciesImageLinks[this.speciesName]) {
+        let imageLink = this.speciesImageLinks[this.speciesName];
+        let dummyLink = this.dummyImageLinks[this.speciesName];
+
+        if (imageLink) {
           //let imageWidth = this.zoomLevel > 0 ? this.margin.left / 3 : 2 * this.margin.left / 3;
           let imageWidth = (2 * this.margin.left) / 3;
           this.wrapper
@@ -467,10 +479,7 @@ class D3Timeline {
             .style("left", 0)
             .style("top", 0)
             .style("cursor", "pointer")
-            .style(
-              "background-image",
-              "url(" + this.speciesImageLinks[this.speciesName] + ")"
-            )
+            .style("background-image", "url(" + imageLink + ")")
             .on("click", () => {
               this.setFilter({
                 kingdom: [this.data.Kingdom],
@@ -486,6 +495,40 @@ class D3Timeline {
               this.tooltip(this.speciesName, d3.event, false)
             )
             .on("mousemove", () => this.tooltipMove(d3.event));
+        } else if (dummyLink) {
+          let imageWidth = (2 * this.margin.left) / 3;
+          this.wrapper
+            .append("div")
+            .attr("class", "speciesImageWrapper")
+            .style("width", imageWidth + "px")
+            .style("height", "-webkit-fill-available")
+            .style("position", "absolute")
+            .style("left", 0)
+            .style("top", 0)
+            .style("cursor", "pointer")
+            .style("background-image", "url(" + dummyLink + ")")
+            .on("click", () => {
+              this.setFilter({
+                kingdom: [this.data.Kingdom],
+                familia: [this.data.Family],
+                genus: [this.data.Genus.trim()],
+                species: [this.speciesName]
+              });
+            })
+            .on("mouseenter", () =>
+              this.tooltip(this.speciesName, d3.event, true)
+            )
+            .on("mouseleave", () =>
+              this.tooltip(this.speciesName, d3.event, false)
+            )
+            .on("mousemove", () => this.tooltipMove(d3.event))
+            .append("div")
+            .attr("class", "dummyDiv")
+            .style("height", "100%")
+            .style("writing-mode", "unset")
+            .style("text-orientation", "unset")
+            .style("background-color", "rgba(128,128,128,0.26)")
+            .html("PROXY");
         }
       }
     }
@@ -1815,10 +1858,14 @@ class D3Timeline {
   }
 
   tooltipMove(event) {
+    let windowHeight = window.innerHeight;
+    let add = 25;
+
     let tooltip = d3.select(".tooltip");
+    let height = tooltip.node().getBoundingClientRect().height;
     tooltip
       .style("left", event.pageX + 25 + "px")
-      .style("top", event.pageY + 25 + "px");
+      .style("top", Math.min(windowHeight - height, event.pageY + 25) + "px");
   }
 
   getTooltip(d) {
@@ -1831,10 +1878,7 @@ class D3Timeline {
   tooltip(d, event, highlight) {
     let colorBlind = this.colorBlind;
     function createThreatLegend(threat, type) {
-      let ret = d3
-        .create("div")
-        .style("width", "fit-content")
-        .style("height", "20px");
+      let ret = d3.create("div").style("text-align", "center");
 
       switch (type) {
         case "CITES":
@@ -1879,7 +1923,6 @@ class D3Timeline {
       }
     }
 
-    console.log(d);
     let tooltip = d3.select(".tooltip");
 
     let content = d3.select("#" + this.id);
@@ -1920,7 +1963,7 @@ class D3Timeline {
         /* .style("height", "150px") */
         .style("display", "grid")
         .style("grid-template-columns", "auto auto auto auto auto auto auto")
-        .style("grid-template-rows", "auto auto")
+        .style("grid-template-rows", "auto auto auto auto")
         .style("row-gap", "8px")
         .style("column-gap", "8px");
 
@@ -1936,7 +1979,25 @@ class D3Timeline {
         .style("font-weight", "bold")
         .text(d);
 
-      wrapper.append(() => copyImage.node());
+      wrapper
+        .append("div")
+        .style("grid-column-start", 1)
+        .style("grid-column-end", "span 6")
+        .style("grid-row-start", 4)
+        .style("grid-row-end", 4)
+        .html("<i>Click to filter!</i>");
+
+      if (copyImage.node()) {
+        wrapper
+          .append("div")
+          .style("grid-column-start", 1)
+          .style("grid-column-end", "span 6")
+          .style("grid-row-start", 3)
+          .style("grid-row-end", 3)
+          .html("&copy; " + this.data["Foto source"]);
+
+        wrapper.append(() => copyImage.node());
+      }
 
       let tradeWrapper = wrapper
         .append("div")
@@ -2095,29 +2156,12 @@ class D3Timeline {
   }
 
   tooltipTrend(d, event, highlight) {
-    console.log(d);
     let tooltip = d3.select(".tooltip");
 
     if (highlight) {
       tooltip.html("").style("display", "block");
 
       let content = d3.select("#" + this.id);
-      /* let copyTrend = content
-        .selectAll("svg")
-        .select(".trendGroud")
-        .clone()
-        .remove(); */
-
-      /* .clone(true).remove(); */
-      /* .style("position", "relative")
-      .style("width", "250px")
-      .style("height", "150px")
-      .style("grid-column-start", 1)
-      .style("grid-column-end", 1)
-      .style("grid-row-start", 2)
-      .style("grid-row-end", 2)
-      .style("align-self", "center")
-      .style("justify-self", "center"); */
 
       tooltip.append("div").html("<b>" + d.speciesName + "</b>");
 
@@ -2509,7 +2553,6 @@ class D3Timeline {
             this.timeFrame[1] ? this.timeFrame[1] : this.domainYears.maxYear
           )
           .on("onchange", (val) => {
-            console.log(val);
             this.setTimeFrame([this.domainYears.minYear, val]);
           });
       } else {
@@ -2521,8 +2564,6 @@ class D3Timeline {
             this.timeFrame[1] ? this.timeFrame[1] : this.domainYears.maxYear
           );
       }
-
-      console.log(this.x(this.domainYears.minYear));
 
       const sliderGroup = this.wrapper
         .append("svg")

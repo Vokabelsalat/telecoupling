@@ -46,11 +46,13 @@ class Timeline extends Component {
       removeSpeciesFromMap: this.props.removeSpeciesFromMap,
       muted: this.props.muted !== undefined ? this.props.muted : false,
       treeImageLinks: this.props.treeImageLinks,
+      dummyImageLinks: this.props.dummyImageLinks,
       setHover: this.props.setHover,
       setTimeFrame: this.props.setTimeFrame,
       timeFrame: this.props.timeFrame,
       colorBlind: this.props.colorBlind,
-      setFilter: this.props.setFilter
+      setFilter: this.props.setFilter,
+      species: this.props.species
     });
   }
 
@@ -88,11 +90,13 @@ class Timeline extends Component {
         removeSpeciesFromMap: this.props.removeSpeciesFromMap,
         muted: this.props.muted !== undefined ? this.props.muted : false,
         treeImageLinks: this.props.treeImageLinks,
+        dummyImageLinks: this.props.dummyImageLinks,
         setHover: this.props.setHover,
         setTimeFrame: this.props.setTimeFrame,
         timeFrame: this.props.timeFrame,
         colorBlind: this.props.colorBlind,
-        setFilter: this.props.setFilter
+        setFilter: this.props.setFilter,
+        species: this.props.species
       });
     }
   }

@@ -34,7 +34,9 @@ class CenterPieChart extends Component {
     if (
       this.props.treeThreatType !== prevProps.treeThreatType ||
       this.props.colorBlind !== prevProps.colorBlind ||
-      JSON.stringify(this.props.data) !== JSON.stringify(prevProps.data)
+      JSON.stringify(this.props.data) !== JSON.stringify(prevProps.data) ||
+      JSON.stringify(this.props.speciesSignThreats) !==
+        JSON.stringify(prevProps.speciesSignThreats)
     ) {
       CenterPieChartHelper.draw({
         id: this.state.id,

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 /* import MapHelper from "./MapHelper"; */
-import MapHelper from "./NewMapHelper";
+import MapHelper from "./MapHelper";
 import "../utils/utils";
 
 class Map extends Component {
@@ -422,7 +422,7 @@ class Map extends Component {
         <div
           id={this.state.id}
           style={{
-            height: "calc(50vh - 50px)",
+            height: "calc(50vh - 85px)",
             width: "calc(50vw - 10px)"
           }}
         ></div>
