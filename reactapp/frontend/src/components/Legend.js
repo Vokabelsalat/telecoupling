@@ -92,8 +92,7 @@ class Legend extends Component {
               gridRowEnd: "span 2",
               alignSelf: "center",
               justifySelf: "center",
-              opacity: !treeThreatType ? 0.5 : 1.0,
-              marginTop: "-1.7em"
+              opacity: !treeThreatType ? 0.5 : 1.0
             }}
           >
             <div style={{ textAlign: "center", lineHeight: "1.7em" }}>

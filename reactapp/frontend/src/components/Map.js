@@ -29,7 +29,8 @@ class Map extends Component {
       this.props.treeThreatType,
       this.props.setFilter,
       this.props.colorBlind,
-      this.props.setMapSearchBarData
+      this.props.setMapSearchBarData,
+      this.props.lastSpeciesThreats
     );
 
     this.addSpeciesFromMapSpecies();
@@ -336,41 +337,13 @@ class Map extends Component {
       JSON.stringify(prevProps.data) !== JSON.stringify(this.props.data)
     ) {
       this.addSpeciesFromMapSpecies();
-      /* let newSpecies = Object.keys(this.props.mapSpecies);
-      let diff = Object.keys(prevProps.mapSpecies).filter(
-        (x) => !newSpecies.includes(x)
-      );
-
-      this.removeSpeciesByMapSpecies(diff); */
-      /*             if (this.props.heatMap) {
-                this.MapHelper.updateHeatMap(this.props.heatMap, this.props.treeThreatType);
-            }
-            if (this.props.diversity) {
-                this.MapHelper.updateDiversity(this.props.diversity, this.props.diversityMode, this.props.diversityAttribute);
-            } */
     }
 
     if (
-      JSON.stringify(this.props.timeFrame) !==
-      JSON.stringify(prevProps.timeFrame)
+      JSON.stringify(this.props.lastSpeciesThreats) !==
+      JSON.stringify(prevProps.lastSpeciesThreats)
     ) {
-      this.MapHelper.updateThreatPies();
-      /* this.MapHelper.updateHeatMap(
-        this.props.heatMap,
-        this.props.treeThreatType
-      );
-      this.MapHelper.updateDiversity(
-        this.props.diversity,
-        this.props.diversityMode,
-        this.props.diversityAttribute
-      ); */
-    }
-
-    if (
-      JSON.stringify(this.props.colorBlind) !==
-      JSON.stringify(prevProps.colorBlind)
-    ) {
-      this.MapHelper.updateColorBlind(this.props.colorBlind);
+      this.MapHelper.setLastSpeciesThreats(this.props.lastSpeciesThreats);
     }
 
     if (prevProps.heatMap !== this.props.heatMap) {

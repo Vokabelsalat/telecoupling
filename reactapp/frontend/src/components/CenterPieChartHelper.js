@@ -21,6 +21,7 @@ class CenterPieChartD3 {
       ? "economically"
       : "ecologically";
     this.getTreeThreatLevel = param.getTreeThreatLevel;
+    this.lastSpeciesThreats = param.lastSpeciesThreats;
 
     d3.selection.prototype.moveToFront = function () {
       this.each(function () {
@@ -44,7 +45,7 @@ class CenterPieChartD3 {
 
     let threats = [];
     for (let species of Object.keys(this.data)) {
-      let threat = this.getTreeThreatLevel(species, this.treeThreatType);
+      let threat = this.lastSpeciesThreats[species][this.treeThreatType];
       threats.push(threat);
     }
 

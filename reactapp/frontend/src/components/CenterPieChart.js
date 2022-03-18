@@ -16,7 +16,8 @@ class CenterPieChart extends Component {
       id: "CenterPieChartVis",
       data: this.props.data,
       getTreeThreatLevel: this.props.getTreeThreatLevel,
-      treeThreatType: this.props.treeThreatType
+      treeThreatType: this.props.treeThreatType,
+      lastSpeciesThreats: this.props.lastSpeciesThreats
     };
   }
 
@@ -26,7 +27,8 @@ class CenterPieChart extends Component {
       data: this.props.data,
       getTreeThreatLevel: this.props.getTreeThreatLevel,
       treeThreatType: this.props.treeThreatType,
-      colorBlind: this.props.colorBlind
+      colorBlind: this.props.colorBlind,
+      lastSpeciesThreats: this.props.lastSpeciesThreats
     });
   }
 
@@ -35,15 +37,16 @@ class CenterPieChart extends Component {
       this.props.treeThreatType !== prevProps.treeThreatType ||
       this.props.colorBlind !== prevProps.colorBlind ||
       JSON.stringify(this.props.data) !== JSON.stringify(prevProps.data) ||
-      JSON.stringify(this.props.speciesSignThreats) !==
-        JSON.stringify(prevProps.speciesSignThreats)
+      JSON.stringify(this.props.lastSpeciesThreats) !==
+        JSON.stringify(prevProps.lastSpeciesThreats)
     ) {
       CenterPieChartHelper.draw({
         id: this.state.id,
         data: this.props.data,
         getTreeThreatLevel: this.props.getTreeThreatLevel,
         treeThreatType: this.props.treeThreatType,
-        colorBlind: this.props.colorBlind
+        colorBlind: this.props.colorBlind,
+        lastSpeciesThreats: this.props.lastSpeciesThreats
       });
     }
   }

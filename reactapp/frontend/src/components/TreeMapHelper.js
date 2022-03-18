@@ -216,7 +216,7 @@ class D3BarChart {
           .append("div")
           .style("display", "grid")
           .style("grid-template-columns", "auto auto auto auto auto auto auto")
-          .style("grid-template-rows", "auto auto auto")
+          .style("grid-template-rows", "auto auto auto auto")
           .style("row-gap", "8px")
           .style("column-gap", "8px");
 
@@ -230,7 +230,16 @@ class D3BarChart {
           .style("justify-self", "center")
           .append("text")
           .style("font-weight", "bold")
+          .style("font-style", "italic")
           .text(d.data.name);
+
+        wrapper
+          .append("div")
+          .style("grid-column-start", 1)
+          .style("grid-column-end", "span 6")
+          .style("grid-row-start", 4)
+          .style("grid-row-end", 4)
+          .html("<i>Click to filter!</i>");
 
         if (!copyImage.empty()) {
           wrapper

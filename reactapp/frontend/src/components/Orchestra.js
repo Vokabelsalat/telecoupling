@@ -17,6 +17,7 @@ class Orchestra extends Component {
       mainPart: this.props.mainPart,
       getTreeThreatLevel: this.props.getTreeThreatLevel,
       treeThreatType: this.props.treeThreatType,
+      lastSpeciesThreats: this.props.lastSpeciesThreats,
       speciesData: this.props.speciesData,
       finishedFetching: this.props.finishedFetching,
       mainPartOptions: [],
@@ -36,6 +37,7 @@ class Orchestra extends Component {
       finishedFetching: this.props.finishedFetching,
       setFilter: this.props.setFilter,
       colorBlind: this.props.colorBlind,
+      lastSpeciesThreats: this.props.lastSpeciesThreats,
       setMainPartOptions: this.setMainPartOptions.bind(this)
     });
   }
@@ -51,7 +53,8 @@ class Orchestra extends Component {
       this.OrchestraHelper.setMainPart(this.props.mainPart);
       this.OrchestraHelper.updateThreatPies(
         this.props.speciesData,
-        this.props.colorBlind
+        this.props.colorBlind,
+        this.props.lastSpeciesThreats
       );
     }
 
@@ -59,17 +62,19 @@ class Orchestra extends Component {
       this.OrchestraHelper.setTreeThreatType(this.props.treeThreatType);
       this.OrchestraHelper.updateThreatPies(
         this.props.speciesData,
-        this.props.colorBlind
+        this.props.colorBlind,
+        this.props.lastSpeciesThreats
       );
     }
 
     if (
-      JSON.stringify(this.props.speciesSignThreats) !==
-      JSON.stringify(prevProps.speciesSignThreats)
+      JSON.stringify(this.props.lastSpeciesThreats) !==
+      JSON.stringify(prevProps.lastSpeciesThreats)
     ) {
       this.OrchestraHelper.updateThreatPies(
         this.props.speciesData,
-        this.props.colorBlind
+        this.props.colorBlind,
+        this.props.lastSpeciesThreats
       );
     }
 
@@ -79,24 +84,16 @@ class Orchestra extends Component {
     ) {
       this.OrchestraHelper.updateThreatPies(
         this.props.speciesData,
-        this.props.colorBlind
+        this.props.colorBlind,
+        this.props.lastSpeciesThreats
       );
     }
 
     if (this.props.colorBlind !== prevProps.colorBlind) {
       this.OrchestraHelper.updateThreatPies(
         this.props.speciesData,
-        this.props.colorBlind
-      );
-    }
-
-    if (
-      JSON.stringify(this.props.timeFrame) !==
-      JSON.stringify(prevProps.timeFrame)
-    ) {
-      this.OrchestraHelper.updateThreatPies(
-        this.props.speciesData,
-        this.props.colorBlind
+        this.props.colorBlind,
+        this.props.lastSpeciesThreats
       );
     }
   }

@@ -41,7 +41,8 @@ class MapHelper {
     treeThreatType,
     setFilter,
     colorBlind,
-    setMapSearchBarData
+    setMapSearchBarData,
+    lastSpeciesThreats
   ) {
     this.id = id;
     this.initWidth = initWidth;
@@ -50,6 +51,7 @@ class MapHelper {
     this.treeThreatType = treeThreatType;
     this.setFilter = setFilter;
     this.setMapSearchBarData = setMapSearchBarData;
+    this.lastSpeciesThreats = lastSpeciesThreats;
 
     this.speciesCountries = null;
     this.highlightCountriesLayer = null;
@@ -469,9 +471,10 @@ class MapHelper {
   defineClusterIconThreat(cluster) {
     var children = cluster.getAllChildMarkers();
     let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
+    let lastSpeciesThreats = this.lastSpeciesThreats;
 
     let data = [...new Set(children.map((e) => e.options.data).flat())].map(
-      (e) => this.getTreeThreatLevel(e, treeThreatType)
+      (e) => lastSpeciesThreats[e][treeThreatType]
     );
     let n = data.length; //Get number of markers in cluster
     data = d3
@@ -531,6 +534,7 @@ class MapHelper {
 
   bakeTheThreatPie(options) {
     let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
+    let lastSpeciesThreats = this.lastSpeciesThreats;
 
     if (!options.data || !options.valueFunc) {
       return "";
@@ -580,8 +584,8 @@ class MapHelper {
     let donutData = donut.value(valueFunc).sort((a, b) => {
       return b.hasOwnProperty("values") && a.hasOwnProperty("values")
         ? b.values[0].numvalue - a.values[0].numvalue
-        : this.getTreeThreatLevel(b, treeThreatType).numvalue -
-            this.getTreeThreatLevel(a, treeThreatType).numvalue;
+        : lastSpeciesThreats[b][treeThreatType].numvalue -
+            lastSpeciesThreats[a][treeThreatType].numvalue;
     });
 
     var arcs = vis
@@ -713,7 +717,7 @@ class MapHelper {
       }
 
       this.diversityColorScale = scale;
-      this.setDiversityScale(this.diversityColorScale);
+      this.setDiversityScale(this.diversityColorScale, "countries");
 
       let getScaledIndex = this.getScaledIndex.bind(this);
 
@@ -765,7 +769,7 @@ class MapHelper {
 
   updateThreatPiesCountries(first = false) {
     let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
-    let getTreeThreatLevel = this.getTreeThreatLevel;
+    let lastSpeciesThreats = this.lastSpeciesThreats;
     if (this.countryClusterLayer) this.countryClusterLayer.clearLayers();
 
     let heatMapData = {};
@@ -832,16 +836,14 @@ class MapHelper {
                     pieLabel: n,
                     pieLabelClass: "marker-cluster-pie-label",
                     strokeColor: function (d) {
-                      return getTreeThreatLevel(
-                        d.data,
+                      return lastSpeciesThreats[d.data][
                         treeThreatType
-                      ).getColor(colorBlind);
+                      ].getColor(colorBlind);
                     },
                     color: function (d) {
-                      return getTreeThreatLevel(
-                        d.data,
+                      return lastSpeciesThreats[d.data][
                         treeThreatType
-                      ).getColor(colorBlind);
+                      ].getColor(colorBlind);
                     }
                     /* pathClassFunc: function (d) { return "category-path category-" + d.data.key.replaceSpecialCharacters(); },
                                     pathTitleFunc: function (d) { return d.data.key + ' (' + d.data.values.length + ' accident' + (d.data.values.length != 1 ? 's' : '') + ')'; } */
@@ -899,7 +901,7 @@ class MapHelper {
       }
 
       this.diversityColorScale = scale;
-      this.setDiversityScale(this.diversityColorScale);
+      this.setDiversityScale(this.diversityColorScale, "ecoregions");
 
       let getScaledIndex = this.getScaledIndex.bind(this);
 
@@ -950,7 +952,7 @@ class MapHelper {
 
   updateThreatPiesEcoRegions() {
     let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
-    let getTreeThreatLevel = this.getTreeThreatLevel;
+    let lastSpeciesThreats = this.lastSpeciesThreats;
     if (this.countryClusterLayer) this.countryClusterLayer.clearLayers();
 
     if (this.speciesEcoRegions !== undefined && this.ecoRegions) {
@@ -1014,16 +1016,14 @@ class MapHelper {
                     pieLabel: n,
                     pieLabelClass: "marker-cluster-pie-label",
                     strokeColor: function (d) {
-                      return getTreeThreatLevel(
-                        d.data,
+                      return lastSpeciesThreats[d.data][
                         treeThreatType
-                      ).getColor(colorBlind);
+                      ].getColor(colorBlind);
                     },
                     color: function (d) {
-                      return getTreeThreatLevel(
-                        d.data,
+                      return lastSpeciesThreats[d.data][
                         treeThreatType
-                      ).getColor(colorBlind);
+                      ].getColor(colorBlind);
                     }
                   }),
                   iconSize: new L.Point(iconDim, iconDim)
@@ -1086,7 +1086,7 @@ class MapHelper {
 
         this.hexagonCache["scale"] = scale;
         this.diversityColorScale = scale;
-        this.setDiversityScale(this.diversityColorScale);
+        this.setDiversityScale(this.diversityColorScale, "hexagons");
         let boundHighlight = this.highlightPolygons.bind(this);
 
         let getScaledIndex = this.getScaledIndex.bind(this);
@@ -1212,6 +1212,11 @@ class MapHelper {
         break;
     }
 
+    this.updateThreatPies();
+  }
+
+  setLastSpeciesThreats(lastSpeciesThreats) {
+    this.lastSpeciesThreats = lastSpeciesThreats;
     this.updateThreatPies();
   }
 

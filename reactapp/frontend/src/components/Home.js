@@ -96,7 +96,8 @@ class Home extends Component {
       filterSettings: {},
       colorBlind: false,
       mapSearchMode: "country",
-      mapSearchBarData: []
+      mapSearchBarData: [],
+      lastSpeciesThreats: {}
     };
   }
 
@@ -126,25 +127,70 @@ class Home extends Component {
   }
 
   importAllSpeciesFromGeneratedJSON() {
+    console.log("IMPORT ALL SPecies");
+    let timeFrame = this.state.timeFrame;
+
     fetch("/generatedOutput/allSpecies.json")
       .then((res) => res.json())
       .then(
         function (speciesData) {
+          console.log("TOLL");
           speciesData = Object.fromEntries(
             Object.entries(speciesData)
-              .slice(0, this.slice ? 170 : Object.keys(speciesData).length)
-              .filter((t) => t.Genus.trim() !== "" && t.Kingdom.trim() !== "")
+              /* .filter((e) => {
+                return (
+                  e[0] === "Balaenoptera acutorostrata" ||
+                  e[0] === "Paubrasilia echinata"
+                );
+              }) */
+              .slice(0, this.slice ? 70 : Object.keys(speciesData).length)
           );
           let newMapData = {};
-          for (let speciesName of Object.keys(speciesData)) {
-            newMapData[speciesName] = 1;
+
+          console.log("speciesData", speciesData);
+
+          let myLastSignThreats = {};
+          for (let species of Object.keys(speciesData)) {
+            /*   myLastSignThreats[species] = {
+              cites: this.getLastSpeciesThreats(
+                species,
+                "cites",
+                speciesData[species]
+              ),
+              iucn: this.getLastSpeciesThreats(
+                species,
+                "iucn",
+                speciesData[species]
+              ),
+              threat: this.getLastSpeciesThreats(
+                species,
+                "bgci",
+                speciesData[species]
+              )
+            }; */
+
+            myLastSignThreats[species] = {
+              economically: this.getSpeciesAssessment(
+                species,
+                "economically",
+                speciesData[species]
+              ),
+              ecologically: this.getSpeciesAssessment(
+                species,
+                "ecologically",
+                speciesData[species]
+              )
+            };
           }
+
+          console.log("LEL", myLastSignThreats);
 
           this.setState({
             speciesData: speciesData,
             mapSpecies: newMapData,
             speciesDataCache: speciesData,
-            finishedFetching: true
+            finishedFetching: true,
+            lastSpeciesThreats: myLastSignThreats
           });
         }.bind(this)
       )
@@ -158,7 +204,15 @@ class Home extends Component {
       timeFrame[0] !== this.state.timeFrame[0] ||
       timeFrame[1] !== this.state.timeFrame[1]
     ) {
-      this.setState({ timeFrame });
+      let myLastSignThreats = {};
+      for (let species of Object.keys(this.state.speciesData)) {
+        myLastSignThreats[species] = {
+          economically: this.getSpeciesAssessment(species, "economically"),
+          ecologically: this.getSpeciesAssessment(species, "ecologically")
+        };
+      }
+
+      this.setState({ timeFrame, lastSpeciesThreats: myLastSignThreats });
     }
   }
 
@@ -179,7 +233,7 @@ class Home extends Component {
       this.importAllSpeciesFromGeneratedJSON();
     }
     /* this.readAndSetWoodMap();*/
-    this.fetchAndSetSpecies();
+    this.fetchAndSetSpecies(this.usePreGenerated);
   }
 
   componentDidUpdate(prevProps) {
@@ -189,10 +243,11 @@ class Home extends Component {
       this.onFishishFetching();
     }
 
-    /* if(JSON.stringify(this.state.speciesSignThreats) !== JSON.stringify(prevProps.speciesSignThreats) ) {
-            console.log("HERE!");
-            this.setState();
-        } */
+    /* if (
+      JSON.stringify(this.state.speciesSignThreats) !==
+      JSON.stringify(prevProps.speciesSignThreats)
+    ) {
+    } */
   }
 
   onFishishFetching() {
@@ -654,7 +709,7 @@ class Home extends Component {
       });
   }
 
-  fetchAndSetSpecies() {
+  fetchAndSetSpecies(alreadyLoaded = false) {
     let url, mainPart;
     mainPart = this.state.mainPart === "All" ? "" : this.state.mainPart;
 
@@ -676,59 +731,70 @@ class Home extends Component {
 
     //fetch("/api/getMaterial/" + this.state.instrument + "/" + this.state.mainPart)
     //fetch("/api/getTestMaterial")
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        let speciesObject = {};
-        for (let e of data.filter(
-          (t) => t.Genus.trim() !== "" && t.Kingdom.trim() !== ""
-        )) {
-          //for (let e of data) {
-          /* for (let e of data) { */
-          if (e.Species.trim() === "") continue;
 
-          let speciesName = (e.Genus.trim() + " " + e.Species.trim()).trim();
-          if (speciesObject.hasOwnProperty(speciesName)) {
-            speciesObject[speciesName]["origMat"].push({ ...e });
+    if (alreadyLoaded === false) {
+      console.log("FETCH SOME", url);
+      fetch(url)
+        .then((res) => res.json())
+        .then((data) => {
+          let speciesObject = {};
+          for (let e of data.filter(
+            (t) => t.Genus.trim() !== "" && t.Kingdom.trim() !== ""
+          )) {
+            //for (let e of data) {
+            /* for (let e of data) { */
+            if (e.Species.trim() === "") continue;
 
-            if (
-              !speciesObject[speciesName]["groups"].includes(
-                e["Instrument_groups"]
-              )
-            ) {
-              speciesObject[speciesName]["groups"].push(e["Instrument_groups"]);
+            let speciesName = (e.Genus.trim() + " " + e.Species.trim()).trim();
+            if (speciesObject.hasOwnProperty(speciesName)) {
+              speciesObject[speciesName]["origMat"].push({ ...e });
+
+              if (
+                !speciesObject[speciesName]["groups"].includes(
+                  e["Instrument_groups"]
+                )
+              ) {
+                speciesObject[speciesName]["groups"].push(
+                  e["Instrument_groups"]
+                );
+              }
+
+              if (
+                !speciesObject[speciesName]["instruments"].includes(
+                  e["Instruments"]
+                )
+              ) {
+                speciesObject[speciesName]["instruments"].push(
+                  e["Instruments"]
+                );
+              }
+
+              if (
+                !speciesObject[speciesName]["main_parts"].includes(
+                  e["Main_part"]
+                )
+              ) {
+                speciesObject[speciesName]["main_parts"].push(e["Main_part"]);
+              }
+            } else {
+              e["origMat"] = [{ ...e }];
+              e["groups"] = [e["Instrument_groups"]];
+              e["instruments"] = [e["Instruments"]];
+              e["main_parts"] = [e["Main_part"]];
+              speciesObject[speciesName] = e;
             }
-
-            if (
-              !speciesObject[speciesName]["instruments"].includes(
-                e["Instruments"]
-              )
-            ) {
-              speciesObject[speciesName]["instruments"].push(e["Instruments"]);
-            }
-
-            if (
-              !speciesObject[speciesName]["main_parts"].includes(e["Main_part"])
-            ) {
-              speciesObject[speciesName]["main_parts"].push(e["Main_part"]);
-            }
-          } else {
-            e["origMat"] = [{ ...e }];
-            e["groups"] = [e["Instrument_groups"]];
-            e["instruments"] = [e["Instruments"]];
-            e["main_parts"] = [e["Main_part"]];
-            speciesObject[speciesName] = e;
           }
-        }
 
-        speciesObject = Object.fromEntries(
-          Object.entries(speciesObject).slice(
-            0,
-            this.slice ? 170 : Object.keys(speciesObject).length
-          )
-        );
-        this.setSpecies(speciesObject);
-      });
+          speciesObject = Object.fromEntries(
+            Object.entries(speciesObject).slice(
+              0,
+              this.slice ? 70 : Object.keys(speciesObject).length
+            )
+          );
+
+          this.setSpecies(speciesObject);
+        });
+    }
   }
 
   fetchSpeciesTrades(species) {
@@ -988,12 +1054,41 @@ class Home extends Component {
 
     this.resetSpeciesData();
     this.speciesData = speciesObject;
+
+    let mySpeciesSignThreats = {};
+    for (let species of Object.keys(speciesObject)) {
+      let speciesObj = speciesObject[species];
+
+      console.log(speciesObj);
+
+      let lastCites = speciesObj.timeListing
+        ?.sort((a, b) => parseInt(b.year) - parseInt(a.year))
+        .pop();
+
+      let lastIucn = speciesObj.timeIUCN
+        ?.sort((a, b) => parseInt(b.year) - parseInt(a.year))
+        .pop();
+
+      let lastBgci = speciesObj.timeThreat
+        ?.sort((a, b) => parseInt(b.year) - parseInt(a.year))
+        .pop();
+
+      mySpeciesSignThreats[species] = {
+        cites: lastCites ? lastCites : null,
+        iucn: lastIucn ? lastIucn : null,
+        threat: lastBgci ? lastBgci : null
+      };
+    }
+
+    console.log("HERE", mySpeciesSignThreats);
+
     this.setState({
       speciesData: speciesObject,
       species: species,
       mapSpecies: {},
       addAllCountries: false,
-      fetchedSpecies: []
+      fetchedSpecies: [],
+      speciesSignThreats: mySpeciesSignThreats
     });
 
     for (let spec of species) {
@@ -1032,16 +1127,14 @@ class Home extends Component {
     if (speciesSignThreats.hasOwnProperty(key)) {
       if (speciesSignThreats[key][subkey] !== value) {
         speciesSignThreats[key][subkey] = value;
-
-        this.setState({ speciesSignThreats: speciesSignThreats });
       }
     } else {
-      let speciesSignThreats = this.state.speciesSignThreats;
       speciesSignThreats[key] = { cites: null, iucn: null, threat: null };
       speciesSignThreats[key][subkey] = value;
-
-      this.setState({ speciesSignThreats: speciesSignThreats });
     }
+    this.setState({
+      speciesSignThreats: speciesSignThreats
+    });
   }
 
   getSpeciesSignThreats(species) {
@@ -1050,6 +1143,155 @@ class Home extends Component {
       return returnElement;
     } else {
       return { cites: null, iucn: null, threat: null };
+    }
+  }
+
+  getSpeciesThreatLevel_old(treeName, type = null) {
+    let threatsSigns = this.getSpeciesSignThreats(treeName);
+    switch (type) {
+      case "economically":
+        return citesAssessment.get(threatsSigns.cites);
+      case "ecologically":
+        if (threatsSigns.iucn !== null) {
+          return iucnAssessment.get(threatsSigns.iucn);
+        } else {
+          return bgciAssessment.get(threatsSigns.threat);
+        }
+      default:
+        let sumScore =
+          0.5 * Math.max(citesScore(threatsSigns.cites), 0) +
+          0.5 *
+            Math.max(
+              iucnScore(threatsSigns.iucn),
+              threatScore(threatsSigns.threat),
+              0
+            );
+        let sumCat = threatScoreReverse(sumScore);
+        return sumCat;
+    }
+  }
+
+  getLastSpeciesThreats(species, type, data = null) {
+    let threats = null;
+    let last = null;
+    let timeFrame = this.state.timeFrame;
+
+    let obj;
+    if (data) {
+      obj = data;
+    } else if (this.state.speciesData && this.state.speciesData[species]) {
+      obj = this.state.speciesData[species];
+    }
+    if (obj) {
+      switch (type) {
+        case "cites":
+          threats = obj.timeListing;
+
+          if (timeFrame[1] !== undefined) {
+            threats = threats.filter((e) => parseInt(e.year) < timeFrame[1]);
+          }
+
+          last = null;
+          for (let threat of threats) {
+            if (last) {
+              if (parseInt(threat.year) > parseInt(last.year)) {
+                last = threat;
+              } else if (
+                parseInt(threat.year) === parseInt(last.year) &&
+                citesAssessment.get(threat.appendix).sort >
+                  citesAssessment.get(last.appendix).sort
+              ) {
+                last = threat;
+              }
+            } else {
+              last = threat;
+            }
+          }
+          return last;
+        case "iucn":
+          threats = obj.timeIUCN;
+
+          if (timeFrame[1] !== undefined) {
+            threats = threats.filter((e) => parseInt(e.year) < timeFrame[1]);
+          }
+
+          for (let threat of threats) {
+            if (last) {
+              if (parseInt(threat.year) > parseInt(last.year)) {
+                if (timeFrame[1] !== undefined) {
+                  if (parseInt(threat.year) < timeFrame[1]) {
+                    last = threat;
+                  }
+                } else {
+                  last = threat;
+                }
+              } else if (
+                parseInt(threat.year) === parseInt(last.year) &&
+                iucnAssessment.get(threat.code).sort >
+                  iucnAssessment.get(last.code).sort
+              ) {
+                last = threat;
+              }
+            } else {
+              last = threat;
+            }
+          }
+          return last;
+        case "bgci":
+          threats = obj.timeThreat;
+
+          if (timeFrame[1] !== undefined) {
+            threats = threats.filter((e) => parseInt(e.year) < timeFrame[1]);
+          }
+
+          for (let threat of threats) {
+            if (last) {
+              if (parseInt(threat.year) > parseInt(last.year)) {
+                if (timeFrame[1] !== undefined) {
+                  if (parseInt(threat.year) < timeFrame[1]) {
+                    last = threat;
+                  }
+                } else {
+                  last = threat;
+                }
+              } else if (
+                parseInt(threat.year) === parseInt(last.year) &&
+                bgciAssessment.get(threat.danger).sort >
+                  bgciAssessment.get(last.danger).sort
+              ) {
+                last = threat;
+              }
+            } else {
+              last = threat;
+            }
+          }
+          return last;
+
+        default:
+          break;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  getSpeciesAssessment(species, type, data = null) {
+    switch (type) {
+      case "economically":
+        return citesAssessment.get(
+          this.getLastSpeciesThreats(species, "cites", data)?.appendix
+        );
+      case "ecologically":
+        let iucn = this.getLastSpeciesThreats(species, "iucn", data);
+        if (iucn !== null) {
+          return iucnAssessment.get(iucn?.code);
+        } else {
+          return bgciAssessment.get(
+            this.getLastSpeciesThreats(species, "bgci", data)?.danger
+          );
+        }
+      default:
+        return null;
     }
   }
 
@@ -1079,7 +1321,13 @@ class Home extends Component {
   }
 
   save() {
-    let file = new Blob([JSON.stringify(this.state.speciesData, null, 4)], {
+    let data = { ...this.state.speciesData };
+    let signThreats = { ...this.state.speciesSignThreats };
+    for (let key of Object.keys(data)) {
+      data[key]["speciesSignThreats"] = signThreats[key];
+    }
+
+    let file = new Blob([JSON.stringify(data, null, 4)], {
       type: "application/json"
     });
     let filename = "generatedData.json";
@@ -1101,8 +1349,25 @@ class Home extends Component {
     }
   }
 
-  renderMapScale(scale) {
+  renderMapScale(scale, type) {
     let scaleElements = [];
+
+    let typeText = "";
+
+    switch (type) {
+      case "countries":
+        typeText = "Country";
+        break;
+      case "hexagons":
+        typeText = "Hexagon";
+        break;
+      case "ecoregions":
+        typeText = "Ecoregion";
+        break;
+
+      default:
+        break;
+    }
 
     //let width =
     let col = 1;
@@ -1156,14 +1421,24 @@ class Home extends Component {
         }}
       >
         {scaleElements}
+        <div
+          style={{
+            whiteSpace: "break-spaces",
+            textAlign: "center",
+            height: "100%",
+            alignSelf: "center"
+          }}
+        >
+          {"Species/" + typeText}
+        </div>
       </div>
     );
 
     //return <div style={{  }}></div>;
   }
 
-  setDiversityScale(scale) {
-    this.setState({ diversityScale: scale });
+  setDiversityScale(scale, type) {
+    this.setState({ diversityScale: scale, diversityScaleType: type });
   }
 
   getDiverstiyAttributeSelectOptions() {
@@ -1223,8 +1498,6 @@ class Home extends Component {
       : null;
     const instrument = filter["instrument"] ? filter["instrument"][0] : null;
     const mainPart = filter["mainPart"] ? filter["mainPart"][0] : null;
-
-    console.log("mainPartFilter", mainPart);
 
     let kingdom = filter["kingdom"] ? filter["kingdom"][0] : null;
     const familia = filter["familia"] ? filter["familia"][0] : null;
@@ -1301,8 +1574,6 @@ class Home extends Component {
       return hit;
     });
 
-    console.log("FILTER", filter);
-
     const filteredSpeciesData = Object.fromEntries(filtered);
     const mapSpecies = Object.fromEntries(
       Object.keys(filteredSpeciesData).map((e) => [e, 1])
@@ -1312,6 +1583,10 @@ class Home extends Component {
       //this.state.speciesSignThreats
       filteredSpeciesData
     );
+
+    let myLastSignThreats = this.state.lastSpeciesThreats;
+
+    console.log("NEW RENDER");
 
     return (
       <div>
@@ -1387,7 +1662,7 @@ class Home extends Component {
           treeThreatType={this.state.treeThreatType}
           speciesData={speciesWithOutOrchestraFilter}
           finishedFetching={this.state.finishedFetching}
-          speciesSignThreats={this.state.speciesSignThreats}
+          lastSpeciesThreats={myLastSignThreats}
           setFilter={this.setFilter.bind(this)}
           timeFrame={this.state.timeFrame}
           colorBlind={this.state.colorBlind}
@@ -1454,7 +1729,7 @@ class Home extends Component {
                   getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
                   treeThreatType={this.state.treeThreatType}
                   colorBlind={this.state.colorBlind}
-                  speciesSignThreats={this.state.speciesSignThreats}
+                  lastSpeciesThreats={myLastSignThreats}
                 />
               </div>
               <div
@@ -1671,7 +1946,10 @@ class Home extends Component {
             ) : (
               []
             )}
-            {this.renderMapScale(this.state.diversityScale)}
+            {this.renderMapScale(
+              this.state.diversityScale,
+              this.state.diversityScaleType
+            )}
             {this.renderMap ? (
               <Map
                 id="map"
@@ -1693,6 +1971,7 @@ class Home extends Component {
                 colorBlind={this.state.colorBlind}
                 setMapSearchBarData={this.setMapSearchBarData.bind(this)}
                 country={country}
+                lastSpeciesThreats={myLastSignThreats}
               />
             ) : (
               []

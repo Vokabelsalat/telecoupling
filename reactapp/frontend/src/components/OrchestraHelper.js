@@ -31,6 +31,7 @@ class D3Orchestra {
     this.setFilter = param.setFilter;
     this.colorBlind = param.colorBlind;
     this.setMainPartOptions = param.setMainPartOptions;
+    this.lastSpeciesThreats = param.lastSpeciesThreats;
 
     this.pies = {};
 
@@ -607,7 +608,7 @@ class D3Orchestra {
     let speciesToThreat = {};
     let threats = [];
     for (let species of speciesList) {
-      let threat = this.getTreeThreatLevel(species, this.treeThreatType);
+      let threat = this.lastSpeciesThreats[species][this.treeThreatType];
       threats.push(threat);
     }
 
@@ -1133,7 +1134,8 @@ class D3Orchestra {
     if (this.instrumentGroupsToSpecies.hasOwnProperty(d)) {
       text += this.instrumentGroupsToSpecies[d].length + " Species";
     }
-    if (this.instrumentsToSpecies.hasOwnProperty(d)) {
+
+    if (this.instrumentGroup && this.instrumentsToSpecies.hasOwnProperty(d)) {
       text += this.instrumentsToSpecies[d].length + " Species";
     }
 
@@ -1453,9 +1455,14 @@ class D3Orchestra {
     this.treeThreatType = val ? "economically" : "ecologically";
   }
 
-  updateThreatPies(newSpeciesData, colorBlind = false) {
+  updateThreatPies(
+    newSpeciesData,
+    colorBlind = false,
+    lastSpeciesThreats = null
+  ) {
     this.speciesData = newSpeciesData;
     this.colorBlind = colorBlind;
+    this.lastSpeciesThreats = lastSpeciesThreats;
     /* d3.select("#selectChartSVG").selectAll(".pieChartTest").remove(); */
     for (let pie of Object.keys(this.pies)) {
       let pieObj = this.pies[pie];
@@ -1490,7 +1497,7 @@ class D3Orchestra {
   }
 }
 
-const TimelineHelper = {
+const OrchestraHelper = {
   draw: (input) => {
     return new D3Orchestra(input);
   },
@@ -1499,4 +1506,4 @@ const TimelineHelper = {
   }
 };
 
-export default TimelineHelper;
+export default OrchestraHelper;

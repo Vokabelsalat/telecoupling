@@ -673,8 +673,6 @@ class D3Timeline {
 
     this.citesSignThreat = lastListing ? lastListing.appendix : null;
 
-    this.setSpeciesSignThreats(this.speciesName, "cites", this.citesSignThreat);
-
     let newTrendMap = {};
     let sumMap = {};
     let characteristicsTrend = {};
@@ -1977,6 +1975,7 @@ class D3Timeline {
         .style("justify-self", "center")
         .append("text")
         .style("font-weight", "bold")
+        .style("font-style", "italic")
         .text(d);
 
       wrapper
