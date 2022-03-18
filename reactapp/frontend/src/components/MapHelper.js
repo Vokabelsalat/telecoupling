@@ -330,7 +330,7 @@ class MapHelper {
     let setSelected = this.setSelected.bind(this);
     let resetSelected = this.resetSelected.bind(this);
 
-    fetch("/UN_Worldmap_FeaturesToJSON10percentCorrected.json")
+    fetch("/UN_Worldmap_FeaturesToJSON10percentCorrected2.json")
       .then((res) => res.json())
       .then((data) => {
         let mapSearchBarData = [];
