@@ -150,7 +150,9 @@ class Home extends Component {
         function (speciesData) {
           speciesData = Object.fromEntries(
             Object.entries(speciesData)
-              .filter((t) => t.Genus.trim() !== "" && t.Kingdom.trim() !== "")
+              .filter((t) =>
+                t[1].Kingdom ? t[1].Kingdom.trim() !== "" : false
+              )
               .slice(0, this.slice ? 70 : Object.keys(speciesData).length)
           );
           let newMapData = {};
