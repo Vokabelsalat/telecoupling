@@ -419,7 +419,7 @@ class D3BarChart {
         tooltip.html(this.getTooltip(d));
       }
     } else {
-      //tooltip.style("display", "none");
+      tooltip.style("display", "none");
     }
   }
 
