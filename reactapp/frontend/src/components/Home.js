@@ -150,38 +150,13 @@ class Home extends Component {
         function (speciesData) {
           speciesData = Object.fromEntries(
             Object.entries(speciesData)
-              /* .filter((e) => {
-                return (
-                  e[0] === "Balaenoptera acutorostrata" ||
-                  e[0] === "Paubrasilia echinata"
-                );
-              }) */
+              .filter((t) => t.Genus.trim() !== "" && t.Kingdom.trim() !== "")
               .slice(0, this.slice ? 70 : Object.keys(speciesData).length)
           );
           let newMapData = {};
 
-          console.log("speciesData", speciesData);
-
           let myLastSignThreats = {};
           for (let species of Object.keys(speciesData)) {
-            /*   myLastSignThreats[species] = {
-              cites: this.getLastSpeciesThreats(
-                species,
-                "cites",
-                speciesData[species]
-              ),
-              iucn: this.getLastSpeciesThreats(
-                species,
-                "iucn",
-                speciesData[species]
-              ),
-              threat: this.getLastSpeciesThreats(
-                species,
-                "bgci",
-                speciesData[species]
-              )
-            }; */
-
             myLastSignThreats[species] = {
               economically: this.getSpeciesAssessment(
                 species,
