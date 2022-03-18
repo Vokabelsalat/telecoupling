@@ -30,6 +30,8 @@ class D3BarChart {
     this.species = param.species;
     this.familia = param.familia;
     this.colorBlind = param.colorBlind;
+    this.getPlantIcon = param.getPlantIcon;
+    this.getAnimalIcon = param.getAnimalIcon;
 
     this.filter = param.filter;
     this.setFilter = param.setFilter;
@@ -417,7 +419,7 @@ class D3BarChart {
         tooltip.html(this.getTooltip(d));
       }
     } else {
-      tooltip.style("display", "none");
+      //tooltip.style("display", "none");
     }
   }
 
@@ -683,6 +685,9 @@ class D3BarChart {
         }
       });
 
+    let getPlantIcon = this.getPlantIcon.bind(this);
+    let getAnimalIcon = this.getAnimalIcon.bind(this);
+
     let nodeIconContaines = nodeContainers
       .filter((d) => {
         return d.depth === 4;
@@ -713,37 +718,33 @@ class D3BarChart {
           : "gray";
 
       if (d.data.kingdom === "Animalia") {
-        d3.svg("/animalIcon.svg").then(function (xml) {
-          let icon = node.node().appendChild(xml.documentElement);
-          d3.select(icon)
-            .attr("width", 18)
-            .attr("height", 17)
-            .style("margin-top", "1.5px")
-            .style("margin-left", "1.5px")
-            .attr("class", "iconSVG");
+        let xml = getAnimalIcon();
+        node.html(xml);
 
-          d3.select(icon).select(".left").select("path").style("fill", color);
-          d3.select(icon)
-            .select(".right")
-            .select("path")
-            .style("fill", secondColor);
-        });
+        let icon = node
+          .select("svg")
+          .attr("width", 18)
+          .attr("height", 17)
+          .style("margin-top", "1.5px")
+          .style("margin-left", "1.5px")
+          .attr("class", "iconSVG");
+
+        icon.select(".left").select("path").style("fill", color);
+        icon.select(".right").select("path").style("fill", secondColor);
       } else {
-        d3.svg("/plantIcon2.svg").then(function (xml) {
-          let icon = node.node().appendChild(xml.documentElement);
-          d3.select(icon)
-            .attr("width", 18)
-            .attr("height", 17)
-            .style("margin-top", "1.5px")
-            .style("margin-left", "1.5px")
-            .attr("class", "iconSVG");
+        let xml = getPlantIcon();
+        node.html(xml);
 
-          d3.select(icon).select(".left").select("path").style("fill", color);
-          d3.select(icon)
-            .select(".right")
-            .select("path")
-            .style("fill", secondColor);
-        });
+        let icon = node
+          .select("svg")
+          .attr("width", 18)
+          .attr("height", 17)
+          .style("margin-top", "1.5px")
+          .style("margin-left", "1.5px")
+          .attr("class", "iconSVG");
+
+        icon.select(".left").select("path").style("fill", color);
+        icon.select(".right").select("path").style("fill", secondColor);
       }
     });
 
@@ -1064,16 +1065,9 @@ class D3BarChart {
     return found ? found : root;
   }
 
-  search(root, sel) {
-    let found = null;
-    root.each((e) => {
-      if (e.data.name === sel) {
-        found = e;
-      }
-    });
-
+  /* search(root, sel) {
     return found;
-  }
+  } */
 
   // When zooming in, draw the new nodes on top, and fade them in.
   zoomin(d) {

@@ -55,6 +55,7 @@ class MapHelper {
 
     this.speciesCountries = null;
     this.highlightCountriesLayer = null;
+    this.first = true;
 
     this.treeClusterCache = {};
     this.rmax = 25;
@@ -427,7 +428,6 @@ class MapHelper {
         );
         this.diversityCountries.addTo(this.mymap);
         this.updateDiversity();
-        this.updateThreatPiesCountries(true);
       });
   }
 
@@ -582,10 +582,14 @@ class MapHelper {
       .style("position", "absolute");
 
     let donutData = donut.value(valueFunc).sort((a, b) => {
-      return b.hasOwnProperty("values") && a.hasOwnProperty("values")
-        ? b.values[0].numvalue - a.values[0].numvalue
-        : lastSpeciesThreats[b][treeThreatType].numvalue -
-            lastSpeciesThreats[a][treeThreatType].numvalue;
+      if (b.hasOwnProperty("values") && a.hasOwnProperty("values")) {
+        return b.values[0].numvalue - a.values[0].numvalue;
+      } else {
+        return (
+          lastSpeciesThreats[b][treeThreatType].numvalue -
+          lastSpeciesThreats[a][treeThreatType].numvalue
+        );
+      }
     });
 
     var arcs = vis
@@ -861,10 +865,12 @@ class MapHelper {
           }
         }
       });
-      if (first) {
+
+      if (this.first && this.countryClusterLayer.getLayers().length > 0) {
         this.mymap.fitBounds(this.countryClusterLayer.getBounds(), {
           padding: [50, 50]
         });
+        this.first = false;
       }
     }
   }
@@ -1217,7 +1223,6 @@ class MapHelper {
 
   setLastSpeciesThreats(lastSpeciesThreats) {
     this.lastSpeciesThreats = lastSpeciesThreats;
-    this.updateThreatPies();
   }
 
   highlightPolygons(layers, highlight) {

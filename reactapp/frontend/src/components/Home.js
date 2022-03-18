@@ -57,6 +57,9 @@ class Home extends Component {
     this.tmpSpeciesDataCache = {};
     this.species = {};
 
+    this.plantIcon = {};
+    this.animalIcon = {};
+
     let tabs = {
       maps: { diversityMapTab: true, threatMapTab: false },
       charts: { barChartTab: true, treeMapTab: false }
@@ -130,11 +133,21 @@ class Home extends Component {
     console.log("IMPORT ALL SPecies");
     let timeFrame = this.state.timeFrame;
 
+    fetch("/plantIcon2.svg")
+      .then((res) => res.text())
+      .then((text) => {
+        this.plantIcon = text;
+        fetch("/animalIcon.svg")
+          .then((res) => res.text())
+          .then((text) => {
+            this.animalIcon = text;
+          });
+      });
+
     fetch("/generatedOutput/allSpecies.json")
       .then((res) => res.json())
       .then(
         function (speciesData) {
-          console.log("TOLL");
           speciesData = Object.fromEntries(
             Object.entries(speciesData)
               /* .filter((e) => {
@@ -182,8 +195,6 @@ class Home extends Component {
               )
             };
           }
-
-          console.log("LEL", myLastSignThreats);
 
           this.setState({
             speciesData: speciesData,
@@ -354,6 +365,14 @@ class Home extends Component {
     return new Promise((resolve) => {
       this.setState(state, resolve);
     });
+  }
+
+  getPlantIcon() {
+    return this.plantIcon;
+  }
+
+  getAnimalIcon() {
+    return this.animalIcon;
   }
 
   addAllCountries() {
@@ -1639,6 +1658,8 @@ class Home extends Component {
             species={species}
             colorBlind={this.state.colorBlind}
             setFilter={this.setFilter.bind(this)}
+            getAnimalIcon={this.getAnimalIcon.bind(this)}
+            getPlantIcon={this.getPlantIcon.bind(this)}
           ></TreeMap>
         ) : (
           []
@@ -1864,6 +1885,8 @@ class Home extends Component {
                   timeFrame={this.state.timeFrame}
                   colorBlind={this.state.colorBlind}
                   setFilter={this.setFilter.bind(this)}
+                  getAnimalIcon={this.getAnimalIcon.bind(this)}
+                  getPlantIcon={this.getPlantIcon.bind(this)}
                   species={species}
                   lastSpeciesThreats={myLastSignThreats}
                 />

@@ -27,36 +27,8 @@ class TimelineView extends Component {
     };
   }
 
-  loadPlantIcon() {
-    let boundCreate = this.create.bind(this);
-    /* d3.svg("/plantIcon2.svg").then((xml) => {
-      this.plantIcon = xml;
-      console.log("XML", xml);
-      boundCreate();
-    }); */
-
-    fetch("/plantIcon2.svg")
-      .then((res) => res.text())
-      .then((text) => {
-        this.plantIcon = text;
-        fetch("/animalIcon.svg")
-          .then((res) => res.text())
-          .then((text) => {
-            this.animalIcon = text;
-            boundCreate();
-          });
-      });
-  }
   componentDidMount() {
-    this.loadPlantIcon();
-  }
-
-  getPlantIcon() {
-    return this.plantIcon;
-  }
-
-  getAnimalIcon() {
-    return this.animalIcon;
+    this.create();
   }
 
   compareObjects(objA, objB) {
@@ -311,8 +283,8 @@ class TimelineView extends Component {
                   setHover={this.props.setHover}
                   setTimeFrame={this.props.setTimeFrame}
                   timeFrame={this.props.timeFrame}
-                  getPlantIcon={this.getPlantIcon.bind(this)}
-                  getAnimalIcon={this.getAnimalIcon.bind(this)}
+                  getPlantIcon={this.props.getPlantIcon}
+                  getAnimalIcon={this.props.getAnimalIcon}
                   lastSpeciesThreats={this.props.lastSpeciesThreats}
                 />
               );

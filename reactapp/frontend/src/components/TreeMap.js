@@ -27,7 +27,9 @@ class TreeMap extends Component {
       genus: this.props.genus,
       species: this.props.species,
       familia: this.props.familia,
-      colorBlind: this.props.colorBlind
+      colorBlind: this.props.colorBlind,
+      getPlantIcon: this.props.getPlantIcon,
+      getAnimalIcon: this.props.getAnimalIcon
     });
   }
 
@@ -55,7 +57,9 @@ class TreeMap extends Component {
         genus: this.props.genus,
         species: this.props.species,
         familia: this.props.familia,
-        colorBlind: this.props.colorBlind
+        colorBlind: this.props.colorBlind,
+        getPlantIcon: this.props.getPlantIcon,
+        getAnimalIcon: this.props.getAnimalIcon
       });
     }
   }
@@ -140,6 +144,7 @@ class TreeMap extends Component {
               .map((e, i) => {
                 return (
                   <div
+                    key={"treeMapHeadlineElement" + i}
                     className="treeMapHeadlineElement"
                     style={{
                       gridColumnStart: i + 2,
@@ -154,7 +159,7 @@ class TreeMap extends Component {
                       this.setNodeAsFilter(e);
                     }}
                   >
-                    <div>{e.key}</div>
+                    <div key={e.key}>{e.key}</div>
                     <div
                       style={{
                         fontWeight: "bold",

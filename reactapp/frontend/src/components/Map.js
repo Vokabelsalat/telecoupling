@@ -332,17 +332,19 @@ class Map extends Component {
 
   componentDidUpdate(prevProps) {
     if (
+      JSON.stringify(this.props.lastSpeciesThreats) !==
+      JSON.stringify(prevProps.lastSpeciesThreats)
+    ) {
+      this.MapHelper.setLastSpeciesThreats(this.props.lastSpeciesThreats);
+      this.MapHelper.updateThreatPies();
+    }
+
+    if (
       JSON.stringify(prevProps.mapSpecies) !==
         JSON.stringify(this.props.mapSpecies) ||
       JSON.stringify(prevProps.data) !== JSON.stringify(this.props.data)
     ) {
       this.addSpeciesFromMapSpecies();
-    }
-
-    if (
-      JSON.stringify(this.props.lastSpeciesThreats) !==
-      JSON.stringify(prevProps.lastSpeciesThreats)
-    ) {
       this.MapHelper.setLastSpeciesThreats(this.props.lastSpeciesThreats);
     }
 
