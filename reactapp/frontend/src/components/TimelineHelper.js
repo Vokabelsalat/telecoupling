@@ -1373,7 +1373,7 @@ class D3Timeline {
 
     let rect = g
       .append("rect")
-      .attr("width", this.width)
+      .attr("width", this.width - 1)
       .attr("height", svgHeight)
       .style("stroke", "gray")
       .style("fill", "none");
