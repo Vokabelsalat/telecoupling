@@ -346,6 +346,13 @@ class Map extends Component {
       this.MapHelper.setLastSpeciesThreats(this.props.lastSpeciesThreats);
     }
 
+    if (
+      JSON.stringify(this.props.colorBlind) !==
+      JSON.stringify(prevProps.colorBlind)
+    ) {
+      this.MapHelper.updateColorBlind(this.props.colorBlind);
+    }
+
     if (prevProps.heatMap !== this.props.heatMap) {
       if (this.props.heatMap) {
         this.MapHelper.updateHeatMap(

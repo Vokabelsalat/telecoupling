@@ -52,7 +52,10 @@ class Timeline extends Component {
       timeFrame: this.props.timeFrame,
       colorBlind: this.props.colorBlind,
       setFilter: this.props.setFilter,
-      species: this.props.species
+      species: this.props.species,
+      getPlantIcon: this.props.getPlantIcon,
+      getAnimalIcon: this.props.getAnimalIcon,
+      lastSpeciesThreats: this.props.lastSpeciesThreats
     });
   }
 
@@ -65,7 +68,9 @@ class Timeline extends Component {
         JSON.stringify(this.props.colorBlind) ||
       JSON.stringify(prevProps.data) !== JSON.stringify(this.props.data) ||
       JSON.stringify(prevProps.domainYears) !==
-        JSON.stringify(this.props.domainYears)
+        JSON.stringify(this.props.domainYears) ||
+      JSON.stringify(prevProps.lastSpeciesThreats) !==
+        JSON.stringify(this.props.lastSpeciesThreats)
     ) {
       TimelineHelper.draw({
         id: this.state.id,
@@ -96,7 +101,10 @@ class Timeline extends Component {
         timeFrame: this.props.timeFrame,
         colorBlind: this.props.colorBlind,
         setFilter: this.props.setFilter,
-        species: this.props.species
+        species: this.props.species,
+        getPlantIcon: this.props.getPlantIcon,
+        getAnimalIcon: this.props.getAnimalIcon,
+        lastSpeciesThreats: this.props.lastSpeciesThreats
       });
     }
   }

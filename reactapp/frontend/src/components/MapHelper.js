@@ -1313,7 +1313,6 @@ class MapHelper {
   }
 
   updateColorBlind(colorBlind) {
-    console.log("UPDATE COLOR!");
     this.colorBlind = colorBlind;
     this.updateThreatPies();
   }

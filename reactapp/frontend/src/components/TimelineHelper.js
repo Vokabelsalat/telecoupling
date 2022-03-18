@@ -39,6 +39,9 @@ class D3Timeline {
     this.justGenus = param.justGenus;
     this.colorBlind = param.colorBlind;
     this.setFilter = param.setFilter;
+    this.getPlantIcon = param.getPlantIcon;
+    this.getAnimalIcon = param.getAnimalIcon;
+    this.lastSpeciesThreats = param.lastSpeciesThreats;
 
     this.pieStyle = param.pieStyle;
     this.groupSame = param.groupSame;
@@ -391,51 +394,58 @@ class D3Timeline {
         let colorBlind = this.colorBlind;
 
         if (this.data.Kingdom === "Animalia") {
-          d3.svg("/animalIcon.svg").then(function (xml) {
-            let icon = speciesNameSVG.node().appendChild(xml.documentElement);
-            d3.select(icon)
-              .attr("width", 24)
-              .attr("height", 18)
-              .attr("y", 2.5)
-              .attr("class", "iconSVG");
+          let xml = this.getAnimalIcon();
+          speciesNameSVG
+            .html(xml)
+            .select("svg")
+            .attr("width", 24)
+            .attr("height", 18)
+            .attr("y", 2.5)
+            .attr("class", "iconSVG");
 
-            let iucnThreat = getTreeThreatLevel(speciesName, "ecologically");
-            let citesThreat = getTreeThreatLevel(speciesName, "economically");
+          let iucnThreat = this.lastSpeciesThreats[speciesName]["ecologically"];
+          let citesThreat =
+            this.lastSpeciesThreats[speciesName]["economically"];
 
-            d3.select(icon)
-              .select(".left")
-              .select("path")
-              .attr("class", "leftPath")
-              .style("fill", citesThreat.getColor(colorBlind));
-            d3.select(icon)
-              .select(".right")
-              .select("path")
-              .attr("class", "rightPath")
-              .style("fill", iucnThreat.getColor(colorBlind));
-          });
+          let icon = speciesNameSVG.select(".iconSVG");
+
+          icon
+            .select(".left")
+            .select("path")
+            .attr("class", "leftPath")
+            .style("fill", citesThreat.getColor(colorBlind));
+          icon
+            .select(".right")
+            .select("path")
+            .attr("class", "rightPath")
+            .style("fill", iucnThreat.getColor(colorBlind));
         } else {
-          d3.svg("/plantIcon2.svg").then(function (xml) {
-            let icon = speciesNameSVG.node().appendChild(xml.documentElement);
-            d3.select(icon)
-              .attr("width", 24)
-              .attr("height", 18)
-              .attr("y", 2.5)
-              .attr("class", "iconSVG");
+          let xml = this.getPlantIcon();
+          //let icon = speciesNameSVG.node().appendChild(xml.documentElement);
+          speciesNameSVG
+            .html(xml)
+            .select("svg")
+            .attr("width", 24)
+            .attr("height", 18)
+            .attr("y", 2.5)
+            .attr("class", "iconSVG");
 
-            let iucnThreat = getTreeThreatLevel(speciesName, "ecologically");
-            let citesThreat = getTreeThreatLevel(speciesName, "economically");
+          let iucnThreat = this.lastSpeciesThreats[speciesName]["ecologically"];
+          let citesThreat =
+            this.lastSpeciesThreats[speciesName]["economically"];
 
-            d3.select(icon)
-              .select(".left")
-              .select("path")
-              .attr("class", "leftPath")
-              .style("fill", citesThreat.getColor(colorBlind));
-            d3.select(icon)
-              .select(".right")
-              .select("path")
-              .attr("class", "rightPath")
-              .style("fill", iucnThreat.getColor(colorBlind));
-          });
+          let icon = speciesNameSVG.select(".iconSVG");
+
+          icon
+            .select(".left")
+            .select("path")
+            .attr("class", "leftPath")
+            .style("fill", citesThreat.getColor(colorBlind));
+          icon
+            .select(".right")
+            .select("path")
+            .attr("class", "rightPath")
+            .style("fill", iucnThreat.getColor(colorBlind));
         }
 
         speciesNameDiv

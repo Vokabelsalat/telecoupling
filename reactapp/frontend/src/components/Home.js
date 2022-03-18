@@ -204,11 +204,22 @@ class Home extends Component {
       timeFrame[0] !== this.state.timeFrame[0] ||
       timeFrame[1] !== this.state.timeFrame[1]
     ) {
+      console.log("updatetimeframe");
       let myLastSignThreats = {};
       for (let species of Object.keys(this.state.speciesData)) {
         myLastSignThreats[species] = {
-          economically: this.getSpeciesAssessment(species, "economically"),
-          ecologically: this.getSpeciesAssessment(species, "ecologically")
+          economically: this.getSpeciesAssessment(
+            species,
+            "economically",
+            null,
+            timeFrame
+          ),
+          ecologically: this.getSpeciesAssessment(
+            species,
+            "ecologically",
+            null,
+            timeFrame
+          )
         };
       }
 
@@ -1171,10 +1182,10 @@ class Home extends Component {
     }
   }
 
-  getLastSpeciesThreats(species, type, data = null) {
+  getLastSpeciesThreats(species, type, data = null, timeFrame = null) {
     let threats = null;
     let last = null;
-    let timeFrame = this.state.timeFrame;
+    timeFrame = timeFrame ? timeFrame : this.state.timeFrame;
 
     let obj;
     if (data) {
@@ -1275,19 +1286,20 @@ class Home extends Component {
     }
   }
 
-  getSpeciesAssessment(species, type, data = null) {
+  getSpeciesAssessment(species, type, data = null, timeFrame = null) {
     switch (type) {
       case "economically":
         return citesAssessment.get(
-          this.getLastSpeciesThreats(species, "cites", data)?.appendix
+          this.getLastSpeciesThreats(species, "cites", data, timeFrame)
+            ?.appendix
         );
       case "ecologically":
-        let iucn = this.getLastSpeciesThreats(species, "iucn", data);
+        let iucn = this.getLastSpeciesThreats(species, "iucn", data, timeFrame);
         if (iucn !== null) {
           return iucnAssessment.get(iucn?.code);
         } else {
           return bgciAssessment.get(
-            this.getLastSpeciesThreats(species, "bgci", data)?.danger
+            this.getLastSpeciesThreats(species, "bgci", data, timeFrame)?.danger
           );
         }
       default:
@@ -1296,28 +1308,7 @@ class Home extends Component {
   }
 
   getSpeciesThreatLevel(treeName, type = null) {
-    let threatsSigns = this.getSpeciesSignThreats(treeName);
-    switch (type) {
-      case "economically":
-        return citesAssessment.get(threatsSigns.cites);
-      case "ecologically":
-        if (threatsSigns.iucn !== null) {
-          return iucnAssessment.get(threatsSigns.iucn);
-        } else {
-          return bgciAssessment.get(threatsSigns.threat);
-        }
-      default:
-        let sumScore =
-          0.5 * Math.max(citesScore(threatsSigns.cites), 0) +
-          0.5 *
-            Math.max(
-              iucnScore(threatsSigns.iucn),
-              threatScore(threatsSigns.threat),
-              0
-            );
-        let sumCat = threatScoreReverse(sumScore);
-        return sumCat;
-    }
+    return this.getSpeciesAssessment(treeName, type);
   }
 
   save() {
@@ -1851,29 +1842,32 @@ class Home extends Component {
                 overflow: "unset"
               }}
             >
-              <TimelineView
-                data={filteredSpeciesData}
-                initWidth={this.state.initWidthForVis}
-                tradeData={this.state.speciesTrades}
-                pieStyle="pie"
-                groupSame="true"
-                sortGrouped="trend"
-                heatStyle="dom"
-                usePreGenerated={this.usePreGenerated}
-                addSpeciesToMap={this.addSpeciesToMap.bind(this)}
-                removeSpeciesFromMap={this.removeSpeciesFromMap.bind(this)}
-                setSpeciesSignThreats={this.setSpeciesSignThreats.bind(this)}
-                getSpeciesSignThreats={this.getSpeciesSignThreats.bind(this)}
-                getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
-                treeImageLinks={imageLinks}
-                dummyImageLinks={dummyLinks}
-                setHover={this.setHover.bind(this)}
-                setTimeFrame={this.setTimeFrame.bind(this)}
-                timeFrame={this.state.timeFrame}
-                colorBlind={this.state.colorBlind}
-                setFilter={this.setFilter.bind(this)}
-                species={species}
-              />
+              {
+                <TimelineView
+                  data={filteredSpeciesData}
+                  initWidth={this.state.initWidthForVis}
+                  tradeData={this.state.speciesTrades}
+                  pieStyle="pie"
+                  groupSame="true"
+                  sortGrouped="trend"
+                  heatStyle="dom"
+                  usePreGenerated={this.usePreGenerated}
+                  addSpeciesToMap={this.addSpeciesToMap.bind(this)}
+                  removeSpeciesFromMap={this.removeSpeciesFromMap.bind(this)}
+                  setSpeciesSignThreats={this.setSpeciesSignThreats.bind(this)}
+                  getSpeciesSignThreats={this.getSpeciesSignThreats.bind(this)}
+                  getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
+                  treeImageLinks={imageLinks}
+                  dummyImageLinks={dummyLinks}
+                  setHover={this.setHover.bind(this)}
+                  setTimeFrame={this.setTimeFrame.bind(this)}
+                  timeFrame={this.state.timeFrame}
+                  colorBlind={this.state.colorBlind}
+                  setFilter={this.setFilter.bind(this)}
+                  species={species}
+                  lastSpeciesThreats={myLastSignThreats}
+                />
+              }
               <div key="tooltip" id="tooltip" className="tooltip"></div>
             </div>
           )}

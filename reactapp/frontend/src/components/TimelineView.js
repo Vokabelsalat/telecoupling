@@ -2,12 +2,15 @@ import React, { Component } from "react";
 import Timeline from "./Timeline.js";
 import { TimelineDatagenerator } from "../utils/TimelineDatagenerator";
 import { replaceSpecialCharacters } from "../utils/utils";
+import * as d3 from "d3";
+import { thresholdFreedmanDiaconis } from "d3";
 
 class TimelineView extends Component {
   constructor(props) {
     super(props);
 
     this.usePreGenerated = props.usePreGenerated;
+    this.plantIcon = null;
 
     this.state = {
       zoomLevel: 0,
@@ -19,12 +22,41 @@ class TimelineView extends Component {
       sortedKeys: [],
       speciesSignThreats: {},
       oldTimelineData: {},
-      unmutedSpecies: {}
+      unmutedSpecies: {},
+      lastSpeciesThreats: this.props.lastSpeciesThreats
     };
   }
 
+  loadPlantIcon() {
+    let boundCreate = this.create.bind(this);
+    /* d3.svg("/plantIcon2.svg").then((xml) => {
+      this.plantIcon = xml;
+      console.log("XML", xml);
+      boundCreate();
+    }); */
+
+    fetch("/plantIcon2.svg")
+      .then((res) => res.text())
+      .then((text) => {
+        this.plantIcon = text;
+        fetch("/animalIcon.svg")
+          .then((res) => res.text())
+          .then((text) => {
+            this.animalIcon = text;
+            boundCreate();
+          });
+      });
+  }
   componentDidMount() {
-    this.create();
+    this.loadPlantIcon();
+  }
+
+  getPlantIcon() {
+    return this.plantIcon;
+  }
+
+  getAnimalIcon() {
+    return this.animalIcon;
   }
 
   compareObjects(objA, objB) {
@@ -33,22 +65,6 @@ class TimelineView extends Component {
     if (JSON.stringify(keysA) !== JSON.stringify(keysB)) {
       return false;
     } else {
-      for (let key of keysA.values()) {
-        let valueA = objA[key];
-
-        if (Array.isArray(valueA)) {
-          if (valueA.length !== objB[key]) {
-            return false;
-          }
-        } else {
-          if (
-            JSON.stringify(Object.keys(valueA).sort()) !==
-            JSON.stringify(Object.keys(objB[key]).sort())
-          ) {
-            return false;
-          }
-        }
-      }
     }
     return true;
   }
@@ -57,6 +73,13 @@ class TimelineView extends Component {
     if (JSON.stringify(prevProps.data) !== JSON.stringify(this.props.data)) {
       this.create();
     }
+
+    /* if (
+      JSON.stringify(prevProps.lastSpeciesThreats) !==
+      JSON.stringify(this.props.lastSpeciesThreats)
+    ) {
+      this.create();
+    } */
 
     if (
       JSON.stringify(prevProps.colorBlind) !==
@@ -288,6 +311,9 @@ class TimelineView extends Component {
                   setHover={this.props.setHover}
                   setTimeFrame={this.props.setTimeFrame}
                   timeFrame={this.props.timeFrame}
+                  getPlantIcon={this.getPlantIcon.bind(this)}
+                  getAnimalIcon={this.getAnimalIcon.bind(this)}
+                  lastSpeciesThreats={this.props.lastSpeciesThreats}
                 />
               );
             })}
