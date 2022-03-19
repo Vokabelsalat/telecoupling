@@ -130,7 +130,7 @@ class TimelineView extends Component {
       let maxYear = Math.max(...allTimeExtends);
       let minYear = Math.min(...allTimeExtends);
 
-      domainYears = { minYear, maxYear };
+      domainYears = { minYear, maxYear: 2022 };
     }
 
     this.setState({
