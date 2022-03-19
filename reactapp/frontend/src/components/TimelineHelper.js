@@ -117,6 +117,9 @@ class D3Timeline {
   }
 
   appendGrayBox(timeFrameMax) {
+    let timelineWidth =
+      this.x(this.domainYears.maxYear) + this.x.bandwidth() / 2;
+
     let content = d3.select("#" + this.id);
     content
       .append("div")
@@ -124,7 +127,7 @@ class D3Timeline {
       .style("display", "inline-block")
       .style(
         "width",
-        this.width - this.x(timeFrameMax) + this.x.bandwidth() / 2 - 1 + "px"
+        timelineWidth - this.x(timeFrameMax) - this.x.bandwidth() / 2 - 1 + "px"
       )
       .style("min-height", "10px")
       .style("top", "0")
@@ -971,6 +974,9 @@ class D3Timeline {
       svgHeight = rowCount * this.getRowHeight(genusLine);
     }
 
+    let timelineWidth =
+      this.x(this.domainYears.maxYear) + this.x.bandwidth() / 2;
+
     let svgCITES = this.wrapper
       .append("svg")
       .attr("class", classString)
@@ -997,7 +1003,7 @@ class D3Timeline {
 
     let rect = g
       .append("rect")
-      .attr("width", this.width)
+      .attr("width", timelineWidth)
       .attr("height", svgHeight)
       .attr("stroke", "gray")
       .style("fill", "none");
@@ -1178,7 +1184,10 @@ class D3Timeline {
           "width",
           function (d) {
             return (
-              this.width - this.x(Number(d.year)) - this.x.bandwidth() / 2 - 1
+              timelineWidth -
+              this.x(Number(d.year)) -
+              this.x.bandwidth() / 2 -
+              1
             );
           }.bind(this)
         )
@@ -1206,7 +1215,9 @@ class D3Timeline {
         .attr(
           "width",
           function (d) {
-            return this.width - this.x(Number(d.year));
+            return (
+              timelineWidth - this.x(Number(d.year)) - this.x.bandwidth() / 2
+            );
           }.bind(this)
         )
         .style("fill", function (d) {
@@ -1330,6 +1341,9 @@ class D3Timeline {
 
     this.setSpeciesSignThreats(this.speciesName, "iucn", this.iucnSignThreat);
 
+    let timelineWidth =
+      this.x(this.domainYears.maxYear) + this.x.bandwidth() / 2;
+
     let svgHeight = this.rowHeight;
 
     let svgIUCN = this.wrapper
@@ -1353,7 +1367,7 @@ class D3Timeline {
     let trendGroup = svgIUCN
       .append("g")
       .attr("class", "trendGroud")
-      .attr("transform", "translate(" + (this.width + 130) + ",0)")
+      .attr("transform", "translate(" + (timelineWidth + 130) + ",0)")
       .attr("height", svgHeight);
 
     trendGroup
@@ -1373,7 +1387,7 @@ class D3Timeline {
 
     let rect = g
       .append("rect")
-      .attr("width", this.width - 1)
+      .attr("width", timelineWidth)
       .attr("height", svgHeight)
       .style("stroke", "gray")
       .style("fill", "none");
@@ -1453,7 +1467,10 @@ class D3Timeline {
           "width",
           function (d) {
             return (
-              this.width - this.x(Number(d.year)) - this.x.bandwidth() / 2 - 1
+              timelineWidth -
+              this.x(Number(d.year)) -
+              this.x.bandwidth() / 2 -
+              1
             );
           }.bind(this)
         )
@@ -1474,7 +1491,7 @@ class D3Timeline {
           "width",
           function (d) {
             return (
-              this.width - this.x(Number(d.year)) - this.x.bandwidth() / 2 - 1
+              timelineWidth - this.x(Number(d.year)) - this.x.bandwidth() / 2
             );
           }.bind(this)
         )
@@ -1667,6 +1684,9 @@ class D3Timeline {
 
     let svgHeight = this.rowHeight;
 
+    let timelineWidth =
+      this.x(this.domainYears.maxYear) + this.x.bandwidth() / 2;
+
     threatData = newListingData;
 
     let svgThreat = this.wrapper
@@ -1770,7 +1790,7 @@ class D3Timeline {
 
     let rect = g
       .append("rect")
-      .attr("width", this.width)
+      .attr("width", timelineWidth)
       .attr("height", svgHeight)
       .style("fill", "none")
       .style("stroke", "gray");
@@ -1834,7 +1854,12 @@ class D3Timeline {
         "width",
         function (d) {
           //return this.x.bandwidth() + 2;
-          return this.width - this.x(Number(d.year));
+          return (
+            timelineWidth -
+            this.x(Number(d.year)) -
+            Math.floor(this.x.bandwidth() / 2) -
+            1
+          );
         }.bind(this)
       )
       .style("fill", (d) => {
