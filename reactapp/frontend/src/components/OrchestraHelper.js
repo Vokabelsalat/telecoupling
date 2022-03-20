@@ -799,34 +799,54 @@ class D3Orchestra {
       .attr("class", classStr ? classStr + " text" : "text");
 
     if (classStr.includes("subarc")) {
-      textElement
-        .append("textPath")
-        .style("dominant-baseline", "central")
-        .attr("class", "textonpath noselect")
-        .attr("xlink:href", "#" + id + "pathfortext")
-        .attr("font-size", fontSize)
-        .attr("text-anchor", () => {
-          switch (parentGroup) {
-            case "Strings":
-              return "middle";
-            default:
-              return "start";
-          }
-        })
-        .attr("startOffset", () => {
-          switch (parentGroup) {
-            case "Strings":
-              return "50%";
-            case "Woodwinds":
-              return "40%";
-            case "Plucked":
-              return "35%";
-            default:
-              return "30%";
-          }
-        })
-        .attr("id", id + "textPath")
-        .text(text);
+      if (text === "Horn, trumpet, trombone, bass tuba") {
+        let textPath = textElement
+          .append("textPath")
+          .style("dominant-baseline", "central")
+          .attr("class", "textonpath noselect")
+          .attr("xlink:href", "#" + id + "pathfortext")
+          .attr("font-size", fontSize)
+          .attr("text-anchor", "start")
+          .attr("startOffset", "30%")
+          .attr("id", id + "textPath");
+
+        textPath.append("tspan").attr("dy", "-0.5em").text("Horn, trumpet,");
+
+        textPath
+          .append("tspan")
+          .attr("x", 0)
+          .attr("dy", "1.5em")
+          .text("trombone, bass tuba");
+      } else {
+        textElement
+          .append("textPath")
+          .style("dominant-baseline", "central")
+          .attr("class", "textonpath noselect")
+          .attr("xlink:href", "#" + id + "pathfortext")
+          .attr("font-size", fontSize)
+          .attr("text-anchor", () => {
+            switch (parentGroup) {
+              case "Strings":
+                return "middle";
+              default:
+                return "start";
+            }
+          })
+          .attr("startOffset", () => {
+            switch (parentGroup) {
+              case "Strings":
+                return "50%";
+              case "Woodwinds":
+                return "40%";
+              case "Plucked":
+                return "35%";
+              default:
+                return "30%";
+            }
+          })
+          .attr("id", id + "textPath")
+          .text(text);
+      }
 
       textElement.classed(classStr, true);
 
