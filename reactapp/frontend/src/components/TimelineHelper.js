@@ -2180,7 +2180,7 @@ class D3Timeline {
 
       let content = d3.select("#" + this.id);
 
-      tooltip.append("div").html("<b>" + d.speciesName + "</b>");
+      tooltip.append("div").html("<b><i>" + d.speciesName + "</i></b>");
 
       tooltip.append("div").html("IUCN Red List<br>Population Trend:");
 
@@ -2238,7 +2238,13 @@ class D3Timeline {
         topAdd = 25;
         break;
       case "listingHistory":
-        htmlText = d.sciName + "<br>" + d.year + " : Appendix " + d.appendix;
+        htmlText =
+          "<i><b>" +
+          d.sciName +
+          "</i></b><br>" +
+          d.year +
+          " : Appendix " +
+          d.appendix;
         if (d.hasOwnProperty("annotation")) {
           htmlText += "<br>" + d.annotation;
         }
@@ -2246,13 +2252,21 @@ class D3Timeline {
         break;
       case "iucn":
         htmlText =
-          d.sciName + "<br>" + d.year + " : " + d.category + " | " + d.code;
+          "<i><b>" +
+          d.sciName +
+          "</i></b><br>" +
+          d.year +
+          " : " +
+          d.category +
+          " | " +
+          d.code;
         leftAdd = parseInt(d3.select(this).attr("x"));
         break;
       case "threat":
         htmlText =
+          "<i><b>" +
           d.sciName +
-          "<br>" +
+          "</i></b><br>" +
           d.year +
           " : " +
           bgciAssessment.get(d.text).name +

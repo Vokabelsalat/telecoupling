@@ -50,7 +50,7 @@ class Home extends Component {
     this.usePreGenerated = true;
     this.renderMap = true;
     this.renderTreeMap = true;
-    this.slice = false;
+    this.slice = true;
 
     this.tempSpeciesData = {};
     this.tempFetchedSpecies = [];

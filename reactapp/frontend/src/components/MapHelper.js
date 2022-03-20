@@ -252,10 +252,17 @@ class MapHelper {
   }
 
   tooltipMove(event) {
+    let windowHeight = window.innerHeight;
+    let add = 25;
+
     let tooltip = d3.select(".tooltip");
+    let height = tooltip.node().getBoundingClientRect().height;
     tooltip
       .style("left", event.originalEvent.pageX + 25 + "px")
-      .style("top", event.originalEvent.pageY + 25 + "px");
+      .style(
+        "top",
+        Math.min(windowHeight - height, event.originalEvent.pageY + 25) + "px"
+      );
   }
 
   getTooltip(layer) {
