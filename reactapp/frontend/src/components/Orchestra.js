@@ -17,7 +17,7 @@ class Orchestra extends Component {
       mainPart: this.props.mainPart,
       getTreeThreatLevel: this.props.getTreeThreatLevel,
       treeThreatType: this.props.treeThreatType,
-      lastSpeciesThreats: this.props.lastSpeciesThreats,
+      lastSpeciesSigns: this.props.lastSpeciesSigns,
       speciesData: this.props.speciesData,
       finishedFetching: this.props.finishedFetching,
       mainPartOptions: [],
@@ -37,7 +37,7 @@ class Orchestra extends Component {
       finishedFetching: this.props.finishedFetching,
       setFilter: this.props.setFilter,
       colorBlind: this.props.colorBlind,
-      lastSpeciesThreats: this.props.lastSpeciesThreats,
+      lastSpeciesSigns: this.props.lastSpeciesSigns,
       setMainPartOptions: this.setMainPartOptions.bind(this)
     });
   }
@@ -54,7 +54,7 @@ class Orchestra extends Component {
       this.OrchestraHelper.updateThreatPies(
         this.props.speciesData,
         this.props.colorBlind,
-        this.props.lastSpeciesThreats
+        this.props.lastSpeciesSigns
       );
     }
 
@@ -63,18 +63,18 @@ class Orchestra extends Component {
       this.OrchestraHelper.updateThreatPies(
         this.props.speciesData,
         this.props.colorBlind,
-        this.props.lastSpeciesThreats
+        this.props.lastSpeciesSigns
       );
     }
 
     if (
-      JSON.stringify(this.props.lastSpeciesThreats) !==
-      JSON.stringify(prevProps.lastSpeciesThreats)
+      JSON.stringify(this.props.lastSpeciesSigns) !==
+      JSON.stringify(prevProps.lastSpeciesSigns)
     ) {
       this.OrchestraHelper.updateThreatPies(
         this.props.speciesData,
         this.props.colorBlind,
-        this.props.lastSpeciesThreats
+        this.props.lastSpeciesSigns
       );
     }
 
@@ -85,7 +85,7 @@ class Orchestra extends Component {
       this.OrchestraHelper.updateThreatPies(
         this.props.speciesData,
         this.props.colorBlind,
-        this.props.lastSpeciesThreats
+        this.props.lastSpeciesSigns
       );
     }
 
@@ -93,7 +93,7 @@ class Orchestra extends Component {
       this.OrchestraHelper.updateThreatPies(
         this.props.speciesData,
         this.props.colorBlind,
-        this.props.lastSpeciesThreats
+        this.props.lastSpeciesSigns
       );
     }
   }

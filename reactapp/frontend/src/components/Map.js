@@ -30,7 +30,7 @@ class Map extends Component {
       this.props.setFilter,
       this.props.colorBlind,
       this.props.setMapSearchBarData,
-      this.props.lastSpeciesThreats
+      this.props.lastSpeciesSigns
     );
 
     this.addSpeciesFromMapSpecies();
@@ -332,10 +332,10 @@ class Map extends Component {
 
   componentDidUpdate(prevProps) {
     if (
-      JSON.stringify(this.props.lastSpeciesThreats) !==
-      JSON.stringify(prevProps.lastSpeciesThreats)
+      JSON.stringify(this.props.lastSpeciesSigns) !==
+      JSON.stringify(prevProps.lastSpeciesSigns)
     ) {
-      this.MapHelper.setLastSpeciesThreats(this.props.lastSpeciesThreats);
+      this.MapHelper.setlastSpeciesSigns(this.props.lastSpeciesSigns);
       this.MapHelper.updateThreatPies();
     }
 
@@ -345,7 +345,7 @@ class Map extends Component {
       JSON.stringify(prevProps.data) !== JSON.stringify(this.props.data)
     ) {
       this.addSpeciesFromMapSpecies();
-      this.MapHelper.setLastSpeciesThreats(this.props.lastSpeciesThreats);
+      this.MapHelper.setlastSpeciesSigns(this.props.lastSpeciesSigns);
     }
 
     if (

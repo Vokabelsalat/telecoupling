@@ -45,7 +45,7 @@ export const getGroupFileAndRotationFromID = function (id) {
       filename = "keyboard2.svg";
       break;
     case "Brasses":
-      group = null;
+      group = "Brasses";
       filename = "brasses2.svg";
       break;
     default:

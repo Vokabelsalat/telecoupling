@@ -31,7 +31,7 @@ class D3Orchestra {
     this.setFilter = param.setFilter;
     this.colorBlind = param.colorBlind;
     this.setMainPartOptions = param.setMainPartOptions;
-    this.lastSpeciesThreats = param.lastSpeciesThreats;
+    this.lastSpeciesSigns = param.lastSpeciesSigns;
 
     this.pies = {};
 
@@ -608,8 +608,10 @@ class D3Orchestra {
     let speciesToThreat = {};
     let threats = [];
     for (let species of speciesList) {
-      let threat = this.lastSpeciesThreats[species][this.treeThreatType];
-      threats.push(threat);
+      let threat = this.lastSpeciesSigns[species]
+        ? this.lastSpeciesSigns[species][this.treeThreatType]
+        : null;
+      if (threat) threats.push(threat);
     }
 
     if (main) this.instrumentGroupsToSpecies[parentGroup] = speciesList;
@@ -1131,7 +1133,10 @@ class D3Orchestra {
       text += this.instrumentGroups[d].length + " Instruments<br>";
     }
 
-    if (this.instrumentGroupsToSpecies.hasOwnProperty(d)) {
+    if (
+      !this.instrumentGroup &&
+      this.instrumentGroupsToSpecies.hasOwnProperty(d)
+    ) {
       text += this.instrumentGroupsToSpecies[d].length + " Species";
     }
 
@@ -1458,11 +1463,11 @@ class D3Orchestra {
   updateThreatPies(
     newSpeciesData,
     colorBlind = false,
-    lastSpeciesThreats = null
+    lastSpeciesSigns = null
   ) {
     this.speciesData = newSpeciesData;
     this.colorBlind = colorBlind;
-    this.lastSpeciesThreats = lastSpeciesThreats;
+    this.lastSpeciesSigns = lastSpeciesSigns;
     /* d3.select("#selectChartSVG").selectAll(".pieChartTest").remove(); */
     for (let pie of Object.keys(this.pies)) {
       let pieObj = this.pies[pie];

@@ -23,6 +23,7 @@ class TimelineView extends Component {
       speciesSignThreats: {},
       oldTimelineData: {},
       unmutedSpecies: {},
+      lastSpeciesSigns: this.props.lastSpeciesSigns,
       lastSpeciesThreats: this.props.lastSpeciesThreats
     };
   }
@@ -47,8 +48,8 @@ class TimelineView extends Component {
     }
 
     /* if (
-      JSON.stringify(prevProps.lastSpeciesThreats) !==
-      JSON.stringify(this.props.lastSpeciesThreats)
+      JSON.stringify(prevProps.lastSpeciesSigns) !==
+      JSON.stringify(this.props.lastSpeciesSigns)
     ) {
       this.create();
     } */
@@ -285,6 +286,7 @@ class TimelineView extends Component {
                   timeFrame={this.props.timeFrame}
                   getPlantIcon={this.props.getPlantIcon}
                   getAnimalIcon={this.props.getAnimalIcon}
+                  lastSpeciesSigns={this.props.lastSpeciesSigns}
                   lastSpeciesThreats={this.props.lastSpeciesThreats}
                 />
               );

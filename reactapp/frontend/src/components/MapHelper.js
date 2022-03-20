@@ -42,7 +42,7 @@ class MapHelper {
     setFilter,
     colorBlind,
     setMapSearchBarData,
-    lastSpeciesThreats
+    lastSpeciesSigns
   ) {
     this.id = id;
     this.initWidth = initWidth;
@@ -51,7 +51,7 @@ class MapHelper {
     this.treeThreatType = treeThreatType;
     this.setFilter = setFilter;
     this.setMapSearchBarData = setMapSearchBarData;
-    this.lastSpeciesThreats = lastSpeciesThreats;
+    this.lastSpeciesSigns = lastSpeciesSigns;
 
     this.speciesCountries = null;
     this.highlightCountriesLayer = null;
@@ -471,10 +471,10 @@ class MapHelper {
   defineClusterIconThreat(cluster) {
     var children = cluster.getAllChildMarkers();
     let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
-    let lastSpeciesThreats = this.lastSpeciesThreats;
+    let lastSpeciesSigns = this.lastSpeciesSigns;
 
     let data = [...new Set(children.map((e) => e.options.data).flat())].map(
-      (e) => lastSpeciesThreats[e][treeThreatType]
+      (e) => lastSpeciesSigns[e][treeThreatType]
     );
     let n = data.length; //Get number of markers in cluster
     data = d3
@@ -534,7 +534,7 @@ class MapHelper {
 
   bakeTheThreatPie(options) {
     let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
-    let lastSpeciesThreats = this.lastSpeciesThreats;
+    let lastSpeciesSigns = this.lastSpeciesSigns;
 
     if (!options.data || !options.valueFunc) {
       return "";
@@ -586,8 +586,8 @@ class MapHelper {
         return b.values[0].numvalue - a.values[0].numvalue;
       } else {
         return (
-          lastSpeciesThreats[b][treeThreatType].numvalue -
-          lastSpeciesThreats[a][treeThreatType].numvalue
+          lastSpeciesSigns[b][treeThreatType].numvalue -
+          lastSpeciesSigns[a][treeThreatType].numvalue
         );
       }
     });
@@ -773,7 +773,7 @@ class MapHelper {
 
   updateThreatPiesCountries(first = false) {
     let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
-    let lastSpeciesThreats = this.lastSpeciesThreats;
+    let lastSpeciesSigns = this.lastSpeciesSigns;
     if (this.countryClusterLayer) this.countryClusterLayer.clearLayers();
 
     let heatMapData = {};
@@ -840,14 +840,14 @@ class MapHelper {
                     pieLabel: n,
                     pieLabelClass: "marker-cluster-pie-label",
                     strokeColor: function (d) {
-                      return lastSpeciesThreats[d.data][
-                        treeThreatType
-                      ].getColor(colorBlind);
+                      return lastSpeciesSigns[d.data][treeThreatType].getColor(
+                        colorBlind
+                      );
                     },
                     color: function (d) {
-                      return lastSpeciesThreats[d.data][
-                        treeThreatType
-                      ].getColor(colorBlind);
+                      return lastSpeciesSigns[d.data][treeThreatType].getColor(
+                        colorBlind
+                      );
                     }
                     /* pathClassFunc: function (d) { return "category-path category-" + d.data.key.replaceSpecialCharacters(); },
                                     pathTitleFunc: function (d) { return d.data.key + ' (' + d.data.values.length + ' accident' + (d.data.values.length != 1 ? 's' : '') + ')'; } */
@@ -958,7 +958,7 @@ class MapHelper {
 
   updateThreatPiesEcoRegions() {
     let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
-    let lastSpeciesThreats = this.lastSpeciesThreats;
+    let lastSpeciesSigns = this.lastSpeciesSigns;
     if (this.countryClusterLayer) this.countryClusterLayer.clearLayers();
 
     if (this.speciesEcoRegions !== undefined && this.ecoRegions) {
@@ -1022,14 +1022,14 @@ class MapHelper {
                     pieLabel: n,
                     pieLabelClass: "marker-cluster-pie-label",
                     strokeColor: function (d) {
-                      return lastSpeciesThreats[d.data][
-                        treeThreatType
-                      ].getColor(colorBlind);
+                      return lastSpeciesSigns[d.data][treeThreatType].getColor(
+                        colorBlind
+                      );
                     },
                     color: function (d) {
-                      return lastSpeciesThreats[d.data][
-                        treeThreatType
-                      ].getColor(colorBlind);
+                      return lastSpeciesSigns[d.data][treeThreatType].getColor(
+                        colorBlind
+                      );
                     }
                   }),
                   iconSize: new L.Point(iconDim, iconDim)
@@ -1221,8 +1221,8 @@ class MapHelper {
     this.updateThreatPies();
   }
 
-  setLastSpeciesThreats(lastSpeciesThreats) {
-    this.lastSpeciesThreats = lastSpeciesThreats;
+  setlastSpeciesSigns(lastSpeciesSigns) {
+    this.lastSpeciesSigns = lastSpeciesSigns;
   }
 
   highlightPolygons(layers, highlight) {

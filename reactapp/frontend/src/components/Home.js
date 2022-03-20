@@ -100,7 +100,8 @@ class Home extends Component {
       colorBlind: false,
       mapSearchMode: "country",
       mapSearchBarData: [],
-      lastSpeciesThreats: {}
+      lastSpeciesThreats: {},
+      lastSpeciesSigns: {}
     };
   }
 
@@ -129,6 +130,40 @@ class Home extends Component {
     this.setState({ filterSettings: newSettings });
   }
 
+  getAllThreats(speciesData, timeFrame = null) {
+    let myLastSpeciesThreats = {};
+    let myLastSignThreats = {};
+
+    for (let species of Object.keys(speciesData)) {
+      let lastSpeciesThreats = this.getSpeciesLastThreats(
+        species,
+        speciesData[species],
+        timeFrame
+      );
+
+      myLastSpeciesThreats[species] = lastSpeciesThreats;
+
+      myLastSignThreats[species] = {
+        economically: this.getSpeciesAssessment(
+          species,
+          "economically",
+          speciesData[species],
+          timeFrame,
+          lastSpeciesThreats
+        ),
+        ecologically: this.getSpeciesAssessment(
+          species,
+          "ecologically",
+          speciesData[species],
+          timeFrame,
+          lastSpeciesThreats
+        )
+      };
+    }
+
+    return [myLastSpeciesThreats, myLastSignThreats];
+  }
+
   importAllSpeciesFromGeneratedJSON() {
     console.log("IMPORT ALL SPecies");
     let timeFrame = this.state.timeFrame;
@@ -150,33 +185,24 @@ class Home extends Component {
         function (speciesData) {
           speciesData = Object.fromEntries(
             Object.entries(speciesData)
-              .filter((t) => t[1].Kingdom ? t[1].Kingdom.trim() !== "" : false)
+              .filter(
+                (t) => (t[1].Kingdom ? t[1].Kingdom.trim() !== "" : false)
+                //t[0] === "Dalbergia nigra" || t[0] === "Paubrasilia echinata"
+              )
               .slice(0, this.slice ? 70 : Object.keys(speciesData).length)
           );
           let newMapData = {};
 
-          let myLastSignThreats = {};
-          for (let species of Object.keys(speciesData)) {
-            myLastSignThreats[species] = {
-              economically: this.getSpeciesAssessment(
-                species,
-                "economically",
-                speciesData[species]
-              ),
-              ecologically: this.getSpeciesAssessment(
-                species,
-                "ecologically",
-                speciesData[species]
-              )
-            };
-          }
+          let [myLastSpeciesThreats, myLastSignThreats] =
+            this.getAllThreats(speciesData);
 
           this.setState({
             speciesData: speciesData,
             mapSpecies: newMapData,
             speciesDataCache: speciesData,
             finishedFetching: true,
-            lastSpeciesThreats: myLastSignThreats
+            lastSpeciesSigns: myLastSignThreats,
+            lastSpeciesThreats: myLastSpeciesThreats
           });
         }.bind(this)
       )
@@ -191,25 +217,16 @@ class Home extends Component {
       timeFrame[1] !== this.state.timeFrame[1]
     ) {
       console.log("updatetimeframe");
-      let myLastSignThreats = {};
-      for (let species of Object.keys(this.state.speciesData)) {
-        myLastSignThreats[species] = {
-          economically: this.getSpeciesAssessment(
-            species,
-            "economically",
-            null,
-            timeFrame
-          ),
-          ecologically: this.getSpeciesAssessment(
-            species,
-            "ecologically",
-            null,
-            timeFrame
-          )
-        };
-      }
+      let [myLastSpeciesThreats, myLastSignThreats] = this.getAllThreats(
+        this.state.speciesData,
+        timeFrame
+      );
 
-      this.setState({ timeFrame, lastSpeciesThreats: myLastSignThreats });
+      this.setState({
+        timeFrame,
+        lastSpeciesSigns: myLastSignThreats,
+        lastSpeciesThreats: myLastSpeciesThreats
+      });
     }
   }
 
@@ -475,20 +492,17 @@ class Home extends Component {
             let valueObject = {};
             valueObject["name"] = value;
             valueObject["species"] = value;
-            valueObject["iucnThreat"] = this.getSpeciesSignThreats(value).iucn;
+            valueObject["iucnThreat"] =
+              this.state.lastSpeciesThreats[value]["iucn"];
             valueObject["citesThreat"] =
-              this.getSpeciesSignThreats(value).cites;
+              this.state.lastSpeciesThreats[value]["cites"];
             valueObject["bgciThreat"] =
-              this.getSpeciesSignThreats(value).threat;
+              this.state.lastSpeciesThreats[value]["bgci"];
             valueObject["kingdom"] = this.state.speciesData[value].Kingdom;
-            valueObject["ecologically"] = this.getSpeciesThreatLevel(
-              value,
-              "ecologically"
-            );
-            valueObject["economically"] = this.getSpeciesThreatLevel(
-              value,
-              "economically"
-            );
+            valueObject["ecologically"] =
+              this.state.lastSpeciesSigns[value]["ecologically"];
+            valueObject["economically"] =
+              this.state.lastSpeciesSigns[value]["economically"];
             valueObject["colname"] = "level4";
             valueObject["value"] = subgroupData[family][group][value].length;
 
@@ -1060,32 +1074,21 @@ class Home extends Component {
     this.resetSpeciesData();
     this.speciesData = speciesObject;
 
-    let mySpeciesSignThreats = {};
+    let myLastSignThreats = {};
     for (let species of Object.keys(speciesObject)) {
-      let speciesObj = speciesObject[species];
-
-      console.log(speciesObj);
-
-      let lastCites = speciesObj.timeListing
-        ?.sort((a, b) => parseInt(b.year) - parseInt(a.year))
-        .pop();
-
-      let lastIucn = speciesObj.timeIUCN
-        ?.sort((a, b) => parseInt(b.year) - parseInt(a.year))
-        .pop();
-
-      let lastBgci = speciesObj.timeThreat
-        ?.sort((a, b) => parseInt(b.year) - parseInt(a.year))
-        .pop();
-
-      mySpeciesSignThreats[species] = {
-        cites: lastCites ? lastCites : null,
-        iucn: lastIucn ? lastIucn : null,
-        threat: lastBgci ? lastBgci : null
+      myLastSignThreats[species] = {
+        economically: this.getSpeciesAssessment(
+          species,
+          "economically",
+          speciesObject[species]
+        ),
+        ecologically: this.getSpeciesAssessment(
+          species,
+          "ecologically",
+          speciesObject[species]
+        )
       };
     }
-
-    console.log("HERE", mySpeciesSignThreats);
 
     this.setState({
       speciesData: speciesObject,
@@ -1093,7 +1096,7 @@ class Home extends Component {
       mapSpecies: {},
       addAllCountries: false,
       fetchedSpecies: [],
-      speciesSignThreats: mySpeciesSignThreats
+      lastSpeciesThreats: myLastSignThreats
     });
 
     for (let spec of species) {
@@ -1176,7 +1179,7 @@ class Home extends Component {
     }
   }
 
-  getLastSpeciesThreats(species, type, data = null, timeFrame = null) {
+  getLastSpeciesThreatForType(species, type, data = null, timeFrame = null) {
     let threats = null;
     let last = null;
     timeFrame = timeFrame ? timeFrame : this.state.timeFrame;
@@ -1190,6 +1193,8 @@ class Home extends Component {
     if (obj) {
       switch (type) {
         case "cites":
+          if (!obj.hasOwnProperty("timeListing")) return null;
+
           threats = obj.timeListing;
 
           if (timeFrame[1] !== undefined) {
@@ -1214,6 +1219,8 @@ class Home extends Component {
           }
           return last;
         case "iucn":
+          if (!obj.hasOwnProperty("timeIUCN")) return null;
+
           threats = obj.timeIUCN;
 
           if (timeFrame[1] !== undefined) {
@@ -1232,7 +1239,7 @@ class Home extends Component {
                 }
               } else if (
                 parseInt(threat.year) === parseInt(last.year) &&
-                iucnAssessment.get(threat.code).sort >
+                iucnAssessment.get(threat.code).sort <
                   iucnAssessment.get(last.code).sort
               ) {
                 last = threat;
@@ -1243,6 +1250,8 @@ class Home extends Component {
           }
           return last;
         case "bgci":
+          if (!obj.hasOwnProperty("timeThreat")) return null;
+
           threats = obj.timeThreat;
 
           if (timeFrame[1] !== undefined) {
@@ -1280,25 +1289,101 @@ class Home extends Component {
     }
   }
 
-  getSpeciesAssessment(species, type, data = null, timeFrame = null) {
+  getSpeciesAssessment(
+    species,
+    type,
+    data = null,
+    timeFrame = null,
+    lastThreats = null
+  ) {
     switch (type) {
       case "economically":
-        return citesAssessment.get(
-          this.getLastSpeciesThreats(species, "cites", data, timeFrame)
-            ?.appendix
-        );
-      case "ecologically":
-        let iucn = this.getLastSpeciesThreats(species, "iucn", data, timeFrame);
-        if (iucn !== null) {
-          return iucnAssessment.get(iucn?.code);
+        if (lastThreats) {
+          return lastThreats["cites"]
+            ? lastThreats["cites"]
+            : citesAssessment.dataDeficient;
         } else {
-          return bgciAssessment.get(
-            this.getLastSpeciesThreats(species, "bgci", data, timeFrame)?.danger
+          let lastAssessment = this.getLastSpeciesThreatForType(
+            species,
+            "cites",
+            data,
+            timeFrame
           );
+          return lastAssessment
+            ? citesAssessment.get(lastAssessment.appendix)
+            : citesAssessment.dataDeficient;
+        }
+      case "ecologically":
+        if (lastThreats) {
+          if (lastThreats["iucn"] !== null) {
+            return lastThreats["iucn"];
+          } else {
+            return lastThreats["bgci"]
+              ? lastThreats["bgci"]
+              : bgciAssessment.dataDeficient;
+          }
+        } else {
+          let iucn = this.getLastSpeciesThreatForType(
+            species,
+            "iucn",
+            data,
+            timeFrame
+          );
+          if (iucn !== null) {
+            return iucnAssessment.get(iucn.code);
+          } else {
+            let bgci = this.getLastSpeciesThreatForType(
+              species,
+              "bgci",
+              data,
+              timeFrame
+            );
+            return bgci
+              ? bgciAssessment.get(bgci.danger)
+              : iucnAssessment.dataDeficient;
+          }
         }
       default:
         return null;
     }
+  }
+
+  getSpeciesLastThreats(species, data = null, timeFrame = null) {
+    let obj = {};
+    let lastAssessment = this.getLastSpeciesThreatForType(
+      species,
+      "cites",
+      data,
+      timeFrame
+    );
+
+    obj["cites"] = lastAssessment
+      ? citesAssessment.get(lastAssessment.appendix)
+      : null;
+
+    let lastAssessmentIUCN = this.getLastSpeciesThreatForType(
+      species,
+      "iucn",
+      data,
+      timeFrame
+    );
+
+    obj["iucn"] = lastAssessmentIUCN
+      ? iucnAssessment.get(lastAssessmentIUCN.code)
+      : null;
+
+    let lastAssessmentBGCI = this.getLastSpeciesThreatForType(
+      species,
+      "bgci",
+      data,
+      timeFrame
+    );
+
+    obj["bgci"] = lastAssessmentBGCI
+      ? bgciAssessment.get(lastAssessmentBGCI.danger)
+      : null;
+
+    return obj;
   }
 
   getSpeciesThreatLevel(treeName, type = null) {
@@ -1569,7 +1654,8 @@ class Home extends Component {
       filteredSpeciesData
     );
 
-    let myLastSignThreats = this.state.lastSpeciesThreats;
+    let lastSpeciesSigns = this.state.lastSpeciesSigns;
+    let lastSpeciesThreats = this.state.lastSpeciesThreats;
 
     console.log("NEW RENDER");
 
@@ -1649,7 +1735,8 @@ class Home extends Component {
           treeThreatType={this.state.treeThreatType}
           speciesData={speciesWithOutOrchestraFilter}
           finishedFetching={this.state.finishedFetching}
-          lastSpeciesThreats={myLastSignThreats}
+          lastSpeciesSigns={lastSpeciesSigns}
+          lastSpeciesThreats={lastSpeciesThreats}
           setFilter={this.setFilter.bind(this)}
           timeFrame={this.state.timeFrame}
           colorBlind={this.state.colorBlind}
@@ -1716,7 +1803,8 @@ class Home extends Component {
                   getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
                   treeThreatType={this.state.treeThreatType}
                   colorBlind={this.state.colorBlind}
-                  lastSpeciesThreats={myLastSignThreats}
+                  lastSpeciesSigns={lastSpeciesSigns}
+                  lastSpeciesThreats={lastSpeciesThreats}
                 />
               </div>
               <div
@@ -1863,7 +1951,8 @@ class Home extends Component {
                   getAnimalIcon={this.getAnimalIcon.bind(this)}
                   getPlantIcon={this.getPlantIcon.bind(this)}
                   species={species}
-                  lastSpeciesThreats={myLastSignThreats}
+                  lastSpeciesSigns={lastSpeciesSigns}
+                  lastSpeciesThreats={lastSpeciesThreats}
                 />
               }
               <div key="tooltip" id="tooltip" className="tooltip"></div>
@@ -1963,7 +2052,8 @@ class Home extends Component {
                 colorBlind={this.state.colorBlind}
                 setMapSearchBarData={this.setMapSearchBarData.bind(this)}
                 country={country}
-                lastSpeciesThreats={myLastSignThreats}
+                lastSpeciesSigns={lastSpeciesSigns}
+                lastSpeciesThreats={lastSpeciesThreats}
               />
             ) : (
               []

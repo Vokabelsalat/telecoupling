@@ -55,6 +55,7 @@ class Timeline extends Component {
       species: this.props.species,
       getPlantIcon: this.props.getPlantIcon,
       getAnimalIcon: this.props.getAnimalIcon,
+      lastSpeciesSigns: this.props.lastSpeciesSigns,
       lastSpeciesThreats: this.props.lastSpeciesThreats
     });
   }
@@ -69,6 +70,8 @@ class Timeline extends Component {
       JSON.stringify(prevProps.data) !== JSON.stringify(this.props.data) ||
       JSON.stringify(prevProps.domainYears) !==
         JSON.stringify(this.props.domainYears) ||
+      JSON.stringify(prevProps.lastSpeciesSigns) !==
+        JSON.stringify(this.props.lastSpeciesSigns) ||
       JSON.stringify(prevProps.lastSpeciesThreats) !==
         JSON.stringify(this.props.lastSpeciesThreats)
     ) {
@@ -104,6 +107,7 @@ class Timeline extends Component {
         species: this.props.species,
         getPlantIcon: this.props.getPlantIcon,
         getAnimalIcon: this.props.getAnimalIcon,
+        lastSpeciesSigns: this.props.lastSpeciesSigns,
         lastSpeciesThreats: this.props.lastSpeciesThreats
       });
     }

@@ -41,6 +41,7 @@ class D3Timeline {
     this.setFilter = param.setFilter;
     this.getPlantIcon = param.getPlantIcon;
     this.getAnimalIcon = param.getAnimalIcon;
+    this.lastSpeciesSigns = param.lastSpeciesSigns;
     this.lastSpeciesThreats = param.lastSpeciesThreats;
 
     this.pieStyle = param.pieStyle;
@@ -406,9 +407,8 @@ class D3Timeline {
             .attr("y", 2.5)
             .attr("class", "iconSVG");
 
-          let iucnThreat = this.lastSpeciesThreats[speciesName]["ecologically"];
-          let citesThreat =
-            this.lastSpeciesThreats[speciesName]["economically"];
+          let iucnThreat = this.lastSpeciesSigns[speciesName]["ecologically"];
+          let citesThreat = this.lastSpeciesSigns[speciesName]["economically"];
 
           let icon = speciesNameSVG.select(".iconSVG");
 
@@ -433,9 +433,8 @@ class D3Timeline {
             .attr("y", 2.5)
             .attr("class", "iconSVG");
 
-          let iucnThreat = this.lastSpeciesThreats[speciesName]["ecologically"];
-          let citesThreat =
-            this.lastSpeciesThreats[speciesName]["economically"];
+          let iucnThreat = this.lastSpeciesSigns[speciesName]["ecologically"];
+          let citesThreat = this.lastSpeciesSigns[speciesName]["economically"];
 
           let icon = speciesNameSVG.select(".iconSVG");
 
@@ -1913,50 +1912,29 @@ class D3Timeline {
     function createThreatLegend(threat, type) {
       let ret = d3.create("div").style("text-align", "center");
 
-      switch (type) {
-        case "CITES":
-          ret
-            .style(
-              "background-color",
-              citesAssessment.get(threat.cites).getColor(colorBlind)
-            )
-            .style(
-              "color",
-              citesAssessment.get(threat.cites).getForegroundColor(colorBlind)
-            )
-            .text(threat.cites ? threat.cites : "n/a");
-          return ret;
-        case "IUCN":
-          ret
-            .style(
-              "background-color",
-              iucnAssessment.get(threat.iucn).getColor(colorBlind)
-            )
-            .style(
-              "color",
-              iucnAssessment.get(threat.iucn).getForegroundColor(colorBlind)
-            )
-            .text(threat.iucn ? threat.iucn : "n/a");
-          return ret;
-        case "BGCI":
-          ret
-            .style(
-              "background-color",
-              bgciAssessment.get(threat.threat).getColor(colorBlind)
-            )
-            .style(
-              "color",
-              bgciAssessment.get(threat.threat).getForegroundColor(colorBlind)
-            )
-            .text(threat.threat ? threat.threat : "n/a");
-          return ret;
-
-        default:
-          break;
+      if (threat === null) {
+        ret
+          .style(
+            "background-color",
+            citesAssessment.dataDeficient.getColor(colorBlind)
+          )
+          .style(
+            "color",
+            citesAssessment.dataDeficient.getForegroundColor(colorBlind)
+          )
+          .text("n/a");
+      } else {
+        ret
+          .style("background-color", threat.getColor(colorBlind))
+          .style("color", threat.getForegroundColor(colorBlind))
+          .text(threat.abbreviation);
       }
+
+      return ret;
     }
 
     let tooltip = d3.select(".tooltip");
+    let lastSpeciesSigns = this.lastSpeciesSigns;
 
     let content = d3.select("#" + this.id);
     let copyImage = content
@@ -2066,6 +2044,8 @@ class D3Timeline {
         .style("align-self", "start")
         .text("Cites:");
 
+      console.log(this.lastSpeciesThreats);
+
       tradeTable
         .append("div")
         .style("grid-column-start", 2)
@@ -2074,7 +2054,10 @@ class D3Timeline {
         .style("grid-row-end", 1)
         .style("align-self", "end")
         .append(() =>
-          createThreatLegend(this.getSpeciesSignThreats(d), "CITES").node()
+          createThreatLegend(
+            this.lastSpeciesThreats[d]["cites"],
+            "CITES"
+          ).node()
         );
 
       wrapper
@@ -2132,7 +2115,7 @@ class D3Timeline {
         .style("grid-row-end", 1)
         .style("align-self", "end")
         .append(() =>
-          createThreatLegend(this.getSpeciesSignThreats(d), "IUCN").node()
+          createThreatLegend(this.lastSpeciesThreats[d]["iucn"], "IUCN").node()
         );
 
       threatTable
@@ -2152,7 +2135,7 @@ class D3Timeline {
         .style("grid-row-end", 2)
         .style("align-self", "end")
         .append(() =>
-          createThreatLegend(this.getSpeciesSignThreats(d), "BGCI").node()
+          createThreatLegend(this.lastSpeciesThreats[d]["bgci"], "BGCI").node()
         );
 
       wrapper

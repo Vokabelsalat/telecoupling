@@ -130,47 +130,25 @@ class D3BarChart {
     function createThreatLegend(threat, type) {
       let ret = d3.create("div").style("text-align", "center");
 
-      switch (type) {
-        case "CITES":
-          ret
-            .style(
-              "background-color",
-              citesAssessment.get(threat).getColor(colorBlind)
-            )
-            .style(
-              "color",
-              citesAssessment.get(threat).getForegroundColor(colorBlind)
-            )
-            .text(threat ? threat : "n/a");
-          return ret;
-        case "IUCN":
-          ret
-            .style(
-              "background-color",
-              iucnAssessment.get(threat).getColor(colorBlind)
-            )
-            .style(
-              "color",
-              iucnAssessment.get(threat).getForegroundColor(colorBlind)
-            )
-            .text(threat ? threat : "n/a");
-          return ret;
-        case "BGCI":
-          ret
-            .style(
-              "background-color",
-              bgciAssessment.get(threat).getColor(colorBlind)
-            )
-            .style(
-              "color",
-              bgciAssessment.get(threat).getForegroundColor(colorBlind)
-            )
-            .text(threat ? threat : "n/a");
-          return ret;
-
-        default:
-          break;
+      if (threat === null) {
+        ret
+          .style(
+            "background-color",
+            citesAssessment.dataDeficient.getColor(colorBlind)
+          )
+          .style(
+            "color",
+            citesAssessment.dataDeficient.getForegroundColor(colorBlind)
+          )
+          .text("n/a");
+      } else {
+        ret
+          .style("background-color", threat.getColor(colorBlind))
+          .style("color", threat.getForegroundColor(colorBlind))
+          .text(threat.abbreviation);
       }
+
+      return ret;
     }
 
     let tooltip = d3.select(".tooltip");
