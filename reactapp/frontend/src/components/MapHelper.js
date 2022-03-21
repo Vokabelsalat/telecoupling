@@ -280,7 +280,7 @@ class MapHelper {
 
           if (layer.feature.options.species.length < 8) {
             text += ": <br><i>";
-            text += layer.feature.options.species.join("<br>");
+            text = text + layer.feature.options.species.join("<br>") + "</i>";
           }
         }
 
@@ -291,8 +291,8 @@ class MapHelper {
           text = layer.feature.options.species.length + " Species";
 
           if (layer.feature.options.species.length < 8) {
-            text += ": <br>";
-            text += layer.feature.options.species.join("<br>");
+            text += ": <br><i>";
+            text = text + layer.feature.options.species.join("<br>") + "</i>";
           }
         }
         break;
@@ -305,8 +305,8 @@ class MapHelper {
           text += "<br>" + layer.feature.options.species.length + " Species";
 
           if (layer.feature.options.species.length < 8) {
-            text += ": <br>";
-            text += layer.feature.options.species.join("<br>");
+            text += ": <br><i>";
+            text = text + layer.feature.options.species.join("<br>") + "</i>";
           }
         }
         break;
@@ -711,21 +711,18 @@ class MapHelper {
         ...Object.values(heatMapData).map((e) => e.length)
       );
 
-      let scaleSteps = Math.min(15, heatMapMax);
       let scale = [];
+      let test = d3.scaleLinear().domain([0, heatMapMax]).ticks(15);
 
-      let treeThreatType = this.treeThreatType;
+      for (let val of test.slice(0, test.length - 1)) {
+        let scaleOpacity = val / heatMapMax;
+        let scaleColor = colorsys.hsvToHex(210, scaleOpacity * 100, 100);
 
-      for (let i = 0; i < scaleSteps + 1; i++) {
-        let scaleValue = i * (heatMapMax / scaleSteps);
-        let scaleOpacity = scaleValue / heatMapMax;
-
-        let scaleColor = "";
-
-        scaleColor = colorsys.hsvToHex(210, scaleOpacity * 100, 100);
-
-        scale.push({ scaleColor, scaleValue: Math.ceil(scaleValue) });
+        scale.push({ scaleColor, scaleValue: val });
       }
+
+      let scaleColor = colorsys.hsvToHex(210, 100, 100);
+      scale.push({ scaleColor, scaleValue: heatMapMax });
 
       this.diversityColorScale = scale;
       this.setDiversityScale(this.diversityColorScale, "countries");
@@ -899,19 +896,20 @@ class MapHelper {
         ...Object.values(heatMapData).map((e) => e.length)
       );
 
-      let scaleSteps = Math.min(10, heatMapMax);
+      let treeThreatType = this.treeThreatType;
+
       let scale = [];
+      let test = d3.scaleLinear().domain([0, heatMapMax]).ticks(10);
 
-      for (let i = 0; i < scaleSteps + 1; i++) {
-        let scaleValue = i * (heatMapMax / scaleSteps);
-        let scaleOpacity = scaleValue / heatMapMax;
+      for (let val of test.slice(0, test.length - 1)) {
+        let scaleOpacity = val / heatMapMax;
+        let scaleColor = colorsys.hsvToHex(210, scaleOpacity * 100, 100);
 
-        let scaleColor = "";
-
-        scaleColor = colorsys.hsvToHex(210, scaleOpacity * 100, 100);
-
-        scale.push({ scaleColor, scaleValue: Math.ceil(scaleValue) });
+        scale.push({ scaleColor, scaleValue: val });
       }
+
+      let scaleColor = colorsys.hsvToHex(210, 100, 100);
+      scale.push({ scaleColor, scaleValue: heatMapMax });
 
       this.diversityColorScale = scale;
       this.setDiversityScale(this.diversityColorScale, "ecoregions");
@@ -1083,19 +1081,18 @@ class MapHelper {
           ...Object.values(heatMapData).map((e) => e.length)
         );
 
-        let scaleSteps = Math.min(10, heatMapMax);
         let scale = [];
+        let test = d3.scaleLinear().domain([0, heatMapMax]).ticks(10);
 
-        for (let i = 0; i < scaleSteps + 1; i++) {
-          let scaleValue = i * (heatMapMax / scaleSteps);
-          let scaleOpacity = scaleValue / heatMapMax;
+        for (let val of test.slice(0, test.length - 1)) {
+          let scaleOpacity = val / heatMapMax;
+          let scaleColor = colorsys.hsvToHex(210, scaleOpacity * 100, 100);
 
-          let scaleColor = "";
-
-          scaleColor = colorsys.hsvToHex(210, scaleOpacity * 100, 100);
-
-          scale.push({ scaleColor, scaleValue: Math.ceil(scaleValue) });
+          scale.push({ scaleColor, scaleValue: val });
         }
+
+        let scaleColor = colorsys.hsvToHex(210, 100, 100);
+        scale.push({ scaleColor, scaleValue: heatMapMax });
 
         this.hexagonCache["scale"] = scale;
         this.diversityColorScale = scale;

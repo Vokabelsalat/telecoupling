@@ -1467,7 +1467,8 @@ class Home extends Component {
             className="innerScaleElement text"
             style={{
               height: "10px",
-              textAlign: "center",
+              paddingRight: "2px",
+              textAlign: "end",
               fontSize: "smaller"
             }}
           >
