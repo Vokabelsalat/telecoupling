@@ -253,12 +253,17 @@ class MapHelper {
 
   tooltipMove(event) {
     let windowHeight = window.innerHeight;
+    let windowWidth = window.innerWidth;
     let add = 25;
 
     let tooltip = d3.select(".tooltip");
     let height = tooltip.node().getBoundingClientRect().height;
+    let width = tooltip.node().getBoundingClientRect().width;
     tooltip
-      .style("left", event.originalEvent.pageX + 25 + "px")
+      .style(
+        "left",
+        Math.min(windowWidth - width, event.originalEvent.pageX + 25) + "px"
+      )
       .style(
         "top",
         Math.min(windowHeight - height, event.originalEvent.pageY + 25) + "px"
@@ -712,7 +717,10 @@ class MapHelper {
       );
 
       let scale = [];
-      let test = d3.scaleLinear().domain([0, heatMapMax]).ticks(15);
+      let test = d3
+        .scaleLinear()
+        .domain([0, heatMapMax])
+        .ticks(Math.min(15, heatMapMax));
 
       for (let val of test.slice(0, test.length - 1)) {
         let scaleOpacity = val / heatMapMax;
@@ -899,7 +907,10 @@ class MapHelper {
       let treeThreatType = this.treeThreatType;
 
       let scale = [];
-      let test = d3.scaleLinear().domain([0, heatMapMax]).ticks(10);
+      let test = d3
+        .scaleLinear()
+        .domain([0, heatMapMax])
+        .ticks(Math.min(10, heatMapMax));
 
       for (let val of test.slice(0, test.length - 1)) {
         let scaleOpacity = val / heatMapMax;
@@ -1082,7 +1093,10 @@ class MapHelper {
         );
 
         let scale = [];
-        let test = d3.scaleLinear().domain([0, heatMapMax]).ticks(10);
+        let test = d3
+          .scaleLinear()
+          .domain([0, heatMapMax])
+          .ticks(Math.min(10, heatMapMax));
 
         for (let val of test.slice(0, test.length - 1)) {
           let scaleOpacity = val / heatMapMax;

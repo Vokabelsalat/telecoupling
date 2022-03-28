@@ -100,6 +100,8 @@ class D3Orchestra {
 
           var svgNode = d3.select(data.documentElement).select("g");
 
+          d3.select("#mainPartSelectSVGWrapper > *").remove();
+
           let w = thisWidth - 100 - 2 * thisPadding;
           let svg = d3
             .select("#mainPartSelectSVGWrapper")
