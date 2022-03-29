@@ -243,6 +243,7 @@ class Home extends Component {
   }
 
   componentDidMount() {
+    document.title = "MusEcology";
     if (this.usePreGenerated) {
       this.importAllSpeciesFromGeneratedJSON();
     }
