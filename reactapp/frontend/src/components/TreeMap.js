@@ -104,7 +104,12 @@ class TreeMap extends Component {
     return (
       <div
         id={this.state.id}
-        style={{ display: "inline-block", border: "none" }}
+        style={{
+          display: "inline-block",
+          border: "none",
+          marginLeft: "0px",
+          marginRight: "0px"
+        }}
       >
         {this.props.kingdom ? (
           <div

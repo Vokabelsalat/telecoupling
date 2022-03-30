@@ -35,8 +35,8 @@ class D3Orchestra {
 
     this.pies = {};
 
-    this.initWidth = window.innerWidth / 2 - 10;
-    this.initHeight = window.innerHeight / 2 - 91;
+    this.initWidth = window.innerWidth / 2 - 35;
+    this.initHeight = window.innerHeight / 2 - 94;
 
     this.positionX = this.initWidth / 2;
     this.positionY = this.initHeight / 2 + 100;
@@ -46,10 +46,10 @@ class D3Orchestra {
     this.animationTime = 600;
 
     this.margin = {
-      top: 0,
-      right: 5,
+      top: 3,
+      right: 0,
       bottom: 30,
-      left: 10
+      left: 0
     };
 
     d3.selection.prototype.moveToFront = function () {

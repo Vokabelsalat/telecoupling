@@ -2598,7 +2598,12 @@ class D3Timeline {
 
       const sliderGroup = this.wrapper
         .append("svg")
-        .attr("width", this.initWidth)
+        .attr(
+          "width",
+          this.speciesName === "scaleBottom"
+            ? this.initWidth - 10
+            : this.initWidth
+        )
         .attr("height", 50)
         .append("g")
         .attr(

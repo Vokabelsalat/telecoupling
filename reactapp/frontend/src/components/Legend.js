@@ -96,7 +96,7 @@ class Legend extends Component {
             }}
           >
             <div style={{ textAlign: "center", lineHeight: "1.7em" }}>
-              Cites
+              CITES
               <a
                 href="https://cites.org/eng/app/index.php"
                 target="_blank"

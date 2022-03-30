@@ -1663,53 +1663,21 @@ class Home extends Component {
 
     return (
       <div>
-        {/* <div className="tabPanel" style={{ width: this.state.initWidthForVis + "px", height: window.innerHeight / 2 + "px" }}>
-                    <div
-                        className="tabButton"
-                        onClick={(event) => {
-                            this.activateTab("charts", "barChartTab");
-                        }}
-                        style={{
-                            border: this.state.tabs["charts"]["barChartTab"] ? "1px solid gray" : "none"
-                        }}
-                    >
-                        {"BarChart"}
-                    </div>
-                    <div
-                        className="tabButton"
-                        onClick={(event) => {
-                            this.activateTab("charts", "treeMapTab");
-                        }}
-                        style={{
-                            border: this.state.tabs["charts"]["treeMapTab"] ? "1px solid gray" : "none"
-                        }}
-                    >
-                        {"TreeMap"}
-                    </div>
-                    <div style={{ display: "block" }}>
-                        <div className="tab"
-                            id="barChartTab"
-                            ref={this.diversityMapTab}
-                            style={{
-                                visibility: this.state.tabs["charts"]["barChartTab"] ? "visible" : "hidden",
-                                //display: this.state.tabs["charts"]["barChartTab"] ? "block" : "none",
-                                position: "absolute",
-                                top: "30px"
-                            }}>
-                            <BarChartView id="barChartView" data={barChartData} showIcons={showIcons}></BarChartView>
-                        </div>
-                        <div className="tab"
-                            id="treeMapTab"
-                            ref={this.diversityMapTab}
-                            style={{
-                                visibility: this.state.tabs["charts"]["treeMapTab"] ? "visible" : "hidden",
-                                //display: this.state.tabs["charts"]["treeMapTab"] ? "block" : "none",
-                                position: "absolute",
-                                top: "30px"
-                            }}>
-                            </div>
-                            </div >
-                        </div> */}
+        <Orchestra
+          id="orchestraVis"
+          mainPart={mainPart}
+          instrument={instrument}
+          instrumentGroup={instrumentGroup}
+          getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
+          treeThreatType={this.state.treeThreatType}
+          speciesData={speciesWithOutOrchestraFilter}
+          finishedFetching={this.state.finishedFetching}
+          lastSpeciesSigns={lastSpeciesSigns}
+          lastSpeciesThreats={lastSpeciesThreats}
+          setFilter={this.setFilter.bind(this)}
+          timeFrame={this.state.timeFrame}
+          colorBlind={this.state.colorBlind}
+        />
         {this.renderTreeMap ? (
           <TreeMap
             id="treeMapView"
@@ -1727,22 +1695,6 @@ class Home extends Component {
         ) : (
           []
         )}
-
-        <Orchestra
-          id="orchestraVis"
-          mainPart={mainPart}
-          instrument={instrument}
-          instrumentGroup={instrumentGroup}
-          getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
-          treeThreatType={this.state.treeThreatType}
-          speciesData={speciesWithOutOrchestraFilter}
-          finishedFetching={this.state.finishedFetching}
-          lastSpeciesSigns={lastSpeciesSigns}
-          lastSpeciesThreats={lastSpeciesThreats}
-          setFilter={this.setFilter.bind(this)}
-          timeFrame={this.state.timeFrame}
-          colorBlind={this.state.colorBlind}
-        />
 
         <div
           style={{
