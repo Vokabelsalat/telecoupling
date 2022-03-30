@@ -1376,7 +1376,7 @@ class D3Orchestra {
       this.positionX,
       this.positionY,
       190,
-      300 - 1,
+      305 - 1,
       270,
       1,
       10
@@ -1390,8 +1390,8 @@ class D3Orchestra {
       this.positionX,
       this.positionY,
       190,
-      330 - 1,
-      300,
+      340 - 1,
+      305,
       1,
       10
     );
@@ -1404,8 +1404,8 @@ class D3Orchestra {
       this.positionX,
       this.positionY,
       190,
-      390,
-      330,
+      380,
+      340,
       1,
       10
     );
@@ -1418,8 +1418,8 @@ class D3Orchestra {
       this.positionX,
       this.positionY,
       190,
-      420,
-      390 + 1,
+      415,
+      380 + 1,
       1,
       10
     );
@@ -1433,7 +1433,7 @@ class D3Orchestra {
       this.positionY,
       190,
       450,
-      420 + 1,
+      415 + 1,
       1,
       10
     );
