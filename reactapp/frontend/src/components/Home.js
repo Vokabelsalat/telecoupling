@@ -50,7 +50,7 @@ class Home extends Component {
     this.usePreGenerated = true;
     this.renderMap = true;
     this.renderTreeMap = true;
-    this.slice = false;
+    this.slice = true;
 
     this.tempSpeciesData = {};
     this.tempFetchedSpecies = [];
@@ -1663,39 +1663,68 @@ class Home extends Component {
 
     return (
       <div>
-        <Orchestra
-          id="orchestraVis"
-          mainPart={mainPart}
-          instrument={instrument}
-          instrumentGroup={instrumentGroup}
-          getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
-          treeThreatType={this.state.treeThreatType}
-          speciesData={speciesWithOutOrchestraFilter}
-          finishedFetching={this.state.finishedFetching}
-          lastSpeciesSigns={lastSpeciesSigns}
-          lastSpeciesThreats={lastSpeciesThreats}
-          setFilter={this.setFilter.bind(this)}
-          timeFrame={this.state.timeFrame}
-          colorBlind={this.state.colorBlind}
-        />
-        {this.renderTreeMap ? (
-          <TreeMap
-            id="treeMapView"
-            data={treeMapData}
-            filter={filter}
-            kingdom={kingdom}
-            familia={familia}
-            genus={genus}
-            species={species}
-            colorBlind={this.state.colorBlind}
-            setFilter={this.setFilter.bind(this)}
-            getAnimalIcon={this.getAnimalIcon.bind(this)}
-            getPlantIcon={this.getPlantIcon.bind(this)}
-          ></TreeMap>
-        ) : (
-          []
-        )}
-
+        <div
+          style={{
+            width: "100%",
+            height: "auto",
+            display: "grid",
+            gridTemplateColumns: "50% 50%",
+            gridTemplateRows: "auto auto"
+          }}
+        >
+          <div
+            style={{
+              gridColumnStart: 1,
+              gridColumnEnd: 1,
+              gridRowStart: 1,
+              gridRowEnd: 1,
+              /* height: window.innerHeight / 2 + "px", */
+              overflow: "unset"
+            }}
+          >
+            <Orchestra
+              id="orchestraVis"
+              mainPart={mainPart}
+              instrument={instrument}
+              instrumentGroup={instrumentGroup}
+              getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
+              treeThreatType={this.state.treeThreatType}
+              speciesData={speciesWithOutOrchestraFilter}
+              finishedFetching={this.state.finishedFetching}
+              lastSpeciesSigns={lastSpeciesSigns}
+              lastSpeciesThreats={lastSpeciesThreats}
+              setFilter={this.setFilter.bind(this)}
+              timeFrame={this.state.timeFrame}
+              colorBlind={this.state.colorBlind}
+            />
+          </div>
+          <div
+            style={{
+              gridColumnStart: 2,
+              gridColumnEnd: 2,
+              gridRowStart: 1,
+              gridRowEnd: 1
+            }}
+          >
+            {this.renderTreeMap ? (
+              <TreeMap
+                id="treeMapView"
+                data={treeMapData}
+                filter={filter}
+                kingdom={kingdom}
+                familia={familia}
+                genus={genus}
+                species={species}
+                colorBlind={this.state.colorBlind}
+                setFilter={this.setFilter.bind(this)}
+                getAnimalIcon={this.getAnimalIcon.bind(this)}
+                getPlantIcon={this.getPlantIcon.bind(this)}
+              ></TreeMap>
+            ) : (
+              []
+            )}
+          </div>
+        </div>
         <div
           style={{
             display: "flex",

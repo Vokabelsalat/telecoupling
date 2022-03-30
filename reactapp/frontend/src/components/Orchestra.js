@@ -122,9 +122,7 @@ class Orchestra extends Component {
         style={{
           display: "inline-block",
           verticalAlign: "top",
-          position: "relative",
-          marginLeft: "0px",
-          marginRight: "15px"
+          position: "relative"
         }}
       >
         <div id={this.state.id}></div>

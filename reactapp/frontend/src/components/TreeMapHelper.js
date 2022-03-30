@@ -49,7 +49,7 @@ class D3BarChart {
       left: 0
     };
 
-    this.initWidth = window.innerWidth / 2 - 10;
+    this.initWidth = window.innerWidth / 2 - 15;
     this.initHeight = window.innerHeight / 2 - (this.kingdom ? 110 : 60);
 
     this.currentTransform = [
