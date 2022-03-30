@@ -1304,7 +1304,7 @@ class D3Orchestra {
       .select("#selectChartSVG")
       .append("g")
       .attr("class", "backButton")
-      .attr("transform", "translate(" + this.padding + " " + 18 + ")")
+      .attr("transform", "translate(" + 20 + " " + 15 + ")")
       .style("cursor", "pointer")
       .style("display", "none")
       .on("mouseover", function (e) {
