@@ -839,7 +839,11 @@ class D3Orchestra {
               case "Strings":
                 return "50%";
               case "Woodwinds":
+                return "23%";
+              case "Percussion":
                 return "40%";
+              case "Brasses":
+                return "35%";
               case "Plucked":
                 return "35%";
               default:
@@ -904,6 +908,10 @@ class D3Orchestra {
             case "Strings":
               return "50%";
             case "Woodwinds":
+              return "17%";
+            case "Brasses":
+              return "25%";
+            case "Percussion":
               return "35%";
             case "Plucked":
               return "25%";
@@ -1383,8 +1391,8 @@ class D3Orchestra {
     );
     this.appendSelectArc(
       selectchart,
-      "Percussion",
-      "Percussion",
+      "Plucked",
+      "Plucked",
       "white",
       130,
       this.positionX,
@@ -1397,8 +1405,8 @@ class D3Orchestra {
     );
     this.appendSelectArc(
       selectchart,
-      "Woodwinds",
-      "Woodwinds",
+      "Percussion",
+      "Percussion",
       "white",
       130,
       this.positionX,
@@ -1411,8 +1419,8 @@ class D3Orchestra {
     );
     this.appendSelectArc(
       selectchart,
-      "Brasses",
-      "Brasses",
+      "Woodwinds",
+      "Woodwinds",
       "white",
       130,
       this.positionX,
@@ -1425,8 +1433,8 @@ class D3Orchestra {
     );
     this.appendSelectArc(
       selectchart,
-      "Plucked",
-      "Plucked",
+      "Brasses",
+      "Brasses",
       "white",
       130,
       this.positionX,

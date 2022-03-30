@@ -118,8 +118,9 @@ class D3Timeline {
   }
 
   appendGrayBox(timeFrameMax) {
-    let timelineWidth =
-      this.x(this.domainYears.maxYear) + this.x.bandwidth() / 2;
+    let timelineWidth = Math.round(
+      this.x(this.domainYears.maxYear) + this.x.bandwidth() / 2
+    );
 
     let content = d3.select("#" + this.id);
     content
@@ -973,8 +974,9 @@ class D3Timeline {
       svgHeight = rowCount * this.getRowHeight(genusLine);
     }
 
-    let timelineWidth =
-      this.x(this.domainYears.maxYear) + this.x.bandwidth() / 2;
+    let timelineWidth = Math.round(
+      this.x(this.domainYears.maxYear) + this.x.bandwidth() / 2
+    );
 
     let svgCITES = this.wrapper
       .append("svg")
@@ -1340,8 +1342,9 @@ class D3Timeline {
 
     this.setSpeciesSignThreats(this.speciesName, "iucn", this.iucnSignThreat);
 
-    let timelineWidth =
-      this.x(this.domainYears.maxYear) + this.x.bandwidth() / 2;
+    let timelineWidth = Math.round(
+      this.x(this.domainYears.maxYear) + this.x.bandwidth() / 2
+    );
 
     let svgHeight = this.rowHeight;
 
@@ -1386,7 +1389,7 @@ class D3Timeline {
 
     let rect = g
       .append("rect")
-      .attr("width", timelineWidth)
+      .attr("width", timelineWidth - 1)
       .attr("height", svgHeight)
       .style("stroke", "gray")
       .style("fill", "none");
@@ -1683,8 +1686,9 @@ class D3Timeline {
 
     let svgHeight = this.rowHeight;
 
-    let timelineWidth =
-      this.x(this.domainYears.maxYear) + this.x.bandwidth() / 2;
+    let timelineWidth = Math.round(
+      this.x(this.domainYears.maxYear) + this.x.bandwidth() / 2
+    );
 
     threatData = newListingData;
 
@@ -1751,7 +1755,7 @@ class D3Timeline {
         });
     } */
 
-    if (keyData.length > 1) {
+    /* if (keyData.length > 1) {
       g.selectAll("g myCircleText")
         .data(keyData)
         .enter()
@@ -1785,7 +1789,7 @@ class D3Timeline {
             return d.sciName.replace(d.genus, "").trim();
           }
         });
-    }
+    } */
 
     let rect = g
       .append("rect")
