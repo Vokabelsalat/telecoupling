@@ -3,6 +3,8 @@ import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/leaflet.markercluster.js";
 import "leaflet.pattern/dist/leaflet.pattern.js";
 import * as groupedLayers from "leaflet-groupedlayercontrol";
+import "proj4leaflet";
+import proj4 from "proj4";
 
 import * as d3 from "d3";
 
@@ -71,11 +73,24 @@ class MapHelper {
   init() {
     d3.select("#" + this.id).style("width", this.initWidth + "px");
 
+    let resolutions = [
+      65536, 32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128
+    ];
+
+    var crs = new L.Proj.CRS(
+      "EPSG:54009",
+      "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs",
+      {
+        resolutions,
+        origin: [0, 0]
+      }
+    );
+
     this.mymap = L.map(this.id, {
       worldCopyJump: false,
       minZoom: 0,
       maxZoom: 20,
-      crs: L.CRS.EPSG4326
+      crs: crs
     }).setView([0, 0], 2);
 
     this.mymap.on("overlayadd", this.overlayadd.bind(this));
@@ -88,9 +103,9 @@ class MapHelper {
       .groupedLayers(
         {},
         {
-          "Tile Layers": {
+          /* "Tile Layers": {
             WMS: wmsLayer
-          }
+          } */
         },
         { collapsed: true }
       )
