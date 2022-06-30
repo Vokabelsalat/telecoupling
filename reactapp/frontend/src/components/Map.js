@@ -30,6 +30,7 @@ class Map extends Component {
       this.props.setFilter,
       this.props.colorBlind,
       this.props.setMapSearchBarData,
+      this.props.setMapSearchMode,
       this.props.lastSpeciesSigns
     );
 

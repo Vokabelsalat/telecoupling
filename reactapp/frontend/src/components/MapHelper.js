@@ -44,6 +44,7 @@ class MapHelper {
     setFilter,
     colorBlind,
     setMapSearchBarData,
+    setMapSearchMode,
     lastSpeciesSigns
   ) {
     this.id = id;
@@ -53,6 +54,7 @@ class MapHelper {
     this.treeThreatType = treeThreatType;
     this.setFilter = setFilter;
     this.setMapSearchBarData = setMapSearchBarData;
+    this.setMapSearchMode = setMapSearchMode;
     this.lastSpeciesSigns = lastSpeciesSigns;
 
     this.speciesCountries = null;
@@ -74,7 +76,9 @@ class MapHelper {
     d3.select("#" + this.id).style("width", this.initWidth + "px");
 
     let resolutions = [
-      65536, 32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128
+      32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2,
+      1, 0.5
+      /* 65536, 32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128 */
     ];
 
     var crs = new L.Proj.CRS(
@@ -82,16 +86,16 @@ class MapHelper {
       "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs",
       {
         resolutions,
-        origin: [0, 0]
+        origin: [100, 0]
       }
     );
 
     this.mymap = L.map(this.id, {
       worldCopyJump: false,
       minZoom: 0,
-      maxZoom: 20,
+      maxZoom: resolutions.length,
       crs: crs
-    }).setView([0, 0], 2);
+    }).setView([0, 0], 0);
 
     this.mymap.on("overlayadd", this.overlayadd.bind(this));
 
@@ -200,6 +204,9 @@ class MapHelper {
           if (parseInt(feature.properties.BIOME) !== 98) return true;
         }
 
+        let mapSearchBarData = [];
+        let mapSearchBarDataKeys = [];
+
         let ecos = L.geoJson(data, {
           style: {
             opacity: 0.1,
@@ -217,6 +224,17 @@ class MapHelper {
                 popupText += "<br>Biome: " + biomes[biom];
               }
               /* layer.bindPopup(popupText); */
+
+              if (!mapSearchBarDataKeys.includes(feature.properties.ECO_ID)) {
+                mapSearchBarData.push({
+                  type: "eco",
+                  ECO_NAME: feature.properties.ECO_NAME,
+                  title: feature.properties.ECO_NAME,
+                  ECO_ID: feature.properties.ECO_ID,
+                  value: feature.properties.ECO_ID
+                });
+                mapSearchBarDataKeys.push(feature.properties.ECO_ID);
+              }
 
               feature.options = { popupText: popupText, type: "ecoregion" };
 
@@ -253,6 +271,8 @@ class MapHelper {
             d.layer.setStyle(highlightStyle(d.layer, true));
             d.layer.bringToFront();
           });
+
+        this.setMapSearchBarData("eco", mapSearchBarData);
 
         this.ecoRegions = ecos;
 
@@ -387,6 +407,8 @@ class MapHelper {
               if (!mapSearchBarDataKeys.includes(feature.properties.ISO3CD)) {
                 mapSearchBarData.push({
                   type: "country",
+                  title: feature.properties.ROMNAM,
+                  value: feature.properties.ROMNAM,
                   ROMNAM: feature.properties.ROMNAM,
                   MAPLAB: feature.properties.MAPLAB,
                   bgciName: feature.properties.bgciName,
@@ -417,7 +439,7 @@ class MapHelper {
             }
           });
 
-        this.setMapSearchBarData(mapSearchBarData);
+        this.setMapSearchBarData("country", mapSearchBarData);
 
         this.highlightCountriesLayer = L.geoJson(data, {
           style: {
@@ -1228,6 +1250,7 @@ class MapHelper {
           this.mymap.removeLayer(this.diversityCountries);
           this.mymap.removeLayer(this.ecoRegions);
           this.control._update();
+          this.setMapSearchMode("hexagon");
           this.updateHexagons();
         }
         break;
@@ -1236,6 +1259,7 @@ class MapHelper {
           this.mymap.removeLayer(this.hexagons);
           this.mymap.removeLayer(this.ecoRegions);
           this.control._update();
+          this.setMapSearchMode("countries");
           this.updateDiversity();
         }
         break;
@@ -1244,6 +1268,7 @@ class MapHelper {
           this.mymap.removeLayer(this.diversityCountries);
           this.mymap.removeLayer(this.hexagons);
           this.control._update();
+          this.setMapSearchMode("eco");
           this.updateEcoRegions();
         }
         break;

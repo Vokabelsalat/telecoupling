@@ -22,7 +22,7 @@ class MapSearchBar extends Component {
       setFilter: this.props.setFilter,
       mode: this.props.mapSearchMode,
       searchBarData: this.props.mapSearchBarData,
-      country: this.props.country
+      currentValue: this.props.value
     };
   }
 
@@ -40,10 +40,8 @@ class MapSearchBar extends Component {
       this.setState({ mode: this.props.mapSearchMode });
     }
 
-    if (
-      JSON.stringify(prevProps.country) !== JSON.stringify(this.props.country)
-    ) {
-      this.setState({ country: this.props.country });
+    if (JSON.stringify(prevProps.value) !== JSON.stringify(this.props.value)) {
+      this.setState({ currentValue: this.props.value });
     }
 
     if (
@@ -55,29 +53,38 @@ class MapSearchBar extends Component {
   }
 
   setValue(val) {
-    this.state.setFilter({
-      country: val
-        ? [{ ROMNAM: val.ROMNAM, MAPLAB: val.MAPLAB, bgciName: val.bgciName }]
-        : null
-    });
-    this.setState({ country: val });
+    console.log("VAL", val);
+    const filter = {};
+    filter[this.state.mode] = val
+      ? [
+          {
+            value: val.value,
+            title: val.title
+          }
+        ]
+      : null;
+    this.state.setFilter(filter);
   }
 
   render() {
-    let country = this.state.country;
+    let currentValue = this.state.currentValue;
     let setValue = this.setValue.bind(this);
-    let data = this.state.searchBarData;
+    const mode = this.state.mode;
+    let data = this.state.searchBarData[mode];
     let options = [];
+
+    console.log(data, mode, this.state.searchBarData, currentValue);
 
     if (data) {
       for (let entry of data) {
-        options.push({ ...entry, key: entry.ROMNAM });
+        if (entry.title.trim() !== "")
+          options.push({ ...entry, key: entry.title });
       }
     }
 
     return (
       <Autocomplete
-        value={country}
+        value={currentValue}
         onChange={(event, newValue) => {
           setValue(newValue);
         }}
@@ -87,7 +94,7 @@ class MapSearchBar extends Component {
           const { inputValue } = params;
           // Suggest the creation of a new value
           const isExisting = options.some(
-            (option) => inputValue === option.ROMNAM
+            (option) => inputValue === option.title
           );
           /*  if (inputValue !== "" && !isExisting) {
             filtered.push({
@@ -104,12 +111,12 @@ class MapSearchBar extends Component {
         id="free-solo-with-text-demo"
         options={options}
         getOptionLabel={(option) => {
-          return option.ROMNAM;
+          return option.title;
         }}
         renderOption={(props, option) => (
           <li {...props}>
             {/* {option.type === "genus" ? option.title + " (Genus)" : option.title} */}
-            {option.ROMNAM}
+            {option.title}
           </li>
         )}
         sx={{ width: 300 }}
@@ -117,8 +124,8 @@ class MapSearchBar extends Component {
         renderInput={(params) => (
           <TextField
             {...params}
-            className={country ? "filterUsed" : ""}
-            label="Country Search"
+            className={currentValue ? "filterUsed" : ""}
+            label={`${mode} Search`}
             size="small"
           />
         )}

@@ -50,7 +50,7 @@ class Home extends Component {
     this.usePreGenerated = true;
     this.renderMap = true;
     this.renderTreeMap = true;
-    this.slice = false;
+    this.slice = true;
 
     this.tempSpeciesData = {};
     this.tempFetchedSpecies = [];
@@ -99,7 +99,7 @@ class Home extends Component {
       filterSettings: {},
       colorBlind: false,
       mapSearchMode: "country",
-      mapSearchBarData: [],
+      mapSearchBarData: {},
       lastSpeciesThreats: {},
       lastSpeciesSigns: {}
     };
@@ -116,8 +116,14 @@ class Home extends Component {
     this.setState({ filterSettings });
   }
 
-  setMapSearchBarData(newVal) {
-    this.setState({ mapSearchBarData: newVal });
+  setMapSearchBarData(mode, newVal) {
+    const newSearchBarData = { ...this.state.mapSearchBarData };
+    newSearchBarData[mode] = newVal;
+    this.setState({ mapSearchBarData: newSearchBarData });
+  }
+
+  setMapSearchMode(newVal) {
+    this.setState({ mapSearchMode: newVal });
   }
 
   setFilter(obj) {
@@ -1565,6 +1571,8 @@ class Home extends Component {
 
     let filter = { ...this.state.filterSettings };
 
+    console.log("filters", filter);
+
     const instrumentGroup = filter["instrumentGroup"]
       ? filter["instrumentGroup"][0]
       : null;
@@ -1577,6 +1585,11 @@ class Home extends Component {
     const species = filter["species"] ? filter["species"][0] : null;
 
     const country = filter["country"] ? filter["country"][0] : null;
+    const ecoRegion = filter["eco"] ? filter["eco"][0] : null;
+
+    const mapSearchMode = this.state.mapSearchMode;
+
+    let mapSearchValue = null;
 
     const asArray = Object.entries(this.state.speciesData);
 
@@ -1604,7 +1617,12 @@ class Home extends Component {
         hit = species === key;
       }
 
-      if (hit && country !== null && country !== undefined) {
+      if (
+        hit &&
+        country !== null &&
+        country !== undefined &&
+        mapSearchMode === "country"
+      ) {
         let countries = [];
         if (value.hasOwnProperty("treeCountriesShort")) {
           countries = value.treeCountriesShort;
@@ -1618,6 +1636,23 @@ class Home extends Component {
           }
         }
         hit = Object.values(country).some((item) => countries.includes(item));
+        mapSearchValue = country;
+      }
+
+      if (
+        hit &&
+        ecoRegion !== null &&
+        ecoRegion !== undefined &&
+        mapSearchMode === "eco"
+      ) {
+        let ecoRegions = [];
+        if (value.hasOwnProperty("ecoregions")) {
+          ecoRegions = value.ecoregions;
+        }
+        hit = Object.values(ecoRegion).some((item) =>
+          ecoRegions.includes(item.toString())
+        );
+        mapSearchValue = ecoRegion;
       }
 
       if (hit) {
@@ -1651,15 +1686,13 @@ class Home extends Component {
       Object.keys(filteredSpeciesData).map((e) => [e, 1])
     );
 
-    let [treeMapData, imageLinks, dummyLinks] = this.generateTreeMapData(
-      //this.state.speciesSignThreats
-      filteredSpeciesData
-    );
+    let [treeMapData, imageLinks, dummyLinks] =
+      this.generateTreeMapData(filteredSpeciesData);
 
     let lastSpeciesSigns = this.state.lastSpeciesSigns;
     let lastSpeciesThreats = this.state.lastSpeciesThreats;
 
-    console.log("NEW RENDER");
+    console.log(mapSearchValue, mapSearchMode);
 
     return (
       <div>
@@ -1678,7 +1711,6 @@ class Home extends Component {
               gridColumnEnd: 1,
               gridRowStart: 1,
               gridRowEnd: 1,
-              /* height: window.innerHeight / 2 + "px", */
               overflow: "unset"
             }}
           >
@@ -1852,7 +1884,8 @@ class Home extends Component {
                   setFilter={this.setFilter.bind(this)}
                   mapSearchMode={this.state.mapSearchMode}
                   mapSearchBarData={this.state.mapSearchBarData}
-                  country={country}
+                  value={mapSearchValue}
+                  mode={mapSearchMode}
                 />
               </div>
             </div>
@@ -2034,6 +2067,7 @@ class Home extends Component {
                 setFilter={this.setFilter.bind(this)}
                 colorBlind={this.state.colorBlind}
                 setMapSearchBarData={this.setMapSearchBarData.bind(this)}
+                setMapSearchMode={this.setMapSearchMode.bind(this)}
                 country={country}
                 lastSpeciesSigns={lastSpeciesSigns}
                 lastSpeciesThreats={lastSpeciesThreats}
