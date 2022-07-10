@@ -45,7 +45,9 @@ class MapHelper {
     colorBlind,
     setMapSearchBarData,
     setMapSearchMode,
-    lastSpeciesSigns
+    lastSpeciesSigns,
+    getPopulationTrend,
+    setEcoRegionStatistics
   ) {
     this.id = id;
     this.initWidth = initWidth;
@@ -56,6 +58,8 @@ class MapHelper {
     this.setMapSearchBarData = setMapSearchBarData;
     this.setMapSearchMode = setMapSearchMode;
     this.lastSpeciesSigns = lastSpeciesSigns;
+    this.getPopulationTrend = getPopulationTrend;
+    this.setEcoRegionStatistics = setEcoRegionStatistics;
 
     this.speciesCountries = null;
     this.highlightCountriesLayer = null;
@@ -1035,6 +1039,10 @@ class MapHelper {
         ...Object.values(heatMapData).map((e) => e.length)
       );
 
+      let getPopulationTrend = this.getPopulationTrend.bind(this);
+      let setEcoRegionStatistics = this.setEcoRegionStatistics.bind(this);
+      let ecoRegionStatistics = [];
+
       if (this.ecoRegions !== undefined) {
         this.ecoRegions.eachLayer((layer) => {
           //calculate the clusterthreatpie
@@ -1044,6 +1052,31 @@ class MapHelper {
             )
           ) {
             let data = heatMapData[layer.feature.properties.ECO_ID.toString()];
+
+            let threatLevels = data.map((e) => {
+              return lastSpeciesSigns[e][treeThreatType];
+            });
+
+            ecoRegionStatistics.push([
+              layer.feature.properties.ECO_NAME,
+              layer.feature.properties.ECO_ID,
+              data.length,
+              threatLevels.filter((e) => e.numvalue in [0, 1]).length,
+              threatLevels.filter((e) => e.numvalue === 2).length,
+              threatLevels.filter((e) => e.numvalue === 3).length,
+              data
+                .map((species) => {
+                  return getPopulationTrend(species);
+                })
+                .filter((trend) => trend === "Decreasing").length,
+              data
+                .map((species) => {
+                  return getPopulationTrend(species);
+                })
+                .filter((trend) => trend !== undefined).length,
+              layer.feature.properties.NNH_NAME
+            ]);
+
             /* let data = [...new Set(heatMapData[layer.feature.id.toString])].map((e) =>
             this.getTreeThreatLevel(e, treeThreatType)
           ); */
@@ -1092,6 +1125,7 @@ class MapHelper {
             }
           }
         });
+        setEcoRegionStatistics(ecoRegionStatistics);
       }
     }
   }

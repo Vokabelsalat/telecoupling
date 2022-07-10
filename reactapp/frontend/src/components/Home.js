@@ -50,7 +50,7 @@ class Home extends Component {
     this.usePreGenerated = true;
     this.renderMap = true;
     this.renderTreeMap = true;
-    this.slice = true;
+    this.slice = false;
 
     this.tempSpeciesData = {};
     this.tempFetchedSpecies = [];
@@ -59,6 +59,8 @@ class Home extends Component {
 
     this.plantIcon = {};
     this.animalIcon = {};
+
+    this.ecoRegionSpeciesThreats = [];
 
     let tabs = {
       maps: { diversityMapTab: true, threatMapTab: false },
@@ -1426,6 +1428,52 @@ class Home extends Component {
     }
   }
 
+  setEcoRegionStatistics(data) {
+    let columnNames = [
+      "Name",
+      "ID",
+      "Nr. of Species",
+      "Nr. Endangered",
+      "Nr. Possibly",
+      "Nr. Least Concern",
+      "Nr. Decreasing",
+      "Nr. Population Trend",
+      "NNH"
+    ];
+    this.ecoRegionSpeciesThreats = data.map((entry) => {
+      let ret = {};
+      for (let i = 0; i < columnNames.length; i++) {
+        ret[columnNames[i]] = entry[i];
+      }
+      return ret;
+    });
+  }
+
+  saveEcoRegionSpecies() {
+    let data = this.ecoRegionSpeciesThreats;
+
+    let file = new Blob([JSON.stringify(data, null, 4)], {
+      type: "application/json"
+    });
+    let filename = "ecoRegionStatistics.json";
+    if (window.navigator.msSaveOrOpenBlob)
+      // IE10+
+      window.navigator.msSaveOrOpenBlob(file, filename);
+    else {
+      // Others
+      let a = document.createElement("a"),
+        url = URL.createObjectURL(file);
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, 0);
+    }
+  }
+
   renderMapScale(scale, type) {
     let scaleElements = [];
 
@@ -2043,6 +2091,13 @@ class Home extends Component {
             ) : (
               []
             )}
+            <button
+              onClick={(event) => {
+                this.saveEcoRegionSpecies();
+              }}
+            >
+              {"Save EcoRegionStatistics"}
+            </button>
             {this.renderMapScale(
               this.state.diversityScale,
               this.state.diversityScaleType
@@ -2071,6 +2126,7 @@ class Home extends Component {
                 country={country}
                 lastSpeciesSigns={lastSpeciesSigns}
                 lastSpeciesThreats={lastSpeciesThreats}
+                setEcoRegionStatistics={this.setEcoRegionStatistics.bind(this)}
               />
             ) : (
               []

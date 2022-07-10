@@ -31,7 +31,9 @@ class Map extends Component {
       this.props.colorBlind,
       this.props.setMapSearchBarData,
       this.props.setMapSearchMode,
-      this.props.lastSpeciesSigns
+      this.props.lastSpeciesSigns,
+      this.getPopulationTrend.bind(this),
+      this.props.setEcoRegionStatistics.bind(this)
     );
 
     this.addSpeciesFromMapSpecies();
@@ -69,6 +71,10 @@ class Map extends Component {
         this.props.colorBlind
       );
     }
+  }
+
+  getPopulationTrend(species) {
+    return this.props.data[species].populationTrend;
   }
 
   addSpeciesFromMapSpecies() {
