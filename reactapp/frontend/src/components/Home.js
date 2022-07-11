@@ -50,7 +50,7 @@ class Home extends Component {
     this.usePreGenerated = true;
     this.renderMap = true;
     this.renderTreeMap = true;
-    this.slice = false;
+    this.slice = true;
 
     this.tempSpeciesData = {};
     this.tempFetchedSpecies = [];
@@ -2091,13 +2091,13 @@ class Home extends Component {
             ) : (
               []
             )}
-            <button
+            {/* <button
               onClick={(event) => {
                 this.saveEcoRegionSpecies();
               }}
             >
               {"Save EcoRegionStatistics"}
-            </button>
+            </button> */}
             {this.renderMapScale(
               this.state.diversityScale,
               this.state.diversityScaleType

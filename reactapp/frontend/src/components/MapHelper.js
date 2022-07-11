@@ -14,6 +14,7 @@ import {
   pushOrCreateWithoutDuplicates
 } from "../utils/utils";
 import { tooltipClasses } from "@mui/material";
+import { lime } from "@mui/material/colors";
 
 var colorsys = require("colorsys");
 
@@ -123,6 +124,7 @@ class MapHelper {
     this.setUpEcoRegions();
     this.setUpHexagons();
     this.setUpCapitals();
+    this.setUpOrchestras();
   }
 
   resetSelected(type) {
@@ -521,6 +523,190 @@ class MapHelper {
       });
   }
 
+  setUpOrchestras() {
+    fetch("/Orchestras_worldwide.json")
+      .then((res) => res.json())
+      .then((data) => {
+        this.orchstras = {};
+        let markers = [];
+        for (let feat of data.features) {
+          this.orchstras[feat.properties.FID] = feat;
+
+          let coords = feat.geometry.coordinates;
+          //let marker = L.marker([coords[1], coords[0]]);
+          //this.iso3ToCapital[layer.feature.properties.ISO3CD].geometry.coordinates;
+          let marker = L.marker([coords[1], coords[0]], {
+            properties: feat.properties,
+            data: [1],
+            icon: new L.DivIcon({
+              html: this.bakeTheOrchestraPie({
+                data: [1],
+                valueFunc: function (d) {
+                  return data.length;
+                },
+                strokeWidth: 2,
+                outerRadius: 15,
+                innerRadius: 15 - 8,
+                pieClass: "cluster-pie",
+                pieLabel: 1,
+                pieLabelClass: "marker-cluster-pie-label",
+                strokeColor: function (d) {
+                  return "lime";
+                },
+                color: function (d) {
+                  return "lime";
+                }
+              }),
+              iconSize: new L.Point(15, 15)
+            })
+          });
+
+          console.log(marker);
+
+          markers.push(marker);
+        }
+
+        this.orchestraClusterLayer = L.markerClusterGroup({
+          iconCreateFunction: this.defineClusterIconOrchestra.bind(this),
+          chunkedLoading: true,
+          tree: "Orchestras",
+          type: "Orchestras",
+          removeOutsideVisibleBounds: true,
+          maxClusterRadius: this.rmax * 2,
+          showCoverageOnHover: false
+        });
+
+        this.orchestraClusterLayer.addLayers(markers);
+
+        /* .on("mouseover", function (d) {
+            boundHighlight(d.layer, true);
+          })
+          .on("mouseout", function (d) {
+            boundHighlight(d.layer, false);
+          })
+          .on("clustermouseover", function (d) {
+            boundHighlight(d.layer, true);
+          })
+          .on("clustermouseout", function (d) {
+            boundHighlight(d.layer, false);
+          }); */
+
+        /* this.orchestraClusterLayer.addTo(this.mymap); */
+
+        this.control.addOverlay(
+          this.orchestraClusterLayer,
+          "Orchestras Worldwide",
+          "Extra"
+        );
+      });
+  }
+
+  bakeTheOrchestraPie(options) {
+    if (!options.data || !options.valueFunc) {
+      return "";
+    }
+
+    var data = options.data,
+      valueFunc = options.valueFunc,
+      r = options.outerRadius, //Default outer radius = 28px
+      rInner = options.innerRadius ? options.innerRadius : r - 10, //Default inner radius = r-10
+      strokeWidth = options.strokeWidth ? options.strokeWidth : 1, //Default stroke is 1
+      pathClassFunc = options.pathClassFunc
+        ? options.pathClassFunc
+        : function () {
+            return "";
+          }, //Class for each path
+      pathTitleFunc = options.pathTitleFunc
+        ? options.pathTitleFunc
+        : function () {
+            return "";
+          }, //Title for each path
+      pieClass = options.pieClass ? options.pieClass : "marker-cluster-pie", //Class for the whole pie
+      pieLabel = options.pieLabel ? options.pieLabel : d3.sum(data, valueFunc), //Label for the whole pie
+      pieLabelClass = options.pieLabelClass
+        ? options.pieLabelClass
+        : "marker-cluster-pie-label", //Class for the pie label
+      color = options.color,
+      origo = r + strokeWidth, //Center coordinate
+      w = origo * 2, //width and height of the svg element
+      h = w,
+      donut = d3.pie(),
+      arc = d3.arc().innerRadius(rInner).outerRadius(r);
+
+    let div = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+
+    //Create an svg element
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    //Create the pie chart
+
+    var vis = d3
+      .select(svg)
+      .data([data])
+      .attr("class", pieClass)
+      .attr("width", w + 2)
+      .attr("height", h + 2)
+      .style("position", "absolute");
+
+    let donutData = donut.value(valueFunc);
+
+    console.log("donutData", donutData, data);
+
+    var arcs = vis
+      .selectAll("g.arc")
+      .data(donutData)
+      .enter()
+      .append("svg:g")
+      //.attr('class', 'arc')
+      .attr("class", function (d) {
+        return "arc";
+      })
+      .attr("transform", "translate(" + origo + "," + origo + ")");
+
+    arcs
+      .append("svg:path")
+      .attr("class", pathClassFunc)
+      .attr("stroke-width", strokeWidth)
+      .attr("fill", color)
+      .attr("stroke", color)
+      .attr("background", color)
+      .attr("border-color", color)
+      .attr("d", arc)
+      .append("svg:title")
+      .text(pathTitleFunc);
+
+    var svg2 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    //Create the pie chart
+    var vis2 = d3
+      .select(svg2)
+      .attr("class", pieClass + " text")
+      .attr("width", w + 2)
+      .attr("height", h + 2)
+      .style("position", "absolute");
+
+    vis2
+      .append("circle")
+      .attr("cx", origo)
+      .attr("cy", origo)
+      .attr("r", rInner - 1)
+      .attr("fill", "white")
+      .style("fill-opacity", "50%");
+
+    vis2
+      .append("text")
+      .attr("x", origo)
+      .attr("y", origo)
+      .attr("class", pieLabelClass + "text")
+      .attr("text-anchor", "middle")
+      .attr("dy", ".3em")
+      .text(pieLabel);
+
+    div.appendChild(svg);
+    div.appendChild(svg2);
+
+    //Return the svg-markup rather than the actual element
+    return serializeXmlNode(div);
+  }
+
   defineClusterIconThreat(cluster) {
     var children = cluster.getAllChildMarkers();
     let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
@@ -587,7 +773,6 @@ class MapHelper {
 
   bakeTheThreatPie(options) {
     let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
-    let lastSpeciesSigns = this.lastSpeciesSigns;
 
     if (!options.data || !options.valueFunc) {
       return "";
@@ -638,10 +823,10 @@ class MapHelper {
       if (b.hasOwnProperty("values") && a.hasOwnProperty("values")) {
         return b.values[0].numvalue - a.values[0].numvalue;
       } else {
-        return (
+        /* return (
           lastSpeciesSigns[b][treeThreatType].numvalue -
           lastSpeciesSigns[a][treeThreatType].numvalue
-        );
+        ); */
       }
     });
 
@@ -699,6 +884,71 @@ class MapHelper {
 
     //Return the svg-markup rather than the actual element
     return serializeXmlNode(div);
+  }
+
+  defineClusterIconOrchestra(cluster) {
+    var children = cluster.getAllChildMarkers();
+
+    let data = children.map((e) => e.options.data).flat();
+
+    console.log(children, data);
+
+    let n = data.length; //Get number of markers in cluster
+    data = d3
+      .nest()
+      .key(function (d) {
+        return d.abbreviation;
+      })
+      .entries(data, d3.map);
+    let strokeWidth = 1; //Set clusterpie stroke width
+    let r = Math.min(
+      this.rmax -
+        2 * strokeWidth -
+        (n < 10 ? 12 : n < 100 ? 8 : n < 1000 ? 4 : 0),
+      this.rmax
+    );
+    let iconDim = (r + strokeWidth) * 2; //...and divIcon dimensions (leaflet really want to know the size)
+
+    let colorBlind = this.colorBlind;
+    let cacheKey =
+      data.reduce((prev, curr) => prev + (curr.key + curr.values.length), "") +
+      colorBlind;
+
+    let html;
+    if (Object.keys(this.treeClusterCache).includes(cacheKey)) {
+      html = this.treeClusterCache[cacheKey];
+    } else {
+      //bake some svg markup
+      html = this.bakeTheThreatPie({
+        data: data,
+        valueFunc: function (d) {
+          return d.values.length;
+        },
+        outerRadius: r,
+        innerRadius: r - 8,
+        pieClass: "cluster-pie",
+        pieLabelClass: "marker-cluster-pie-label",
+        strokeColor: function (d) {
+          /* return d.data.values[0].getColor(colorBlind); */
+          return "lime";
+        },
+        color: function (d) {
+          /* return d.data.values[0].getColor(colorBlind); */
+          return "lime";
+        }
+      });
+
+      this.treeClusterCache[cacheKey] = html;
+    }
+    //Create a new divIcon and assign the svg markup to the html property
+    let myIcon = new L.DivIcon({
+      html: html,
+      className: "marker-cluster",
+      iconSize: new L.Point(iconDim, iconDim),
+      childrenIsoS: children.map((e) => e.options.iso3)
+    });
+
+    return myIcon;
   }
 
   setUpHexagons() {
@@ -1273,10 +1523,113 @@ class MapHelper {
     }
   }
 
+  updateOrchestras(first = false) {
+    if (this.orchestraClusterLayer) this.orchestraClusterLayer.clearLayers();
+
+    let heatMapData = {};
+
+    for (let speciesName of Object.keys(this.speciesCountries)) {
+      let speciesCountries = this.speciesCountries[speciesName];
+
+      for (let country of speciesCountries) {
+        if (this.countriesToID.hasOwnProperty(country)) {
+          let countryIDs = this.countriesToID[country];
+          for (let countryID of countryIDs) {
+            pushOrCreateWithoutDuplicates(
+              heatMapData,
+              countryID.toString(),
+              speciesName
+            );
+          }
+        }
+      }
+    }
+
+    let maxCount = Math.max(...Object.values(heatMapData).map((e) => e.length));
+    let colorBlind = this.colorBlind;
+
+    if (this.highlightCountriesLayer) {
+      this.highlightCountriesLayer.eachLayer((layer) => {
+        //calculate the clusterthreatpie
+        if (heatMapData.hasOwnProperty(layer.feature.id.toString())) {
+          let data = heatMapData[layer.feature.id.toString()];
+          /* let data = [...new Set(heatMapData[layer.feature.id.toString])].map((e) =>
+              this.getTreeThreatLevel(e, treeThreatType)
+            ); */
+          let n = data.length; //Get number of markers in cluster
+          let strokeWidth = 1; //Set clusterpie stroke width
+          let r = Math.min(
+            this.rmax -
+              2 * strokeWidth -
+              (n < 10 ? 12 : n < 100 ? 8 : n < 1000 ? 4 : 0),
+            this.rmax
+          ); //Calculate clusterpie radius...
+          let iconDim = (r + strokeWidth) * 2; //...and divIcon dimensions (leaflet really want to know the size)
+
+          if (
+            this.iso3ToCapital[layer.feature.properties.ISO3CD] !== undefined
+          ) {
+            let captialCoordinates =
+              this.iso3ToCapital[layer.feature.properties.ISO3CD].geometry
+                .coordinates;
+            let newLayer = L.marker(
+              [captialCoordinates[1], captialCoordinates[0]],
+              {
+                data: data,
+                polyID: layer.feature.properties.ISO3CD,
+                icon: new L.DivIcon({
+                  html: this.bakeTheThreatPie({
+                    data: data,
+                    valueFunc: function (d) {
+                      return data.length;
+                    },
+                    strokeWidth: 2,
+                    outerRadius: r,
+                    innerRadius: r - 8,
+                    pieClass: "cluster-pie",
+                    pieLabel: n,
+                    pieLabelClass: "marker-cluster-pie-label",
+                    strokeColor: function (d) {
+                      /* return lastSpeciesSigns[d.data][treeThreatType].getColor(
+                        colorBlind
+                      ); */
+                    },
+                    color: function (d) {
+                      /* return lastSpeciesSigns[d.data][treeThreatType].getColor(
+                        colorBlind
+                      ); */
+                    }
+                    /* pathClassFunc: function (d) { return "category-path category-" + d.data.key.replaceSpecialCharacters(); },
+                                      pathTitleFunc: function (d) { return d.data.key + ' (' + d.data.values.length + ' accident' + (d.data.values.length != 1 ? 's' : '') + ')'; } */
+                  }),
+                  iconSize: new L.Point(iconDim, iconDim)
+                })
+              }
+            );
+            this.countryClusterLayer.addLayer(newLayer);
+          } else {
+            /* console.log(
+                "ISO Code not in iso3toCapital",
+                layer.feature.properties.ISO3CD
+              ); */
+          }
+        }
+      });
+
+      if (this.first && this.countryClusterLayer.getLayers().length > 0) {
+        this.mymap.fitBounds(this.countryClusterLayer.getBounds(), {
+          padding: [50, 50]
+        });
+        this.first = false;
+      }
+    }
+  }
+
   overlayadd(event) {
     let typ = event.group.name;
     let layerName = event.name;
     this.activeLayer = layerName;
+    console.log(layerName, typ);
 
     switch (layerName) {
       case "Hexagons":
@@ -1305,6 +1658,18 @@ class MapHelper {
           this.setMapSearchMode("eco");
           this.updateEcoRegions();
         }
+        break;
+      case "Orchestras Worldwide":
+        alert("remove");
+        /* if (this.hexagons && this.ecoRegions) { */
+        /* this.mymap.removeLayer(this.hexagons);
+          this.mymap.removeLayer(this.ecoRegions); */
+        this.mymap.removeLayer(this.countryClusterLayer);
+        /* this.control._update();
+          this.setMapSearchMode("countries");
+          this.updateDiversity(); */
+        /* this.updateOrchestras(); */
+        /* } */
         break;
       default:
         break;
@@ -1424,6 +1789,9 @@ class MapHelper {
         break;
       case "Terrestrial Ecoregions":
         this.updateThreatPiesEcoRegions();
+        break;
+      case "Orchestras Worldwide":
+        this.updateOrchestras();
         break;
       default:
         break;
