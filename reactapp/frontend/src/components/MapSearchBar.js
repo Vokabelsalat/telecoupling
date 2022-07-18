@@ -53,16 +53,22 @@ class MapSearchBar extends Component {
   }
 
   setValue(val) {
-    console.log("VAL", val);
     const filter = {};
-    filter[this.state.mode] = val
-      ? [
+    if (val) {
+      if (val.type === "biom") {
+        filter[this.state.mode] = [
           {
-            value: val.value,
+            value: val.title,
+            ecoArray: val.value,
             title: val.title
           }
-        ]
-      : null;
+        ];
+      } else {
+        filter[this.state.mode] = [{ value: val.value, title: val.title }];
+      }
+    } else {
+      filter[this.state.mode] = null;
+    }
     this.state.setFilter(filter);
   }
 
@@ -73,14 +79,27 @@ class MapSearchBar extends Component {
     let data = this.state.searchBarData[mode];
     let options = [];
 
-    console.log(data, mode, this.state.searchBarData, currentValue);
-
     if (data) {
       for (let entry of data) {
         if (entry.title.trim() !== "")
           options.push({ ...entry, key: entry.title });
       }
     }
+
+    let biomOptions = options
+      .filter((e) => e.type === "biom")
+      .sort((a, b) => a.title.localeCompare(b.title));
+
+    let restOfOptions = options
+      .filter((e) => e.type !== "biom")
+      .sort((a, b) => a.title.localeCompare(b.title));
+
+    options = [...biomOptions, ...restOfOptions];
+
+    /* options = options.sort((a, b) => {
+
+      return b.type === "biom" ? 1 : -1;
+    }); */
 
     return (
       <Autocomplete
@@ -93,8 +112,8 @@ class MapSearchBar extends Component {
 
           const { inputValue } = params;
           // Suggest the creation of a new value
-          const isExisting = options.some(
-            (option) => inputValue === option.title
+          const isExisting = options.some((option) =>
+            option.title.includes(inputValue)
           );
           /*  if (inputValue !== "" && !isExisting) {
             filtered.push({
@@ -115,8 +134,13 @@ class MapSearchBar extends Component {
         }}
         renderOption={(props, option) => (
           <li {...props}>
-            {/* {option.type === "genus" ? option.title + " (Genus)" : option.title} */}
-            {option.title}
+            {option.type === "biom" ? (
+              <span>
+                <b> {option.title}</b> (Biome)
+              </span>
+            ) : (
+              option.title
+            )}
           </li>
         )}
         sx={{ width: 300 }}

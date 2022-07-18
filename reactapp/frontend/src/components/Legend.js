@@ -2,27 +2,25 @@ import React, { Component } from "react";
 import * as d3 from "d3";
 
 import {
-  iucnColors,
   iucnAssessment,
   bgciAssessment,
   citesAssessment
 } from "../utils/timelineUtils";
-import { dangerColorMap } from "../utils/utils";
 
 import Switch from "@mui/material/Switch";
 
 class Legend extends Component {
   constructor(props) {
     super(props);
+
+    this.setFilter = props.setFilter;
+
+    this.state = {
+      categoryFilter: null
+    };
   }
 
   componentDidMount() {}
-
-  /*  componentWillReceiveProps(someProps) {
-         console.log("RECEIVE!", someProps); */
-
-  /*    this.setState({ ...this.state, someProp }) */
-  /*   } */
 
   onChange() {
     this.props.setTreeThreatType(!this.props.treeThreatType);
@@ -68,10 +66,25 @@ class Legend extends Component {
     }
   }
 
+  setCategoryFilter(type, cat) {
+    if (
+      this.state.categoryFilter &&
+      this.state.categoryFilter.type === type &&
+      this.state.categoryFilter.cat === cat
+    ) {
+      this.setFilter({ category: null });
+      this.setState({ categoryFilter: null });
+    } else {
+      this.setFilter({ category: { type, cat } });
+      this.setState({ categoryFilter: { type, cat } });
+    }
+  }
+
   render() {
     let setTreeThreatType = this.props.setTreeThreatType.bind(this);
     let treeThreatType = this.props.treeThreatType;
     let onChange = this.onChange.bind(this);
+    let categoryFilter = this.state.categoryFilter;
     return (
       <div style={{ display: "flex", justifyContent: "center" }}>
         <div
@@ -113,6 +126,13 @@ class Legend extends Component {
                 height: "15px",
                 lineHeight: "15px",
                 fontSize: "smaller",
+                border:
+                  categoryFilter &&
+                  categoryFilter.type === "cites" &&
+                  categoryFilter.cat === e
+                    ? "2px solid var(--highlightpurple)"
+                    : "none",
+                cursor: treeThreatType ? "pointer" : "default",
                 backgroundColor: citesAssessment
                   .get(e)
                   .getColor(this.props.colorBlind),
@@ -127,6 +147,11 @@ class Legend extends Component {
                   style={style}
                   data-info="CITES"
                   data-key={e}
+                  onClick={(event) => {
+                    if (treeThreatType) {
+                      this.setCategoryFilter("cites", e);
+                    }
+                  }}
                   onMouseEnter={(e) => this.tooltip(e, true)}
                   onMouseLeave={(e) => this.tooltip(e, false)}
                   onMouseMove={(e) => this.tooltipMove(e)}
@@ -219,6 +244,13 @@ class Legend extends Component {
                   height: "15px",
                   lineHeight: "15px",
                   fontSize: "smaller",
+                  cursor: treeThreatType ? "default" : "pointer",
+                  border:
+                    categoryFilter &&
+                    categoryFilter.type === "iucn" &&
+                    categoryFilter.cat === e
+                      ? "2px solid var(--highlightpurple)"
+                      : "none",
                   backgroundColor: iucnAssessment
                     .get(e)
                     .getColor(this.props.colorBlind),
@@ -233,6 +265,11 @@ class Legend extends Component {
                     style={style}
                     data-info="IUCN"
                     data-key={e}
+                    onClick={(event) => {
+                      if (!treeThreatType) {
+                        this.setCategoryFilter("iucn", e);
+                      }
+                    }}
                     onMouseEnter={(e) => this.tooltip(e, true)}
                     onMouseLeave={(e) => this.tooltip(e, false)}
                     onMouseMove={(e) => this.tooltipMove(e)}
@@ -271,6 +308,13 @@ class Legend extends Component {
                 height: "15px",
                 lineHeight: "15px",
                 fontSize: "smaller",
+                cursor: treeThreatType ? "default" : "pointer",
+                border:
+                  categoryFilter &&
+                  categoryFilter.type === "bgci" &&
+                  categoryFilter.cat === e
+                    ? "2px solid var(--highlightpurple)"
+                    : "none",
                 backgroundColor: bgciAssessment
                   .get(e)
                   .getColor(this.props.colorBlind),
@@ -285,6 +329,11 @@ class Legend extends Component {
                   style={style}
                   data-info="BGCI"
                   data-key={e}
+                  onClick={(event) => {
+                    if (!treeThreatType) {
+                      this.setCategoryFilter("bgci", e);
+                    }
+                  }}
                   onMouseEnter={(e) => this.tooltip(e, true)}
                   onMouseLeave={(e) => this.tooltip(e, false)}
                   onMouseMove={(e) => this.tooltipMove(e)}

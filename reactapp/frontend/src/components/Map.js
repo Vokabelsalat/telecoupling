@@ -195,6 +195,18 @@ class Map extends Component {
       this.MapHelper.setSelected("countries", null, true);
     }
 
+    if (this.props.selectedEcoRegion) {
+      this.MapHelper.setSelected(
+        "eco",
+        {
+          properties: { ...this.props.selectedEcoRegion }
+        },
+        true
+      );
+    } else {
+      this.MapHelper.setSelected("eco", null, true);
+    }
+
     this.MapHelper.setSpeciesCountries(speciesCountries);
     this.MapHelper.setEcoRegions(speciesEcoRegions);
     this.MapHelper.setSpeciesHexagons(speciesHexagons);
