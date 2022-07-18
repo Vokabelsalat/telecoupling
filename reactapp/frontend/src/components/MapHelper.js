@@ -13,7 +13,8 @@ import {
   serializeXmlNode,
   pushOrCreateWithoutDuplicates
 } from "../utils/utils";
-import { tooltipClasses } from "@mui/material";
+import { filter } from "d3";
+import { bgciAssessment, citesAssessment } from "../utils/timelineUtils";
 
 var colorsys = require("colorsys");
 
@@ -44,7 +45,10 @@ class MapHelper {
     setFilter,
     colorBlind,
     setMapSearchBarData,
-    lastSpeciesSigns
+    setMapSearchMode,
+    lastSpeciesSigns,
+    getPopulationTrend,
+    setEcoRegionStatistics
   ) {
     this.id = id;
     this.initWidth = initWidth;
@@ -53,11 +57,15 @@ class MapHelper {
     this.treeThreatType = treeThreatType;
     this.setFilter = setFilter;
     this.setMapSearchBarData = setMapSearchBarData;
+    this.setMapSearchMode = setMapSearchMode;
     this.lastSpeciesSigns = lastSpeciesSigns;
+    this.getPopulationTrend = getPopulationTrend;
+    this.setEcoRegionStatistics = setEcoRegionStatistics;
 
     this.speciesCountries = null;
     this.highlightCountriesLayer = null;
     this.first = true;
+    this.rescure = false;
 
     this.treeClusterCache = {};
     this.rmax = 25;
@@ -67,6 +75,375 @@ class MapHelper {
 
     this.activeLayer = "Countries";
 
+    this.noCountryForBGCI = [];
+    this.noCountryForOrchestra = [];
+
+    this.inhabitedEcoRegion = [];
+
+    this.orchestraCountries = [
+      "Albania",
+      "Algeria",
+      "Andorra",
+      "Argentina",
+      "Armenia",
+      "Australia",
+      "Austria",
+      "Azerbaijan",
+      "Bahamas",
+      "Bahrain",
+      "Barbados",
+      "Belarus",
+      "Belgium",
+      "Bolivia",
+      "Bosnia and Herzegovina",
+      "Brazil",
+      "Bulgaria",
+      "Canada",
+      "Chile",
+      "Switzerland",
+      "Italy",
+      "China",
+      "United States",
+      "Kazakhstan",
+      "Colombia",
+      "Democratic Republic of the Congo",
+      "Costa Rica",
+      "Croatia",
+      "Cuba",
+      "Cyprus",
+      "Kingdom of the Netherlands",
+      "Paraguay",
+      "Czech Republic",
+      "Thailand",
+      "Serbia",
+      "Germany",
+      "Denmark",
+      "Dominican Republic",
+      "Ecuador",
+      "Egypt",
+      "El Salvador",
+      "Estonia",
+      "France",
+      "Finland",
+      "Norway",
+      "Romania",
+      "Hungary",
+      "South Korea",
+      "Mexico",
+      "Moldova",
+      "Portugal",
+      "Ghana",
+      "Greece",
+      "Guatemala",
+      "Haiti",
+      "Qatar",
+      "United Kingdom",
+      "United Arab Emirates",
+      "Tajikistan",
+      "Japan",
+      "Iceland",
+      "India",
+      "Iran",
+      "Iraq",
+      "Ireland",
+      "Israel",
+      "Jordan",
+      "Vietnam",
+      "Montenegro",
+      "Hong Kong",
+      "Indonesia",
+      "Taiwan",
+      "Malaysia",
+      "Latvia",
+      "Lebanon",
+      "Lithuania",
+      "Kuwait",
+      "Ukraine",
+      "Spain",
+      "Malta",
+      "Luxembourg",
+      "Venezuela",
+      "Morocco",
+      "Myanmar",
+      "New Zealand",
+      "Monaco",
+      "Russia",
+      "Oman",
+      "Palestinian National Authority",
+      "Panama",
+      "Peru",
+      "Philippines",
+      "Poland",
+      "Puerto Rico",
+      "Trinidad and Tobago",
+      "North Korea",
+      "Slovakia",
+      "Slovenia",
+      "South Africa",
+      "Sri Lanka",
+      "Sweden",
+      "Syria",
+      "San Marino",
+      "Tunisia",
+      "Turkey",
+      "Singapore",
+      "Republic of North Macedonia",
+      "Georgia",
+      "Mongolia",
+      "Liechtenstein",
+      "Uruguay"
+    ];
+
+    this.isoCountries = {};
+
+    this.bgciCountries = [
+      "Afghanistan",
+      "Åland Islands",
+      "Albania",
+      "Algeria",
+      "American Samoa",
+      "Andorra",
+      "Angola",
+      "Anguilla",
+      "Antigua and Barbuda",
+      "Argentina",
+      "Armenia",
+      "Aruba",
+      "Australia",
+      "Austria",
+      "Azerbaijan",
+      "Bahamas",
+      "Bahrain",
+      "Bangladesh",
+      "Barbados",
+      "Belarus",
+      "Belgium",
+      "Belize",
+      "Benin",
+      "Bermuda",
+      "Bhutan",
+      "Bolivia, Plurinational State of",
+      "Bonaire, Sint Eustatius and Saba",
+      "Bosnia and Herzegovina",
+      "Botswana",
+      "Brazil",
+      "British Indian Ocean Territory",
+      "Brunei Darussalam",
+      "Bulgaria",
+      "Burkina Faso",
+      "Burundi",
+      "Cambodia",
+      "Cameroon",
+      "Canada",
+      "Cape Verde",
+      "Cayman Islands",
+      "Central African Republic",
+      "Chad",
+      "Chile",
+      "China",
+      "Christmas Island",
+      "Cocos (Keeling) Islands",
+      "Colombia",
+      "Comoros",
+      "Congo",
+      "Congo, The Democratic Republic of the",
+      "Cook Islands",
+      "Costa Rica",
+      "Côte d'Ivoire",
+      "Croatia",
+      "Cuba",
+      "Curaçao",
+      "Cyprus",
+      "Czechia",
+      "Denmark",
+      "Disputed Territory",
+      "Djibouti",
+      "Dominica",
+      "Dominican Republic",
+      "Ecuador",
+      "Egypt",
+      "El Salvador",
+      "Equatorial Guinea",
+      "Eritrea",
+      "Estonia",
+      "Eswatini",
+      "Ethiopia",
+      "Falkland Islands",
+      "Faroe Islands",
+      "Fiji",
+      "Finland",
+      "France",
+      "French Guiana",
+      "French Polynesia",
+      "Gabon",
+      "Gambia",
+      "Georgia",
+      "Germany",
+      "Ghana",
+      "Gibraltar",
+      "Greece",
+      "Greenland",
+      "Grenada",
+      "Guadeloupe",
+      "Guam",
+      "Guatemala",
+      "Guernsey",
+      "Guinea",
+      "Guinea-Bissau",
+      "Guyana",
+      "Haiti",
+      "Holy See",
+      "Honduras",
+      "Hong Kong SAR, China",
+      "Hungary",
+      "Iceland",
+      "India",
+      "Indonesia",
+      "Iran, Islamic Republic of",
+      "Iraq",
+      "Ireland",
+      "Isle of Man",
+      "Israel",
+      "Italy",
+      "Jamaica",
+      "Japan",
+      "Jersey",
+      "Jordan",
+      "Kazakhstan",
+      "Kenya",
+      "Kiribati",
+      "Korea, Democratic People's Republic of",
+      "Korea, Republic of",
+      "Kuwait",
+      "Kyrgyzstan",
+      "Lao People's Democratic Republic",
+      "Latvia",
+      "Lebanon",
+      "Lesotho",
+      "Liberia",
+      "Libya",
+      "Liechtenstein",
+      "Lithuania",
+      "Luxembourg",
+      "Macao",
+      "Madagascar",
+      "Malawi",
+      "Malaysia",
+      "Maldives",
+      "Mali",
+      "Malta",
+      "Marshall Islands",
+      "Martinique",
+      "Mauritania",
+      "Mauritius",
+      "Mayotte",
+      "Mexico",
+      "Micronesia, Federated States of",
+      "Moldova",
+      "Monaco",
+      "Mongolia",
+      "Montenegro",
+      "Montserrat",
+      "Morocco",
+      "Mozambique",
+      "Myanmar",
+      "Namibia",
+      "Nauru",
+      "Nepal",
+      "Netherlands",
+      "New Caledonia",
+      "New Zealand",
+      "Nicaragua",
+      "Niger",
+      "Nigeria",
+      "Niue",
+      "Norfolk Island",
+      "North Macedonia",
+      "Northern Mariana Islands",
+      "Norway",
+      "Oman",
+      "Pakistan",
+      "Palau",
+      "Palestine, State of",
+      "Panama",
+      "Papua New Guinea",
+      "Paraguay",
+      "Peru",
+      "Philippines",
+      "Pitcairn",
+      "Poland",
+      "Portugal",
+      "Puerto Rico",
+      "Qatar",
+      "Réunion",
+      "Romania",
+      "Russian Federation",
+      "Rwanda",
+      "Saint Barthélemy",
+      "Saint Helena, Ascension and Tristan da Cunha",
+      "Saint Kitts and Nevis",
+      "Saint Lucia",
+      "Saint Martin",
+      "Saint Pierre and Miquelon",
+      "Saint Vincent and the Grenadines",
+      "Samoa",
+      "San Marino",
+      "Sao Tomé and Principe",
+      "Saudi Arabia",
+      "Senegal",
+      "Serbia",
+      "Seychelles",
+      "Sierra Leone",
+      "Singapore",
+      "Sint Maarten",
+      "Slovakia",
+      "Slovenia",
+      "Solomon Islands",
+      "Somalia",
+      "South Africa",
+      "South Sudan",
+      "Spain",
+      "Sri Lanka",
+      "Sudan",
+      "Suriname",
+      "Svalbard and Jan Mayen",
+      "Sweden",
+      "Switzerland",
+      "Syrian Arab Republic",
+      "Taiwan, Province of China",
+      "Tajikistan",
+      "Tanzania, United Republic of",
+      "Thailand",
+      "Timor-Leste",
+      "Togo",
+      "Tokelau",
+      "Tonga",
+      "Trinidad and Tobago",
+      "Tunisia",
+      "Turkey",
+      "Turkmenistan",
+      "Turks and Caicos Islands",
+      "Tuvalu",
+      "Uganda",
+      "Ukraine",
+      "United Arab Emirates",
+      "United Kingdom",
+      "United States",
+      "United States Minor Outlying Islands",
+      "Uruguay",
+      "Uzbekistan",
+      "Vanuatu",
+      "Venezuela, Bolivarian Republic of",
+      "Viet Nam",
+      "Virgin Islands, British",
+      "Virgin Islands, U.S.",
+      "Wallis and Futuna",
+      "Western Sahara",
+      "Yemen",
+      "Zambia",
+      "Zimbabwe"
+    ];
+
     this.init();
   }
 
@@ -74,7 +451,9 @@ class MapHelper {
     d3.select("#" + this.id).style("width", this.initWidth + "px");
 
     let resolutions = [
-      65536, 32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128
+      32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2,
+      1, 0.5
+      /* 65536, 32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128 */
     ];
 
     var crs = new L.Proj.CRS(
@@ -82,16 +461,16 @@ class MapHelper {
       "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs",
       {
         resolutions,
-        origin: [0, 0]
+        origin: [100, 0]
       }
     );
 
     this.mymap = L.map(this.id, {
       worldCopyJump: false,
       minZoom: 0,
-      maxZoom: 20,
+      maxZoom: resolutions.length,
       crs: crs
-    }).setView([0, 0], 2);
+    }).setView([0, 0], 0);
 
     this.mymap.on("overlayadd", this.overlayadd.bind(this));
 
@@ -111,10 +490,7 @@ class MapHelper {
       )
       .addTo(this.mymap);
 
-    this.setUpCountries();
-    this.setUpEcoRegions();
-    this.setUpHexagons();
-    this.setUpCapitals();
+    this.setUpEverything();
   }
 
   resetSelected(type) {
@@ -143,11 +519,54 @@ class MapHelper {
           this.diversityCountries.eachLayer((layer) => {
             if (
               feature &&
-              ((feature.properties.bgciName !== undefined &&
-                feature.properties.bgciName ===
-                  layer.feature.properties.bgciName) ||
-                feature.properties.ROMNAM === layer.feature.properties.ROMNAM ||
-                feature.properties.MAPLAB === layer.feature.properties.MAPLAB)
+              feature.properties.title === layer.feature.properties.ROMNAM
+            ) {
+              layer.feature.selected = true;
+              layer.setStyle({
+                weight: 2,
+                color: "var(--highlightpurple)"
+              });
+              layer.bringToFront();
+            } else {
+              layer.feature.selected = false;
+              layer.setStyle({
+                weight: 1,
+                color: "rgb(244,244,244)"
+              });
+            }
+          });
+        }
+        if (!external) {
+          this.setFilter({
+            country: [
+              {
+                bgciName: feature.properties.bgciName,
+                MAPLAB: feature.properties.MAPLAB,
+                ROMNAM: feature.properties.ROMNAM
+              }
+            ].filter((e) => e !== undefined)
+          });
+        }
+        break;
+      case "eco":
+        if (this.ecoRegions) {
+          let filterRegions = [];
+
+          if (feature) {
+            if (feature.properties.ecoArray !== undefined) {
+              filterRegions = feature.properties.ecoArray
+                .flat()
+                .map((e) => parseInt(e))
+                .filter((e) => this.inhabitedEcoRegion.includes(parseInt(e)));
+            } else {
+              filterRegions = [feature.properties.value];
+            }
+          }
+
+          this.ecoRegions.eachLayer((layer) => {
+            if (
+              feature &&
+              filterRegions.includes(parseInt(layer.feature.properties.ECO_ID))
             ) {
               layer.feature.selected = true;
               layer.setStyle({
@@ -181,6 +600,49 @@ class MapHelper {
     }
   }
 
+  setUpEverything() {
+    fetch("/countryDictionary.json")
+      .then((res) => res.json())
+      .then((data) => {
+        this.countryDictionary = data;
+
+        this.bgciToISO3 = {};
+        this.iso2ToISO3 = {};
+        this.orchestraToISO3 = {};
+        for (let country of Object.values(data)) {
+          if (country.BGCI) {
+            this.bgciToISO3[country.BGCI] = country.ISO3;
+          }
+          if (country.ISO2) {
+            this.iso2ToISO3[country.ISO2] = country.ISO3;
+          }
+          if (country.orchestraCountry) {
+            this.orchestraToISO3[country.orchestraCountry] = country.ISO3;
+          }
+        }
+
+        this.iso3ToPopulation = {};
+        fetch("/population.json")
+          .then((res) => res.json())
+          .then((data) => {
+            for (let iso2 of Object.keys(data)) {
+              let country = data[iso2];
+
+              if (this.iso2ToISO3.hasOwnProperty(iso2)) {
+                let iso3 = this.iso2ToISO3[iso2];
+                this.iso3ToPopulation[iso3] = country.pop2022 * 1000;
+              }
+            }
+          });
+
+        this.setUpCountries();
+        this.setUpEcoRegions();
+        this.setUpHexagons();
+        this.setUpCapitals();
+        this.setUpOrchestras();
+      });
+  }
+
   setUpEcoRegions() {
     let tooltip = this.tooltip.bind(this);
     let tooltipMove = this.tooltipMove.bind(this);
@@ -200,6 +662,12 @@ class MapHelper {
           if (parseInt(feature.properties.BIOME) !== 98) return true;
         }
 
+        let mapSearchBarData = [];
+        let mapSearchBarDataKeys = [];
+
+        this.ecoToBiom = {};
+        this.biomToEco = {};
+
         let ecos = L.geoJson(data, {
           style: {
             opacity: 0.1,
@@ -213,12 +681,32 @@ class MapHelper {
               let biom = parseInt(feature.properties.BIOME) - 1;
               let popupText = feature.properties.ECO_NAME;
 
-              if (biom < 14) {
-                popupText += "<br>Biome: " + biomes[biom];
-              }
-              /* layer.bindPopup(popupText); */
+              this.ecoToBiom[feature.properties.ECO_ID.toString()] =
+                feature.properties.BIOME_NAME;
 
-              feature.options = { popupText: popupText, type: "ecoregion" };
+              pushOrCreateWithoutDuplicates(
+                this.biomToEco,
+                feature.properties.BIOME_NAME,
+                feature.properties.ECO_ID.toString()
+              );
+
+              if (!mapSearchBarDataKeys.includes(feature.properties.ECO_ID)) {
+                mapSearchBarData.push({
+                  type: "eco",
+                  ECO_NAME: feature.properties.ECO_NAME,
+                  title: feature.properties.ECO_NAME,
+                  ECO_ID: feature.properties.ECO_ID,
+                  value: feature.properties.ECO_ID
+                });
+                mapSearchBarDataKeys.push(feature.properties.ECO_ID);
+              }
+
+              feature.options = {
+                popupText: popupText,
+                type: "ecoregion"
+              };
+
+              layer.options.polyID = feature.properties.ECO_ID;
 
               let color = "rgba(255,255,255,0.0)";
 
@@ -238,21 +726,31 @@ class MapHelper {
         })
           .on("mouseover", function (d) {
             tooltip(d, true);
-            //boundHighlight(d.layer, true);
-            d.layer.setStyle(highlightStyle(d.layer, true));
-            d.layer.bringToFront();
+            boundHighlight(d.layer, true);
+            /* d.layer.setStyle(highlightStyle(d.layer, true));
+            d.layer.bringToFront(); */
           })
           .on("mouseout", function (d) {
             tooltip(d, false);
-            //boundHighlight(d.layer, false);
-            d.layer.setStyle(highlightStyle(d.layer, false));
+            boundHighlight(d.layer, false);
+            /* d.layer.setStyle(highlightStyle(d.layer, false)); */
           })
           .on("mousemove", function (d) {
             tooltipMove(d);
-            //boundHighlight(d.layer, true);
-            d.layer.setStyle(highlightStyle(d.layer, true));
-            d.layer.bringToFront();
+            boundHighlight(d.layer, true);
+            /* d.layer.setStyle(highlightStyle(d.layer, true));
+            d.layer.bringToFront(); */
           });
+
+        for (let biom of Object.keys(this.biomToEco)) {
+          mapSearchBarData.push({
+            type: "biom",
+            title: biom,
+            value: [this.biomToEco[biom]]
+          });
+        }
+
+        this.setMapSearchBarData("eco", mapSearchBarData);
 
         this.ecoRegions = ecos;
 
@@ -260,6 +758,13 @@ class MapHelper {
           this.ecoRegions,
           "Terrestrial Ecoregions",
           "Diversity"
+        );
+
+        this.rescureEcoRegions = L.layerGroup();
+        this.control.addOverlay(
+          this.rescureEcoRegions,
+          "Rescure Ecoregions",
+          "Extra"
         );
 
         //this.updateEcoRegions();
@@ -296,7 +801,12 @@ class MapHelper {
         }
 
         if (layer.feature.options.hasOwnProperty("species")) {
-          text += "<br>" + layer.feature.options.species.length + " Species";
+          text +=
+            "<br>" +
+            layer.feature.options.species.length +
+            (this.activeLayer === "Orchestras Worldwide"
+              ? " Orchestras"
+              : " Species");
 
           if (layer.feature.options.species.length < 8) {
             text += ": <br><i>";
@@ -358,7 +868,7 @@ class MapHelper {
     let setSelected = this.setSelected.bind(this);
     let resetSelected = this.resetSelected.bind(this);
 
-    fetch("/UN_Worldmap_FeaturesToJSON10percentCorrected2.json")
+    fetch("/UN_Worldmap-2.json")
       .then((res) => res.json())
       .then((data) => {
         let mapSearchBarData = [];
@@ -384,9 +894,17 @@ class MapHelper {
               feature.options = { type: "country" };
               layer.options.polyID = feature.properties.ISO3CD;
 
+              this.isoCountries[feature.properties.ISO3CD] = {
+                ROMNAM: feature.properties.ROMNAM,
+                MAPLAB: feature.properties.MAPLAB,
+                ISO3: feature.properties.ISO3CD
+              };
+
               if (!mapSearchBarDataKeys.includes(feature.properties.ISO3CD)) {
                 mapSearchBarData.push({
                   type: "country",
+                  title: feature.properties.ROMNAM,
+                  value: feature.properties.ROMNAM,
                   ROMNAM: feature.properties.ROMNAM,
                   MAPLAB: feature.properties.MAPLAB,
                   bgciName: feature.properties.bgciName,
@@ -417,7 +935,7 @@ class MapHelper {
             }
           });
 
-        this.setMapSearchBarData(mapSearchBarData);
+        this.setMapSearchBarData("country", mapSearchBarData);
 
         this.highlightCountriesLayer = L.geoJson(data, {
           style: {
@@ -444,6 +962,11 @@ class MapHelper {
             feature.properties.bgciName,
             feature.id
           );
+          pushOrCreate(
+            this.countriesToID,
+            feature.properties.ISO3CD,
+            feature.id
+          );
         }
 
         this.highlightCountriesLayer.addTo(this.mymap);
@@ -455,6 +978,103 @@ class MapHelper {
         );
         this.diversityCountries.addTo(this.mymap);
         this.updateDiversity();
+      });
+  }
+
+  setUpIsoCountries() {
+    fetch("/isoCountries.json")
+      .then((res) => res.json())
+      .then((data) => {
+        for (let country of data) {
+          if (this.isoCountries.hasOwnProperty(country.ISO3)) {
+            this.isoCountries[country.ISO3].ISO2 = country.ISO2;
+            this.isoCountries[country.ISO3].Numeric = country.Numeric;
+            this.isoCountries[country.ISO3].isoName = country.Country;
+
+            let countryObject = this.isoCountries[country.ISO3];
+            for (let bgciName of this.bgciCountries) {
+              if (bgciName === countryObject.ROMNAM) {
+                this.isoCountries[country.ISO3].BGCI = bgciName;
+              } else if (bgciName === countryObject.MAPLAB) {
+                this.isoCountries[country.ISO3].BGCI = bgciName;
+              } else if (bgciName === countryObject.isoName) {
+                this.isoCountries[country.ISO3].BGCI = bgciName;
+              }
+            }
+
+            if (this.isoCountries[country.ISO3].BGCI === undefined) {
+              this.isoCountries[country.ISO3].BGCI = "replaceME";
+            }
+
+            for (let orchestraCountry of this.orchestraCountries) {
+              if (orchestraCountry === countryObject.ROMNAM) {
+                this.isoCountries[country.ISO3].orchestraCountry =
+                  orchestraCountry;
+              } else if (orchestraCountry === countryObject.MAPLAB) {
+                this.isoCountries[country.ISO3].orchestraCountry =
+                  orchestraCountry;
+              } else if (orchestraCountry === countryObject.isoName) {
+                this.isoCountries[country.ISO3].orchestraCountry =
+                  orchestraCountry;
+              }
+            }
+
+            if (
+              this.isoCountries[country.ISO3].orchestraCountry === undefined
+            ) {
+              this.isoCountries[country.ISO3].orchestraCountry = "replaceME";
+            }
+          }
+        }
+
+        for (let bgciName of this.bgciCountries) {
+          let hit = false;
+          for (let isoCountry of Object.values(this.isoCountries)) {
+            if (bgciName === isoCountry.ROMNAM) {
+              hit = true;
+            } else if (bgciName === isoCountry.MAPLAB) {
+              hit = true;
+            } else if (bgciName === isoCountry.isoName) {
+              hit = true;
+            }
+          }
+          if (hit === false) {
+            this.noCountryForBGCI.push(bgciName);
+          }
+        }
+
+        for (let orchestraCountry of this.orchestraCountries) {
+          let hit = false;
+          for (let isoCountry of Object.values(this.isoCountries)) {
+            if (orchestraCountry === isoCountry.ROMNAM) {
+              hit = true;
+            } else if (orchestraCountry === isoCountry.MAPLAB) {
+              hit = true;
+            } else if (orchestraCountry === isoCountry.isoName) {
+              hit = true;
+            }
+          }
+          if (hit === false) {
+            this.noCountryForOrchestra.push(orchestraCountry);
+          }
+        }
+
+        fetch("/POPP_capitals_FeaturesToJSON.json")
+          .then((res) => res.json())
+          .then((data) => {
+            for (let key of Object.keys(this.isoCountries)) {
+              let country = this.isoCountries[key];
+              for (let cap of data.features) {
+                if (cap.properties.ISO3CD === country.ISO3) {
+                  this.isoCountries[key].capital = cap.properties.ROMNAM;
+                }
+              }
+
+              if (this.isoCountries[key].capital === undefined) {
+                this.isoCountries[key].capital = "replaceME";
+              }
+            }
+          });
       });
   }
 
@@ -488,6 +1108,8 @@ class MapHelper {
             boundHighlight(d.layer, true);
           })
           .on("clustermouseout", function (d) {
+            /* d.target.setStyle(highlightStyle(d.layer, true)); */
+            /* d.layer.bringToFront(); */
             boundHighlight(d.layer, false);
           });
 
@@ -495,74 +1117,93 @@ class MapHelper {
       });
   }
 
-  defineClusterIconThreat(cluster) {
-    var children = cluster.getAllChildMarkers();
-    let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
-    let lastSpeciesSigns = this.lastSpeciesSigns;
+  setUpOrchestras() {
+    fetch("/Orchestras_worldwide.json")
+      .then((res) => res.json())
+      .then((data) => {
+        this.orchstras = {};
+        let orchestraCountries = {};
+        let markers = [];
+        for (let feat of data.features) {
+          this.orchstras[feat.properties.FID] = feat;
 
-    let data = [...new Set(children.map((e) => e.options.data).flat())].map(
-      (e) => lastSpeciesSigns[e][treeThreatType]
-    );
-    let n = data.length; //Get number of markers in cluster
-    data = d3
-      .nest()
-      .key(function (d) {
-        return d.abbreviation;
-      })
-      .entries(data, d3.map);
-    let strokeWidth = 1; //Set clusterpie stroke width
-    let r = Math.min(
-      this.rmax -
-        2 * strokeWidth -
-        (n < 10 ? 12 : n < 100 ? 8 : n < 1000 ? 4 : 0),
-      this.rmax
-    );
-    let iconDim = (r + strokeWidth) * 2; //...and divIcon dimensions (leaflet really want to know the size)
+          orchestraCountries[feat.properties.Country] = 1;
 
-    let colorBlind = this.colorBlind;
-    let cacheKey =
-      data.reduce((prev, curr) => prev + (curr.key + curr.values.length), "") +
-      colorBlind;
+          let coords = feat.geometry.coordinates;
+          //let marker = L.marker([coords[1], coords[0]]);
+          //this.iso3ToCapital[layer.feature.properties.ISO3CD].geometry.coordinates;
 
-    let html;
-    if (Object.keys(this.treeClusterCache).includes(cacheKey)) {
-      html = this.treeClusterCache[cacheKey];
-    } else {
-      //bake some svg markup
-      html = this.bakeTheThreatPie({
-        data: data,
-        valueFunc: function (d) {
-          return d.values.length;
-        },
-        outerRadius: r,
-        innerRadius: r - 8,
-        pieClass: "cluster-pie",
-        pieLabelClass: "marker-cluster-pie-label",
-        strokeColor: function (d) {
-          return d.data.values[0].getColor(colorBlind);
-        },
-        color: function (d) {
-          return d.data.values[0].getColor(colorBlind);
+          let radius = Math.min(this.rmax - 2 * 2 - 12, this.rmax);
+
+          let marker = L.marker([coords[1], coords[0]], {
+            properties: feat.properties,
+            data: [{ typ: "orchstra" }],
+            icon: new L.DivIcon({
+              html: this.bakeTheOrchestraPie({
+                data: [{ typ: "orchstra" }],
+                valueFunc: function (d) {
+                  return [d].length;
+                },
+                strokeWidth: 2,
+                outerRadius: radius,
+                innerRadius: radius - 8,
+                pieClass: "cluster-pie",
+                pieLabel: 1,
+                pieLabelClass: "marker-cluster-pie-label",
+                strokeColor: function (d) {
+                  return "rgb(185,126,193)";
+                },
+                color: function (d) {
+                  return "rgb(185,126,193)";
+                }
+              }),
+              iconSize: new L.Point(radius, radius)
+            })
+          });
+          markers.push(marker);
         }
+
+        this.orchestraClusterLayer = L.markerClusterGroup({
+          iconCreateFunction: this.defineClusterIconOrchestra.bind(this),
+          tree: "Orchestras",
+          type: "Orchestras",
+          chunkedLoading: true,
+          removeOutsideVisibleBounds: true,
+          maxClusterRadius: this.rmax * 2.5,
+          showCoverageOnHover: false
+        });
+
+        this.orchestraClusterLayer.addLayers(markers);
+
+        /* .on("mouseover", function (d) {
+            boundHighlight(d.layer, true);
+          })
+          .on("mouseout", function (d) {
+            boundHighlight(d.layer, false);
+          })
+          .on("clustermouseover", function (d) {
+            boundHighlight(d.layer, true);
+          })
+          .on("clustermouseout", function (d) {
+            boundHighlight(d.layer, false);
+          }); */
+
+        /* this.orchestraClusterLayer.addTo(this.mymap); */
+
+        //orchestraLayer
+
+        this.orchestraLayer = L.layerGroup();
+        this.orchestraLayer.addTo(this.mymap);
+
+        this.control.addOverlay(
+          this.orchestraClusterLayer,
+          "Orchestras Worldwide",
+          "Extra"
+        );
       });
-
-      this.treeClusterCache[cacheKey] = html;
-    }
-    //Create a new divIcon and assign the svg markup to the html property
-    let myIcon = new L.DivIcon({
-      html: html,
-      className: "marker-cluster",
-      iconSize: new L.Point(iconDim, iconDim),
-      childrenIsoS: children.map((e) => e.options.iso3)
-    });
-
-    return myIcon;
   }
 
-  bakeTheThreatPie(options) {
-    let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
-    let lastSpeciesSigns = this.lastSpeciesSigns;
-
+  bakeTheOrchestraPie(options) {
     if (!options.data || !options.valueFunc) {
       return "";
     }
@@ -608,16 +1249,7 @@ class MapHelper {
       .attr("height", h + 2)
       .style("position", "absolute");
 
-    let donutData = donut.value(valueFunc).sort((a, b) => {
-      if (b.hasOwnProperty("values") && a.hasOwnProperty("values")) {
-        return b.values[0].numvalue - a.values[0].numvalue;
-      } else {
-        return (
-          lastSpeciesSigns[b][treeThreatType].numvalue -
-          lastSpeciesSigns[a][treeThreatType].numvalue
-        );
-      }
-    });
+    let donutData = donut.value(valueFunc);
 
     var arcs = vis
       .selectAll("g.arc")
@@ -655,9 +1287,9 @@ class MapHelper {
       .append("circle")
       .attr("cx", origo)
       .attr("cy", origo)
-      .attr("r", rInner - 1)
-      .attr("fill", "white")
-      .style("fill-opacity", "50%");
+      .attr("r", rInner)
+      .attr("fill", "white");
+    /* .style("fill-opacity", "50%"); */
 
     vis2
       .append("text")
@@ -675,6 +1307,263 @@ class MapHelper {
     return serializeXmlNode(div);
   }
 
+  defineClusterIconThreat(cluster) {
+    var children = cluster.getAllChildMarkers();
+    let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
+    let lastSpeciesSigns = this.lastSpeciesSigns;
+
+    /* let data = [...new Set(children.map((e) => e.options.data).flat())].map(
+      (e) => lastSpeciesSigns[e][treeThreatType]
+    ); */
+    let data = children.map((e) => e.options.data).flat();
+
+    let n = data.length; //Get number of markers in cluster
+    let nestedData = d3
+      .nest()
+      .key(function (d) {
+        return d.abbreviation;
+      })
+      .entries(data, d3.map);
+
+    let strokeWidth = 1; //Set clusterpie stroke width
+    let r = Math.min(
+      this.rmax -
+        2 * strokeWidth -
+        (n < 10 ? 12 : n < 100 ? 8 : n < 1000 ? 4 : 0),
+      this.rmax
+    );
+    let iconDim = (r + strokeWidth) * 2; //...and divIcon dimensions (leaflet really want to know the size)
+
+    let colorBlind = this.colorBlind;
+    let cacheKey =
+      nestedData.reduce(
+        (prev, curr) => prev + (curr.key + curr.values.length),
+        ""
+      ) + colorBlind;
+
+    let html;
+    if (Object.keys(this.treeClusterCache).includes(cacheKey)) {
+      html = this.treeClusterCache[cacheKey];
+    } else {
+      //bake some svg markup
+      html = this.bakeTheThreatPie({
+        data: nestedData,
+        valueFunc: function (d) {
+          return d.values.length;
+        },
+        outerRadius: r,
+        innerRadius: r - 8,
+        pieClass: "cluster-pie",
+        pieLabelClass: "marker-cluster-pie-label",
+        strokeColor: function (d) {
+          return d.data.values[0].getColor(colorBlind);
+        },
+        color: function (d) {
+          return d.data.values[0].getColor(colorBlind);
+        }
+      });
+
+      this.treeClusterCache[cacheKey] = html;
+    }
+    //Create a new divIcon and assign the svg markup to the html property
+    let myIcon = new L.DivIcon({
+      html: html,
+      className: "marker-cluster",
+      iconSize: new L.Point(iconDim, iconDim),
+      childrenIsoS: children.map((e) => e.options.iso3)
+    });
+
+    return myIcon;
+  }
+
+  bakeTheThreatPie(options) {
+    let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
+
+    if (!options.data || !options.valueFunc) {
+      return "";
+    }
+
+    var data = options.data,
+      valueFunc = options.valueFunc,
+      r = options.outerRadius, //Default outer radius = 28px
+      rInner = options.innerRadius ? options.innerRadius : r - 10, //Default inner radius = r-10
+      strokeWidth = options.strokeWidth ? options.strokeWidth : 1, //Default stroke is 1
+      pathClassFunc = options.pathClassFunc
+        ? options.pathClassFunc
+        : function () {
+            return "";
+          }, //Class for each path
+      pathTitleFunc = options.pathTitleFunc
+        ? options.pathTitleFunc
+        : function () {
+            return "";
+          }, //Title for each path
+      pieClass = options.pieClass ? options.pieClass : "marker-cluster-pie", //Class for the whole pie
+      pieLabel = options.pieLabel ? options.pieLabel : d3.sum(data, valueFunc), //Label for the whole pie
+      pieLabelClass = options.pieLabelClass
+        ? options.pieLabelClass
+        : "marker-cluster-pie-label", //Class for the pie label
+      color = options.color,
+      origo = r + strokeWidth + 1, //Center coordinate
+      w = origo * 2, //width and height of the svg element
+      h = w,
+      donut = d3.pie(),
+      arc = d3.arc().innerRadius(rInner).outerRadius(r);
+
+    let div = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+    d3.select(div).attr("class", "cluster-pie-wrapper");
+
+    //Create an svg element
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    //Create the pie chart
+
+    var vis = d3
+      .select(svg)
+      .data([data])
+      .attr("class", pieClass)
+      .attr("width", w + 2)
+      .attr("height", h + 2)
+      .style("position", "absolute");
+
+    let donutData = donut.value(valueFunc).sort((a, b) => {
+      if (b.hasOwnProperty("values") && a.hasOwnProperty("values")) {
+        return b.values[0].sort - a.values[0].sort;
+      } else {
+        return b.sort - a.sort;
+      }
+    });
+
+    vis
+      .append("circle")
+      .attr("cx", origo)
+      .attr("cy", origo)
+      .attr("r", r + 1)
+      .attr("stroke", "white")
+      .attr("stroke-width", 2)
+      .attr("fill", "none");
+
+    var arcs = vis
+      .selectAll("g.arc")
+      .data(donutData)
+      .enter()
+      .append("svg:g")
+      //.attr('class', 'arc')
+      .attr("class", function (d) {
+        return "arc";
+      })
+      .attr("transform", "translate(" + origo + "," + origo + ")");
+
+    arcs
+      .append("svg:path")
+      .attr("class", pathClassFunc)
+      .attr("stroke-width", strokeWidth)
+      .attr("fill", color)
+      .attr("stroke", color)
+      .attr("background", color)
+      .attr("border-color", color)
+      .attr("d", arc)
+      .append("svg:title")
+      .text(pathTitleFunc);
+
+    var svg2 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    //Create the pie chart
+    var vis2 = d3
+      .select(svg2)
+      .attr("class", pieClass + " text")
+      .attr("width", w + 2)
+      .attr("height", h + 2)
+      .style("position", "absolute");
+
+    vis2
+      .append("circle")
+      .attr("cx", origo)
+      .attr("cy", origo)
+      .attr("r", rInner)
+      .attr("fill", "white");
+    /* .style("fill-opacity", "50%"); */
+
+    vis2
+      .append("text")
+      .attr("x", origo)
+      .attr("y", origo)
+      .attr("class", pieLabelClass + "text")
+      .attr("text-anchor", "middle")
+      .attr("dy", ".3em")
+      .text(pieLabel);
+
+    div.appendChild(svg);
+    div.appendChild(svg2);
+
+    //Return the svg-markup rather than the actual element
+    return serializeXmlNode(div);
+  }
+
+  defineClusterIconOrchestra(cluster) {
+    var children = cluster.getAllChildMarkers();
+
+    let data = children.map((e) => {
+      return { typ: "orchestra" };
+    });
+
+    let n = data.length; //Get number of markers in cluster
+    data = d3
+      .nest()
+      .key(function (d) {
+        return d.typ;
+      })
+      .entries(data, d3.map);
+
+    let strokeWidth = 1; //Set clusterpie stroke width
+    let r = Math.min(
+      this.rmax -
+        2 * strokeWidth -
+        (n < 10 ? 12 : n < 100 ? 8 : n < 1000 ? 4 : 0),
+      this.rmax
+    );
+    let iconDim = (r + strokeWidth) * 2; //...and divIcon dimensions (leaflet really want to know the size)
+
+    let colorBlind = this.colorBlind;
+    let cacheKey =
+      data.reduce((prev, curr) => prev + (curr.key + curr.values.length), "") +
+      colorBlind;
+
+    let html;
+    if (Object.keys(this.treeClusterCache).includes(cacheKey)) {
+      html = this.treeClusterCache[cacheKey];
+    } else {
+      //bake some svg markup
+      html = this.bakeTheThreatPie({
+        data: data,
+        valueFunc: function (d) {
+          return d.values.length;
+        },
+        outerRadius: r,
+        innerRadius: r - 8,
+        pieClass: "cluster-pie",
+        pieLabelClass: "marker-cluster-pie-label",
+        strokeColor: function (d) {
+          /* return d.data.values[0].getColor(colorBlind); */
+          return "rgb(185,126,193)";
+        },
+        color: function (d) {
+          /* return d.data.values[0].getColor(colorBlind); */
+          return "rgb(185,126,193)";
+        }
+      });
+
+      this.treeClusterCache[cacheKey] = html;
+    }
+    //Create a new divIcon and assign the svg markup to the html property
+    let myIcon = new L.DivIcon({
+      html: html,
+      className: "marker-cluster",
+      iconSize: new L.Point(iconDim, iconDim),
+      childrenIsoS: children.map((e) => e.options.iso3)
+    });
+
+    return myIcon;
+  }
+
   setUpHexagons() {
     fetch("/hexagon_2_Project.json")
       .then((res) => res.json())
@@ -687,11 +1576,17 @@ class MapHelper {
       });
   }
 
-  getScaledIndex(value, scale) {
+  getScaledIndex(value, scale, reverse = false) {
     let index = 0;
     for (let e of scale) {
-      if (value <= e.scaleValue) {
-        return index;
+      if (reverse) {
+        if (value > e.scaleValue) {
+          return index;
+        }
+      } else {
+        if (value <= e.scaleValue) {
+          return index;
+        }
       }
       index++;
     }
@@ -801,6 +1696,7 @@ class MapHelper {
   updateThreatPiesCountries(first = false) {
     let treeThreatType = this.treeThreatType ? "economically" : "ecologically";
     let lastSpeciesSigns = this.lastSpeciesSigns;
+    let getTreeThreatLevel = this.getTreeThreatLevel.bind(this);
     if (this.countryClusterLayer) this.countryClusterLayer.clearLayers();
 
     let heatMapData = {};
@@ -830,9 +1726,14 @@ class MapHelper {
         //calculate the clusterthreatpie
         if (heatMapData.hasOwnProperty(layer.feature.id.toString())) {
           let data = heatMapData[layer.feature.id.toString()];
-          /* let data = [...new Set(heatMapData[layer.feature.id.toString])].map((e) =>
-            this.getTreeThreatLevel(e, treeThreatType)
-          ); */
+
+          data = [...new Set(data)].map((e) => {
+            if (lastSpeciesSigns.hasOwnProperty(e)) {
+              return lastSpeciesSigns[e][treeThreatType];
+            } else {
+              return citesAssessment.get("DD");
+            }
+          });
           let n = data.length; //Get number of markers in cluster
           let strokeWidth = 1; //Set clusterpie stroke width
           let r = Math.min(
@@ -867,14 +1768,10 @@ class MapHelper {
                     pieLabel: n,
                     pieLabelClass: "marker-cluster-pie-label",
                     strokeColor: function (d) {
-                      return lastSpeciesSigns[d.data][treeThreatType].getColor(
-                        colorBlind
-                      );
+                      return d.data.getColor(colorBlind);
                     },
                     color: function (d) {
-                      return lastSpeciesSigns[d.data][treeThreatType].getColor(
-                        colorBlind
-                      );
+                      return d.data.getColor(colorBlind);
                     }
                     /* pathClassFunc: function (d) { return "category-path category-" + d.data.key.replaceSpecialCharacters(); },
                                     pathTitleFunc: function (d) { return d.data.key + ' (' + d.data.values.length + ' accident' + (d.data.values.length != 1 ? 's' : '') + ')'; } */
@@ -914,6 +1811,10 @@ class MapHelper {
         }
       }
 
+      this.inhabitedEcoRegion = Object.keys(heatMapData).map((e) =>
+        parseInt(e)
+      );
+
       let heatMapLength = Object.keys(heatMapData).length;
       let heatMapMax = Math.max(
         ...Object.values(heatMapData).map((e) => e.length)
@@ -937,10 +1838,44 @@ class MapHelper {
       let scaleColor = colorsys.hsvToHex(210, 100, 100);
       scale.push({ scaleColor, scaleValue: heatMapMax });
 
+      if (this.rescure) {
+        scale = [
+          {
+            scaleColor: bgciAssessment.get("DD").getColor(),
+            scaleValue: 0,
+            scaleLabel: "Data Deficient"
+          },
+          {
+            scaleColor: bgciAssessment.get("nT").getColor(),
+            scaleValue: 1,
+            scaleLabel: "Half Protected"
+          },
+          {
+            scaleColor: bgciAssessment.get("PT").getColor(),
+            scaleValue: 2,
+            scaleLabel: "Could Reach Half Protected"
+          },
+          {
+            scaleColor: bgciAssessment.get("TH").getColor(),
+            scaleValue: 3,
+            scaleLabel: "Could Recover"
+          },
+          {
+            scaleColor: bgciAssessment.get("EX").getColor(),
+            scaleValue: 4,
+            scaleLabel: "Imperiled"
+          }
+        ];
+      }
+
       this.diversityColorScale = scale;
-      this.setDiversityScale(this.diversityColorScale, "ecoregions");
+      this.setDiversityScale(
+        this.diversityColorScale,
+        this.rescure ? "rescure" : "ecoregions"
+      );
 
       let getScaledIndex = this.getScaledIndex.bind(this);
+      let rescure = this.rescure;
 
       function calculateStlyle(feature) {
         if (heatMapData.hasOwnProperty(feature.properties.ECO_ID.toString())) {
@@ -954,19 +1889,34 @@ class MapHelper {
             aCount[a] > aCount[b] ? a : b
           );
 
-          let val = heatMapData[feature.properties.ECO_ID.toString()].length;
+          let val;
+
+          if (rescure) {
+            val = parseInt(feature.properties.NNH);
+          } else {
+            val = heatMapData[feature.properties.ECO_ID.toString()].length;
+          }
+
           let scaledIndex = getScaledIndex(val, scale);
 
           feature.options.species = a;
 
+          let fillColor = "lime";
+          let color = "lime";
+
+          fillColor = scale[scaledIndex].scaleColor;
+          color = scale[scaledIndex].scaleColor;
+
           return {
-            color: "white",
+            color: feature.selected
+              ? "var(--highlightpurple)"
+              : "rgb(244,244,244)",
+            weight: feature.selected ? 2 : 1,
             stroke: 1,
             opacity: 1,
-            weight: 1,
             fillOpacity: 1,
-            fillColor: scale[scaledIndex].scaleColor,
-            fill: scale[scaledIndex].scaleColor
+            fillColor: fillColor,
+            fill: color
           };
         } else {
           return {
@@ -980,11 +1930,29 @@ class MapHelper {
         }
       }
 
-      this.ecoRegions.eachLayer((layer) => {
-        layer.setStyle(calculateStlyle(layer.feature));
-      });
+      if (rescure) {
+        this.rescureEcoRegions.eachLayer((layer) => {
+          layer.setStyle(calculateStlyle(layer.feature));
+        });
+      } else {
+        this.ecoRegions.eachLayer((layer) => {
+          layer.setStyle(calculateStlyle(layer.feature));
+        });
+      }
     }
     this.updateThreatPiesEcoRegions();
+  }
+
+  toggleEcoRegions() {
+    if (this.rescure) {
+      this.ecoRegions.eachLayer((layer) => {
+        this.rescureEcoRegions.addLayer(layer);
+      });
+    } else {
+      this.rescureEcoRegions.eachLayer((layer) => {
+        this.ecoRegions.addLayer(layer);
+      });
+    }
   }
 
   updateThreatPiesEcoRegions() {
@@ -1013,6 +1981,10 @@ class MapHelper {
         ...Object.values(heatMapData).map((e) => e.length)
       );
 
+      let getPopulationTrend = this.getPopulationTrend.bind(this);
+      let setEcoRegionStatistics = this.setEcoRegionStatistics.bind(this);
+      let ecoRegionStatistics = [];
+
       if (this.ecoRegions !== undefined) {
         this.ecoRegions.eachLayer((layer) => {
           //calculate the clusterthreatpie
@@ -1022,6 +1994,39 @@ class MapHelper {
             )
           ) {
             let data = heatMapData[layer.feature.properties.ECO_ID.toString()];
+
+            data = [...new Set(data)].map((e) => {
+              if (lastSpeciesSigns.hasOwnProperty(e)) {
+                return lastSpeciesSigns[e][treeThreatType];
+              } else {
+                return citesAssessment.get("DD");
+              }
+            });
+
+            /* let threatLevels = data.map((e) => {
+              return lastSpeciesSigns[e][treeThreatType];
+            }); */
+
+            /*       ecoRegionStatistics.push([
+              layer.feature.properties.ECO_NAME,
+              layer.feature.properties.ECO_ID,
+              data.length,
+              data.filter((e) => e.numvalue in [0, 1]).length,
+              data.filter((e) => e.numvalue === 2).length,
+              data.filter((e) => e.numvalue === 3).length,
+              data
+                .map((species) => {
+                  return getPopulationTrend(species);
+                })
+                .filter((trend) => trend === "Decreasing").length,
+              data
+                .map((species) => {
+                  return getPopulationTrend(species);
+                })
+                .filter((trend) => trend !== undefined).length,
+              layer.feature.properties.NNH_NAME
+            ]);
+ */
             /* let data = [...new Set(heatMapData[layer.feature.id.toString])].map((e) =>
             this.getTreeThreatLevel(e, treeThreatType)
           ); */
@@ -1053,14 +2058,10 @@ class MapHelper {
                     pieLabel: n,
                     pieLabelClass: "marker-cluster-pie-label",
                     strokeColor: function (d) {
-                      return lastSpeciesSigns[d.data][treeThreatType].getColor(
-                        colorBlind
-                      );
+                      return d.data.getColor(colorBlind);
                     },
                     color: function (d) {
-                      return lastSpeciesSigns[d.data][treeThreatType].getColor(
-                        colorBlind
-                      );
+                      return d.data.getColor(colorBlind);
                     }
                   }),
                   iconSize: new L.Point(iconDim, iconDim)
@@ -1070,6 +2071,7 @@ class MapHelper {
             }
           }
         });
+        setEcoRegionStatistics(ecoRegionStatistics);
       }
     }
   }
@@ -1217,6 +2219,232 @@ class MapHelper {
     }
   }
 
+  updateOrchestrasWithPopulation(first = false) {
+    if (this.diversityCountries !== undefined) {
+      let heatMapData = {};
+      let heatMapDataPopulation = {};
+
+      for (let orchestra of Object.values(this.orchstras)) {
+        let country = orchestra.properties.Country;
+        let countryISO = this.orchestraToISO3[country];
+
+        if (countryISO) {
+          if (this.countriesToID.hasOwnProperty(countryISO)) {
+            let countryIDs = this.countriesToID[countryISO];
+            for (let countryID of countryIDs) {
+              pushOrCreateWithoutDuplicates(
+                heatMapData,
+                countryID.toString(),
+                orchestra.properties.address
+              );
+
+              if (this.iso3ToPopulation.hasOwnProperty(countryISO)) {
+                let population = this.iso3ToPopulation[countryISO];
+                heatMapDataPopulation[countryID.toString()] = Math.floor(
+                  population / heatMapData[countryID.toString()].length
+                );
+              }
+            }
+          }
+        }
+      }
+
+      heatMapData = heatMapDataPopulation;
+
+      let heatMapLength = Object.keys(heatMapData).length;
+      let heatMapMax = Math.max(...Object.values(heatMapData).map((e) => e));
+      let heatMapMin = Math.min(...Object.values(heatMapData).map((e) => e));
+
+      let scale = [];
+      let test = d3
+        .scaleLog()
+        .domain([heatMapMin, heatMapMax])
+        .ticks(Math.min(15, heatMapMax));
+
+      /* for (let val of test.slice(0, test.length - 1)) {
+        let scaleOpacity = val / heatMapMax;
+        let scaleColor = colorsys.hsvToHex(210, scaleOpacity * 100, 100);
+
+        scale.push({ scaleColor, scaleValue: val });
+      }
+
+      let scaleColor = colorsys.hsvToHex(210, 100, 100);
+      scale.push({ scaleColor, scaleValue: heatMapMax }); */
+
+      let scaleColor = colorsys.hsvToHex(210, 100, 100);
+      scale.push({ scaleColor, scaleValue: heatMapMin });
+
+      for (let val of test.slice(1, test.length)) {
+        let scaleOpacity = 1 - val / heatMapMax;
+        let scaleColor = colorsys.hsvToHex(210, scaleOpacity * 100, 100);
+
+        scale.push({ scaleColor, scaleValue: val });
+      }
+
+      this.diversityColorScale = scale;
+      this.setDiversityScale(this.diversityColorScale, "countries");
+
+      let getScaledIndex = this.getScaledIndex.bind(this);
+
+      function calculateStlyle(feature) {
+        if (heatMapData.hasOwnProperty(feature.id.toString())) {
+          let a = heatMapData[feature.id.toString()];
+          const aCount = a; /* Object.fromEntries(
+            new Map(
+              [...new Set(a)].map((x) => [x, a.filter((y) => y === x).length])
+            )
+          ); */
+          /* let maxKey = Object.keys(aCount).reduce((a, b) =>
+            aCount[a] > aCount[b] ? a : b
+          ); */
+
+          /* let val = 0;
+          if (this.iso3ToPopulation.hasOwnProperty(feature.properties.ISO3CD)) {
+            let population = this.iso3ToPopulation[feature.properties.ISO3CD];
+
+            val = population / a.length;
+          } */
+
+          let val = a;
+          let scaledIndex = getScaledIndex(val, scale);
+
+          feature.options.species = a;
+
+          return {
+            color: feature.selected
+              ? "var(--highlightpurple)"
+              : "rgb(244,244,244)",
+            weight: feature.selected ? 2 : 1,
+            stroke: 1,
+            opacity: 1,
+            fillOpacity: 1,
+            fillColor: scale[scaledIndex].scaleColor,
+            fill: scale[scaledIndex].scaleColor
+          };
+        } else {
+          return {
+            color: "rgb(244, 244, 244)",
+            stroke: 1,
+            opacity: 1,
+            weight: 1,
+            fillOpacity: 1,
+            fillColor: "white"
+          };
+        }
+      }
+
+      this.diversityCountries.eachLayer((layer) => {
+        layer.setStyle(calculateStlyle(layer.feature));
+      });
+    }
+  }
+
+  toggleDiverstiyCountries(orchestra = false) {
+    if (orchestra) {
+      this.diversityCountries.eachLayer((layer) => {
+        this.orchestraLayer.addLayer(layer);
+      });
+    } else {
+      this.orchestraLayer.eachLayer((layer) => {
+        this.diversityCountries.addLayer(layer);
+      });
+    }
+  }
+
+  updateOrchestras(first = false) {
+    if (this.diversityCountries !== undefined) {
+      let heatMapData = {};
+
+      for (let orchestra of Object.values(this.orchstras)) {
+        let country = orchestra.properties.Country;
+        let countryISO = this.orchestraToISO3[country];
+
+        if (countryISO) {
+          if (this.countriesToID.hasOwnProperty(countryISO)) {
+            let countryIDs = this.countriesToID[countryISO];
+            for (let countryID of countryIDs) {
+              pushOrCreateWithoutDuplicates(
+                heatMapData,
+                countryID.toString(),
+                orchestra.properties.address
+              );
+            }
+          }
+        }
+      }
+
+      let heatMapLength = Object.keys(heatMapData).length;
+      let heatMapMax = Math.max(
+        ...Object.values(heatMapData).map((e) => e.length)
+      );
+
+      let scale = [];
+      let test = d3
+        .scaleLinear()
+        .domain([0, heatMapMax])
+        .ticks(Math.min(15, heatMapMax));
+
+      for (let val of test.slice(0, test.length - 1)) {
+        let scaleOpacity = val / heatMapMax;
+        let scaleColor = colorsys.hsvToHex(210, scaleOpacity * 100, 100);
+
+        scale.push({ scaleColor, scaleValue: val });
+      }
+
+      let scaleColor = colorsys.hsvToHex(210, 100, 100);
+      scale.push({ scaleColor, scaleValue: heatMapMax });
+
+      this.diversityColorScale = scale;
+      this.setDiversityScale(this.diversityColorScale, "countries");
+
+      let getScaledIndex = this.getScaledIndex.bind(this);
+
+      function calculateStlyle(feature) {
+        if (heatMapData.hasOwnProperty(feature.id.toString())) {
+          let a = heatMapData[feature.id.toString()];
+          const aCount = Object.fromEntries(
+            new Map(
+              [...new Set(a)].map((x) => [x, a.filter((y) => y === x).length])
+            )
+          );
+          let maxKey = Object.keys(aCount).reduce((a, b) =>
+            aCount[a] > aCount[b] ? a : b
+          );
+
+          let val = a.length;
+          let scaledIndex = getScaledIndex(val, scale);
+
+          feature.options.species = a;
+
+          return {
+            color: feature.selected
+              ? "var(--highlightpurple)"
+              : "rgb(244,244,244)",
+            weight: feature.selected ? 2 : 1,
+            stroke: 1,
+            opacity: 1,
+            fillOpacity: 1,
+            fillColor: scale[scaledIndex].scaleColor,
+            fill: scale[scaledIndex].scaleColor
+          };
+        } else {
+          return {
+            color: "rgb(244, 244, 244)",
+            stroke: 1,
+            opacity: 1,
+            weight: 1,
+            fillOpacity: 1,
+            fillColor: "white"
+          };
+        }
+      }
+
+      this.orchestraLayer.eachLayer((layer) => {
+        layer.setStyle(calculateStlyle(layer.feature));
+      });
+    }
+  }
+
   overlayadd(event) {
     let typ = event.group.name;
     let layerName = event.name;
@@ -1225,25 +2453,75 @@ class MapHelper {
     switch (layerName) {
       case "Hexagons":
         if (this.ecoRegions && this.diversityCountries) {
+          this.countryClusterLayer.addTo(this.mymap);
           this.mymap.removeLayer(this.diversityCountries);
           this.mymap.removeLayer(this.ecoRegions);
+          this.mymap.removeLayer(this.rescureEcoRegions);
+          this.mymap.removeLayer(this.orchestraClusterLayer);
+          this.mymap.removeLayer(this.orchestraLayer);
+          this.rescure = false;
           this.control._update();
+          this.setMapSearchMode("hexagon");
           this.updateHexagons();
         }
         break;
       case "Countries":
         if (this.hexagons && this.ecoRegions) {
+          this.toggleDiverstiyCountries(false);
+          this.countryClusterLayer.addTo(this.mymap);
           this.mymap.removeLayer(this.hexagons);
           this.mymap.removeLayer(this.ecoRegions);
+          this.mymap.removeLayer(this.rescureEcoRegions);
+          this.mymap.removeLayer(this.orchestraClusterLayer);
+          this.mymap.removeLayer(this.orchestraLayer);
+          this.rescure = false;
           this.control._update();
+          this.setMapSearchMode("countries");
           this.updateDiversity();
         }
         break;
       case "Terrestrial Ecoregions":
         if (this.hexagons && this.diversityCountries) {
+          this.countryClusterLayer.addTo(this.mymap);
           this.mymap.removeLayer(this.diversityCountries);
           this.mymap.removeLayer(this.hexagons);
+          this.mymap.removeLayer(this.rescureEcoRegions);
+          this.mymap.removeLayer(this.orchestraClusterLayer);
+          this.mymap.removeLayer(this.orchestraLayer);
+          this.rescure = false;
           this.control._update();
+          this.setMapSearchMode("eco");
+          this.toggleEcoRegions();
+          this.updateEcoRegions();
+        }
+        break;
+      case "Orchestras Worldwide":
+        if (this.hexagons && this.ecoRegions) {
+          this.orchestraLayer.addTo(this.mymap);
+          this.mymap.removeLayer(this.hexagons);
+          this.mymap.removeLayer(this.ecoRegions);
+          this.mymap.removeLayer(this.rescureEcoRegions);
+          this.mymap.removeLayer(this.countryClusterLayer);
+          this.mymap.removeLayer(this.diversityCountries);
+          this.rescure = false;
+          this.control._update();
+          this.setMapSearchMode("countries");
+          this.toggleDiverstiyCountries(true);
+          this.updateOrchestras();
+        }
+        break;
+      case "Rescure Ecoregions":
+        if (this.hexagons && this.diversityCountries) {
+          this.countryClusterLayer.addTo(this.mymap);
+          this.mymap.removeLayer(this.diversityCountries);
+          this.mymap.removeLayer(this.hexagons);
+          this.mymap.removeLayer(this.ecoRegions);
+          this.mymap.removeLayer(this.orchestraClusterLayer);
+          this.mymap.removeLayer(this.orchestraLayer);
+          this.control._update();
+          this.setMapSearchMode("eco");
+          this.rescure = true;
+          this.toggleEcoRegions();
           this.updateEcoRegions();
         }
         break;
@@ -1306,7 +2584,10 @@ class MapHelper {
       case "Terrestrial Ecoregions":
         if (this.ecoRegions !== undefined) {
           this.ecoRegions.eachLayer((layer) => {
-            if (polygons.includes(layer.feature.properties.ECO_ID)) {
+            if (layer.feature.selected) {
+              layer.setStyle(highlightStyle(layer, true));
+              layer.bringToFront();
+            } else if (polygons.includes(layer.feature.properties.ECO_ID)) {
               layer.setStyle(highlightStyle(layer, highlight));
               layer.bringToFront();
             } else {
@@ -1366,6 +2647,9 @@ class MapHelper {
       case "Terrestrial Ecoregions":
         this.updateThreatPiesEcoRegions();
         break;
+      case "Orchestras Worldwide":
+        /* this.updateOrchestras(); */
+        break;
       default:
         break;
     }
@@ -1382,6 +2666,9 @@ class MapHelper {
         break;
       case "Terrestrial Ecoregions":
         this.updateEcoRegions();
+        break;
+      case "Orchestras Worldwide":
+        this.updateOrchestras();
         break;
       default:
         break;

@@ -649,3 +649,11 @@ path.handle:focus {
   justify-content: center;
   align-items: center;
 }
+
+.cluster-pie-wrapper {
+  height: -webkit-fill-available;
+}
+
+.cluster-pie-wrapper:hover {
+  transform: scale(1.5);
+}

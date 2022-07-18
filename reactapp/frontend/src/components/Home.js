@@ -10,37 +10,22 @@ import TimelineView from "./TimelineView";
 import Switch from "@mui/material/Switch";
 import {
   getOrCreate,
-  iucnToDangerMap,
-  dangerSorted,
   pushOrCreate,
   pushOrCreateWithoutDuplicates,
-  getThreatColor,
   replaceSpecialCharacters
 } from "../utils/utils";
 import {
   iucnScore,
   threatScore,
   citesScore,
-  citesScoreReverse,
   threatScoreReverse,
   citesAppendixSorted,
   iucnColors,
-  getCitesColor,
-  getIucnColor,
   iucnAssessment,
   bgciAssessment,
   citesAssessment
 } from "../utils/timelineUtils";
 import Map from "./Map";
-import {
-  cluster,
-  json,
-  scaleLog,
-  scalePoint,
-  thresholdScott,
-  treemap
-} from "d3";
-import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 
 class Home extends Component {
@@ -59,6 +44,8 @@ class Home extends Component {
 
     this.plantIcon = {};
     this.animalIcon = {};
+
+    this.ecoRegionSpeciesThreats = [];
 
     let tabs = {
       maps: { diversityMapTab: true, threatMapTab: false },
@@ -99,7 +86,7 @@ class Home extends Component {
       filterSettings: {},
       colorBlind: false,
       mapSearchMode: "country",
-      mapSearchBarData: [],
+      mapSearchBarData: {},
       lastSpeciesThreats: {},
       lastSpeciesSigns: {}
     };
@@ -116,8 +103,14 @@ class Home extends Component {
     this.setState({ filterSettings });
   }
 
-  setMapSearchBarData(newVal) {
-    this.setState({ mapSearchBarData: newVal });
+  setMapSearchBarData(mode, newVal) {
+    const newSearchBarData = { ...this.state.mapSearchBarData };
+    newSearchBarData[mode] = newVal;
+    this.setState({ mapSearchBarData: newSearchBarData });
+  }
+
+  setMapSearchMode(newVal) {
+    this.setState({ mapSearchMode: newVal });
   }
 
   setFilter(obj) {
@@ -216,7 +209,6 @@ class Home extends Component {
       timeFrame[0] !== this.state.timeFrame[0] ||
       timeFrame[1] !== this.state.timeFrame[1]
     ) {
-      console.log("updatetimeframe");
       let [myLastSpeciesThreats, myLastSignThreats] = this.getAllThreats(
         this.state.speciesData,
         timeFrame
@@ -1420,6 +1412,52 @@ class Home extends Component {
     }
   }
 
+  setEcoRegionStatistics(data) {
+    let columnNames = [
+      "Name",
+      "ID",
+      "Nr. of Species",
+      "Nr. Endangered",
+      "Nr. Possibly",
+      "Nr. Least Concern",
+      "Nr. Decreasing",
+      "Nr. Population Trend",
+      "NNH"
+    ];
+    this.ecoRegionSpeciesThreats = data.map((entry) => {
+      let ret = {};
+      for (let i = 0; i < columnNames.length; i++) {
+        ret[columnNames[i]] = entry[i];
+      }
+      return ret;
+    });
+  }
+
+  saveEcoRegionSpecies() {
+    let data = this.ecoRegionSpeciesThreats;
+
+    let file = new Blob([JSON.stringify(data, null, 4)], {
+      type: "application/json"
+    });
+    let filename = "ecoRegionStatistics.json";
+    if (window.navigator.msSaveOrOpenBlob)
+      // IE10+
+      window.navigator.msSaveOrOpenBlob(file, filename);
+    else {
+      // Others
+      let a = document.createElement("a"),
+        url = URL.createObjectURL(file);
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, 0);
+    }
+  }
+
   renderMapScale(scale, type) {
     let scaleElements = [];
 
@@ -1427,15 +1465,17 @@ class Home extends Component {
 
     switch (type) {
       case "countries":
-        typeText = "Country";
+        typeText = "Species/Country";
         break;
       case "hexagons":
-        typeText = "Hexagon";
+        typeText = "Species/Hexagon";
         break;
       case "ecoregions":
-        typeText = "Ecoregion";
+        typeText = "Species/Ecoregion";
         break;
-
+      case "rescure":
+        typeText = "Rescure Potential";
+        break;
       default:
         break;
     }
@@ -1473,7 +1513,9 @@ class Home extends Component {
               fontSize: "smaller"
             }}
           >
-            {scaleValue.scaleValue}
+            {scaleValue.scaleLabel
+              ? scaleValue.scaleLabel
+              : scaleValue.scaleValue}
           </div>
         </div>
       );
@@ -1501,7 +1543,7 @@ class Home extends Component {
             alignSelf: "center"
           }}
         >
-          {"Species/" + typeText}
+          {typeText}
         </div>
       </div>
     );
@@ -1565,6 +1607,8 @@ class Home extends Component {
 
     let filter = { ...this.state.filterSettings };
 
+    console.log("filters", filter);
+
     const instrumentGroup = filter["instrumentGroup"]
       ? filter["instrumentGroup"][0]
       : null;
@@ -1577,6 +1621,17 @@ class Home extends Component {
     const species = filter["species"] ? filter["species"][0] : null;
 
     const country = filter["country"] ? filter["country"][0] : null;
+    const ecoRegion = filter["eco"] ? filter["eco"][0] : null;
+    const category = filter["category"] ? filter["category"] : null;
+
+    let lastSpeciesSigns = this.state.lastSpeciesSigns;
+    let lastSpeciesThreats = this.state.lastSpeciesThreats;
+
+    /* console.log("lastSpeciesSigns", lastSpeciesSigns, lastSpeciesThreats); */
+
+    const mapSearchMode = this.state.mapSearchMode;
+
+    let mapSearchValue = null;
 
     const asArray = Object.entries(this.state.speciesData);
 
@@ -1604,7 +1659,23 @@ class Home extends Component {
         hit = species === key;
       }
 
-      if (hit && country !== null && country !== undefined) {
+      if (hit && category) {
+        hit = false;
+        if (lastSpeciesThreats.hasOwnProperty(key)) {
+          if (lastSpeciesThreats[key][category.type] !== null) {
+            hit =
+              lastSpeciesThreats[key][category.type].abbreviation ===
+              category.cat;
+          }
+        }
+      }
+
+      if (
+        hit &&
+        country !== null &&
+        country !== undefined &&
+        mapSearchMode === "country"
+      ) {
         let countries = [];
         if (value.hasOwnProperty("treeCountriesShort")) {
           countries = value.treeCountriesShort;
@@ -1618,6 +1689,29 @@ class Home extends Component {
           }
         }
         hit = Object.values(country).some((item) => countries.includes(item));
+        mapSearchValue = country;
+      }
+
+      if (
+        hit &&
+        ecoRegion !== null &&
+        ecoRegion !== undefined &&
+        mapSearchMode === "eco"
+      ) {
+        let ecoRegions = [];
+        if (value.ecoregions !== undefined) {
+          ecoRegions = value.ecoregions;
+        }
+        if (ecoRegion.ecoArray !== undefined) {
+          hit = ecoRegion.ecoArray
+            .flat()
+            .some((item) => ecoRegions.includes(item.toString()));
+        } else {
+          hit = Object.values(ecoRegion).some((item) =>
+            ecoRegions.includes(item.toString())
+          );
+        }
+        mapSearchValue = ecoRegion;
       }
 
       if (hit) {
@@ -1651,15 +1745,8 @@ class Home extends Component {
       Object.keys(filteredSpeciesData).map((e) => [e, 1])
     );
 
-    let [treeMapData, imageLinks, dummyLinks] = this.generateTreeMapData(
-      //this.state.speciesSignThreats
-      filteredSpeciesData
-    );
-
-    let lastSpeciesSigns = this.state.lastSpeciesSigns;
-    let lastSpeciesThreats = this.state.lastSpeciesThreats;
-
-    console.log("NEW RENDER");
+    let [treeMapData, imageLinks, dummyLinks] =
+      this.generateTreeMapData(filteredSpeciesData);
 
     return (
       <div>
@@ -1678,7 +1765,6 @@ class Home extends Component {
               gridColumnEnd: 1,
               gridRowStart: 1,
               gridRowEnd: 1,
-              /* height: window.innerHeight / 2 + "px", */
               overflow: "unset"
             }}
           >
@@ -1767,6 +1853,7 @@ class Home extends Component {
                   treeThreatType={this.state.treeThreatType}
                   setTreeThreatType={this.setTreeThreatType.bind(this)}
                   colorBlind={this.state.colorBlind}
+                  setFilter={this.setFilter.bind(this)}
                 />
               </div>
             </div>
@@ -1852,7 +1939,8 @@ class Home extends Component {
                   setFilter={this.setFilter.bind(this)}
                   mapSearchMode={this.state.mapSearchMode}
                   mapSearchBarData={this.state.mapSearchBarData}
-                  country={country}
+                  value={mapSearchValue}
+                  mode={mapSearchMode}
                 />
               </div>
             </div>
@@ -2010,6 +2098,13 @@ class Home extends Component {
             ) : (
               []
             )}
+            {/* <button
+              onClick={(event) => {
+                this.saveEcoRegionSpecies();
+              }}
+            >
+              {"Save EcoRegionStatistics"}
+            </button> */}
             {this.renderMapScale(
               this.state.diversityScale,
               this.state.diversityScaleType
@@ -2034,9 +2129,12 @@ class Home extends Component {
                 setFilter={this.setFilter.bind(this)}
                 colorBlind={this.state.colorBlind}
                 setMapSearchBarData={this.setMapSearchBarData.bind(this)}
+                setMapSearchMode={this.setMapSearchMode.bind(this)}
                 country={country}
+                selectedEcoRegion={ecoRegion}
                 lastSpeciesSigns={lastSpeciesSigns}
                 lastSpeciesThreats={lastSpeciesThreats}
+                setEcoRegionStatistics={this.setEcoRegionStatistics.bind(this)}
               />
             ) : (
               []

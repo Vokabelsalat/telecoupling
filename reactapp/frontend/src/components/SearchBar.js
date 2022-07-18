@@ -157,7 +157,13 @@ class SearchBar extends Component {
         }}
         renderOption={(props, option) => (
           <li {...props}>
-            {option.type === "genus" ? option.title + " (Genus)" : option.title}
+            {option.type === "genus" ? (
+              <span>
+                <b>{option.title}</b> (Genus)
+              </span>
+            ) : (
+              option.title
+            )}
           </li>
         )}
         sx={{ width: 300 }}

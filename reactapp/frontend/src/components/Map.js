@@ -30,7 +30,10 @@ class Map extends Component {
       this.props.setFilter,
       this.props.colorBlind,
       this.props.setMapSearchBarData,
-      this.props.lastSpeciesSigns
+      this.props.setMapSearchMode,
+      this.props.lastSpeciesSigns,
+      this.getPopulationTrend.bind(this),
+      this.props.setEcoRegionStatistics.bind(this)
     );
 
     this.addSpeciesFromMapSpecies();
@@ -68,6 +71,10 @@ class Map extends Component {
         this.props.colorBlind
       );
     }
+  }
+
+  getPopulationTrend(species) {
+    return this.props.data[species].populationTrend;
   }
 
   addSpeciesFromMapSpecies() {
@@ -186,6 +193,18 @@ class Map extends Component {
       );
     } else {
       this.MapHelper.setSelected("countries", null, true);
+    }
+
+    if (this.props.selectedEcoRegion) {
+      this.MapHelper.setSelected(
+        "eco",
+        {
+          properties: { ...this.props.selectedEcoRegion }
+        },
+        true
+      );
+    } else {
+      this.MapHelper.setSelected("eco", null, true);
     }
 
     this.MapHelper.setSpeciesCountries(speciesCountries);
