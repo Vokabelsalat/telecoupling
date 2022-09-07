@@ -1,40 +1,43 @@
-import React, { Component, useEffect } from "react";
-import Orchestra from "./Orchestra";
-import BarChartView from "./BarChartView";
-import TreeMap from "./TreeMap";
-import Legend from "./Legend";
-import CenterPieChart from "./CenterPieChart";
-import SearchBar from "./SearchBar";
-import MapSearchBar from "./MapSearchBar";
-import TimelineView from "./TimelineView";
 import Switch from "@mui/material/Switch";
+import { Component, default as React } from "react";
+import CenterPieChart from "./CenterPieChart";
+import Legend from "./Legend";
+import MapSearchBar from "./MapSearchBar";
+import Orchestra from "./Orchestra";
+import SearchBar from "./SearchBar";
+import TreeMap from "./TreeMap";
+import TimelineView from "./TimelineView";
+import Tooltip from "./Tooltip";
+
+import "react-tabs/style/react-tabs.css";
+import {
+  bgciAssessment,
+  citesAppendixSorted,
+  citesAssessment,
+  citesScore,
+  iucnAssessment,
+  iucnColors,
+  iucnScore,
+  threatScore,
+  threatScoreReverse
+} from "../utils/timelineUtils";
 import {
   getOrCreate,
   pushOrCreate,
   pushOrCreateWithoutDuplicates,
   replaceSpecialCharacters
 } from "../utils/utils";
-import {
-  iucnScore,
-  threatScore,
-  citesScore,
-  threatScoreReverse,
-  citesAppendixSorted,
-  iucnColors,
-  iucnAssessment,
-  bgciAssessment,
-  citesAssessment
-} from "../utils/timelineUtils";
+import FullScreenButton from "./FullScreenButton";
 import Map from "./Map";
-import "react-tabs/style/react-tabs.css";
+import ResizeComponent from "./ResizeComponent";
 
 class Home extends Component {
   constructor(props) {
     super(props);
 
     this.usePreGenerated = true;
-    this.renderMap = true;
-    this.renderTreeMap = true;
+    this.renderMap = false;
+    this.renderTreeMap = false;
     this.slice = false;
 
     this.tempSpeciesData = {};
@@ -88,7 +91,11 @@ class Home extends Component {
       mapSearchMode: "country",
       mapSearchBarData: {},
       lastSpeciesThreats: {},
-      lastSpeciesSigns: {}
+      lastSpeciesSigns: {},
+      transformOrigin: "0% 0%",
+      transform: "",
+      tooltipPosition: undefined,
+      tooltipText: ""
     };
   }
 
@@ -798,6 +805,7 @@ class Home extends Component {
           }
 
           speciesObject = Object.fromEntries(
+            /*  */
             Object.entries(speciesObject).slice(
               0,
               this.slice ? 70 : Object.keys(speciesObject).length
@@ -1598,6 +1606,14 @@ class Home extends Component {
     }
   }
 
+  setZoom(zoomString) {
+    this.setState({ transform: "scale(2)", transformOrigin: zoomString });
+  }
+
+  tooltip(text, position) {
+    this.setState({ tooltipPosition: position, tooltipText: text });
+  }
+
   render() {
     //console.log("SPECIES DATA", Object.keys(this.state.speciesData).length, this.state.speciesData, this.state.instrument);
 
@@ -1748,15 +1764,24 @@ class Home extends Component {
     let [treeMapData, imageLinks, dummyLinks] =
       this.generateTreeMapData(filteredSpeciesData);
 
+    const zoomOrigin = this.state.transformOrigin;
+    const scaleString = this.state.transform;
+
     return (
-      <div>
+      <>
+        <Tooltip
+          text={this.state.tooltipText}
+          position={this.state.tooltipPosition}
+        />
         <div
           style={{
-            width: "100%",
-            height: "auto",
             display: "grid",
+            width: "100%",
+            height: "100%",
             gridTemplateColumns: "50% 50%",
-            gridTemplateRows: "auto auto"
+            gridTemplateRows: "40% 20% 45%",
+            transformOrigin: zoomOrigin,
+            transform: scaleString
           }}
         >
           <div
@@ -1765,23 +1790,34 @@ class Home extends Component {
               gridColumnEnd: 1,
               gridRowStart: 1,
               gridRowEnd: 1,
-              overflow: "unset"
+              position: "relative"
             }}
           >
-            <Orchestra
-              id="orchestraVis"
-              mainPart={mainPart}
-              instrument={instrument}
-              instrumentGroup={instrumentGroup}
-              getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
-              treeThreatType={this.state.treeThreatType}
-              speciesData={speciesWithOutOrchestraFilter}
-              finishedFetching={this.state.finishedFetching}
-              lastSpeciesSigns={lastSpeciesSigns}
-              lastSpeciesThreats={lastSpeciesThreats}
-              setFilter={this.setFilter.bind(this)}
-              timeFrame={this.state.timeFrame}
-              colorBlind={this.state.colorBlind}
+            <ResizeComponent>
+              <Orchestra
+                id="orchestraVis"
+                mainPart={mainPart}
+                instrument={instrument}
+                instrumentGroup={instrumentGroup}
+                getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
+                treeThreatType={this.state.treeThreatType}
+                speciesData={speciesWithOutOrchestraFilter}
+                finishedFetching={this.state.finishedFetching}
+                lastSpeciesSigns={lastSpeciesSigns}
+                lastSpeciesThreats={lastSpeciesThreats}
+                setFilter={this.setFilter.bind(this)}
+                timeFrame={this.state.timeFrame}
+                colorBlind={this.state.colorBlind}
+              />
+            </ResizeComponent>
+            <FullScreenButton
+              scaleString={scaleString}
+              onClick={() => {
+                this.setState({
+                  transform: scaleString !== "" ? "" : "scale(2)",
+                  transformOrigin: scaleString !== "" ? "0% 0%" : "0% 0%"
+                });
+              }}
             />
           </div>
           <div
@@ -1789,7 +1825,8 @@ class Home extends Component {
               gridColumnStart: 2,
               gridColumnEnd: 2,
               gridRowStart: 1,
-              gridRowEnd: 1
+              gridRowEnd: 1,
+              position: "relative"
             }}
           >
             {this.renderTreeMap ? (
@@ -1809,302 +1846,272 @@ class Home extends Component {
             ) : (
               []
             )}
+            <FullScreenButton
+              scaleString={scaleString}
+              onClick={() => {
+                this.setState({
+                  transform: scaleString !== "" ? "" : "scale(2)",
+                  transformOrigin: scaleString !== "" ? "0% 0%" : "100% 0%"
+                });
+              }}
+            />
           </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            margin: "10px 0",
-            marginRight: "15px"
-          }}
-        >
           <div
             style={{
-              width: "100%",
-              height: "auto",
-              display: "grid",
-              gridTemplateColumns: "calc(50% - 50px) 90px auto",
-              gridTemplateRows: "auto"
+              gridColumnStart: 1,
+              gridColumnEnd: "span 2",
+              gridRowStart: 2,
+              gridRowEnd: 2
             }}
           >
-            <div
-              style={{
-                gridColumnStart: 1,
-                gridColumnEnd: 1,
-                gridRowStart: 1,
-                gridRowEnd: 1
-              }}
-            >
-              <div className="legend">
-                <Legend
-                  onZoom={() => this.onZoom(1)}
-                  onZoomOut={() => this.onZoom(-1)}
-                  zoomLevel={this.state.zoomLevel}
-                  maxZoomLevel={this.state.maxZoomLevel}
-                  onPieStyle={this.onPieStyle.bind(this)}
-                  pieStyle={this.state.pieStyle}
-                  groupSame={this.state.groupSame}
-                  onGroupSame={this.onGroupSame.bind(this)}
-                  sortGrouped={this.state.sortGrouped}
-                  onSortGrouped={this.onSortGrouped.bind(this)}
-                  heatStyle={this.state.heatStyle}
-                  onHeatStyle={this.onHeatStyle.bind(this)}
-                  treeThreatType={this.state.treeThreatType}
-                  setTreeThreatType={this.setTreeThreatType.bind(this)}
-                  colorBlind={this.state.colorBlind}
-                  setFilter={this.setFilter.bind(this)}
-                />
-              </div>
-            </div>
-            <div
-              style={{
-                gridColumnStart: 2,
-                gridColumnEnd: 2,
-                gridRowStart: 1,
-                gridRowEnd: 1,
-                alignSelf: "center",
-                justifySelf: "center"
-              }}
-            >
-              <div className="middlePieChart" style={{ position: "relative" }}>
-                <CenterPieChart
-                  data={filteredSpeciesData}
-                  getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
-                  treeThreatType={this.state.treeThreatType}
-                  colorBlind={this.state.colorBlind}
-                  lastSpeciesSigns={lastSpeciesSigns}
-                  lastSpeciesThreats={lastSpeciesThreats}
-                />
-              </div>
+            {
               <div
                 style={{
-                  lineHeight: "1.5em",
-                  fontSize: "larg",
-                  fontWeight: "bold",
-                  textAlign: "center"
+                  display: "flex",
+                  justifyContent: "center",
+                  margin: "10px 0",
+                  marginRight: "15px"
                 }}
               >
-                Species
-              </div>
-            </div>
-            <div
-              style={{
-                gridColumnStart: 3,
-                gridColumnEnd: 3,
-                gridRowStart: 1,
-                gridRowEnd: 1,
-                alignSelf: "center",
-                justifySelf: "center"
-              }}
-            >
-              <div
-                style={{
-                  margin: 0,
-                  padding: 0,
-                  marginLeft: "10px"
-                }}
-                className="searchBarWrapper"
-              >
-                <SearchBar
-                  data={this.state.speciesData}
-                  kingdom={kingdom}
-                  familia={familia}
-                  species={species}
-                  genus={genus}
-                  setFilter={this.setFilter.bind(this)}
-                />
-              </div>
-            </div>
-            <div
-              style={{
-                gridColumnStart: 4,
-                gridColumnEnd: 4,
-                gridRowStart: 1,
-                gridRowEnd: 1,
-                alignSelf: "center",
-                justifySelf: "center"
-              }}
-            >
-              <div
-                style={{
-                  margin: 0,
-                  marginLeft: "10px",
-                  padding: 0
-                }}
-                className="searchBarWrapper"
-              >
-                <MapSearchBar
-                  data={this.state.speciesData}
-                  setFilter={this.setFilter.bind(this)}
-                  mapSearchMode={this.state.mapSearchMode}
-                  mapSearchBarData={this.state.mapSearchBarData}
-                  value={mapSearchValue}
-                  mode={mapSearchMode}
-                />
-              </div>
-            </div>
-            <div
-              style={{
-                gridColumnStart: 5,
-                gridColumnEnd: 5,
-                gridRowStart: 1,
-                gridRowEnd: 1,
-                alignSelf: "center",
-                justifySelf: "center"
-              }}
-            >
-              <div
-                style={{
-                  margin: 0,
-                  padding: 0
-                }}
-                className="searchBarWrapper"
-              >
-                <div>Color Blind Mode</div>
-                <div className="switchWrapper">
-                  <Switch
-                    onChange={(e, value) =>
-                      this.setState({ colorBlind: !this.state.colorBlind })
-                    }
-                    checked={this.state.colorBlind}
-                    className="colorBlindSwitch"
-                    color="secondary"
-                  />
+                <div
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    display: "grid",
+                    gridTemplateColumns: "calc(50% - 50px) 90px auto",
+                    gridTemplateRows: "auto"
+                  }}
+                >
+                  <div
+                    style={{
+                      gridColumnStart: 1,
+                      gridColumnEnd: 1,
+                      gridRowStart: 1,
+                      gridRowEnd: 1
+                    }}
+                  >
+                    <div className="legend">
+                      <Legend
+                        onZoom={() => this.onZoom(1)}
+                        onZoomOut={() => this.onZoom(-1)}
+                        zoomLevel={this.state.zoomLevel}
+                        maxZoomLevel={this.state.maxZoomLevel}
+                        onPieStyle={this.onPieStyle.bind(this)}
+                        pieStyle={this.state.pieStyle}
+                        groupSame={this.state.groupSame}
+                        onGroupSame={this.onGroupSame.bind(this)}
+                        sortGrouped={this.state.sortGrouped}
+                        onSortGrouped={this.onSortGrouped.bind(this)}
+                        heatStyle={this.state.heatStyle}
+                        onHeatStyle={this.onHeatStyle.bind(this)}
+                        treeThreatType={this.state.treeThreatType}
+                        setTreeThreatType={this.setTreeThreatType.bind(this)}
+                        colorBlind={this.state.colorBlind}
+                        setFilter={this.setFilter.bind(this)}
+                      />
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      gridColumnStart: 2,
+                      gridColumnEnd: 2,
+                      gridRowStart: 1,
+                      gridRowEnd: 1,
+                      alignSelf: "center",
+                      justifySelf: "center"
+                    }}
+                  >
+                    <div
+                      className="middlePieChart"
+                      style={{ position: "relative" }}
+                    >
+                      <CenterPieChart
+                        data={filteredSpeciesData}
+                        getTreeThreatLevel={this.getSpeciesThreatLevel.bind(
+                          this
+                        )}
+                        treeThreatType={this.state.treeThreatType}
+                        colorBlind={this.state.colorBlind}
+                        lastSpeciesSigns={lastSpeciesSigns}
+                        lastSpeciesThreats={lastSpeciesThreats}
+                      />
+                    </div>
+                    <div
+                      style={{
+                        lineHeight: "1.5em",
+                        fontSize: "larg",
+                        fontWeight: "bold",
+                        textAlign: "center"
+                      }}
+                    >
+                      Species
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      gridColumnStart: 3,
+                      gridColumnEnd: 3,
+                      gridRowStart: 1,
+                      gridRowEnd: 1,
+                      alignSelf: "center",
+                      justifySelf: "center"
+                    }}
+                  >
+                    <div
+                      style={{
+                        margin: 0,
+                        padding: 0,
+                        marginLeft: "10px"
+                      }}
+                      className="searchBarWrapper"
+                    >
+                      <SearchBar
+                        data={this.state.speciesData}
+                        kingdom={kingdom}
+                        familia={familia}
+                        species={species}
+                        genus={genus}
+                        setFilter={this.setFilter.bind(this)}
+                      />
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      gridColumnStart: 4,
+                      gridColumnEnd: 4,
+                      gridRowStart: 1,
+                      gridRowEnd: 1,
+                      alignSelf: "center",
+                      justifySelf: "center"
+                    }}
+                  >
+                    <div
+                      style={{
+                        margin: 0,
+                        marginLeft: "10px",
+                        padding: 0
+                      }}
+                      className="searchBarWrapper"
+                    >
+                      <MapSearchBar
+                        data={this.state.speciesData}
+                        setFilter={this.setFilter.bind(this)}
+                        mapSearchMode={this.state.mapSearchMode}
+                        mapSearchBarData={this.state.mapSearchBarData}
+                        value={mapSearchValue}
+                        mode={mapSearchMode}
+                      />
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      gridColumnStart: 5,
+                      gridColumnEnd: 5,
+                      gridRowStart: 1,
+                      gridRowEnd: 1,
+                      alignSelf: "center",
+                      justifySelf: "center"
+                    }}
+                  >
+                    <div
+                      style={{
+                        margin: 0,
+                        padding: 0
+                      }}
+                      className="searchBarWrapper"
+                    >
+                      <div>Color Blind Mode</div>
+                      <div className="switchWrapper">
+                        <Switch
+                          onChange={(e, value) =>
+                            this.setState({
+                              colorBlind: !this.state.colorBlind
+                            })
+                          }
+                          checked={this.state.colorBlind}
+                          className="colorBlindSwitch"
+                          color="secondary"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  {/* {
+                  <button onClick={this.fetchAndSetSpecies.bind(this)}>
+                    Run!
+                  </button>
+                } */}
                 </div>
               </div>
-            </div>
-            {/* <button onClick={this.fetchAndSetSpecies.bind(this)}>Run!</button> */}
+            }
           </div>
-        </div>
-        <div
-          style={{
-            width: "100%",
-            height: "auto",
-            display: "grid",
-            gridTemplateColumns: "50% 50%",
-            gridTemplateRows: "auto auto"
-          }}
-        >
-          {Object.keys(filteredSpeciesData).length > 0 && (
-            <div
-              style={{
-                gridColumnStart: 1,
-                gridColumnEnd: 1,
-                gridRowStart: 1,
-                gridRowEnd: 1,
-                height: window.innerHeight / 2 + "px",
-                overflow: "unset"
+          <div
+            style={{
+              gridColumnStart: 1,
+              gridColumnEnd: 1,
+              gridRowStart: 3,
+              gridRowEnd: 3,
+              position: "relative",
+              height: "100%"
+            }}
+          >
+            {Object.keys(filteredSpeciesData).length > 0 && (
+              <>
+                <ResizeComponent>
+                  <TimelineView
+                    data={filteredSpeciesData}
+                    initWidth={this.state.initWidthForVis}
+                    tradeData={this.state.speciesTrades}
+                    pieStyle="pie"
+                    groupSame="true"
+                    sortGrouped="trend"
+                    heatStyle="dom"
+                    usePreGenerated={this.usePreGenerated}
+                    addSpeciesToMap={this.addSpeciesToMap.bind(this)}
+                    removeSpeciesFromMap={this.removeSpeciesFromMap.bind(this)}
+                    setSpeciesSignThreats={this.setSpeciesSignThreats.bind(
+                      this
+                    )}
+                    getSpeciesSignThreats={this.getSpeciesSignThreats.bind(
+                      this
+                    )}
+                    getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
+                    treeImageLinks={imageLinks}
+                    dummyImageLinks={dummyLinks}
+                    setHover={this.setHover.bind(this)}
+                    setTimeFrame={this.setTimeFrame.bind(this)}
+                    timeFrame={this.state.timeFrame}
+                    colorBlind={this.state.colorBlind}
+                    setFilter={this.setFilter.bind(this)}
+                    getAnimalIcon={this.getAnimalIcon.bind(this)}
+                    getPlantIcon={this.getPlantIcon.bind(this)}
+                    species={species}
+                    lastSpeciesSigns={lastSpeciesSigns}
+                    lastSpeciesThreats={lastSpeciesThreats}
+                    tooltip={this.tooltip.bind(this)}
+                  />
+                </ResizeComponent>
+              </>
+            )}
+            <FullScreenButton
+              scaleString={scaleString}
+              onClick={() => {
+                this.setState({
+                  transform: scaleString !== "" ? "" : "scale(2)",
+                  transformOrigin:
+                    scaleString !== "" ? "0% 0%" : "0% calc(100% - 60px)"
+                });
               }}
-            >
-              {
-                <TimelineView
-                  data={filteredSpeciesData}
-                  initWidth={this.state.initWidthForVis}
-                  tradeData={this.state.speciesTrades}
-                  pieStyle="pie"
-                  groupSame="true"
-                  sortGrouped="trend"
-                  heatStyle="dom"
-                  usePreGenerated={this.usePreGenerated}
-                  addSpeciesToMap={this.addSpeciesToMap.bind(this)}
-                  removeSpeciesFromMap={this.removeSpeciesFromMap.bind(this)}
-                  setSpeciesSignThreats={this.setSpeciesSignThreats.bind(this)}
-                  getSpeciesSignThreats={this.getSpeciesSignThreats.bind(this)}
-                  getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
-                  treeImageLinks={imageLinks}
-                  dummyImageLinks={dummyLinks}
-                  setHover={this.setHover.bind(this)}
-                  setTimeFrame={this.setTimeFrame.bind(this)}
-                  timeFrame={this.state.timeFrame}
-                  colorBlind={this.state.colorBlind}
-                  setFilter={this.setFilter.bind(this)}
-                  getAnimalIcon={this.getAnimalIcon.bind(this)}
-                  getPlantIcon={this.getPlantIcon.bind(this)}
-                  species={species}
-                  lastSpeciesSigns={lastSpeciesSigns}
-                  lastSpeciesThreats={lastSpeciesThreats}
-                />
-              }
-              <div key="tooltip" id="tooltip" className="tooltip"></div>
-            </div>
-          )}
+            />
+          </div>
           <div
             style={{
               gridColumnStart: 2,
               gridColumnEnd: 2,
-              gridRowStart: 1,
-              gridRowEnd: 1
+              gridRowStart: 3,
+              gridRowEnd: 3,
+              position: "relative"
             }}
           >
-            {/* <button onClick={(event) => {
-                            if (this.state.addAllCountries === false) {
-                                this.addAllCountries();
-                            }
-                            else {
-                                this.removeAllCountries();
-                            }
-                        }}>
-                            {this.state.addAllCountries ? "Remove all Countries" : "Add all countries"}
-                        </button> */}
-            {/* <button onClick={(event) => {
-                            if (this.state.heatMap === false) {
-                                this.activateHeatMap();
-                            }
-                            else {
-                                this.deactivateHeatMap();
-                            }
-                        }}>
-                            {this.state.heatMap ? "Deactivate HeatMap" : "Activate HeatMap"}
-                        </button> */}
-            {/* <button onClick={(event) => {
-                            if (this.state.diversity === false) {
-                                this.activateDiversity();
-                            }
-                            else {
-                                this.deactivateDiversity();
-                            }
-                        }}>
-                            {this.state.diversity ? "Deactivate Diversity" : "Activate Diversity"}
-                        </button> */}
-            {/*  <button
-              onClick={(event) => {
-                this.toggleTreeThreatType();
-              }}
-            >
-              {this.state.treeThreatType ? "Economically" : "Ecologically"}
-            </button> */}
-            {/* <button onClick={(event) => {
-                            this.toggleDiversityMapMode();
-                        }}>
-                            {this.state.diversityMode ? "Distribution" : "Eco/Eco"}
-                        </button> */}
-            {/* <select
-                            id="diversitySelect"
-                            value={this.state.diversityAttribute}
-                            onChange={this.onSelectChangeDiversityAttribute.bind(this)}>
-                            {
-                                this.getDiverstiyAttributeSelectOptions()
-                            }
-                        </select> */}
-            {!this.usePreGenerated ? (
-              <button
-                onClick={(event) => {
-                  this.save();
-                }}
-              >
-                {"Save"}
-              </button>
-            ) : (
-              []
-            )}
-            {/* <button
-              onClick={(event) => {
-                this.saveEcoRegionSpecies();
-              }}
-            >
-              {"Save EcoRegionStatistics"}
-            </button> */}
             {this.renderMapScale(
               this.state.diversityScale,
               this.state.diversityScaleType
@@ -2139,9 +2146,29 @@ class Home extends Component {
             ) : (
               []
             )}
+            <FullScreenButton
+              scaleString={scaleString}
+              onClick={() => {
+                this.setState({
+                  transform: scaleString !== "" ? "" : "scale(2)",
+                  transformOrigin:
+                    scaleString !== "" ? "0% 0%" : "100% calc(100% - 60px)"
+                });
+              }}
+            />
+          </div>
+          <div
+            style={{
+              gridColumnStart: 1,
+              gridColumnEnd: "span 2",
+              gridRowStart: 4,
+              gridRowEnd: 4
+            }}
+          >
+            Footer
           </div>
         </div>
-      </div>
+      </>
     );
   }
 }

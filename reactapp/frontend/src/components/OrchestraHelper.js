@@ -35,8 +35,12 @@ class D3Orchestra {
 
     this.pies = {};
 
-    this.initWidth = window.innerWidth / 2 - 35;
-    this.initHeight = window.innerHeight / 2 - 94;
+    console.log(param.width, param.height);
+
+    this.initWidth =
+      param.width !== undefined ? param.width : window.innerWidth / 2 - 35;
+    this.initHeight =
+      param.height !== undefined ? param.height : window.innerHeight / 2 - 94;
 
     this.positionX = this.initWidth / 2;
     this.positionY = this.initHeight / 2 + 100;

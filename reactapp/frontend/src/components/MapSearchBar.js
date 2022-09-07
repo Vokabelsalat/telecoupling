@@ -72,6 +72,20 @@ class MapSearchBar extends Component {
     this.state.setFilter(filter);
   }
 
+  getLabel(mode) {
+    console.log(mode);
+    switch (mode) {
+      case "country":
+        return "Country Search";
+      case "hexagon":
+        return "Hexagon Search";
+      case "eco":
+        return "Ecoregion Search";
+      default:
+        break;
+    }
+  }
+
   render() {
     let currentValue = this.state.currentValue;
     let setValue = this.setValue.bind(this);
@@ -100,6 +114,8 @@ class MapSearchBar extends Component {
 
       return b.type === "biom" ? 1 : -1;
     }); */
+
+    let label = this.getLabel(mode);
 
     return (
       <Autocomplete
@@ -149,7 +165,7 @@ class MapSearchBar extends Component {
           <TextField
             {...params}
             className={currentValue ? "filterUsed" : ""}
-            label={`${mode} Search`}
+            label={`${label}`}
             size="small"
           />
         )}

@@ -2048,8 +2048,6 @@ class D3Timeline {
         .style("align-self", "start")
         .text("Cites:");
 
-      console.log(this.lastSpeciesThreats);
-
       tradeTable
         .append("div")
         .style("grid-column-start", 2)

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import TimelineHelper from "./TimelineHelper";
+import TimelineElement from "./TimelineElement";
 import "../utils/utils";
 
 class Timeline extends Component {
@@ -13,7 +14,6 @@ class Timeline extends Component {
 
   setZoomLevel(setValue) {
     if (setValue > 0) {
-      console.log("zoom");
       this.props.addUnmutedSpecies(this.props.speciesName);
       this.setState({ zoomLevel: setValue });
     } else {
@@ -23,7 +23,7 @@ class Timeline extends Component {
   }
 
   componentDidMount() {
-    TimelineHelper.draw({
+    /* TimelineHelper.draw({
       id: this.state.id,
       initWidth: this.props.initWidth,
       data: this.props.data,
@@ -57,11 +57,11 @@ class Timeline extends Component {
       getAnimalIcon: this.props.getAnimalIcon,
       lastSpeciesSigns: this.props.lastSpeciesSigns,
       lastSpeciesThreats: this.props.lastSpeciesThreats
-    });
+    }); */
   }
 
   componentDidUpdate(prevProps) {
-    if (
+    /* if (
       (JSON.stringify(prevProps.timeFrame) !==
         JSON.stringify(this.props.timeFrame) &&
         !this.state.id.includes("scale")) ||
@@ -110,11 +110,16 @@ class Timeline extends Component {
         lastSpeciesSigns: this.props.lastSpeciesSigns,
         lastSpeciesThreats: this.props.lastSpeciesThreats
       });
-    }
+    } */
   }
 
   render() {
-    return <div id={this.state.id} className="timelineVis"></div>;
+    return (
+      <div key={this.state.id}>
+        <TimelineElement {...this.props} />
+      </div>
+    );
+    //return <div id={this.state.id} className="timelineVis"></div>;
   }
 }
 
