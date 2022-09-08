@@ -2,18 +2,28 @@ import Orchestra from "./Orchestra";
 import OrchestraGroup from "./OrchestraGroup";
 import { useState, useRef, useEffect, useCallback } from "react";
 
+const groupToPosition = {
+  Keyboard: 0,
+  Plucked: 1,
+  Percussion: 2,
+  Woodwinds: 3,
+  Brasses: 4,
+  Strings: 5
+};
+
 export default function OrchestraNew(props) {
-  const { data, width, height } = props;
+  const { data, width, height, instrumentData, instrumentGroupData } = props;
 
   const ref = useRef(null);
-  const scale = useRef(null);
 
   const [selected, setSelected] = useState(null);
   const [zoom, setZoom] = useState(null);
   const [scaleString, setScaleString] = useState(null);
 
-  let scaledWidth = useRef(null);
-  let scaledHeight = useRef(null);
+  const [scaledWidth, setScaledWidth] = useState(width);
+  const [scaledHeight, setScaledHeight] = useState(height);
+
+  const [scale, setScale] = useState(1);
 
   useEffect(() => {
     if (ref) {
@@ -21,39 +31,47 @@ export default function OrchestraNew(props) {
         let actWidth = ref.current.getBBox().width;
         let actHeight = ref.current.getBBox().height;
 
-        if (width < height) scale.current = width / actWidth;
-        if (height < width) scale.current = height / actHeight;
+        actWidth = actWidth > 0 ? actWidth : 1;
+        actHeight = actHeight > 0 ? actHeight : 0.5;
 
-        scaledWidth.current = actWidth * scale.current;
-        scaledHeight.current = actHeight * scale.current;
+        let tmpScale = scale;
+        if (width < height) {
+          tmpScale = width / actWidth;
+        }
+        if (height < width) {
+          tmpScale = height / actHeight;
+        }
+
+        setScaledWidth(actWidth * scale);
+        setScaledHeight(actHeight * scale);
+        setScale(tmpScale);
       }
     }
-  }, [width, height]);
+  }, [width, height, scale, instrumentGroupData]);
 
-  const zoomInto = useCallback((i_zoom) => {
-    let scaleStringTmp;
-    if (i_zoom) {
-      let x0 = i_zoom.x;
-      let x1 = i_zoom.x + i_zoom.width;
-      let y0 = i_zoom.y;
-      let y1 = i_zoom.y + i_zoom.height;
+  const zoomInto = useCallback(
+    (i_zoom) => {
+      let scaleStringTmp;
+      if (i_zoom) {
+        let x0 = i_zoom.x;
+        let x1 = i_zoom.x + i_zoom.width;
+        let y0 = i_zoom.y;
+        let y1 = i_zoom.y + i_zoom.height;
 
-      scaleStringTmp = `translate(${scaledWidth.current / 2}, ${
-        scaledHeight.current / 2
-      }) scale(${Math.min(
-        8,
-        0.9 /
-          Math.max(
-            (x1 - x0) / scaledWidth.current,
-            (y1 - y0) / scaledHeight.current
-          )
-      )}) translate(${-(x0 + x1) / 2}, ${-(y0 + y1) / 2})`;
-      setScaleString(scaleStringTmp);
-    } else {
-      scaleStringTmp = `scale(${scale.current})`;
-      setScaleString(scaleStringTmp);
-    }
-  }, []);
+        scaleStringTmp = `translate(${scaledWidth / 2}, ${
+          scaledHeight / 2
+        }) scale(${Math.min(
+          8,
+          0.9 / Math.max((x1 - x0) / scaledWidth, (y1 - y0) / scaledHeight)
+        )}) translate(${-(x0 + x1) / 2}, ${-(y0 + y1) / 2})`;
+        setScaleString(scaleStringTmp);
+      } else {
+        scaleStringTmp = `scale(${scale})`;
+        setScaleString(scaleStringTmp);
+      }
+    },
+    [scaledWidth, scaledHeight]
+  );
 
   return (
     <div
@@ -83,52 +101,33 @@ export default function OrchestraNew(props) {
         Reset
       </div>
       <svg
-        width={scaledWidth.current}
-        height={scaledHeight.current}
+        width={scaledWidth}
+        height={scaledHeight}
         style={{
           border: "1px solid gray"
         }}
       >
         <g
           ref={ref}
-          transform={`${scaleString ? scaleString : `scale(${scale.current})`}`}
+          transform={`${scaleString ? scaleString : `scale(${scale})`}`}
         >
-          <OrchestraGroup
-            position={0}
-            setSelected={setSelected}
-            selected={selected}
-            setZoom={zoomInto}
-          />
-          <OrchestraGroup
-            position={1}
-            setSelected={setSelected}
-            selected={selected}
-            setZoom={zoomInto}
-          />
-          <OrchestraGroup
-            position={2}
-            setSelected={setSelected}
-            selected={selected}
-            setZoom={zoomInto}
-          />
-          <OrchestraGroup
-            position={3}
-            setSelected={setSelected}
-            selected={selected}
-            setZoom={zoomInto}
-          />
-          <OrchestraGroup
-            position={4}
-            setSelected={setSelected}
-            selected={selected}
-            setZoom={zoomInto}
-          />
-          <OrchestraGroup
-            position={5}
-            setSelected={setSelected}
-            selected={selected}
-            setZoom={zoomInto}
-          />
+          {Object.keys(instrumentGroupData).map((group) => {
+            const i = groupToPosition[group];
+            return (
+              <OrchestraGroup
+                key={`OrchestraGroup${i}`}
+                groupName={group}
+                id={i}
+                position={{
+                  x: 510 / 2,
+                  y: 255
+                }}
+                setSelected={setSelected}
+                selected={selected}
+                setZoom={zoomInto}
+              />
+            );
+          })}
         </g>
       </svg>
     </div>

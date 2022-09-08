@@ -33,6 +33,9 @@ export default function HomeNew(props) {
   const [speciesSignThreats, setSpeciesSignThreats] = useState({});
   const [timelineData, setTimelineData] = useState({});
 
+  const [instrumentGroupData, setInstrumentGroupData] = useState({});
+  const [instrumentData, setInstrumentData] = useState({});
+
   const [domainYears, setDomainYears] = useState({});
 
   const slice = false;
@@ -120,12 +123,31 @@ export default function HomeNew(props) {
         let tmpSpeciesSignThreats = {};
         let tmpTimelineData = {};
         let tmpYears = new Set();
+        let tmpInstrumentGroupData = {};
+        let tmpInstrumentData = {};
 
         for (const spec of Object.keys(speciesData)) {
-          tmpImageLinks[spec] = returnImageLink(speciesData[spec]);
-          tmpDummyImageLinks[spec] = returnDummyLink(speciesData[spec]);
-
           const speciesObj = speciesData[spec];
+
+          tmpImageLinks[spec] = returnImageLink(speciesObj);
+          tmpDummyImageLinks[spec] = returnDummyLink(speciesObj);
+
+          for (const mat of speciesObj.origMat) {
+            if (tmpInstrumentGroupData[mat.Instrument_groups]) {
+              tmpInstrumentGroupData[mat.Instrument_groups].push(
+                mat.Instruments
+              );
+            } else {
+              tmpInstrumentGroupData[mat.Instrument_groups] = [mat.Instruments];
+            }
+
+            if (tmpInstrumentData[mat.Instruments]) {
+              tmpInstrumentData[mat.Instruments].push(spec);
+            } else {
+              tmpInstrumentData[mat.Instruments] = [spec];
+            }
+          }
+
           let tmpElement = {
             iucn: [],
             cites: [],
@@ -227,6 +249,19 @@ export default function HomeNew(props) {
             iucn: [...tmpElement["iucn"]].pop()
           };
         }
+
+        for (const group of Object.keys(tmpInstrumentGroupData)) {
+          tmpInstrumentGroupData[group] = [
+            ...new Set(tmpInstrumentGroupData[group])
+          ];
+        }
+
+        for (const instrument of Object.keys(tmpInstrumentData)) {
+          tmpInstrumentData[instrument] = [
+            ...new Set(tmpInstrumentData[instrument])
+          ];
+        }
+
         let tmpDomainYears = {
           maxYear: Math.max(...tmpYears) + 1,
           minYear: Math.min(...tmpYears) - 1
@@ -238,6 +273,8 @@ export default function HomeNew(props) {
         setTimelineData(tmpTimelineData);
         setSpecies(speciesData);
         setDomainYears(tmpDomainYears);
+        setInstrumentData(tmpInstrumentData);
+        setInstrumentGroupData(tmpInstrumentGroupData);
       })
       .catch((error) => {
         console.log(`Couldn't find file allSpecies.json`, error);
@@ -275,7 +312,10 @@ export default function HomeNew(props) {
           }}
         >
           <ResizeComponent>
-            <OrchestraNew />
+            <OrchestraNew
+              instrumentData={instrumentData}
+              instrumentGroupData={instrumentGroupData}
+            />
           </ResizeComponent>
           <FullScreenButton
             scaleString={zoomTransform}

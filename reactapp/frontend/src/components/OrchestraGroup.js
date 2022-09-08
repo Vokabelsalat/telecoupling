@@ -1,89 +1,76 @@
 import { useEffect, useRef } from "react";
-import { polarToCartesian } from "../utils/orchestraUtils";
+import { polarToCartesian, describeArc } from "../utils/orchestraUtils";
+import InstrumentGroupIcon from "./InstrumentGroupIcon";
 
 const positionsToPathString = {
-  0: "M 0,264.58333 A 264.58333,264.58333 0 0 1 45.23381,116.63021 l 111.82524,75.42709 a 129.69771,129.69771 0 0 0 -22.17343,72.52603 z",
-  1: "M 47.849356,112.82457 A 264.58333,264.58333 0 0 1 169.76514,17.573514 l 48.33869,125.926576 a 129.69771,129.69771 0 0 0 -59.76265,46.6917 z",
-  2: "m 174.0905,15.95633 a 264.58333,264.58333 0 0 1 180.98567,0 l -46.1336,126.75102 a 129.69771,129.69771 0 0 0 -88.71847,0 z",
-  3: "m 359.40152,17.573514 a 264.58333,264.58333 0 0 1 121.91579,95.251056 l -110.49183,77.36722 a 129.69771,129.69771 0 0 0 -59.76265,-46.6917 z",
-  4: "m 483.93286,116.63021 a 264.58333,264.58333 0 0 1 45.23381,147.95312 H 394.28105 A 129.69771,129.69771 0 0 0 372.10761,192.0573 Z",
-  5: "m 137.99837,264.58333 a 126.58497,126.58497 0 0 1 253.16993,0 H 272.88399 a 8.300655,8.300655 0 0 0 -16.60131,0 z"
+  0: { width: 190, strokeWidth: 130, start: 305 - 1, end: 270 },
+  1: { width: 190, strokeWidth: 130, start: 340 - 1, end: 305 },
+  2: { width: 190, strokeWidth: 130, start: 380, end: 340 },
+  3: { width: 190, strokeWidth: 130, start: 415, end: 380 + 1 },
+  4: { width: 190, strokeWidth: 130, start: 450, end: 415 + 1 },
+  5: { width: 65, strokeWidth: 114, start: 90, end: 270 }
 };
 
-const describeArc = (
-  x,
-  y,
-  radius,
-  startAngle,
-  endAngle,
-  direction = 0,
-  withoutM = false
-) => {
-  var start = polarToCartesian(x, y, radius, endAngle);
-  var end = polarToCartesian(x, y, radius, startAngle);
+const calculatePath = (x, y, options) => {
+  const { width, strokeWidth, start, end } = options;
+  const upper = describeArc(x, y, width + strokeWidth / 2, start, end, 1);
 
-  if (direction === 0) {
-    let tmp = start;
-    start = end;
-    end = tmp;
-  }
+  const lower = describeArc(x, y, width - strokeWidth / 2, start, end, 0, true);
 
-  var largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
-  let d;
-
-  if (withoutM) {
-    d = [
-      "L",
-      start.x,
-      start.y,
-      "A",
-      radius,
-      radius,
-      0,
-      largeArcFlag,
-      direction,
-      end.x,
-      end.y
-    ].join(" ");
-  } else {
-    d = [
-      "M",
-      start.x,
-      start.y,
-      "A",
-      radius,
-      radius,
-      0,
-      largeArcFlag,
-      direction,
-      end.x,
-      end.y
-    ].join(" ");
-  }
-
-  return d;
-};
-
-const describeLine = (x, y, endX, endY, withoutM) => {
-  if (withoutM) return ["L", endX, endY].join(" ");
-  else return ["M", x, y, "L", endX, endY].join(" ");
+  return [upper, lower, "Z"].join(" ");
 };
 
 export default function OrchestraGroup(props) {
-  const { position, selected, setSelected, setZoom } = props;
+  const { id, groupName, position, selected, setSelected, setZoom } = props;
 
   const ref = useRef(null);
+  const iconTextRef = useRef(null);
 
-  const pathString = positionsToPathString[position.toString()];
+  const pathString = calculatePath(
+    position.x,
+    position.y,
+    positionsToPathString[id.toString()]
+  );
+
+  let acrOptions = positionsToPathString[id.toString()];
+  const textPathString = describeArc(
+    position.x,
+    position.y,
+    acrOptions.width + acrOptions.strokeWidth / 2 - 18,
+    acrOptions.start,
+    acrOptions.end,
+    1,
+    false
+  );
+
+  const threatIconPathString = describeArc(
+    position.x,
+    position.y,
+    acrOptions.width,
+    acrOptions.start,
+    acrOptions.end,
+    1,
+    false
+  );
+
+  const iconPathString = describeArc(
+    position.x,
+    position.y,
+    acrOptions.width - acrOptions.strokeWidth / 2 + 28,
+    acrOptions.start,
+    acrOptions.end,
+    1,
+    false
+  );
 
   return (
     <>
       <g>
         <path
           ref={ref}
-          fill={selected === position ? "white" : "white"}
-          stroke={selected === position ? "purple" : "gray"}
-          strokeWidth={selected === position ? "3px" : "1px"}
+          fill={selected === id ? "white" : "white"}
+          stroke={selected === id ? "purple" : "gray"}
+          strokeWidth={selected === id ? "3px" : "1px"}
           d={pathString}
           onClick={() => {
             if (ref) {
@@ -91,26 +78,68 @@ export default function OrchestraGroup(props) {
                 setZoom(ref.current.getBBox());
               }
             }
-            setSelected(position);
+            setSelected(id);
           }}
         ></path>
-        <g>
-          <rect
-            width="2"
-            height="2"
-            fill="purple"
-            x={`${
-              ref.current
-                ? ref.current.getBBox().x + ref.current.getBBox().width / 2
-                : 0
-            }`}
-            y={`${
-              ref.current
-                ? ref.current.getBBox().y + ref.current.getBBox().height / 2
-                : 0
-            }`}
-          ></rect>
-        </g>
+        <path
+          id={`pathForText${id}`}
+          stroke={selected === id ? "purple" : "gray"}
+          strokeWidth={selected === id ? "3px" : "1px"}
+          fill="none"
+          d={textPathString}
+        ></path>
+        <text id={`${id}text`} className="text" style={{ opacity: 1 }}>
+          <textPath
+            className="textonpath noselect"
+            href={`#pathForText${id}`}
+            fontSize="10"
+            textAnchor="middle"
+            startOffset="50%"
+            id={`textPath${id}`}
+            style={{ dominantBaseline: "central" }}
+          >
+            {groupName}
+          </textPath>
+        </text>
+        <path
+          stroke={selected === id ? "purple" : "gray"}
+          strokeWidth={selected === id ? "3px" : "1px"}
+          fill="none"
+          id={`pathForThreatIcon${id}`}
+          d={threatIconPathString}
+        ></path>
+        <path
+          stroke={selected === id ? "purple" : "gray"}
+          strokeWidth={selected === id ? "3px" : "1px"}
+          fill="none"
+          id={`pathForIcon${id}`}
+          d={iconPathString}
+        ></path>
+        <text id={`${id}textForIcon`} className="text" style={{ opacity: 1 }}>
+          <textPath
+            ref={iconTextRef}
+            className="textonpath noselect"
+            href={`#pathForIcon${id}`}
+            fontSize="1"
+            textAnchor="middle"
+            startOffset="50%"
+            id={`textPath${id}`}
+            style={{ dominantBaseline: "central", opacity: 0 }}
+          >
+            m
+          </textPath>
+        </text>
+        <InstrumentGroupIcon
+          group={groupName}
+          position={{
+            x:
+              iconTextRef.current !== null
+                ? iconTextRef.current.getBBox().x
+                : 0,
+            y:
+              iconTextRef.current !== null ? iconTextRef.current.getBBox().y : 0
+          }}
+        />
       </g>
     </>
   );
