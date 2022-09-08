@@ -27,7 +27,6 @@ export default function TimelineRows(props) {
           data={data.cites}
           x={x}
           colorBlind={colorBlind}
-          populationTrend={populationTrend}
           tooltip={tooltip}
         />
       )}
@@ -38,7 +37,7 @@ export default function TimelineRows(props) {
           data={data.iucn}
           x={x}
           colorBlind={colorBlind}
-          populationTrend={populationTrend}
+          populationTrend={data.populationTrend}
           tooltip={tooltip}
         />
       )}
@@ -49,7 +48,6 @@ export default function TimelineRows(props) {
           data={data.bgci}
           x={x}
           colorBlind={colorBlind}
-          populationTrend={populationTrend}
           tooltip={tooltip}
         />
       )}

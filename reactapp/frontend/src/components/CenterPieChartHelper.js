@@ -17,11 +17,8 @@ class CenterPieChartD3 {
     this.id = param.id;
     this.data = param.data;
     this.colorBlind = param.colorBlind;
-    this.treeThreatType = param.treeThreatType
-      ? "economically"
-      : "ecologically";
+    this.treeThreatType = param.treeThreatType;
     this.getTreeThreatLevel = param.getTreeThreatLevel;
-    this.lastSpeciesSigns = param.lastSpeciesSigns;
 
     d3.selection.prototype.moveToFront = function () {
       this.each(function () {
@@ -45,9 +42,7 @@ class CenterPieChartD3 {
 
     let threats = [];
     for (let species of Object.keys(this.data)) {
-      let threat = this.lastSpeciesSigns[species]
-        ? this.lastSpeciesSigns[species][this.treeThreatType]
-        : null;
+      let threat = this.getTreeThreatLevel(species, this.treeThreatType);
       if (threat) threats.push(threat);
     }
 

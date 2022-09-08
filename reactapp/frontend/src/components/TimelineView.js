@@ -187,7 +187,6 @@ class TimelineView extends Component {
 
   prepareData(inputData) {
     let outputData = {};
-    let assessmentPerYear = {};
     for (const species of Object.keys(inputData)) {
       const speciesData = inputData[species];
       let tmpElement = { iucn: [], cites: [], bgci: [] };

@@ -133,7 +133,7 @@ class TimelineScaleD3 extends Component {
           <g
             id={`${this.props.id}SliderGroup`}
             transform={`translate(${this.props.x(
-              this.props.domainYears.minYear
+              this.props.domainYears.minYear/*  */
             )} ${this.props.bottom ? 0 : 40})`}
           ></g>
         </svg>

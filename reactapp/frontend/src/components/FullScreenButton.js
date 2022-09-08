@@ -4,7 +4,7 @@ import {
 } from "@heroicons/react/24/solid";
 
 export default function FullScreenButton(props) {
-  const { scaleString, onClick } = props;
+  const { scaleString, onClick, setTooltip } = props;
 
   return (
     <button
@@ -16,6 +16,13 @@ export default function FullScreenButton(props) {
         border: "none"
       }}
       onClick={onClick}
+      onMouseEnter={(event) => {
+        if (setTooltip)
+          setTooltip("Enter Fullscreen", { x: event.pageX, y: event.pageY });
+      }}
+      onMouseLeave={(event) => {
+        if (setTooltip) setTooltip("", { x: event.pageX, y: event.pageY });
+      }}
     >
       {scaleString !== "" ? (
         <ArrowsPointingInIcon

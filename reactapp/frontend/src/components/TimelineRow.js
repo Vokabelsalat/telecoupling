@@ -63,10 +63,6 @@ export default function TimelineRow(props) {
             <g
               key={`${assessmentAndElement.element.year}${assessmentAndElement.element.type}${assessmentAndElement.element.text}${assessmentAndElement.element.sciName}${colorBlind}`}
               transform={`translate(${xVal}, 0)`}
-              onMouseOver={(event) => {
-                console.log(event);
-                tooltip(year, { x: event.pageX, y: event.pageY });
-              }}
             >
               <rect
                 height={4}
@@ -80,6 +76,12 @@ export default function TimelineRow(props) {
                   rowHeight / 2
                 } L 0 ${rowHeight} z`}
                 fill={color}
+                onMouseEnter={(event) => {
+                  tooltip(year, { x: event.pageX + 15, y: event.pageY + 15 });
+                }}
+                onMouseLeave={(event) => {
+                  tooltip("", { x: event.pageX + 15, y: event.pageY + 15 });
+                }}
               />
             </g>
           );
