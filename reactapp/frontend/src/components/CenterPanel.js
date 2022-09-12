@@ -1,4 +1,4 @@
-import CenterPieChartNew from "./CenterPieChartNew";
+import PieChartNew from "./PieChartNew";
 import Switch from "@mui/material/Switch";
 import ResizeComponent from "./ResizeComponent";
 
@@ -17,7 +17,7 @@ export default function CenterPanel(props) {
       }}
     >
       <div></div>
-      <CenterPieChartNew
+      <PieChartNew
         data={data}
         getThreatLevel={getSpeciesThreatLevel}
         threatType={threatType}

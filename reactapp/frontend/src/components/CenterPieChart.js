@@ -7,7 +7,7 @@ import {
   citesAssessment
 } from "../utils/timelineUtils";
 import { dangerColorMap } from "../utils/utils";
-import CenterPieChartHelper from "./CenterPieChartHelper";
+import PieChartHelper from "./PieChartHelper";
 
 class CenterPieChart extends Component {
   constructor(props) {
@@ -22,7 +22,7 @@ class CenterPieChart extends Component {
   }
 
   componentDidMount() {
-    CenterPieChartHelper.draw({
+    PieChartHelper.draw({
       id: this.state.id,
       data: this.props.data,
       getTreeThreatLevel: this.props.getTreeThreatLevel,
@@ -40,7 +40,7 @@ class CenterPieChart extends Component {
       JSON.stringify(this.props.lastSpeciesSigns) !==
         JSON.stringify(prevProps.lastSpeciesSigns)
     ) {
-      CenterPieChartHelper.draw({
+      PieChartHelper.draw({
         id: this.state.id,
         data: this.props.data,
         getTreeThreatLevel: this.props.getTreeThreatLevel,

@@ -24,19 +24,26 @@ export default function HomeNew(props) {
   const [imageLinks, setImageLinks] = useState({});
   const [dummyImageLinks, setDummyImageLinks] = useState({});
 
+  const [instrument, setInstrument] = useState();
+  const [instrumentGroup, setInstrumentGroup] = useState();
+
   const [species, setSpecies] = useState({});
 
   const [timeFrame, setTimeFrame] = useState([]);
 
   const [colorBlind, setColorBlind] = useState(false);
 
+  const [threatType, setThreatType] = useState("economically");
+
   const [speciesSignThreats, setSpeciesSignThreats] = useState({});
   const [timelineData, setTimelineData] = useState({});
+
+  const [filteredSpecies, setFilteredSpecies] = useState([]);
 
   const [instrumentGroupData, setInstrumentGroupData] = useState({});
   const [instrumentData, setInstrumentData] = useState({});
 
-  const [domainYears, setDomainYears] = useState({});
+  const [domainYears, setDomainYears] = useState({ maxYear: 1, minYear: 2 });
 
   const slice = false;
 
@@ -68,7 +75,11 @@ export default function HomeNew(props) {
     return null;
   };
 
-  const getSpeciesSignThreat = (species, type) => {
+  const getSpeciesSignThreat = (species, type = null) => {
+    if (type === null) {
+      type = threatType;
+    }
+
     const speciesObj = timelineData[species];
 
     if (type === "economically") {
@@ -125,9 +136,15 @@ export default function HomeNew(props) {
         let tmpYears = new Set();
         let tmpInstrumentGroupData = {};
         let tmpInstrumentData = {};
+        let tmpFilteredSpecies = [];
 
         for (const spec of Object.keys(speciesData)) {
+          let instrumentGroupHit = true;
           const speciesObj = speciesData[spec];
+
+          if (instrumentGroup && !speciesObj.groups.includes(instrumentGroup)) {
+            instrumentGroupHit = false;
+          }
 
           tmpImageLinks[spec] = returnImageLink(speciesObj);
           tmpDummyImageLinks[spec] = returnDummyLink(speciesObj);
@@ -152,13 +169,16 @@ export default function HomeNew(props) {
             iucn: [],
             cites: [],
             bgci: [],
-            populationTrend: speciesObj.populationTrend
+            populationTrend: speciesObj.populationTrend,
+            isAnimal: speciesObj.Kingdom === "Animalia" ? true : false
           };
 
           if (speciesObj.timeIUCN.length > 0) {
             let assessmentPerYear = {};
             for (let element of speciesObj.timeIUCN) {
-              tmpYears.add(element.year);
+              if (instrumentGroupHit) {
+                tmpYears.add(parseInt(element.year));
+              }
               let year = element.year.toString();
               let assessment = iucnAssessment.get(element.code);
 
@@ -188,7 +208,9 @@ export default function HomeNew(props) {
             let assessmentPerYear = {};
             for (let element of speciesObj.timeThreat) {
               let year = element.year.toString();
-              tmpYears.add(element.year);
+              if (instrumentGroupHit) {
+                tmpYears.add(parseInt(element.year));
+              }
               let assessment = bgciAssessment.get(element.danger);
 
               if (assessmentPerYear.hasOwnProperty(year)) {
@@ -217,7 +239,9 @@ export default function HomeNew(props) {
             let assessmentPerYear = {};
             for (let element of speciesObj.timeListing) {
               let year = element.year.toString();
-              tmpYears.add(element.year);
+              if (instrumentGroupHit) {
+                tmpYears.add(parseInt(element.year));
+              }
               let assessment = citesAssessment.get(element.appendix);
 
               if (assessmentPerYear.hasOwnProperty(year)) {
@@ -248,6 +272,10 @@ export default function HomeNew(props) {
             threats: [...tmpElement["bgci"]].pop(),
             iucn: [...tmpElement["iucn"]].pop()
           };
+
+          if (instrumentGroupHit) {
+            tmpFilteredSpecies.push(spec);
+          }
         }
 
         for (const group of Object.keys(tmpInstrumentGroupData)) {
@@ -267,6 +295,8 @@ export default function HomeNew(props) {
           minYear: Math.min(...tmpYears) - 1
         };
 
+        console.log(tmpDomainYears, tmpYears);
+
         setImageLinks(tmpImageLinks);
         setDummyImageLinks(tmpDummyImageLinks);
         setSpeciesSignThreats(tmpSpeciesSignThreats);
@@ -275,11 +305,12 @@ export default function HomeNew(props) {
         setDomainYears(tmpDomainYears);
         setInstrumentData(tmpInstrumentData);
         setInstrumentGroupData(tmpInstrumentGroupData);
+        setFilteredSpecies(tmpFilteredSpecies);
       })
       .catch((error) => {
         console.log(`Couldn't find file allSpecies.json`, error);
       });
-  }, [slice]);
+  }, [slice, instrumentGroup]);
 
   const filteredSpeciesData = species;
 
@@ -315,6 +346,11 @@ export default function HomeNew(props) {
             <OrchestraNew
               instrumentData={instrumentData}
               instrumentGroupData={instrumentGroupData}
+              getThreatLevel={getSpeciesSignThreat}
+              threatType={"economically"}
+              colorBlind={colorBlind}
+              setInstrument={setInstrument}
+              setInstrumentGroup={setInstrumentGroup}
             />
           </ResizeComponent>
           <FullScreenButton
@@ -351,13 +387,15 @@ export default function HomeNew(props) {
             gridRowEnd: 2
           }}
         >
-          <CenterPanel
-            data={timelineData}
-            getSpeciesThreatLevel={getSpeciesSignThreat}
-            threatType={"economically"}
-            colorBlind={colorBlind}
-            setColorBlind={setColorBlind}
-          />
+          {
+            <CenterPanel
+              data={timelineData}
+              getSpeciesThreatLevel={getSpeciesSignThreat}
+              threatType={threatType}
+              colorBlind={colorBlind}
+              setColorBlind={setColorBlind}
+            />
+          }
         </div>
         <div
           style={{
@@ -382,6 +420,7 @@ export default function HomeNew(props) {
                   colorBlind={colorBlind}
                   tooltip={setTooltip}
                   domainYears={domainYears}
+                  filteredSpecies={filteredSpecies}
                 />
               </ResizeComponent>
             </>

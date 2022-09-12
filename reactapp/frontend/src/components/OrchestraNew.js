@@ -1,5 +1,6 @@
 import Orchestra from "./Orchestra";
 import OrchestraGroup from "./OrchestraGroup";
+import InstrumentGroupIcon from "./InstrumentGroupIcon";
 import { useState, useRef, useEffect, useCallback } from "react";
 
 const groupToPosition = {
@@ -12,7 +13,18 @@ const groupToPosition = {
 };
 
 export default function OrchestraNew(props) {
-  const { data, width, height, instrumentData, instrumentGroupData } = props;
+  const {
+    data,
+    width,
+    height,
+    instrumentData,
+    instrumentGroupData,
+    colorBlind,
+    threatType,
+    getThreatLevel,
+    setInstrument,
+    setInstrumentGroup
+  } = props;
 
   const ref = useRef(null);
 
@@ -94,8 +106,10 @@ export default function OrchestraNew(props) {
           padding: "1px"
         }}
         onClick={() => {
-          zoomInto(null);
           setSelected(null);
+          zoomInto(null);
+          setInstrument(null);
+          setInstrumentGroup(null);
         }}
       >
         Reset
@@ -113,6 +127,15 @@ export default function OrchestraNew(props) {
         >
           {Object.keys(instrumentGroupData).map((group) => {
             const i = groupToPosition[group];
+
+            const asArray = Object.entries(instrumentData);
+
+            const filtered = asArray.filter(([key, value]) =>
+              instrumentGroupData[group].includes(key)
+            );
+
+            const species = Object.fromEntries(filtered);
+
             return (
               <OrchestraGroup
                 key={`OrchestraGroup${i}`}
@@ -125,6 +148,13 @@ export default function OrchestraNew(props) {
                 setSelected={setSelected}
                 selected={selected}
                 setZoom={zoomInto}
+                instruments={instrumentGroupData[group]}
+                species={species}
+                getThreatLevel={getThreatLevel}
+                threatType={threatType}
+                colorBlind={colorBlind}
+                setInstrument={setInstrument}
+                setInstrumentGroup={setInstrumentGroup}
               />
             );
           })}

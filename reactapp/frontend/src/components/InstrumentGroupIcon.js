@@ -1,3 +1,4 @@
+import { transform } from "proj4";
 import { useEffect, useRef, useState } from "react";
 
 const groupToFileName = {
@@ -10,36 +11,42 @@ const groupToFileName = {
 };
 
 export default function InstrumentGroupIcon(props) {
-  const { group, position } = props;
-
-  const ref = useRef(null);
+  const { group, position, angle } = props;
 
   const fileName = groupToFileName[group];
 
-  const [transformString, setTransformString] = useState("");
+  let x = position.x;
+  let y = position.y;
+  let cx = 25 / 2;
+  let cy = 25 / 2;
 
-  useEffect(() => {
-    fetch("/" + fileName)
-      .then((response) => response.text())
-      .then((str) => new window.DOMParser().parseFromString(str, "text/xml"))
-      .then((data) => {
-        const iconData = data.querySelector("g");
-        if (ref) {
-          if (ref.current) {
-            ref.current.appendChild(iconData);
-          }
-        }
-      });
-  }, [fileName]);
+  const transformString =
+    "translate(" +
+    x +
+    " " +
+    y +
+    ") rotate(" +
+    angle +
+    ") translate(" +
+    -cx +
+    " " +
+    -cy +
+    ")";
 
-  useEffect(() => {
-    const ownWidth = ref.current.getBBox().width;
-    const ownHeight = ref.current.getBBox().height;
-
-    console.log(position, ownWidth, ownHeight);
-
-    setTransformString(`translate(${position.x} ${position.y})`);
-  });
-
-  return <g transform={`${transformString}`} ref={ref}></g>;
+  return (
+    <foreignObject transform={transformString} width={25} height={25}>
+      <div
+        style={{
+          width: "25px",
+          height: "25px"
+        }}
+      >
+        <img
+          style={{ width: "auto", height: "auto" }}
+          src={`${fileName}`}
+        ></img>
+      </div>
+    </foreignObject>
+  );
 }
+/*  */

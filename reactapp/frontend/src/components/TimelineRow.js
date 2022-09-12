@@ -54,10 +54,18 @@ export default function TimelineRow(props) {
       <svg height={`${rowHeight}`} width={width}>
         {data.map((assessmentAndElement) => {
           let year = assessmentAndElement.element.year;
-          let xVal = x(assessmentAndElement.element.year);
+          let xVal = x(parseInt(assessmentAndElement.element.year));
           if (xVal < 0) {
             return;
           }
+          console.log(
+            width,
+            xVal,
+            width - xVal,
+            parseInt(assessmentAndElement.element.year),
+            assessmentAndElement
+          );
+
           let color = assessmentAndElement.assessment.getColor(colorBlind);
           return (
             <g

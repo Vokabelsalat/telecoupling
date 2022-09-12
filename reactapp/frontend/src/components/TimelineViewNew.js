@@ -26,130 +26,122 @@ export default function TimelineViewNew(props) {
     imageLinks,
     dummyImageLinks,
     colorBlind,
-    getTreeThreatLevel
+    getTreeThreatLevel,
+    filteredSpecies
   } = props;
 
   //const [x, setX] = useState(null);
-  const [timescaleWidth, setTimescaleWidth] = useState(0);
+  //const [timescaleWidth, setTimescaleWidth] = useState(0);
 
-  let x = useRef(null);
+  let x = (val) => 6;
 
-  useEffect(() => {
-    let timescaleWidth = Math.max(width, 160) - 160;
-    if (
-      Number.isInteger(domainYears.minYear) &&
-      Number.isInteger(domainYears.maxYear)
-    ) {
-      let yearDiff = domainYears.maxYear - domainYears.minYear;
+  let timescaleWidth = Math.max(width, 160) - 160;
+  if (
+    Number.isInteger(domainYears.minYear) &&
+    Number.isInteger(domainYears.maxYear)
+  ) {
+    let yearDiff = domainYears.maxYear - domainYears.minYear;
 
-      let xDomain = Array(yearDiff + 1)
-        .fill()
-        .map((_, i) => domainYears.minYear - 1 + i + 1);
+    let xDomain = Array(yearDiff + 1)
+      .fill()
+      .map((_, i) => domainYears.minYear - 1 + i + 1);
 
-      x.current = d3
-        .scaleBand()
-        .domain(xDomain)
-        .rangeRound([0, timescaleWidth]);
-    }
+    x = d3.scaleBand().domain(xDomain).rangeRound([0, timescaleWidth]);
+  }
 
-    setTimescaleWidth(timescaleWidth);
-  }, [domainYears, width]);
+  const sortedKeys = Object.keys(data)
+    .filter((e) => filteredSpecies.includes(e))
+    .sort();
 
-  const sortedKeys = Object.keys(data).sort();
-
-  if (x.current === null) {
-    return <></>;
-  } else {
-    return (
-      <div
-        style={{
-          display: "grid",
-          width: "100%",
-          height: "100%",
-          maxHeight: "100%",
-          gridTemplateColumns: "auto",
-          gridTemplateRows: `min-content 1fr min-content`
-        }}
-      >
-        {
-          <TimelineScaleD3
-            id={"scaleTop2"}
-            key={"scaleToptimeline"}
-            data={null}
-            speciesName={"scaleTop"}
-            domainYears={domainYears}
-            setTimeFrame={setTimeFrame}
-            timeFrame={timeFrame}
-            x={x.current}
-            width={timescaleWidth}
-          />
-        }
-        {
+  return (
+    <div
+      style={{
+        display: "grid",
+        width: "100%",
+        height: "100%",
+        maxHeight: "100%",
+        gridTemplateColumns: "auto",
+        gridTemplateRows: `min-content 1fr min-content`
+      }}
+    >
+      {
+        <TimelineScaleD3
+          id={"scaleTop2"}
+          key={`scaleToptimeline${JSON.stringify(domainYears)}`}
+          data={null}
+          speciesName={"scaleTop"}
+          domainYears={domainYears}
+          setTimeFrame={setTimeFrame}
+          timeFrame={timeFrame}
+          x={x}
+          width={timescaleWidth}
+        />
+      }
+      {
+        <div
+          style={{
+            overflowY: "scroll",
+            width: "fit-content",
+            position: "relative",
+            marginLeft: "3px"
+          }}
+        >
           <div
             style={{
-              overflowY: "scroll",
-              width: "fit-content",
-              position: "relative",
-              marginLeft: "3px"
+              position: "relative"
             }}
           >
-            <div
-              style={{
-                position: "relative"
-              }}
-            >
-              {sortedKeys.map((e) => {
-                return (
-                  <TimelineNew
-                    id={replaceSpecialCharacters(e) + "TimelineVis"}
-                    key={replaceSpecialCharacters(e) + "timeline"}
-                    data={data[e]}
-                    speciesName={e}
-                    domainYears={domainYears}
-                    getTreeThreatLevel={getTreeThreatLevel}
-                    colorBlind={colorBlind}
-                    timeFrame={timeFrame}
-                    x={x.current}
-                    width={timescaleWidth}
-                    populationTrend={data[e].populationTrend}
-                    imageLink={imageLinks[e]}
-                    dummyImageLink={dummyImageLinks[e]}
-                    isAnimal={data[e].Kingdom === "Animalia" ? true : false}
-                    tooltip={tooltip}
-                  />
-                );
-              })}
-              {timeFrame[1] !== undefined &&
-                timeFrame[1] !== domainYears.maxYear && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      left: 140 + x.current(timeFrame[1]),
-                      top: 0,
-                      width: timescaleWidth - x.current(timeFrame[1]),
-                      height: "100%",
-                      backgroundColor: "rgba(255,255,255,0.7)",
-                      borderLeft: "2px solid var(--highlightpurple)"
-                    }}
-                  />
-                )}
-            </div>
+            {sortedKeys.map((e) => {
+              return (
+                <TimelineNew
+                  id={replaceSpecialCharacters(e) + "TimelineVis"}
+                  key={replaceSpecialCharacters(e) + "timeline"}
+                  data={data[e]}
+                  speciesName={e}
+                  domainYears={domainYears}
+                  getTreeThreatLevel={getTreeThreatLevel}
+                  colorBlind={colorBlind}
+                  timeFrame={timeFrame}
+                  x={x}
+                  width={timescaleWidth}
+                  populationTrend={data[e].populationTrend}
+                  imageLink={imageLinks[e]}
+                  dummyImageLink={dummyImageLinks[e]}
+                  isAnimal={data[e].isAnimal}
+                  tooltip={tooltip}
+                />
+              );
+            })}
+            {timeFrame[1] !== undefined &&
+              timeFrame[1] !== domainYears.maxYear && (
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 140 + x.current(timeFrame[1]),
+                    top: 0,
+                    width: timescaleWidth - x.current(timeFrame[1]),
+                    height: "100%",
+                    backgroundColor: "rgba(255,255,255,0.7)",
+                    borderLeft: "2px solid var(--highlightpurple)"
+                  }}
+                />
+              )}
           </div>
-        }
-        {
-          <TimelineScaleD3
-            id={"scaleBottom2"}
-            key={"scaleBottomtimeline"}
-            data={null}
-            domainYears={domainYears}
-            setTimeFrame={setTimeFrame}
-            timeFrame={timeFrame}
-            x={x.current}
-            width={timescaleWidth}
-            bottom={true}
-          />
-        }
-      </div>
-    );
-  }
+        </div>
+      }
+      {
+        <TimelineScaleD3
+          id={"scaleBottom2"}
+          key={`scaleBottomtimeline${JSON.stringify(domainYears)}`}
+          data={null}
+          domainYears={domainYears}
+          setTimeFrame={setTimeFrame}
+          timeFrame={timeFrame}
+          x={x}
+          width={timescaleWidth}
+          bottom={true}
+        />
+      }
+    </div>
+  );
 }

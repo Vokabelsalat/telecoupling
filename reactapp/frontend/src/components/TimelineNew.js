@@ -35,6 +35,7 @@ export default function TimelineNew(props) {
 
   return (
     <div
+      key={`timelineNew${speciesName}`}
       style={{
         display: "grid",
         width: "100%",

@@ -12,13 +12,17 @@ import {
   serializeXmlNode
 } from "../utils/utils";
 
-class CenterPieChartD3 {
+class PieChartD3 {
   constructor(param) {
     this.id = param.id;
     this.data = param.data;
     this.colorBlind = param.colorBlind;
     this.treeThreatType = param.treeThreatType;
     this.getTreeThreatLevel = param.getTreeThreatLevel;
+    this.width = param.width;
+    this.height = param.height;
+
+    this.strokeWidth = 2;
 
     d3.selection.prototype.moveToFront = function () {
       this.each(function () {
@@ -35,8 +39,8 @@ class CenterPieChartD3 {
     let svg = d3
       .select("#" + this.id)
       .append("svg")
-      .attr("width", 70)
-      .attr("height", 70)
+      .attr("width", this.width)
+      .attr("height", this.height)
       .attr("x", 0)
       .attr("y", 0);
 
@@ -153,7 +157,10 @@ class CenterPieChartD3 {
       .attr("class", pieLabelClass + "text")
       .attr("text-anchor", "middle")
       .attr("dy", ".3em")
-      .style("font-size", options.instrument ? "5" : "initital")
+      .style(
+        "font-size",
+        this.width >= 70 ? "initial" : this.width >= 40 ? "10" : "5"
+      )
       .style("font-weight", "bold")
       .style("display", options.data.length === 0 ? "none" : "block")
       .text(pieLabel);
@@ -177,9 +184,9 @@ class CenterPieChartD3 {
     let colorBlind = this.colorBlind;
     let pie = this.bakeTheThreatPie({
       data: data,
-      strokeWidth: 2,
-      outerRadius: 31,
-      innerRadius: 18,
+      strokeWidth: this.strokeWidth,
+      outerRadius: this.width / 2 - this.strokeWidth,
+      innerRadius: this.width / 4,
       instrument: false,
       color: function (d) {
         return d.data.values[0].getColor(colorBlind);
@@ -195,51 +202,19 @@ class CenterPieChartD3 {
       .append("g")
       .attr("x", 0)
       .attr("y", 0)
-      .attr("width", "50px")
-      .attr("height", "50px")
       .attr("class", "pieChartTest");
 
     innerGroup.node().appendChild(pie.node());
-
-    /*  let textBox = textPathForPie.node().getBBox();
-    let svgNode = innerGroup;
-    let iconBox = svgNode.node().getBBox();
-
-    let scale = (width ? 7 : 30) / iconBox.height; */
-
-    /* let angle = (start + (end - start) / 2 - 360) % 180;
-
-    let cx = iconBox.x + iconBox.width / 2;
-    let cy = iconBox.y + iconBox.height / 2;
- */
-    //svgNode.classed("icon", true);
-
-    /* svgNode.attr(
-      "transform",
-      "translate(" +
-        textBox.x +
-        " " +
-        textBox.y +
-        ") rotate(" +
-        angle +
-        ") scale(" +
-        scale +
-        ") translate(" +
-        -cx +
-        " " +
-        -cy +
-        ")"
-    ); */
   }
 }
 
-const CenterPieChartHelper = {
+const PieChartHelper = {
   draw: (input) => {
-    new CenterPieChartD3(input);
+    new PieChartD3(input);
   },
   reset: (id) => {
     d3.selectAll("#" + id + " > *").remove();
   }
 };
 
-export default CenterPieChartHelper;
+export default PieChartHelper;
