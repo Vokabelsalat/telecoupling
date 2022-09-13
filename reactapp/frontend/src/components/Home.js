@@ -47,9 +47,9 @@ class Home extends Component {
     super(props);
 
     this.usePreGenerated = true;
-    this.renderMap = true;
-    this.renderTreeMap = true;
-    this.slice = false;
+    this.renderMap = false;
+    this.renderTreeMap = false;
+    this.slice = true;
 
     this.tempSpeciesData = {};
     this.tempFetchedSpecies = [];
@@ -2068,6 +2068,19 @@ class Home extends Component {
                         className="colorBlindSwitch"
                         color="secondary"
                       />
+                      <div
+                        className="noselect"
+                        style={{
+                          position: "absolute",
+                          top: "10px",
+                          left: this.state.colorBlind ? "44px" : "62px",
+                          transitionProperty: "left",
+                          transitionDuration: "0.3s",
+                          pointerEvents: "none"
+                        }}
+                      >
+                        {this.state.colorBlind ? "on" : "off"}
+                      </div>
                     </div>
                   </div>
                 </div>

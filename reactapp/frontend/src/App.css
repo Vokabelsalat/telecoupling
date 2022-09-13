@@ -524,6 +524,7 @@ button {
 
 .switchWrapper {
   text-align: center;
+  position: relative;
 }
 
 .MuiSwitch-root {
