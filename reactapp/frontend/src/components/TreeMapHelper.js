@@ -522,7 +522,7 @@ class D3BarChart {
       d3
         .hierarchy(data)
         .sum((d) => d.value)
-        .sort((a, b) => b.value - a.value)
+        .sort((a, b) => a.value - b.value)
     );
 
   getName = (d) =>
