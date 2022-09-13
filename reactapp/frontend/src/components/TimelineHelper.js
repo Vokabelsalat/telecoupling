@@ -2608,7 +2608,7 @@ class D3Timeline {
             ? this.initWidth - 10
             : this.initWidth
         )
-        .attr("height", 50)
+        .attr("height", this.speciesName === "scaleBottom" ? 30 : 50)
         .append("g")
         .attr(
           "transform",

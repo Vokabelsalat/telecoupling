@@ -72,6 +72,19 @@ class MapSearchBar extends Component {
     this.state.setFilter(filter);
   }
 
+  getLabel(mode) {
+    switch (mode) {
+      case "country":
+        return "Country Search";
+      case "hexagon":
+        return "Hexagon Search";
+      case "eco":
+        return "Ecoregion Search";
+      default:
+        break;
+    }
+  }
+
   render() {
     let currentValue = this.state.currentValue;
     let setValue = this.setValue.bind(this);
@@ -95,6 +108,8 @@ class MapSearchBar extends Component {
       .sort((a, b) => a.title.localeCompare(b.title));
 
     options = [...biomOptions, ...restOfOptions];
+
+    let label = this.getLabel(mode);
 
     /* options = options.sort((a, b) => {
 
@@ -149,7 +164,7 @@ class MapSearchBar extends Component {
           <TextField
             {...params}
             className={currentValue ? "filterUsed" : ""}
-            label={`${mode} Search`}
+            label={`${label}`}
             size="small"
           />
         )}

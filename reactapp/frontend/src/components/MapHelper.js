@@ -40,6 +40,7 @@ class MapHelper {
     id,
     getTreeThreatLevel,
     initWidth,
+    initHeight,
     setDiversityScale,
     treeThreatType,
     setFilter,
@@ -52,6 +53,7 @@ class MapHelper {
   ) {
     this.id = id;
     this.initWidth = initWidth;
+    this.initHeight = initHeight;
     this.setDiversityScale = setDiversityScale;
     this.getTreeThreatLevel = getTreeThreatLevel;
     this.treeThreatType = treeThreatType;
@@ -448,7 +450,9 @@ class MapHelper {
   }
 
   init() {
-    d3.select("#" + this.id).style("width", this.initWidth + "px");
+    d3.select("#" + this.id)
+      .style("width", this.initWidth + "px")
+      .style("height", this.initHeight + "px");
 
     let resolutions = [
       32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2,
@@ -468,8 +472,8 @@ class MapHelper {
     this.mymap = L.map(this.id, {
       worldCopyJump: false,
       minZoom: 0,
-      maxZoom: resolutions.length,
-      crs: crs
+      maxZoom: resolutions.length
+      /* crs: crs */
     }).setView([0, 0], 0);
 
     this.mymap.on("overlayadd", this.overlayadd.bind(this));
@@ -1427,9 +1431,9 @@ class MapHelper {
 
     let donutData = donut.value(valueFunc).sort((a, b) => {
       if (b.hasOwnProperty("values") && a.hasOwnProperty("values")) {
-        return b.values[0].sort - a.values[0].sort;
+        return b.values[0].numvalue - a.values[0].numvalue;
       } else {
-        return b.sort - a.sort;
+        return b.numvalue - a.numvalue;
       }
     });
 

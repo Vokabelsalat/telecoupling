@@ -170,7 +170,7 @@ class Legend extends Component {
               alignSelf: "center",
               justifySelf: "center",
               fontWeight: treeThreatType ? "bold" : "normal",
-              fontSize: "larger",
+              fontSize: "large",
               opacity: !treeThreatType ? 0.5 : 1.0
             }}
           >
@@ -203,7 +203,7 @@ class Legend extends Component {
               alignSelf: "center",
               justifySelf: "center",
               fontWeight: !treeThreatType ? "bold" : "normal",
-              fontSize: "larger",
+              fontSize: "large",
               opacity: treeThreatType ? 0.5 : 1.0
             }}
           >
@@ -235,7 +235,7 @@ class Legend extends Component {
                 if (["LR/cd"].includes(e)) {
                   width = "50px";
                 } else {
-                  width = "35px";
+                  width = "30px";
                 }
 
                 let style = {
@@ -293,13 +293,13 @@ class Legend extends Component {
             {bgciAssessment.getSortedLevels().map((e) => {
               let width;
               if (["EX"].includes(e)) {
-                width = "105px";
+                width = "90px";
               } else if (["TH"].includes(e)) {
-                width = "175px";
+                width = "150px";
               } else if (["PT"].includes(e)) {
-                width = "85px";
+                width = "80px";
               } else {
-                width = "35px";
+                width = "30px";
               }
 
               let style = {

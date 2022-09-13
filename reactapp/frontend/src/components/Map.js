@@ -24,7 +24,8 @@ class Map extends Component {
     this.MapHelper = new MapHelper(
       this.state.id,
       this.props.getTreeThreatLevel,
-      this.props.initWidth,
+      this.props.width,
+      this.props.height - 10,
       this.props.setDiversityScale,
       this.props.treeThreatType,
       this.props.setFilter,
@@ -347,7 +348,6 @@ class Map extends Component {
 
   componentDidMount() {
     this.init();
-    console.log("MOUNT MAP", this.state.id);
   }
 
   componentDidUpdate(prevProps) {
@@ -424,8 +424,9 @@ class Map extends Component {
         <div
           id={this.state.id}
           style={{
-            height: "calc(50vh - 85px)",
-            width: "calc(50vw - 10px)"
+            height: `${this.props.height - 10}`,
+            width: `${this.props.width}`,
+            marginTop: "10px"
           }}
         ></div>
       </div>

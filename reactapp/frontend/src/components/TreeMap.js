@@ -29,7 +29,9 @@ class TreeMap extends Component {
       familia: this.props.familia,
       colorBlind: this.props.colorBlind,
       getPlantIcon: this.props.getPlantIcon,
-      getAnimalIcon: this.props.getAnimalIcon
+      getAnimalIcon: this.props.getAnimalIcon,
+      width: this.props.width,
+      height: this.props.height
     });
   }
 
@@ -59,7 +61,9 @@ class TreeMap extends Component {
         familia: this.props.familia,
         colorBlind: this.props.colorBlind,
         getPlantIcon: this.props.getPlantIcon,
-        getAnimalIcon: this.props.getAnimalIcon
+        getAnimalIcon: this.props.getAnimalIcon,
+        width: this.props.width,
+        height: this.props.height
       });
     }
   }
@@ -108,7 +112,9 @@ class TreeMap extends Component {
           display: "inline-block",
           border: "none",
           marginLeft: "0px",
-          marginRight: "0px"
+          marginRight: "0px",
+          width: "100%",
+          height: "100%"
         }}
       >
         {this.props.kingdom ? (

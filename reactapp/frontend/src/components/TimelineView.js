@@ -223,7 +223,7 @@ class TimelineView extends Component {
                     /> */}
           <Timeline
             id={"scaleTop2"}
-            initWidth={this.props.initWidth}
+            initWidth={this.props.width}
             key={"scaleToptimeline"}
             data={null}
             speciesName={"scaleTop"}
@@ -235,7 +235,7 @@ class TimelineView extends Component {
           />
           <div
             style={{
-              maxHeight: window.innerHeight / 2 - 120 + "px",
+              maxHeight: this.props.height - 80 + "px",
               overflowY: "scroll",
               marginRight: "30px",
               width: "fit-content"
@@ -247,7 +247,7 @@ class TimelineView extends Component {
                   id={replaceSpecialCharacters(e) + "TimelineVis"}
                   key={replaceSpecialCharacters(e) + "timeline"}
                   data={this.state.data[e]}
-                  initWidth={this.props.initWidth}
+                  initWidth={this.props.width}
                   speciesName={e}
                   sourceColorMap={this.state.sourceColorMap}
                   domainYears={this.state.domainYears}
@@ -294,7 +294,7 @@ class TimelineView extends Component {
           </div>
           <Timeline
             id={"scaleBottom2"}
-            initWidth={this.props.initWidth}
+            initWidth={this.props.width}
             key={"scaleBottomtimeline"}
             data={null}
             speciesName={"scaleBottom"}

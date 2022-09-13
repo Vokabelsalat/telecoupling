@@ -7,7 +7,12 @@ import CenterPieChart from "./CenterPieChart";
 import SearchBar from "./SearchBar";
 import MapSearchBar from "./MapSearchBar";
 import TimelineView from "./TimelineView";
+import FullScreenButton from "./FullScreenButton";
+import VisInfoButton from "./VisInfoButton";
+import Tutorial from "./Tutorial";
 import Switch from "@mui/material/Switch";
+import { PlayIcon } from "@heroicons/react/24/solid";
+
 import {
   getOrCreate,
   pushOrCreate,
@@ -27,6 +32,15 @@ import {
 } from "../utils/timelineUtils";
 import Map from "./Map";
 import "react-tabs/style/react-tabs.css";
+import ResizeComponent from "./ResizeComponent";
+
+const tutorials = {
+  1: "centerPanel",
+  2: "orchestraVisWrapper",
+  3: "treeMapVisWrapper",
+  4: "timelineVisWrapper",
+  5: "mapVisWrapper"
+};
 
 class Home extends Component {
   constructor(props) {
@@ -88,7 +102,11 @@ class Home extends Component {
       mapSearchMode: "country",
       mapSearchBarData: {},
       lastSpeciesThreats: {},
-      lastSpeciesSigns: {}
+      lastSpeciesSigns: {},
+      transformOrigin: "0% 0%",
+      transform: "",
+      tutorial: false,
+      tour: 0
     };
   }
 
@@ -1590,12 +1608,26 @@ class Home extends Component {
     this.setState({ tabs: newTabs });
   }
 
+  setZoom(zoomString) {
+    this.setState({ transform: "scale(2)", transformOrigin: zoomString });
+  }
+
   setHover(speciesNames) {
     let oldHoverSpecies = this.state.hoverSpecies;
 
     if (JSON.stringify(oldHoverSpecies) !== JSON.stringify(speciesNames)) {
       this.setState({ hoverSpecies: speciesNames });
     }
+  }
+
+  nextTour() {
+    const newTour = this.state.tour + 1;
+    this.setState({ tutorial: tutorials[newTour], tour: newTour });
+  }
+
+  previousTour() {
+    const newTour = this.state.tour - 1;
+    this.setState({ tutorial: tutorials[newTour], tour: newTour });
   }
 
   render() {
@@ -1606,8 +1638,6 @@ class Home extends Component {
     ); */
 
     let filter = { ...this.state.filterSettings };
-
-    console.log("filters", filter);
 
     const instrumentGroup = filter["instrumentGroup"]
       ? filter["instrumentGroup"][0]
@@ -1748,400 +1778,470 @@ class Home extends Component {
     let [treeMapData, imageLinks, dummyLinks] =
       this.generateTreeMapData(filteredSpeciesData);
 
+    const zoomOrigin = this.state.transformOrigin;
+    const scaleString = this.state.transform;
+
     return (
-      <div>
+      <>
         <div
           style={{
-            width: "100%",
-            height: "auto",
             display: "grid",
+            gridTemplateRows: "calc(50% - 58px) 115px calc(50% - 58px)",
             gridTemplateColumns: "50% 50%",
-            gridTemplateRows: "auto auto"
-          }}
-        >
-          <div
-            style={{
-              gridColumnStart: 1,
-              gridColumnEnd: 1,
-              gridRowStart: 1,
-              gridRowEnd: 1,
-              overflow: "unset"
-            }}
-          >
-            <Orchestra
-              id="orchestraVis"
-              mainPart={mainPart}
-              instrument={instrument}
-              instrumentGroup={instrumentGroup}
-              getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
-              treeThreatType={this.state.treeThreatType}
-              speciesData={speciesWithOutOrchestraFilter}
-              finishedFetching={this.state.finishedFetching}
-              lastSpeciesSigns={lastSpeciesSigns}
-              lastSpeciesThreats={lastSpeciesThreats}
-              setFilter={this.setFilter.bind(this)}
-              timeFrame={this.state.timeFrame}
-              colorBlind={this.state.colorBlind}
-            />
-          </div>
-          <div
-            style={{
-              gridColumnStart: 2,
-              gridColumnEnd: 2,
-              gridRowStart: 1,
-              gridRowEnd: 1
-            }}
-          >
-            {this.renderTreeMap ? (
-              <TreeMap
-                id="treeMapView"
-                data={treeMapData}
-                filter={filter}
-                kingdom={kingdom}
-                familia={familia}
-                genus={genus}
-                species={species}
-                colorBlind={this.state.colorBlind}
-                setFilter={this.setFilter.bind(this)}
-                getAnimalIcon={this.getAnimalIcon.bind(this)}
-                getPlantIcon={this.getPlantIcon.bind(this)}
-              ></TreeMap>
-            ) : (
-              []
-            )}
-          </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            margin: "10px 0",
-            marginRight: "15px"
+            height: "100%",
+            width: "100%",
+            transformOrigin: zoomOrigin,
+            transform: scaleString,
+            transitionProperty: "transform",
+            transitionDuration: "0.5s"
           }}
         >
           <div
             style={{
               width: "100%",
-              height: "auto",
-              display: "grid",
-              gridTemplateColumns: "calc(50% - 50px) 90px auto",
-              gridTemplateRows: "auto"
+              height: "100%",
+              position: "relative",
+              backgroundColor: "white"
             }}
+            className={
+              this.state.tutorial === "orchestraVisWrapper" ||
+              this.state.tour === 2
+                ? "elevated"
+                : ""
+            }
           >
-            <div
-              style={{
-                gridColumnStart: 1,
-                gridColumnEnd: 1,
-                gridRowStart: 1,
-                gridRowEnd: 1
+            <ResizeComponent>
+              <Orchestra
+                id="orchestraVis"
+                mainPart={mainPart}
+                instrument={instrument}
+                instrumentGroup={instrumentGroup}
+                getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
+                treeThreatType={this.state.treeThreatType}
+                speciesData={speciesWithOutOrchestraFilter}
+                finishedFetching={this.state.finishedFetching}
+                lastSpeciesSigns={lastSpeciesSigns}
+                lastSpeciesThreats={lastSpeciesThreats}
+                setFilter={this.setFilter.bind(this)}
+                timeFrame={this.state.timeFrame}
+                colorBlind={this.state.colorBlind}
+              />
+            </ResizeComponent>
+            <VisInfoButton
+              onClick={() => {
+                this.setState({ tutorial: "orchestraVisWrapper" });
               }}
-            >
-              <div className="legend">
-                <Legend
-                  onZoom={() => this.onZoom(1)}
-                  onZoomOut={() => this.onZoom(-1)}
-                  zoomLevel={this.state.zoomLevel}
-                  maxZoomLevel={this.state.maxZoomLevel}
-                  onPieStyle={this.onPieStyle.bind(this)}
-                  pieStyle={this.state.pieStyle}
-                  groupSame={this.state.groupSame}
-                  onGroupSame={this.onGroupSame.bind(this)}
-                  sortGrouped={this.state.sortGrouped}
-                  onSortGrouped={this.onSortGrouped.bind(this)}
-                  heatStyle={this.state.heatStyle}
-                  onHeatStyle={this.onHeatStyle.bind(this)}
-                  treeThreatType={this.state.treeThreatType}
-                  setTreeThreatType={this.setTreeThreatType.bind(this)}
-                  colorBlind={this.state.colorBlind}
-                  setFilter={this.setFilter.bind(this)}
-                />
-              </div>
-            </div>
-            <div
-              style={{
-                gridColumnStart: 2,
-                gridColumnEnd: 2,
-                gridRowStart: 1,
-                gridRowEnd: 1,
-                alignSelf: "center",
-                justifySelf: "center"
+            />
+            <FullScreenButton
+              scaleString={scaleString}
+              onClick={() => {
+                this.setState({
+                  transform: scaleString !== "" ? "" : "scale(2)",
+                  transformOrigin: scaleString !== "" ? "0% 0%" : "0% 0%"
+                });
               }}
-            >
-              <div className="middlePieChart" style={{ position: "relative" }}>
-                <CenterPieChart
-                  data={filteredSpeciesData}
-                  getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
-                  treeThreatType={this.state.treeThreatType}
-                  colorBlind={this.state.colorBlind}
-                  lastSpeciesSigns={lastSpeciesSigns}
-                  lastSpeciesThreats={lastSpeciesThreats}
-                />
-              </div>
-              <div
-                style={{
-                  lineHeight: "1.5em",
-                  fontSize: "larg",
-                  fontWeight: "bold",
-                  textAlign: "center"
-                }}
-              >
-                Species
-              </div>
-            </div>
-            <div
-              style={{
-                gridColumnStart: 3,
-                gridColumnEnd: 3,
-                gridRowStart: 1,
-                gridRowEnd: 1,
-                alignSelf: "center",
-                justifySelf: "center"
-              }}
-            >
-              <div
-                style={{
-                  margin: 0,
-                  padding: 0,
-                  marginLeft: "10px"
-                }}
-                className="searchBarWrapper"
-              >
-                <SearchBar
-                  data={this.state.speciesData}
+            />
+          </div>
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              position: "relative",
+              backgroundColor: "white"
+            }}
+            className={
+              this.state.tutorial === "treeMapVisWrapper" ||
+              this.state.tour === 3
+                ? "elevated"
+                : ""
+            }
+          >
+            {this.renderTreeMap ? (
+              <ResizeComponent>
+                <TreeMap
+                  id="treeMapView"
+                  data={treeMapData}
+                  filter={filter}
                   kingdom={kingdom}
                   familia={familia}
-                  species={species}
                   genus={genus}
-                  setFilter={this.setFilter.bind(this)}
-                />
-              </div>
-            </div>
-            <div
-              style={{
-                gridColumnStart: 4,
-                gridColumnEnd: 4,
-                gridRowStart: 1,
-                gridRowEnd: 1,
-                alignSelf: "center",
-                justifySelf: "center"
-              }}
-            >
-              <div
-                style={{
-                  margin: 0,
-                  marginLeft: "10px",
-                  padding: 0
-                }}
-                className="searchBarWrapper"
-              >
-                <MapSearchBar
-                  data={this.state.speciesData}
-                  setFilter={this.setFilter.bind(this)}
-                  mapSearchMode={this.state.mapSearchMode}
-                  mapSearchBarData={this.state.mapSearchBarData}
-                  value={mapSearchValue}
-                  mode={mapSearchMode}
-                />
-              </div>
-            </div>
-            <div
-              style={{
-                gridColumnStart: 5,
-                gridColumnEnd: 5,
-                gridRowStart: 1,
-                gridRowEnd: 1,
-                alignSelf: "center",
-                justifySelf: "center"
-              }}
-            >
-              <div
-                style={{
-                  margin: 0,
-                  padding: 0
-                }}
-                className="searchBarWrapper"
-              >
-                <div>Color Blind Mode</div>
-                <div className="switchWrapper">
-                  <Switch
-                    onChange={(e, value) =>
-                      this.setState({ colorBlind: !this.state.colorBlind })
-                    }
-                    checked={this.state.colorBlind}
-                    className="colorBlindSwitch"
-                    color="secondary"
-                  />
-                </div>
-              </div>
-            </div>
-            {/* <button onClick={this.fetchAndSetSpecies.bind(this)}>Run!</button> */}
-          </div>
-        </div>
-        <div
-          style={{
-            width: "100%",
-            height: "auto",
-            display: "grid",
-            gridTemplateColumns: "50% 50%",
-            gridTemplateRows: "auto auto"
-          }}
-        >
-          {Object.keys(filteredSpeciesData).length > 0 && (
-            <div
-              style={{
-                gridColumnStart: 1,
-                gridColumnEnd: 1,
-                gridRowStart: 1,
-                gridRowEnd: 1,
-                height: window.innerHeight / 2 + "px",
-                overflow: "unset"
-              }}
-            >
-              {
-                <TimelineView
-                  data={filteredSpeciesData}
-                  initWidth={this.state.initWidthForVis}
-                  tradeData={this.state.speciesTrades}
-                  pieStyle="pie"
-                  groupSame="true"
-                  sortGrouped="trend"
-                  heatStyle="dom"
-                  usePreGenerated={this.usePreGenerated}
-                  addSpeciesToMap={this.addSpeciesToMap.bind(this)}
-                  removeSpeciesFromMap={this.removeSpeciesFromMap.bind(this)}
-                  setSpeciesSignThreats={this.setSpeciesSignThreats.bind(this)}
-                  getSpeciesSignThreats={this.getSpeciesSignThreats.bind(this)}
-                  getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
-                  treeImageLinks={imageLinks}
-                  dummyImageLinks={dummyLinks}
-                  setHover={this.setHover.bind(this)}
-                  setTimeFrame={this.setTimeFrame.bind(this)}
-                  timeFrame={this.state.timeFrame}
+                  species={species}
                   colorBlind={this.state.colorBlind}
                   setFilter={this.setFilter.bind(this)}
                   getAnimalIcon={this.getAnimalIcon.bind(this)}
                   getPlantIcon={this.getPlantIcon.bind(this)}
-                  species={species}
-                  lastSpeciesSigns={lastSpeciesSigns}
-                  lastSpeciesThreats={lastSpeciesThreats}
-                />
-              }
-              <div key="tooltip" id="tooltip" className="tooltip"></div>
-            </div>
-          )}
+                ></TreeMap>
+              </ResizeComponent>
+            ) : (
+              []
+            )}
+            <VisInfoButton
+              onClick={() => {
+                this.setState({ tutorial: "treeMapVisWrapper" });
+              }}
+            />
+            <FullScreenButton
+              scaleString={scaleString}
+              onClick={() => {
+                this.setState({
+                  transform: scaleString !== "" ? "" : "scale(2)",
+                  transformOrigin: scaleString !== "" ? "0% 0%" : "100% 0%"
+                });
+              }}
+              right={5}
+            />
+          </div>
           <div
             style={{
-              gridColumnStart: 2,
-              gridColumnEnd: 2,
-              gridRowStart: 1,
-              gridRowEnd: 1
+              gridColumnStart: 1,
+              gridColumnEnd: "span 2",
+              gridRowStart: 2,
+              gridRowEnd: 2
             }}
           >
-            {/* <button onClick={(event) => {
-                            if (this.state.addAllCountries === false) {
-                                this.addAllCountries();
-                            }
-                            else {
-                                this.removeAllCountries();
-                            }
-                        }}>
-                            {this.state.addAllCountries ? "Remove all Countries" : "Add all countries"}
-                        </button> */}
-            {/* <button onClick={(event) => {
-                            if (this.state.heatMap === false) {
-                                this.activateHeatMap();
-                            }
-                            else {
-                                this.deactivateHeatMap();
-                            }
-                        }}>
-                            {this.state.heatMap ? "Deactivate HeatMap" : "Activate HeatMap"}
-                        </button> */}
-            {/* <button onClick={(event) => {
-                            if (this.state.diversity === false) {
-                                this.activateDiversity();
-                            }
-                            else {
-                                this.deactivateDiversity();
-                            }
-                        }}>
-                            {this.state.diversity ? "Deactivate Diversity" : "Activate Diversity"}
-                        </button> */}
-            {/*  <button
-              onClick={(event) => {
-                this.toggleTreeThreatType();
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                position: "relative",
+                backgroundColor: "white"
               }}
+              className={
+                this.state.tutorial === "centerPanel" || this.state.tour === 1
+                  ? "elevated"
+                  : ""
+              }
             >
-              {this.state.treeThreatType ? "Economically" : "Ecologically"}
-            </button> */}
-            {/* <button onClick={(event) => {
-                            this.toggleDiversityMapMode();
-                        }}>
-                            {this.state.diversityMode ? "Distribution" : "Eco/Eco"}
-                        </button> */}
-            {/* <select
-                            id="diversitySelect"
-                            value={this.state.diversityAttribute}
-                            onChange={this.onSelectChangeDiversityAttribute.bind(this)}>
-                            {
-                                this.getDiverstiyAttributeSelectOptions()
-                            }
-                        </select> */}
-            {!this.usePreGenerated ? (
-              <button
-                onClick={(event) => {
-                  this.save();
+              <div
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  display: "grid",
+                  gridTemplateColumns:
+                    "calc(50% - 50px) 90px auto auto auto auto",
+                  gridTemplateRows: "auto"
                 }}
               >
-                {"Save"}
-              </button>
-            ) : (
-              []
-            )}
-            {/* <button
-              onClick={(event) => {
-                this.saveEcoRegionSpecies();
-              }}
-            >
-              {"Save EcoRegionStatistics"}
-            </button> */}
-            {this.renderMapScale(
-              this.state.diversityScale,
-              this.state.diversityScaleType
-            )}
-            {this.renderMap ? (
-              <Map
-                id="map"
-                data={this.state.speciesData}
-                initWidth={this.state.initWidthForVis}
-                mapSpecies={mapSpecies}
+                <div
+                  style={{
+                    gridColumnStart: 1,
+                    gridColumnEnd: 1,
+                    gridRowStart: 1,
+                    gridRowEnd: 1
+                  }}
+                >
+                  <div className="legend">
+                    <Legend
+                      onZoom={() => this.onZoom(1)}
+                      onZoomOut={() => this.onZoom(-1)}
+                      zoomLevel={this.state.zoomLevel}
+                      maxZoomLevel={this.state.maxZoomLevel}
+                      onPieStyle={this.onPieStyle.bind(this)}
+                      pieStyle={this.state.pieStyle}
+                      groupSame={this.state.groupSame}
+                      onGroupSame={this.onGroupSame.bind(this)}
+                      sortGrouped={this.state.sortGrouped}
+                      onSortGrouped={this.onSortGrouped.bind(this)}
+                      heatStyle={this.state.heatStyle}
+                      onHeatStyle={this.onHeatStyle.bind(this)}
+                      treeThreatType={this.state.treeThreatType}
+                      setTreeThreatType={this.setTreeThreatType.bind(this)}
+                      colorBlind={this.state.colorBlind}
+                      setFilter={this.setFilter.bind(this)}
+                    />
+                  </div>
+                </div>
+                <div
+                  style={{
+                    gridColumnStart: 2,
+                    gridColumnEnd: 2,
+                    gridRowStart: 1,
+                    gridRowEnd: 1,
+                    alignSelf: "center",
+                    justifySelf: "center"
+                  }}
+                >
+                  <div
+                    className="middlePieChart"
+                    style={{ position: "relative" }}
+                  >
+                    <CenterPieChart
+                      data={filteredSpeciesData}
+                      getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
+                      treeThreatType={this.state.treeThreatType}
+                      colorBlind={this.state.colorBlind}
+                      lastSpeciesSigns={lastSpeciesSigns}
+                      lastSpeciesThreats={lastSpeciesThreats}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      lineHeight: "1.5em",
+                      fontSize: "large",
+                      fontWeight: "bold",
+                      textAlign: "center"
+                    }}
+                  >
+                    Species
+                  </div>
+                </div>
+                <div
+                  style={{
+                    gridColumnStart: 3,
+                    gridColumnEnd: 3,
+                    gridRowStart: 1,
+                    gridRowEnd: 1,
+                    alignSelf: "center",
+                    justifySelf: "center"
+                  }}
+                >
+                  <div
+                    style={{
+                      margin: 0,
+                      padding: 0,
+                      marginLeft: "10px"
+                    }}
+                    className="searchBarWrapper"
+                  >
+                    <SearchBar
+                      data={this.state.speciesData}
+                      kingdom={kingdom}
+                      familia={familia}
+                      species={species}
+                      genus={genus}
+                      setFilter={this.setFilter.bind(this)}
+                    />
+                  </div>
+                </div>
+                <div
+                  style={{
+                    gridColumnStart: 4,
+                    gridColumnEnd: 4,
+                    gridRowStart: 1,
+                    gridRowEnd: 1,
+                    alignSelf: "center",
+                    justifySelf: "center"
+                  }}
+                >
+                  <div
+                    style={{
+                      margin: 0,
+                      marginLeft: "10px",
+                      padding: 0
+                    }}
+                    className="searchBarWrapper"
+                  >
+                    <MapSearchBar
+                      data={this.state.speciesData}
+                      setFilter={this.setFilter.bind(this)}
+                      mapSearchMode={this.state.mapSearchMode}
+                      mapSearchBarData={this.state.mapSearchBarData}
+                      value={mapSearchValue}
+                      mode={mapSearchMode}
+                    />
+                  </div>
+                </div>
+                <div
+                  style={{
+                    gridColumnStart: 5,
+                    gridColumnEnd: 5,
+                    gridRowStart: 1,
+                    gridRowEnd: 1,
+                    alignSelf: "center",
+                    justifySelf: "center"
+                  }}
+                >
+                  <div
+                    style={{
+                      margin: 0,
+                      padding: 0
+                    }}
+                    className="searchBarWrapper"
+                  >
+                    <div>Color Blind Mode</div>
+                    <div className="switchWrapper">
+                      <Switch
+                        onChange={(e, value) =>
+                          this.setState({ colorBlind: !this.state.colorBlind })
+                        }
+                        checked={this.state.colorBlind}
+                        className="colorBlindSwitch"
+                        color="secondary"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    gridColumnStart: 6,
+                    gridColumnEnd: 6,
+                    gridRowStart: 1,
+                    gridRowEnd: 1,
+                    alignSelf: "center",
+                    justifySelf: "center"
+                  }}
+                >
+                  <div
+                    style={{
+                      margin: 0,
+                      padding: 0
+                    }}
+                    className="searchBarWrapper buttonHover"
+                    onClick={() => {
+                      this.setState({ tutorial: "centerPanel", tour: 1 });
+                    }}
+                  >
+                    <div className="switchWrapper">
+                      <PlayIcon style={{ width: "20px", height: "20px" }} />
+                    </div>
+                    <div style={{ fontSize: "smaller" }}>Take Tour!</div>
+                  </div>
+                </div>
+                {/* <button onClick={this.fetchAndSetSpecies.bind(this)}>Run!</button> */}
+              </div>
+            </div>
+          </div>
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              position: "relative",
+              backgroundColor: "white"
+            }}
+            className={
+              this.state.tutorial === "timelineVisWrapper" ||
+              this.state.tour === 4
+                ? "elevated"
+                : ""
+            }
+          >
+            <ResizeComponent>
+              <TimelineView
+                data={filteredSpeciesData}
+                tradeData={this.state.speciesTrades}
+                pieStyle="pie"
+                groupSame="true"
+                sortGrouped="trend"
+                heatStyle="dom"
+                usePreGenerated={this.usePreGenerated}
+                addSpeciesToMap={this.addSpeciesToMap.bind(this)}
+                removeSpeciesFromMap={this.removeSpeciesFromMap.bind(this)}
+                setSpeciesSignThreats={this.setSpeciesSignThreats.bind(this)}
+                getSpeciesSignThreats={this.getSpeciesSignThreats.bind(this)}
                 getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
-                heatMap={this.state.heatMap}
-                diversity={this.state.diversity}
-                coordinates={this.state.speciesOccurrences}
-                setDiversityScale={this.setDiversityScale.bind(this)}
-                treeThreatType={this.state.treeThreatType}
-                diversityMode={this.state.diversityMode}
-                diversityAttribute={this.state.diversityAttribute}
-                speciesImageLinks={imageLinks}
-                hoverSpecies={this.state.hoverSpecies}
+                treeImageLinks={imageLinks}
+                dummyImageLinks={dummyLinks}
+                setHover={this.setHover.bind(this)}
+                setTimeFrame={this.setTimeFrame.bind(this)}
                 timeFrame={this.state.timeFrame}
-                setFilter={this.setFilter.bind(this)}
                 colorBlind={this.state.colorBlind}
-                setMapSearchBarData={this.setMapSearchBarData.bind(this)}
-                setMapSearchMode={this.setMapSearchMode.bind(this)}
-                country={country}
-                selectedEcoRegion={ecoRegion}
+                setFilter={this.setFilter.bind(this)}
+                getAnimalIcon={this.getAnimalIcon.bind(this)}
+                getPlantIcon={this.getPlantIcon.bind(this)}
+                species={species}
                 lastSpeciesSigns={lastSpeciesSigns}
                 lastSpeciesThreats={lastSpeciesThreats}
-                setEcoRegionStatistics={this.setEcoRegionStatistics.bind(this)}
               />
+            </ResizeComponent>
+            <VisInfoButton
+              onClick={() => {
+                this.setState({ tutorial: "timelineVisWrapper" });
+              }}
+              left={30}
+              top={10}
+            />
+            <FullScreenButton
+              scaleString={scaleString}
+              onClick={() => {
+                this.setState({
+                  transform: scaleString !== "" ? "" : "scale(2)",
+                  transformOrigin: scaleString !== "" ? "0% 0%" : "0% 100%"
+                });
+              }}
+              left={5}
+              top={10}
+            />
+          </div>
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              position: "relative",
+              backgroundColor: "white"
+            }}
+            className={
+              this.state.tutorial === "mapVisWrapper" || this.state.tour === 5
+                ? "elevated"
+                : ""
+            }
+          >
+            {this.renderMap ? (
+              <ResizeComponent>
+                <Map
+                  id="map"
+                  data={this.state.speciesData}
+                  mapSpecies={mapSpecies}
+                  getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
+                  heatMap={this.state.heatMap}
+                  diversity={this.state.diversity}
+                  coordinates={this.state.speciesOccurrences}
+                  setDiversityScale={this.setDiversityScale.bind(this)}
+                  treeThreatType={this.state.treeThreatType}
+                  diversityMode={this.state.diversityMode}
+                  diversityAttribute={this.state.diversityAttribute}
+                  speciesImageLinks={imageLinks}
+                  hoverSpecies={this.state.hoverSpecies}
+                  timeFrame={this.state.timeFrame}
+                  setFilter={this.setFilter.bind(this)}
+                  colorBlind={this.state.colorBlind}
+                  setMapSearchBarData={this.setMapSearchBarData.bind(this)}
+                  setMapSearchMode={this.setMapSearchMode.bind(this)}
+                  country={country}
+                  selectedEcoRegion={ecoRegion}
+                  lastSpeciesSigns={lastSpeciesSigns}
+                  lastSpeciesThreats={lastSpeciesThreats}
+                  setEcoRegionStatistics={this.setEcoRegionStatistics.bind(
+                    this
+                  )}
+                />
+              </ResizeComponent>
             ) : (
               []
             )}
+            <VisInfoButton
+              top={-20}
+              right={20}
+              onClick={() => {
+                this.setState({ tutorial: "mapVisWrapper" });
+              }}
+            />
+            <FullScreenButton
+              scaleString={scaleString}
+              onClick={() => {
+                this.setState({
+                  transform: scaleString !== "" ? "" : "scale(2)",
+                  transformOrigin:
+                    scaleString !== "" ? "0% 0%" : "100% calc(100% - 60px)"
+                });
+              }}
+              top={-20}
+              right={-5}
+            />
           </div>
         </div>
-      </div>
+        <div key="tooltip" id="tooltip" className="tooltip"></div>
+        {this.state.tutorial && (
+          <Tutorial
+            setTutorial={(tut) => {
+              this.setState({ tutorial: undefined, tour: 0 });
+            }}
+            tutorial={this.state.tutorial}
+            tour={this.state.tour}
+            next={this.nextTour.bind(this)}
+            previous={this.previousTour.bind(this)}
+          />
+        )}
+      </>
     );
   }
 }

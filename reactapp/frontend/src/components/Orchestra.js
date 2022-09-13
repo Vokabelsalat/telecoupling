@@ -38,7 +38,9 @@ class Orchestra extends Component {
       setFilter: this.props.setFilter,
       colorBlind: this.props.colorBlind,
       lastSpeciesSigns: this.props.lastSpeciesSigns,
-      setMainPartOptions: this.setMainPartOptions.bind(this)
+      setMainPartOptions: this.setMainPartOptions.bind(this),
+      width: this.props.width,
+      height: this.props.height
     });
   }
 
@@ -122,7 +124,9 @@ class Orchestra extends Component {
         style={{
           display: "inline-block",
           verticalAlign: "top",
-          position: "relative"
+          position: "relative",
+          width: "100%",
+          height: "100%"
         }}
       >
         <div id={this.state.id}></div>
