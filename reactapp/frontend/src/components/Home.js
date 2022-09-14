@@ -47,8 +47,8 @@ class Home extends Component {
     super(props);
 
     this.usePreGenerated = true;
-    this.renderMap = false;
-    this.renderTreeMap = false;
+    this.renderMap = true;
+    this.renderTreeMap = true;
     this.slice = true;
 
     this.tempSpeciesData = {};
