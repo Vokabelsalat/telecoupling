@@ -10,7 +10,13 @@ import InstrumentThreatPieChart from "./InstrumentThreatPieChart";
 import { replaceSpecialCharacters } from "../utils/utils";
 
 const positioning = {
-  Strings: { textOffset: "50%", threatOffset: 0.5, textAlign: "middle" },
+  Strings: {
+    textOffset: "50%",
+    threatOffset: -0.5,
+    threatVerticalOffset: 8,
+    textVerticalOffset: 7,
+    textAlign: "middle"
+  },
   Woodwinds: { textOffset: "23%", threatOffset: 0.14, textAlign: "start" },
   Percussion: { textOffset: "40%", threatOffset: 0.3, textAlign: "start" },
   Brasses: { textOffset: "25%", threatOffset: 0.15, textAlign: "start" },
@@ -40,7 +46,10 @@ export default function OrchestraInstrumentSlice(props) {
   const textPathString = describeArc(
     position.x,
     position.y,
-    width,
+    width +
+      (positioning[groupName].textVerticalOffset
+        ? positioning[groupName].textVerticalOffset
+        : 0),
     arcOptions.start,
     arcOptions.end,
     1,
@@ -50,7 +59,10 @@ export default function OrchestraInstrumentSlice(props) {
   const pointForThreatPie = calcMidPointOfArc(
     position.x,
     position.y,
-    width,
+    width -
+      (positioning[groupName].threatVerticalOffset
+        ? positioning[groupName].threatVerticalOffset
+        : 0),
     arcOptions.start,
     arcOptions.end,
     positioning[groupName].threatOffset
@@ -71,8 +83,8 @@ export default function OrchestraInstrumentSlice(props) {
     >
       <path
         key={`instrumentArc${instrument}`}
-        fill="white"
-        stroke={hightlight ? "purple" : "white"}
+        fill="transparent"
+        stroke={hightlight ? "purple" : "transparent"}
         strokeWidth={"1px"}
         d={pathString}
       />

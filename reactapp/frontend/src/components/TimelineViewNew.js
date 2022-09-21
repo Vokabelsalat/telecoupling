@@ -117,9 +117,9 @@ export default function TimelineViewNew(props) {
                 <div
                   style={{
                     position: "absolute",
-                    left: 140 + x.current(timeFrame[1]),
+                    left: 140 + x(timeFrame[1]),
                     top: 0,
-                    width: timescaleWidth - x.current(timeFrame[1]),
+                    width: timescaleWidth - x(timeFrame[1]),
                     height: "100%",
                     backgroundColor: "rgba(255,255,255,0.7)",
                     borderLeft: "2px solid var(--highlightpurple)"

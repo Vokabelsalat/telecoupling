@@ -31,7 +31,9 @@ export default function OrchestraGroupContent(props) {
   const pointForThreatIcon = calcMidPointOfArc(
     position.x,
     position.y,
-    acrOptions.width - 10,
+    acrOptions.width -
+      10 -
+      (acrOptions.widthOffset ? acrOptions.widthOffset : 0),
     acrOptions.start,
     acrOptions.end
   );
@@ -39,7 +41,10 @@ export default function OrchestraGroupContent(props) {
   const pointForIcon = calcMidPointOfArc(
     position.x,
     position.y,
-    acrOptions.width - acrOptions.strokeWidth / 2 + 22,
+    acrOptions.width -
+      acrOptions.strokeWidth / 2 +
+      22 -
+      (acrOptions.widthOffset ? acrOptions.widthOffset / 2 : 0),
     acrOptions.start,
     acrOptions.end
   );

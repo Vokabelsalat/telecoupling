@@ -15,7 +15,7 @@ const positionsToPathString = {
   2: { width: 190, strokeWidth: 130, start: 380, end: 340 },
   3: { width: 190, strokeWidth: 130, start: 415, end: 380 + 1 },
   4: { width: 190, strokeWidth: 130, start: 450, end: 415 + 1 },
-  5: { width: 65, strokeWidth: 114, start: 90, end: 270 }
+  5: { width: 65, strokeWidth: 114, start: 90, end: 270, widthOffset: 110 }
 };
 
 export default function OrchestraGroup(props) {
@@ -68,16 +68,21 @@ export default function OrchestraGroup(props) {
         onMouseLeave={() => {
           setHighlight(false);
         }}
+        className="orchestraGroupGroup"
       >
         <path
           ref={ref}
           fill={selected === id ? "white" : "white"}
-          stroke={selected === id || highlight ? "purple" : "gray"}
-          strokeWidth={selected === id || highlight ? "3px" : "1px"}
+          stroke={highlight && selected !== id ? "purple" : "gray"}
+          strokeWidth={highlight ? "1px" : "1px"}
           d={pathString}
         ></path>
         {selected === id ? (
-          <OrchestraInstruments {...props} acrOptions={acrOptions} />
+          <OrchestraInstruments
+            {...props}
+            acrOptions={acrOptions}
+            isSelected={selected === id}
+          />
         ) : (
           <OrchestraGroupContent {...props} acrOptions={acrOptions} />
         )}

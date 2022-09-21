@@ -677,3 +677,17 @@ path.handle:focus {
 .timelineRowsWrapper > svg:last-of-type {
   border: 1px solid gray;
 }
+
+.orchestraGroupGroup {
+  cursor: pointer;
+}
+
+.treeMapLevel {
+  cursor: pointer;
+  box-sizing: border-box;
+  border: 2px solid white;
+}
+
+.treeMapLevel:hover {
+  border: 2px solid var(--highlightpurple);
+}

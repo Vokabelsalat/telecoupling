@@ -58,13 +58,6 @@ export default function TimelineRow(props) {
           if (xVal < 0) {
             return;
           }
-          console.log(
-            width,
-            xVal,
-            width - xVal,
-            parseInt(assessmentAndElement.element.year),
-            assessmentAndElement
-          );
 
           let color = assessmentAndElement.assessment.getColor(colorBlind);
           return (

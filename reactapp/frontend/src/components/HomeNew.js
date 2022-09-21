@@ -6,6 +6,7 @@ import TimelineViewNew from "./TimelineViewNew";
 import ResizeComponent from "./ResizeComponent";
 import CenterPanel from "./CenterPanel";
 import OrchestraNew from "./OrchestraNew";
+import TreeMapView from "./TreeMapViewNew";
 import { getOrCreate, pushOrCreateWithoutDuplicates } from "../utils/utils";
 import {
   bgciAssessment,
@@ -42,6 +43,13 @@ export default function HomeNew(props) {
 
   const [instrumentGroupData, setInstrumentGroupData] = useState({});
   const [instrumentData, setInstrumentData] = useState({});
+
+  const [kingdomData, setKingdomData] = useState([]);
+
+  const [selectedKingdom, setSelectedKingdom] = useState();
+  const [selectedFamily, setSelectedFamily] = useState();
+  const [selectedGenus, setSelectedGenus] = useState();
+  const [selectedSpecies, setSelectedSpecies] = useState();
 
   const [domainYears, setDomainYears] = useState({ maxYear: 1, minYear: 2 });
 
@@ -137,10 +145,37 @@ export default function HomeNew(props) {
         let tmpInstrumentGroupData = {};
         let tmpInstrumentData = {};
         let tmpFilteredSpecies = [];
+        /* let tmpTreeMapData = {
+          Animalia: { name: "Animalia", children:  },
+          Plantae: { name: "Plantae", children: {} }
+        }; */
+
+        let kingdoms = { Animalia: [], Plantae: [] };
+        let families = {};
+        let genera = {};
+        let speciesTreeMapData = {};
 
         for (const spec of Object.keys(speciesData)) {
           let instrumentGroupHit = true;
           const speciesObj = speciesData[spec];
+
+          let family = speciesObj.Family.trim();
+          let genus = speciesObj.Genus.trim();
+          let species = speciesObj.Species.trim();
+          let genusSpecies = `${genus.trim()} ${species.trim()}`;
+
+          kingdoms[speciesObj.Kingdom].push(family);
+          if (families.hasOwnProperty(family)) {
+            families[family].push(genus);
+          } else {
+            families[family] = [genus];
+          }
+
+          if (genera.hasOwnProperty(genus)) {
+            genera[genus].push(genusSpecies);
+          } else {
+            genera[genus] = [genusSpecies];
+          }
 
           if (instrumentGroup && !speciesObj.groups.includes(instrumentGroup)) {
             instrumentGroupHit = false;
@@ -148,6 +183,10 @@ export default function HomeNew(props) {
 
           tmpImageLinks[spec] = returnImageLink(speciesObj);
           tmpDummyImageLinks[spec] = returnDummyLink(speciesObj);
+
+          speciesTreeMapData[genusSpecies] = tmpImageLinks[spec]
+            ? tmpImageLinks[spec]
+            : tmpDummyImageLinks[spec];
 
           for (const mat of speciesObj.origMat) {
             if (tmpInstrumentGroupData[mat.Instrument_groups]) {
@@ -295,8 +334,6 @@ export default function HomeNew(props) {
           minYear: Math.min(...tmpYears) - 1
         };
 
-        console.log(tmpDomainYears, tmpYears);
-
         setImageLinks(tmpImageLinks);
         setDummyImageLinks(tmpDummyImageLinks);
         setSpeciesSignThreats(tmpSpeciesSignThreats);
@@ -306,6 +343,73 @@ export default function HomeNew(props) {
         setInstrumentData(tmpInstrumentData);
         setInstrumentGroupData(tmpInstrumentGroupData);
         setFilteredSpecies(tmpFilteredSpecies);
+
+        /* console.log(kingdoms);
+        console.log(families);
+        console.log(genera);
+        console.log(speciesTreeMapData); */
+
+        let tmpKingdomData = [];
+        for (let kingdom of Object.keys(kingdoms)) {
+          let familiesInKingdom = [...new Set(kingdoms[kingdom])];
+          let kingdomValue = 0;
+
+          let familyData = [];
+          for (let family of familiesInKingdom) {
+            let genusInFamily = [...new Set(families[family])];
+
+            let genusData = [];
+            let familyValue = 0;
+            for (let genus of genusInFamily) {
+              let speciesInGenus = genera[genus];
+
+              let speciesData = [];
+              let speciesCount = {};
+              let genusValue = 0;
+              for (let genusSpecies of speciesInGenus) {
+                if (speciesCount.hasOwnProperty(genusSpecies)) {
+                  speciesCount[genusSpecies] = speciesCount[genusSpecies] + 1;
+                } else {
+                  speciesCount[genusSpecies] = 1;
+                }
+              }
+
+              for (let genusSpecies of [...new Set(speciesInGenus)]) {
+                speciesData.push({
+                  name: genusSpecies,
+                  image: speciesTreeMapData[genusSpecies],
+                  value: speciesCount[genusSpecies],
+                  filterDepth: 4
+                });
+                //genusValue = genusValue + speciesCount[genusSpecies];
+              }
+
+              genusData.push({
+                name: genus,
+                children: speciesData,
+                filterDepth: 3
+                //value: genusValue
+              });
+
+              familyValue = familyValue + genusValue;
+            }
+            familyData.push({
+              name: family,
+              children: genusData,
+              filterDepth: 2
+              //value: familyValue
+            });
+            kingdomValue = kingdomValue + familyValue;
+          }
+          tmpKingdomData.push({
+            name: kingdom,
+            children: familyData,
+            /* value: kingdomValue, */
+            filterDepth: 1
+          });
+        }
+
+        setKingdomData(tmpKingdomData);
       })
       .catch((error) => {
         console.log(`Couldn't find file allSpecies.json`, error);
@@ -330,7 +434,9 @@ export default function HomeNew(props) {
           gridTemplateColumns: "50% 50%",
           gridTemplateRows: "40% 20% 40%",
           transformOrigin: zoomOrigin,
-          transform: zoomTransform
+          transform: zoomTransform,
+          transitionProperty: "transform",
+          transitionDuration: "0.4s"
         }}
       >
         <div
@@ -371,6 +477,15 @@ export default function HomeNew(props) {
             position: "relative"
           }}
         >
+          <ResizeComponent>
+            <TreeMapView
+              data={{ name: "Kingdom", children: kingdomData, filterDepth: 0 }}
+              kingdom={selectedKingdom}
+              family={selectedFamily}
+              genus={selectedGenus}
+              species={selectedSpecies}
+            />
+          </ResizeComponent>
           <FullScreenButton
             scaleString={zoomTransform}
             onClick={() => {

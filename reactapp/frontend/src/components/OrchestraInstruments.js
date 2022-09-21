@@ -19,7 +19,7 @@ const positioning = {
   Keyboard: { textOffset: "30%", threatOffset: 0.2, textAlign: "start" }
 };
 
-export default function OrchestraInstruments(props) {
+export default function /*  */ OrchestraInstruments(props) {
   const {
     id,
     groupName,
@@ -29,7 +29,8 @@ export default function OrchestraInstruments(props) {
     instruments,
     species,
     acrOptions,
-    setInstrument
+    setInstrument,
+    isSelected = false
   } = props;
 
   const [hightlight, setHighlight] = useState(false);
@@ -41,6 +42,12 @@ export default function OrchestraInstruments(props) {
   const newStrokeWidth = acrOptions.strokeWidth / amountOfInstruments;
   const startRadius =
     acrOptions.width + acrOptions.strokeWidth / 2 - newStrokeWidth / 2;
+
+  const pathString = calculatePath(position.x, position.y, {
+    ...acrOptions,
+    strokeWidth: newStrokeWidth - 1,
+    width: startRadius
+  });
 
   const textPathForHeading = describeArc(
     position.x,
@@ -54,6 +61,13 @@ export default function OrchestraInstruments(props) {
 
   return (
     <>
+      <path
+        id={`pathForInstrumentGroupHeadingWrapper${groupName}`}
+        fill="none"
+        strokeWidth="1px"
+        stroke={isSelected ? "purple" : "white"}
+        d={pathString}
+      ></path>
       <path
         id={`pathForInstrumentGroupHeading${groupName}`}
         fill="none"
@@ -83,7 +97,9 @@ export default function OrchestraInstruments(props) {
         const tmpOptions = {
           ...acrOptions,
           strokeWidth: newStrokeWidth - 1,
-          width: tmpWidth
+          width: tmpWidth,
+          start: acrOptions.start,
+          end: acrOptions.end
         };
 
         return (
