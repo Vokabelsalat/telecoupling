@@ -49,7 +49,7 @@ class Home extends Component {
     this.usePreGenerated = true;
     this.renderMap = true;
     this.renderTreeMap = true;
-    this.slice = false;
+    this.slice = true;
 
     this.tempSpeciesData = {};
     this.tempFetchedSpecies = [];
@@ -1483,16 +1483,16 @@ class Home extends Component {
 
     switch (type) {
       case "countries":
-        typeText = "Species/Country";
+        typeText = "Species/ Country";
         break;
       case "hexagons":
-        typeText = "Species/Hexagon";
+        typeText = "Species/ Hexagon";
         break;
       case "ecoregions":
-        typeText = "Species/Ecoregion";
+        typeText = "Species/ Ecoregion";
         break;
       case "rescure":
-        typeText = "Rescure Potential";
+        typeText = "Rescue Potential";
         break;
       default:
         break;
@@ -1549,7 +1549,7 @@ class Home extends Component {
           gridTemplateColumns: Array.from(Array(col).keys())
             .map((e) => "auto")
             .join(" "),
-          gridTemplateRows: "40px"
+          gridTemplateRows: "30px"
         }}
       >
         {scaleElements}
@@ -1558,7 +1558,8 @@ class Home extends Component {
             whiteSpace: "break-spaces",
             textAlign: "center",
             height: "100%",
-            alignSelf: "center"
+            alignSelf: "center",
+            width: "min-content"
           }}
         >
           {typeText}
@@ -2180,7 +2181,10 @@ class Home extends Component {
               width: "100%",
               height: "100%",
               position: "relative",
-              backgroundColor: "white"
+              backgroundColor: "white",
+              display: "grid",
+              gridTemplateRows: "30px auto",
+              gridTemplateColumns: "auto"
             }}
             className={
               this.state.tutorial === "mapVisWrapper" || this.state.tour === 5
@@ -2188,6 +2192,10 @@ class Home extends Component {
                 : ""
             }
           >
+            {this.renderMapScale(
+              this.state.diversityScale,
+              this.state.diversityScaleType
+            )}
             {this.renderMap ? (
               <ResizeComponent>
                 <Map
