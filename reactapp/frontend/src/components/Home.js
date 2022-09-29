@@ -1496,7 +1496,7 @@ class Home extends Component {
         typeTextSecond = "Ecoregion";
         break;
       case "rescure":
-        typeText = "Rescue";
+        typeText = "Protection";
         typeTextSecond = "Potential";
         break;
       case "orchestras":
@@ -2078,12 +2078,18 @@ class Home extends Component {
                   <div
                     style={{
                       margin: 0,
-                      padding: 0
+                      padding: 0,
+
+                      display: "grid",
+                      gridTemplateColumns: "auto",
+                      gridTemplateRows: "36px auto"
                     }}
                     className="searchBarWrapper"
                   >
-                    <div>Color Friendly</div>
-                    <div className="switchWrapper">
+                    <div
+                      className="switchWrapper"
+                      style={{ transform: "scale(0.8)" }}
+                    >
                       <Switch
                         onChange={(e, value) =>
                           this.setState({ colorBlind: !this.state.colorBlind })
@@ -2097,7 +2103,7 @@ class Home extends Component {
                         style={{
                           position: "absolute",
                           top: "10px",
-                          left: this.state.colorBlind ? "32px" : "51px",
+                          left: this.state.colorBlind ? "23px" : "44px",
                           transitionProperty: "left",
                           transitionDuration: "0.3s",
                           pointerEvents: "none"
@@ -2106,6 +2112,7 @@ class Home extends Component {
                         {this.state.colorBlind ? "on" : "off"}
                       </div>
                     </div>
+                    <div style={{ fontSize: "smaller" }}>Color Friendly</div>
                   </div>
                 </div>
                 <div
@@ -2121,15 +2128,19 @@ class Home extends Component {
                   <div
                     style={{
                       margin: 0,
-                      padding: 0
+                      padding: 0,
+                      display: "grid",
+                      gridTemplateColumns: "auto",
+                      gridTemplateRows: "8px 28px auto"
                     }}
                     className="searchBarWrapper buttonHover"
                     onClick={() => {
                       this.setState({ tutorial: "centerPanel", tour: 1 });
                     }}
                   >
+                    <div></div>
                     <div className="switchWrapper">
-                      <PlayIcon style={{ width: "20px", height: "20px" }} />
+                      <PlayIcon style={{ width: "25px", height: "25px" }} />
                     </div>
                     <div style={{ fontSize: "smaller" }}>Take Tour!</div>
                   </div>

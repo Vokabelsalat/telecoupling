@@ -767,7 +767,7 @@ class MapHelper {
         this.rescureEcoRegions = L.layerGroup();
         this.control.addOverlay(
           this.rescureEcoRegions,
-          "Rescure Ecoregions",
+          "Ecoregion Protection Potential",
           "Extra"
         );
 
@@ -2527,7 +2527,7 @@ class MapHelper {
           this.updateOrchestras();
         }
         break;
-      case "Rescure Ecoregions":
+      case "Ecoregion Protection Potential":
         if (this.hexagons && this.diversityCountries) {
           this.countryClusterLayer.addTo(this.mymap);
           this.mymap.removeLayer(this.diversityCountries);
