@@ -1,7 +1,7 @@
 import TreeMapTile from "./TreeMapTile";
 
 export default function TreeMapLevel(props) {
-  const { node, setRootNode } = props;
+  const { node, filterTreeMap } = props;
 
   return (
     <div
@@ -13,7 +13,7 @@ export default function TreeMapLevel(props) {
         height: node.y1 - node.y0
       }}
       onClick={() => {
-        setRootNode(node);
+        filterTreeMap(node);
       }}
       className="treeMapLevel"
     >

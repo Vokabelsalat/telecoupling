@@ -3,8 +3,16 @@ import Switch from "@mui/material/Switch";
 import ResizeComponent from "./ResizeComponent";
 
 export default function CenterPanel(props) {
-  const { data, getSpeciesThreatLevel, threatType, colorBlind, setColorBlind } =
-    props;
+  const {
+    data,
+    getSpeciesThreatLevel,
+    threatType,
+    setThreatType,
+    colorBlind,
+    setColorBlind
+  } = props;
+
+  console.log("threatType", threatType);
 
   return (
     <div
@@ -16,7 +24,31 @@ export default function CenterPanel(props) {
         gridTemplateColumns: "45% 10% 15% 15% 15%"
       }}
     >
-      <div></div>
+      <div>
+        <div
+          style={{
+            margin: 0,
+            padding: 0
+          }}
+          className="searchBarWrapper"
+        >
+          <div>Threat Style</div>
+          <div className="switchWrapper">
+            <Switch
+              onChange={() => {
+                setThreatType(
+                  threatType === "economically"
+                    ? "ecologically"
+                    : "economically"
+                );
+              }}
+              checked={threatType === "economically" ? false : true}
+              className="colorBlindSwitch"
+              color="secondary"
+            />
+          </div>
+        </div>
+      </div>
       <PieChartNew
         data={data}
         getThreatLevel={getSpeciesThreatLevel}

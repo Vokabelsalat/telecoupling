@@ -7,6 +7,7 @@ import ResizeComponent from "./ResizeComponent";
 import CenterPanel from "./CenterPanel";
 import OrchestraNew from "./OrchestraNew";
 import TreeMapView from "./TreeMapViewNew";
+import Map from "./MapNew";
 import { getOrCreate, pushOrCreateWithoutDuplicates } from "../utils/utils";
 import {
   bgciAssessment,
@@ -14,6 +15,9 @@ import {
   iucnAssessment
 } from "../utils/timelineUtils";
 import Orchestra from "./Orchestra";
+
+import "leaflet/dist/leaflet.css";
+import "react-leaflet-markercluster/dist/styles.min.css";
 
 export default function HomeNew(props) {
   const [zoomOrigin, setZoomOrigin] = useState("0% 0%");
@@ -50,6 +54,8 @@ export default function HomeNew(props) {
   const [selectedFamily, setSelectedFamily] = useState();
   const [selectedGenus, setSelectedGenus] = useState();
   const [selectedSpecies, setSelectedSpecies] = useState();
+
+  const [treeMapFilter, setTreeMapFilter] = useState({});
 
   const [domainYears, setDomainYears] = useState({ maxYear: 1, minYear: 2 });
 
@@ -453,7 +459,7 @@ export default function HomeNew(props) {
               instrumentData={instrumentData}
               instrumentGroupData={instrumentGroupData}
               getThreatLevel={getSpeciesSignThreat}
-              threatType={"economically"}
+              threatType={threatType}
               colorBlind={colorBlind}
               setInstrument={setInstrument}
               setInstrumentGroup={setInstrumentGroup}
@@ -480,10 +486,12 @@ export default function HomeNew(props) {
           <ResizeComponent>
             <TreeMapView
               data={{ name: "Kingdom", children: kingdomData, filterDepth: 0 }}
-              kingdom={selectedKingdom}
+              /* kingdom={selectedKingdom}
               family={selectedFamily}
               genus={selectedGenus}
-              species={selectedSpecies}
+              species={selectedSpecies} */
+              treeMapFilter={treeMapFilter}
+              setTreeMapFilter={setTreeMapFilter}
             />
           </ResizeComponent>
           <FullScreenButton
@@ -507,6 +515,7 @@ export default function HomeNew(props) {
               data={timelineData}
               getSpeciesThreatLevel={getSpeciesSignThreat}
               threatType={threatType}
+              setThreatType={setThreatType}
               colorBlind={colorBlind}
               setColorBlind={setColorBlind}
             />
@@ -559,6 +568,9 @@ export default function HomeNew(props) {
             position: "relative"
           }}
         >
+          <ResizeComponent>
+            <Map />
+          </ResizeComponent>
           <FullScreenButton
             scaleString={zoomTransform}
             onClick={() => {

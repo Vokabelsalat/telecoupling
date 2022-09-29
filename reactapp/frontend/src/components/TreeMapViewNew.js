@@ -1,12 +1,51 @@
 import TreeMap from "./TreeMapNew";
+import TreeMapHeader from "./TreeMapHeader";
 import { useState } from "react";
 
 export default function TreeMapView(props) {
-  const { width, height, data, instrument, genus, family, kingdom } = props;
+  const { width, height, data, treeMapFilter, setTreeMapFilter } = props;
 
-  console.log(data, kingdom);
+  const { kingdom, family, genus, species } = treeMapFilter;
 
   const [rootNode, setRootNode] = useState();
+
+  const filterTreeMap = (node) => {
+    const level = node ? node.data.filterDepth : 0;
+
+    let newTreeMapFilter = { ...treeMapFilter };
+
+    switch (level) {
+      case 0:
+        newTreeMapFilter["kingdom"] = null;
+        newTreeMapFilter["family"] = null;
+        newTreeMapFilter["genus"] = null;
+        newTreeMapFilter["species"] = null;
+        break;
+      case 1:
+        newTreeMapFilter["kingdom"] = node.data.name;
+        newTreeMapFilter["family"] = null;
+        newTreeMapFilter["genus"] = null;
+        newTreeMapFilter["species"] = null;
+        break;
+      case 2:
+        newTreeMapFilter["family"] = node.data.name;
+        newTreeMapFilter["genus"] = null;
+        newTreeMapFilter["species"] = null;
+        break;
+      case 3:
+        newTreeMapFilter["genus"] = node.data.name;
+        newTreeMapFilter["species"] = null;
+        break;
+      case 4:
+        newTreeMapFilter["species"] = node.data.name;
+        break;
+      default:
+        break;
+    }
+
+    setTreeMapFilter(newTreeMapFilter);
+    setRootNode(node);
+  };
 
   const filterData = (i_data, i_filter) => {
     if (
@@ -35,12 +74,29 @@ export default function TreeMapView(props) {
   }
 
   return (
-    <div style={{ width: "100%", height: "100%", backgroundColor: "white" }}>
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        backgroundColor: "white",
+        display: "grid",
+        gridTemplateRows: "auto auto",
+        gridTemplateColumns: "auto"
+      }}
+    >
+      <TreeMapHeader
+        kingdom={kingdom}
+        genus={genus}
+        family={family}
+        species={species}
+        filterTreeMap={filterTreeMap}
+      />
       <TreeMap
         width={width}
         height={height}
         data={tmpData}
-        setRootNode={setRootNode}
+        headerOffset={kingdom ? 40 : 0}
+        filterTreeMap={filterTreeMap}
       />
     </div>
   );

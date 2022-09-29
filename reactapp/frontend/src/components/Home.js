@@ -28,7 +28,7 @@ import {
   replaceSpecialCharacters
 } from "../utils/utils";
 import FullScreenButton from "./FullScreenButton";
-import Map from "./Map";
+//import Map from "./Map";
 import ResizeComponent from "./ResizeComponent";
 
 class Home extends Component {
@@ -1842,7 +1842,7 @@ class Home extends Component {
                 setFilter={this.setFilter.bind(this)}
                 getAnimalIcon={this.getAnimalIcon.bind(this)}
                 getPlantIcon={this.getPlantIcon.bind(this)}
-              ></TreeMap>
+              />
             ) : (
               []
             )}
@@ -2117,7 +2117,7 @@ class Home extends Component {
               this.state.diversityScaleType
             )}
             {this.renderMap ? (
-              <Map
+              /*  <Map
                 id="map"
                 data={this.state.speciesData}
                 initWidth={this.state.initWidthForVis}
@@ -2142,7 +2142,8 @@ class Home extends Component {
                 lastSpeciesSigns={lastSpeciesSigns}
                 lastSpeciesThreats={lastSpeciesThreats}
                 setEcoRegionStatistics={this.setEcoRegionStatistics.bind(this)}
-              />
+              /> */
+              <></>
             ) : (
               []
             )}
