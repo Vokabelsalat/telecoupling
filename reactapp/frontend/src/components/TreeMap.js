@@ -31,7 +31,7 @@ class TreeMap extends Component {
       getPlantIcon: this.props.getPlantIcon,
       getAnimalIcon: this.props.getAnimalIcon,
       width: this.props.width,
-      height: this.props.height
+      height: this.props.height - 10
     });
   }
 
@@ -63,7 +63,7 @@ class TreeMap extends Component {
         getPlantIcon: this.props.getPlantIcon,
         getAnimalIcon: this.props.getAnimalIcon,
         width: this.props.width,
-        height: this.props.height
+        height: this.props.height - 10
       });
     }
   }

@@ -39,7 +39,7 @@ class D3Orchestra {
     this.initHeight = param.height;
 
     this.positionX = this.initWidth / 2;
-    this.positionY = this.initHeight / 2 + 100;
+    this.positionY = this.initHeight / 2 + 110;
 
     this.padding = 20;
 
@@ -1306,8 +1306,6 @@ class D3Orchestra {
   }
 
   paint() {
-    console.log("ORCHESTRA WIDTH", this.initWidth, this.initHeight);
-
     this.clearAndReset();
 
     let backButton = d3

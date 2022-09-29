@@ -49,7 +49,7 @@ class Home extends Component {
     this.usePreGenerated = true;
     this.renderMap = true;
     this.renderTreeMap = true;
-    this.slice = true;
+    this.slice = false;
 
     this.tempSpeciesData = {};
     this.tempFetchedSpecies = [];
@@ -1480,19 +1480,28 @@ class Home extends Component {
     let scaleElements = [];
 
     let typeText = "";
+    let typeTextSecond = "";
 
     switch (type) {
       case "countries":
-        typeText = "Species/ Country";
+        typeText = "Species";
+        typeTextSecond = "Country";
         break;
       case "hexagons":
-        typeText = "Species/ Hexagon";
+        typeText = "Species";
+        typeTextSecond = "Hexagon";
         break;
       case "ecoregions":
-        typeText = "Species/ Ecoregion";
+        typeText = "Species";
+        typeTextSecond = "Ecoregion";
         break;
       case "rescure":
-        typeText = "Rescue Potential";
+        typeText = "Rescue";
+        typeTextSecond = "Potential";
+        break;
+      case "orchestras":
+        typeText = "Orchestras";
+        typeTextSecond = "Country";
         break;
       default:
         break;
@@ -1555,14 +1564,25 @@ class Home extends Component {
         {scaleElements}
         <div
           style={{
-            whiteSpace: "break-spaces",
+            /* whiteSpace: "break-spaces", */
             textAlign: "center",
             height: "100%",
             alignSelf: "center",
-            width: "min-content"
+            width: "min-content",
+            display: "grid",
+            gridTemplateColumns: "auto",
+            gridTemplateRows: "auto auto",
+            fontSize: "smaller",
+            marginTop: "-9px",
+            marginLeft: "5px"
           }}
         >
-          {typeText}
+          <div>{typeText}</div>
+          <div
+            style={{ borderTop: type === "rescure" ? "" : "1px solid black" }}
+          >
+            {typeTextSecond}
+          </div>
         </div>
       </div>
     );
@@ -1880,6 +1900,8 @@ class Home extends Component {
               onClick={() => {
                 this.setState({ tutorial: "treeMapVisWrapper" });
               }}
+              right={32}
+              top={6}
             />
             <FullScreenButton
               scaleString={scaleString}
@@ -1889,7 +1911,8 @@ class Home extends Component {
                   transformOrigin: scaleString !== "" ? "0% 0%" : "100% 0%"
                 });
               }}
-              right={5}
+              right={6}
+              top={6}
             />
           </div>
           <div
@@ -2059,7 +2082,7 @@ class Home extends Component {
                     }}
                     className="searchBarWrapper"
                   >
-                    <div>Color Blind Mode</div>
+                    <div>Color Friendly</div>
                     <div className="switchWrapper">
                       <Switch
                         onChange={(e, value) =>
@@ -2074,7 +2097,7 @@ class Home extends Component {
                         style={{
                           position: "absolute",
                           top: "10px",
-                          left: this.state.colorBlind ? "44px" : "62px",
+                          left: this.state.colorBlind ? "32px" : "51px",
                           transitionProperty: "left",
                           transitionDuration: "0.3s",
                           pointerEvents: "none"
@@ -2183,7 +2206,7 @@ class Home extends Component {
               position: "relative",
               backgroundColor: "white",
               display: "grid",
-              gridTemplateRows: "30px auto",
+              gridTemplateRows: "20px auto",
               gridTemplateColumns: "auto"
             }}
             className={
@@ -2230,7 +2253,7 @@ class Home extends Component {
               []
             )}
             <VisInfoButton
-              top={-20}
+              top={-30}
               right={20}
               onClick={() => {
                 this.setState({ tutorial: "mapVisWrapper" });
@@ -2245,7 +2268,7 @@ class Home extends Component {
                     scaleString !== "" ? "0% 0%" : "100% calc(100% - 60px)"
                 });
               }}
-              top={-20}
+              top={-30}
               right={-5}
             />
           </div>

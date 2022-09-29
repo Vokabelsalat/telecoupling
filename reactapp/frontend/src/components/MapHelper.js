@@ -472,8 +472,8 @@ class MapHelper {
     this.mymap = L.map(this.id, {
       worldCopyJump: false,
       minZoom: 0,
-      maxZoom: resolutions.length
-      /* crs: crs */
+      maxZoom: resolutions.length,
+      crs: crs
     }).setView([0, 0], 0);
 
     this.mymap.on("overlayadd", this.overlayadd.bind(this));
@@ -1321,13 +1321,20 @@ class MapHelper {
     ); */
     let data = children.map((e) => e.options.data).flat();
 
-    let n = data.length; //Get number of markers in cluster
+    let dataWithoutDuplicates = {};
+    data.map((e) => {
+      dataWithoutDuplicates[e.species] = e;
+    });
+
+    dataWithoutDuplicates = Object.values(dataWithoutDuplicates);
+
+    let n = dataWithoutDuplicates.length; //Get number of markers in cluster
     let nestedData = d3
       .nest()
       .key(function (d) {
-        return d.abbreviation;
+        return d.threat.abbreviation;
       })
-      .entries(data, d3.map);
+      .entries(dataWithoutDuplicates, d3.map);
 
     let strokeWidth = 1; //Set clusterpie stroke width
     let r = Math.min(
@@ -1360,10 +1367,10 @@ class MapHelper {
         pieClass: "cluster-pie",
         pieLabelClass: "marker-cluster-pie-label",
         strokeColor: function (d) {
-          return d.data.values[0].getColor(colorBlind);
+          return d.data.values[0].threat.getColor(colorBlind);
         },
         color: function (d) {
-          return d.data.values[0].getColor(colorBlind);
+          return d.data.values[0].threat.getColor(colorBlind);
         }
       });
 
@@ -1431,9 +1438,9 @@ class MapHelper {
 
     let donutData = donut.value(valueFunc).sort((a, b) => {
       if (b.hasOwnProperty("values") && a.hasOwnProperty("values")) {
-        return b.values[0].numvalue - a.values[0].numvalue;
+        return b.values[0].threat.numvalue - a.values[0].threat.numvalue;
       } else {
-        return b.numvalue - a.numvalue;
+        return b.threat.numvalue - a.threat.numvalue;
       }
     });
 
@@ -1733,9 +1740,12 @@ class MapHelper {
 
           data = [...new Set(data)].map((e) => {
             if (lastSpeciesSigns.hasOwnProperty(e)) {
-              return lastSpeciesSigns[e][treeThreatType];
+              return {
+                threat: lastSpeciesSigns[e][treeThreatType],
+                species: e
+              };
             } else {
-              return citesAssessment.get("DD");
+              return { threat: citesAssessment.get("DD"), species: e };
             }
           });
           let n = data.length; //Get number of markers in cluster
@@ -1772,10 +1782,10 @@ class MapHelper {
                     pieLabel: n,
                     pieLabelClass: "marker-cluster-pie-label",
                     strokeColor: function (d) {
-                      return d.data.getColor(colorBlind);
+                      return d.data.threat.getColor(colorBlind);
                     },
                     color: function (d) {
-                      return d.data.getColor(colorBlind);
+                      return d.data.threat.getColor(colorBlind);
                     }
                     /* pathClassFunc: function (d) { return "category-path category-" + d.data.key.replaceSpecialCharacters(); },
                                     pathTitleFunc: function (d) { return d.data.key + ' (' + d.data.values.length + ' accident' + (d.data.values.length != 1 ? 's' : '') + ')'; } */
@@ -2001,9 +2011,12 @@ class MapHelper {
 
             data = [...new Set(data)].map((e) => {
               if (lastSpeciesSigns.hasOwnProperty(e)) {
-                return lastSpeciesSigns[e][treeThreatType];
+                return {
+                  species: e,
+                  threat: lastSpeciesSigns[e][treeThreatType]
+                };
               } else {
-                return citesAssessment.get("DD");
+                return { species: e, threat: citesAssessment.get("DD") };
               }
             });
 
@@ -2062,10 +2075,10 @@ class MapHelper {
                     pieLabel: n,
                     pieLabelClass: "marker-cluster-pie-label",
                     strokeColor: function (d) {
-                      return d.data.getColor(colorBlind);
+                      return d.data.threat.getColor(colorBlind);
                     },
                     color: function (d) {
-                      return d.data.getColor(colorBlind);
+                      return d.data.threat.getColor(colorBlind);
                     }
                   }),
                   iconSize: new L.Point(iconDim, iconDim)
@@ -2286,7 +2299,7 @@ class MapHelper {
       }
 
       this.diversityColorScale = scale;
-      this.setDiversityScale(this.diversityColorScale, "countries");
+      this.setDiversityScale(this.diversityColorScale, "orchestras");
 
       let getScaledIndex = this.getScaledIndex.bind(this);
 
@@ -2399,7 +2412,7 @@ class MapHelper {
       scale.push({ scaleColor, scaleValue: heatMapMax });
 
       this.diversityColorScale = scale;
-      this.setDiversityScale(this.diversityColorScale, "countries");
+      this.setDiversityScale(this.diversityColorScale, "orchestras");
 
       let getScaledIndex = this.getScaledIndex.bind(this);
 
@@ -2480,7 +2493,7 @@ class MapHelper {
           this.mymap.removeLayer(this.orchestraLayer);
           this.rescure = false;
           this.control._update();
-          this.setMapSearchMode("countries");
+          this.setMapSearchMode("country");
           this.updateDiversity();
         }
         break;
@@ -2509,7 +2522,7 @@ class MapHelper {
           this.mymap.removeLayer(this.diversityCountries);
           this.rescure = false;
           this.control._update();
-          this.setMapSearchMode("countries");
+          this.setMapSearchMode("country");
           this.toggleDiverstiyCountries(true);
           this.updateOrchestras();
         }

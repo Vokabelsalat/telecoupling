@@ -79,8 +79,6 @@ class Map extends Component {
   }
 
   addSpeciesFromMapSpecies() {
-    console.log("addSpeciesFromMapSpecies", this.props.mapSpecies);
-
     //this.MapHelper.speciesImageLinks = this.props.speciesImageLinks;
     let speciesCountries = {};
     let speciesEcoRegions = {};
