@@ -978,10 +978,18 @@ class D3BarChart {
     } else if (elements.children) {
       return this.searchForImage(
         elements.children.sort((a, b) => {
-          if (a.data.link && b.data.link) {
+          if (a.data.link && !b.data.link) {
+            return -1;
+          } else if (b.data.link && !a.data.link) {
+            return 1;
+          } else {
             let diff = b.value - a.value;
+            return diff;
+          }
+          /* let diff = b.value - a.value;
+          if (b.data.link && a.data.link) {
             if (diff === 0) {
-              return a.data.name.localeCompare(a.data.name);
+              return a.data.name.localeCompare(b.data.name);
             } else {
               return diff;
             }
@@ -989,7 +997,7 @@ class D3BarChart {
             return -1;
           } else if (b.data.link && !a.data.link) {
             return 1;
-          }
+          } */
         })[0]
       );
     }
