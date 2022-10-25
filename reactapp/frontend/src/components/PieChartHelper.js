@@ -204,7 +204,9 @@ class PieChartD3 {
       .attr("y", 0)
       .attr("class", "pieChartTest");
 
-    innerGroup.node().appendChild(pie.node());
+    if (innerGroup.node() != null) {
+      innerGroup.node().appendChild(pie.node());
+    }
   }
 }
 

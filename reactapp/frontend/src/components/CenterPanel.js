@@ -12,7 +12,7 @@ export default function CenterPanel(props) {
     setColorBlind
   } = props;
 
-  console.log("threatType", threatType);
+  console.log("center threatType", threatType, data);
 
   return (
     <div

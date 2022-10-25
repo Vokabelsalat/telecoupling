@@ -24,7 +24,12 @@ export default function PieChartNew(props) {
   });
 
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center"
+      }}
+    >
       <div id={id} />
     </div>
   );

@@ -41,6 +41,7 @@ export default function HomeNew(props) {
   const [threatType, setThreatType] = useState("economically");
 
   const [speciesSignThreats, setSpeciesSignThreats] = useState({});
+  const [speciesCountries, setSpeciesCountries] = useState({});
   const [timelineData, setTimelineData] = useState({});
 
   const [filteredSpecies, setFilteredSpecies] = useState([]);
@@ -95,6 +96,10 @@ export default function HomeNew(props) {
     }
 
     const speciesObj = timelineData[species];
+
+    if (speciesObj == null) {
+      return citesAssessment.dataDeficient;
+    }
 
     if (type === "economically") {
       let lastElement = [...speciesObj["cites"]]
@@ -151,6 +156,7 @@ export default function HomeNew(props) {
         let tmpInstrumentGroupData = {};
         let tmpInstrumentData = {};
         let tmpFilteredSpecies = [];
+        let tmpSpeciesCountries = {};
         /* let tmpTreeMapData = {
           Animalia: { name: "Animalia", children:  },
           Plantae: { name: "Plantae", children: {} }
@@ -321,6 +327,21 @@ export default function HomeNew(props) {
           if (instrumentGroupHit) {
             tmpFilteredSpecies.push(spec);
           }
+
+          let tmpCountries = [];
+          if (speciesObj.hasOwnProperty("treeCountriesShort")) {
+            tmpCountries = speciesObj["treeCountriesShort"];
+          } else {
+            if (this.props.data[species].hasOwnProperty("iucnCountriesShort")) {
+              tmpCountries = speciesObj["iucnCountriesShort"];
+            } else {
+              if (this.props.data[species].hasOwnProperty("allCountries")) {
+                tmpCountries = speciesObj["allCountries"];
+              }
+            }
+          }
+
+          tmpSpeciesCountries[genusSpecies] = tmpCountries;
         }
 
         for (const group of Object.keys(tmpInstrumentGroupData)) {
@@ -349,6 +370,7 @@ export default function HomeNew(props) {
         setInstrumentData(tmpInstrumentData);
         setInstrumentGroupData(tmpInstrumentGroupData);
         setFilteredSpecies(tmpFilteredSpecies);
+        setSpeciesCountries(tmpSpeciesCountries);
 
         /* console.log(kingdoms);
         console.log(families);
@@ -569,7 +591,12 @@ export default function HomeNew(props) {
           }}
         >
           <ResizeComponent>
-            <Map />
+            <Map
+              speciesCountries={speciesCountries}
+              colorBlind={colorBlind}
+              getSpeciesThreatLevel={getSpeciesSignThreat}
+              threatType={threatType}
+            />
           </ResizeComponent>
           <FullScreenButton
             scaleString={zoomTransform}

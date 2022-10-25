@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import "mapbox-gl/dist/mapbox-gl.css";
 import "./App.css";
 import TimelineView from "./components/TimelineView";
 import Statistics from "./components/Statistics";
