@@ -1941,8 +1941,7 @@ class Home extends Component {
                   width: "100%",
                   height: "auto",
                   display: "grid",
-                  gridTemplateColumns:
-                    "calc(50% - 50px) 90px auto auto auto auto",
+                  gridTemplateColumns: "auto auto auto calc(50%) auto auto",
                   gridTemplateRows: "auto"
                 }}
               >
@@ -1950,69 +1949,6 @@ class Home extends Component {
                   style={{
                     gridColumnStart: 1,
                     gridColumnEnd: 1,
-                    gridRowStart: 1,
-                    gridRowEnd: 1
-                  }}
-                >
-                  <div className="legend">
-                    <Legend
-                      onZoom={() => this.onZoom(1)}
-                      onZoomOut={() => this.onZoom(-1)}
-                      zoomLevel={this.state.zoomLevel}
-                      maxZoomLevel={this.state.maxZoomLevel}
-                      onPieStyle={this.onPieStyle.bind(this)}
-                      pieStyle={this.state.pieStyle}
-                      groupSame={this.state.groupSame}
-                      onGroupSame={this.onGroupSame.bind(this)}
-                      sortGrouped={this.state.sortGrouped}
-                      onSortGrouped={this.onSortGrouped.bind(this)}
-                      heatStyle={this.state.heatStyle}
-                      onHeatStyle={this.onHeatStyle.bind(this)}
-                      treeThreatType={this.state.treeThreatType}
-                      setTreeThreatType={this.setTreeThreatType.bind(this)}
-                      colorBlind={this.state.colorBlind}
-                      setFilter={this.setFilter.bind(this)}
-                    />
-                  </div>
-                </div>
-                <div
-                  style={{
-                    gridColumnStart: 2,
-                    gridColumnEnd: 2,
-                    gridRowStart: 1,
-                    gridRowEnd: 1,
-                    alignSelf: "center",
-                    justifySelf: "center"
-                  }}
-                >
-                  <div
-                    className="middlePieChart"
-                    style={{ position: "relative" }}
-                  >
-                    <CenterPieChart
-                      data={filteredSpeciesData}
-                      getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
-                      treeThreatType={this.state.treeThreatType}
-                      colorBlind={this.state.colorBlind}
-                      lastSpeciesSigns={lastSpeciesSigns}
-                      lastSpeciesThreats={lastSpeciesThreats}
-                    />
-                  </div>
-                  <div
-                    style={{
-                      lineHeight: "1.5em",
-                      fontSize: "large",
-                      fontWeight: "bold",
-                      textAlign: "center"
-                    }}
-                  >
-                    Species
-                  </div>
-                </div>
-                <div
-                  style={{
-                    gridColumnStart: 3,
-                    gridColumnEnd: 3,
                     gridRowStart: 1,
                     gridRowEnd: 1,
                     alignSelf: "center",
@@ -2042,6 +1978,39 @@ class Home extends Component {
                     gridColumnStart: 4,
                     gridColumnEnd: 4,
                     gridRowStart: 1,
+                    gridRowEnd: 1
+                  }}
+                >
+                  <div className="legend">
+                    <Legend
+                      onZoom={() => this.onZoom(1)}
+                      onZoomOut={() => this.onZoom(-1)}
+                      zoomLevel={this.state.zoomLevel}
+                      maxZoomLevel={this.state.maxZoomLevel}
+                      onPieStyle={this.onPieStyle.bind(this)}
+                      pieStyle={this.state.pieStyle}
+                      groupSame={this.state.groupSame}
+                      onGroupSame={this.onGroupSame.bind(this)}
+                      sortGrouped={this.state.sortGrouped}
+                      onSortGrouped={this.onSortGrouped.bind(this)}
+                      heatStyle={this.state.heatStyle}
+                      onHeatStyle={this.onHeatStyle.bind(this)}
+                      treeThreatType={this.state.treeThreatType}
+                      setTreeThreatType={this.setTreeThreatType.bind(this)}
+                      colorBlind={this.state.colorBlind}
+                      setFilter={this.setFilter.bind(this)}
+                      lastSpeciesThreats={lastSpeciesThreats}
+                      lastSpeciesSigns={lastSpeciesSigns}
+                      data={filteredSpeciesData}
+                      getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
+                    />
+                  </div>
+                </div>
+                <div
+                  style={{
+                    gridColumnStart: 6,
+                    gridColumnEnd: 6,
+                    gridRowStart: 1,
                     gridRowEnd: 1,
                     alignSelf: "center",
                     justifySelf: "center"
@@ -2067,8 +2036,8 @@ class Home extends Component {
                 </div>
                 <div
                   style={{
-                    gridColumnStart: 5,
-                    gridColumnEnd: 5,
+                    gridColumnStart: 2,
+                    gridColumnEnd: 2,
                     gridRowStart: 1,
                     gridRowEnd: 1,
                     alignSelf: "center",
@@ -2117,8 +2086,8 @@ class Home extends Component {
                 </div>
                 <div
                   style={{
-                    gridColumnStart: 6,
-                    gridColumnEnd: 6,
+                    gridColumnStart: 3,
+                    gridColumnEnd: 3,
                     gridRowStart: 1,
                     gridRowEnd: 1,
                     alignSelf: "center",

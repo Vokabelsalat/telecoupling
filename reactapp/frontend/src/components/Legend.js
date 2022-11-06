@@ -1,3 +1,4 @@
+import CenterPieChart from "./CenterPieChart";
 import React, { Component } from "react";
 import * as d3 from "d3";
 
@@ -21,10 +22,6 @@ class Legend extends Component {
   }
 
   componentDidMount() {}
-
-  onChange() {
-    this.props.setTreeThreatType(!this.props.treeThreatType);
-  }
 
   tooltipMove(event) {
     let tooltip = d3.select(".tooltip");
@@ -83,7 +80,6 @@ class Legend extends Component {
   render() {
     let setTreeThreatType = this.props.setTreeThreatType.bind(this);
     let treeThreatType = this.props.treeThreatType;
-    let onChange = this.onChange.bind(this);
     let categoryFilter = this.state.categoryFilter;
     return (
       <div style={{ display: "flex", justifyContent: "center" }}>
@@ -170,11 +166,28 @@ class Legend extends Component {
               alignSelf: "center",
               justifySelf: "center",
               fontWeight: treeThreatType ? "bold" : "normal",
-              fontSize: "large",
-              opacity: !treeThreatType ? 0.5 : 1.0
+              fontSize: "large"
+            }}
+            onClick={() => {
+              this.props.setTreeThreatType(true);
             }}
           >
-            Trade
+            <button
+              style={{
+                border: treeThreatType
+                  ? "solid 2px var(--highlightpurple)"
+                  : "solid 1px gray",
+                fontWeight: treeThreatType ? "bold" : "normal"
+              }}
+              className="threatTypeButton"
+              onClick={() => {
+                this.props.setTreeThreatType(false);
+              }}
+            >
+              Trade-related
+              <br />
+              Threat
+            </button>
           </div>
           <div
             style={{
@@ -187,11 +200,42 @@ class Legend extends Component {
             }}
           >
             <div className="switchWrapper">
-              <Switch
+              {/*  <Switch
                 onChange={onChange}
                 checked={!treeThreatType}
                 color="secondary"
-              />
+              /> */}
+              {/* <div
+                  style={{
+                    gridColumnStart: 2,
+                    gridColumnEnd: 2,
+                    gridRowStart: 1,
+                    gridRowEnd: 1,
+                    alignSelf: "center",
+                    justifySelf: "center"
+                  }}
+                > */}
+              <div className="middlePieChart" style={{ position: "relative" }}>
+                <CenterPieChart
+                  data={this.props.data}
+                  getTreeThreatLevel={this.props.getSpeciesThreatLevel}
+                  treeThreatType={this.props.treeThreatType}
+                  colorBlind={this.props.colorBlind}
+                  lastSpeciesSigns={this.props.lastSpeciesSigns}
+                  lastSpeciesThreats={this.props.lastSpeciesThreats}
+                />
+              </div>
+              <div
+                style={{
+                  lineHeight: "1.5em",
+                  fontSize: "large",
+                  fontWeight: "bold",
+                  textAlign: "center"
+                }}
+              >
+                Species
+              </div>
+              {/* </div> */}
             </div>
           </div>
           <div
@@ -201,13 +245,25 @@ class Legend extends Component {
               gridRowStart: 1,
               gridRowEnd: "span 2",
               alignSelf: "center",
-              justifySelf: "center",
-              fontWeight: !treeThreatType ? "bold" : "normal",
-              fontSize: "large",
-              opacity: treeThreatType ? 0.5 : 1.0
+              justifySelf: "center"
             }}
           >
-            Threat
+            <button
+              style={{
+                border: !treeThreatType
+                  ? "solid 2px var(--highlightpurple)"
+                  : "solid 1px gray",
+                fontWeight: !treeThreatType ? "bold" : "normal"
+              }}
+              className="threatTypeButton"
+              onClick={() => {
+                this.props.setTreeThreatType(false);
+              }}
+            >
+              Ecological
+              <br />
+              Threat
+            </button>
           </div>
           <div
             style={{

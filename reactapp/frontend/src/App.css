@@ -733,3 +733,20 @@ path.handle:focus {
   padding: 10px;
   box-sizing: border-box;
 }
+
+.threatTypeButton {
+  background-color: white;
+  color: black;
+  padding: 6px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: large;
+  cursor: pointer;
+  border-radius: 40px;
+}
+
+.threatTypeButton:hover {
+  border: solid 2px var(--highlightpurple) !important;
+  box-shadow: lightgray 0px 0px 20px;
+}
