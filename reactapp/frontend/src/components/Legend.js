@@ -9,6 +9,7 @@ import {
 } from "../utils/timelineUtils";
 
 import Switch from "@mui/material/Switch";
+import { create } from "@mui/material/styles/createTransitions";
 
 class Legend extends Component {
   constructor(props) {
@@ -17,11 +18,17 @@ class Legend extends Component {
     this.setFilter = props.setFilter;
 
     this.state = {
-      categoryFilter: null
+      categoryFilter: props.category
     };
   }
 
   componentDidMount() {}
+
+  componentDidUpdate(oldProps) {
+    if (oldProps.category !== this.props.category) {
+      this.setState({ categoryFilter: this.props.category });
+    }
+  }
 
   tooltipMove(event) {
     let tooltip = d3.select(".tooltip");
@@ -77,18 +84,134 @@ class Legend extends Component {
     }
   }
 
-  render() {
+  createLegend() {
     let setTreeThreatType = this.props.setTreeThreatType.bind(this);
     let treeThreatType = this.props.treeThreatType;
     let categoryFilter = this.state.categoryFilter;
-    return (
-      <div style={{ display: "flex", justifyContent: "center" }}>
+    let threatMode = this.props.threatMode;
+
+    if (threatMode) {
+      return (
+        <div
+          style={{
+            gridColumnStart: 4,
+            gridColumnEnd: 4,
+            gridRowStart: 1,
+            gridRowEnd: 1,
+            alignSelf: "center",
+            justifySelf: "center"
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              display: "grid",
+              gridTemplateColumns: "auto auto",
+              gridTemplateRows: "auto auto",
+              gap: "5px"
+            }}
+          >
+            <div
+              style={{
+                gridColumnStart: 1,
+                gridColumnEnd: 1,
+                gridRowStart: 1,
+                gridRowEnd: 1,
+                alignSelf: "center",
+                justifySelf: "center",
+                opacity: !treeThreatType ? 0.5 : 1.0
+              }}
+            >
+              <div style={{ textAlign: "center", lineHeight: "1.7em" }}>
+                CITES
+                <a
+                  href="https://cites.org/eng/app/index.php"
+                  target="_blank"
+                  style={{ textDecoration: "none" }}
+                  rel="noreferrer"
+                >
+                  <div className="infoI">i</div>
+                </a>
+              </div>
+              {citesAssessment.getSortedLevels().map((e) => {
+                let style = {
+                  display: "inline-block",
+                  minWidth: "40px",
+                  height: "15px",
+                  lineHeight: "15px",
+                  fontSize: "smaller",
+                  border:
+                    categoryFilter &&
+                    categoryFilter.type === "cites" &&
+                    categoryFilter.cat === e
+                      ? "2px solid var(--highlightpurple)"
+                      : "none",
+                  cursor: treeThreatType ? "pointer" : "default",
+                  backgroundColor: citesAssessment
+                    .get(e)
+                    .getColor(this.props.colorBlind),
+                  color: citesAssessment
+                    .get(e)
+                    .getForegroundColor(this.props.colorBlind),
+                  textAlign: "center"
+                };
+                return (
+                  <div
+                    key={e}
+                    style={style}
+                    data-info="CITES"
+                    data-key={e}
+                    onClick={(event) => {
+                      if (treeThreatType) {
+                        this.setCategoryFilter("cites", e);
+                      }
+                    }}
+                    onMouseEnter={(e) => this.tooltip(e, true)}
+                    onMouseLeave={(e) => this.tooltip(e, false)}
+                    onMouseMove={(e) => this.tooltipMove(e)}
+                  >
+                    {e}
+                  </div>
+                );
+              })}
+            </div>
+            <div
+              style={{
+                gridColumnStart: 2,
+                gridColumnEnd: 2,
+                gridRowStart: 1,
+                gridRowEnd: 1,
+                alignSelf: "center",
+                justifySelf: "center",
+                fontWeight: treeThreatType ? "bold" : "normal"
+              }}
+              onClick={() => {
+                this.props.setTreeThreatType(true);
+              }}
+            >
+              <button
+                className={`threatTypeButton ${treeThreatType ? "active" : ""}`}
+                onClick={() => {
+                  this.props.setTreeThreatType(false);
+                }}
+              >
+                Trade-related
+                <br />
+                Threat
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    } else {
+      return (
         <div
           style={{
             width: "100%",
-            height: "auto",
+            height: "100%",
             display: "grid",
-            gridTemplateColumns: "auto auto auto",
+            gridTemplateColumns: "auto auto",
             gridTemplateRows: "auto auto",
             gap: "5px"
           }}
@@ -100,162 +223,11 @@ class Legend extends Component {
               gridRowStart: 1,
               gridRowEnd: "span 2",
               alignSelf: "center",
-              justifySelf: "center",
-              opacity: !treeThreatType ? 0.5 : 1.0
-            }}
-          >
-            <div style={{ textAlign: "center", lineHeight: "1.7em" }}>
-              CITES
-              <a
-                href="https://cites.org/eng/app/index.php"
-                target="_blank"
-                style={{ textDecoration: "none" }}
-                rel="noreferrer"
-              >
-                <div className="infoI">i</div>
-              </a>
-            </div>
-            {citesAssessment.getSortedLevels().map((e) => {
-              let style = {
-                display: "inline-block",
-                minWidth: "40px",
-                height: "15px",
-                lineHeight: "15px",
-                fontSize: "smaller",
-                border:
-                  categoryFilter &&
-                  categoryFilter.type === "cites" &&
-                  categoryFilter.cat === e
-                    ? "2px solid var(--highlightpurple)"
-                    : "none",
-                cursor: treeThreatType ? "pointer" : "default",
-                backgroundColor: citesAssessment
-                  .get(e)
-                  .getColor(this.props.colorBlind),
-                color: citesAssessment
-                  .get(e)
-                  .getForegroundColor(this.props.colorBlind),
-                textAlign: "center"
-              };
-              return (
-                <div
-                  key={e}
-                  style={style}
-                  data-info="CITES"
-                  data-key={e}
-                  onClick={(event) => {
-                    if (treeThreatType) {
-                      this.setCategoryFilter("cites", e);
-                    }
-                  }}
-                  onMouseEnter={(e) => this.tooltip(e, true)}
-                  onMouseLeave={(e) => this.tooltip(e, false)}
-                  onMouseMove={(e) => this.tooltipMove(e)}
-                >
-                  {e}
-                </div>
-              );
-            })}
-          </div>
-          <div
-            style={{
-              gridColumnStart: 2,
-              gridColumnEnd: 2,
-              gridRowStart: 1,
-              gridRowEnd: "span 2",
-              alignSelf: "center",
-              justifySelf: "center",
-              fontWeight: treeThreatType ? "bold" : "normal",
-              fontSize: "large"
-            }}
-            onClick={() => {
-              this.props.setTreeThreatType(true);
-            }}
-          >
-            <button
-              style={{
-                border: treeThreatType
-                  ? "solid 2px var(--highlightpurple)"
-                  : "solid 1px gray",
-                fontWeight: treeThreatType ? "bold" : "normal"
-              }}
-              className="threatTypeButton"
-              onClick={() => {
-                this.props.setTreeThreatType(false);
-              }}
-            >
-              Trade-related
-              <br />
-              Threat
-            </button>
-          </div>
-          <div
-            style={{
-              gridColumnStart: 3,
-              gridColumnEnd: 3,
-              gridRowStart: 1,
-              gridRowEnd: "span 2",
-              alignSelf: "center",
-              justifySelf: "center"
-            }}
-          >
-            <div className="switchWrapper">
-              {/*  <Switch
-                onChange={onChange}
-                checked={!treeThreatType}
-                color="secondary"
-              /> */}
-              {/* <div
-                  style={{
-                    gridColumnStart: 2,
-                    gridColumnEnd: 2,
-                    gridRowStart: 1,
-                    gridRowEnd: 1,
-                    alignSelf: "center",
-                    justifySelf: "center"
-                  }}
-                > */}
-              <div className="middlePieChart" style={{ position: "relative" }}>
-                <CenterPieChart
-                  data={this.props.data}
-                  getTreeThreatLevel={this.props.getSpeciesThreatLevel}
-                  treeThreatType={this.props.treeThreatType}
-                  colorBlind={this.props.colorBlind}
-                  lastSpeciesSigns={this.props.lastSpeciesSigns}
-                  lastSpeciesThreats={this.props.lastSpeciesThreats}
-                />
-              </div>
-              <div
-                style={{
-                  lineHeight: "1.5em",
-                  fontSize: "large",
-                  fontWeight: "bold",
-                  textAlign: "center"
-                }}
-              >
-                Species
-              </div>
-              {/* </div> */}
-            </div>
-          </div>
-          <div
-            style={{
-              gridColumnStart: 4,
-              gridColumnEnd: 4,
-              gridRowStart: 1,
-              gridRowEnd: "span 2",
-              alignSelf: "center",
               justifySelf: "center"
             }}
           >
             <button
-              style={{
-                border: !treeThreatType
-                  ? "solid 2px var(--highlightpurple)"
-                  : "solid 1px gray",
-                fontWeight: !treeThreatType ? "bold" : "normal"
-              }}
-              className="threatTypeButton"
+              className={`threatTypeButton ${treeThreatType ? "" : "active"}`}
               onClick={() => {
                 this.props.setTreeThreatType(false);
               }}
@@ -267,8 +239,8 @@ class Legend extends Component {
           </div>
           <div
             style={{
-              gridColumnStart: 5,
-              gridColumnEnd: 5,
+              gridColumnStart: 2,
+              gridColumnEnd: 2,
               gridRowStart: 1,
               gridRowEnd: 1,
               opacity: treeThreatType ? 0.5 : 1.0
@@ -336,11 +308,10 @@ class Legend extends Component {
               })}
             </div>
           </div>
-
           <div
             style={{
-              gridColumnStart: 5,
-              gridColumnEnd: 5,
+              gridColumnStart: 2,
+              gridColumnEnd: 2,
               gridRowStart: 2,
               gridRowEnd: 2,
               opacity: treeThreatType ? 0.5 : 1.0
@@ -411,52 +382,12 @@ class Legend extends Component {
             </div>
           </div>
         </div>
+      );
+    }
+  }
 
-        {/* < div > {this.props.zoomLevel + 1} / {this.props.maxZoomLevel + 1}</div >
-                <button onClick={this.props.onZoomOut}>-</button>
-                <button onClick={this.props.onZoom}>+</button> */}
-        {/* <select
-                    value={this.props.pieStyle}
-                    onChange={(event) => {
-                        this.props.onPieStyle(event.target.value);
-                    }}>
-                    <option value="pie">Pies</option>
-                    <option value="bar">Bars</option>
-                    <option value="ver">Vertical Bars</option>
-                </select>
-                <button style={{
-                    "marginLeft": "10px"
-                }} onClick={(event) => {
-                    this.props.onGroupSame(!this.props.groupSame);
-                }}>
-                    {this.props.groupSame ? "Group Same" : "Not"}
-                </button>
-                <select
-                    value={this.props.sortGrouped}
-                    onChange={(event) => {
-                        this.props.onSortGrouped(event.target.value);
-                    }}
-                    style={{
-                        "marginLeft": "10px"
-                    }}>
-                    <option value="trend">Trend</option>
-                    <option value="avg">Average</option>
-                    <option value="quant">Quantity</option>
-                </select>
-                <select
-                    value={this.props.heatStyle}
-                    onChange={(event) => {
-                        this.props.onHeatStyle(event.target.value);
-                    }}
-                    style={{
-                        "marginLeft": "10px"
-                    }}>
-                    <option value="dom">Dominant</option>
-                    <option value="avg">Average</option>
-                    <option value="max">Max</option>
-                </select> */}
-      </div>
-    );
+  render() {
+    return this.createLegend();
   }
 }
 

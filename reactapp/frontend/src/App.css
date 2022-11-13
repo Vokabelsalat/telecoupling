@@ -737,16 +737,24 @@ path.handle:focus {
 .threatTypeButton {
   background-color: white;
   color: black;
-  padding: 6px 20px;
+  padding: 2px 12px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: large;
+  font-size: medium;
   cursor: pointer;
   border-radius: 40px;
+  border: 1px solid gray;
 }
 
 .threatTypeButton:hover {
   border: solid 2px var(--highlightpurple) !important;
   box-shadow: lightgray 0px 0px 20px;
+  margin: -1px;
+}
+
+.threatTypeButton.active {
+  border: 2px solid var(--highlightpurple) !important;
+  margin: -1px;
+  font-weight: bold;
 }

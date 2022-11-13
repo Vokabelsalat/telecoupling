@@ -403,7 +403,10 @@ class Home extends Component {
   }
 
   setTreeThreatType(val) {
-    this.setState({ treeThreatType: val });
+    this.setState({
+      treeThreatType: val,
+      filterSettings: { ...this.state.filterSettings, category: null }
+    });
   }
 
   toggleDiversityMapMode() {
@@ -1941,99 +1944,156 @@ class Home extends Component {
                   width: "100%",
                   height: "auto",
                   display: "grid",
-                  gridTemplateColumns: "auto auto auto calc(50%) auto auto",
-                  gridTemplateRows: "auto"
+                  gridTemplateColumns: "calc(50% - 35px) 70px calc(50% - 35px)",
+                  gridTemplateRows: "auto",
+                  gap: "2px"
                 }}
               >
                 <div
                   style={{
-                    gridColumnStart: 1,
-                    gridColumnEnd: 1,
-                    gridRowStart: 1,
-                    gridRowEnd: 1,
-                    alignSelf: "center",
-                    justifySelf: "center"
+                    width: "100%",
+                    height: "100%",
+                    display: "grid",
+                    gridTemplateColumns: "auto auto auto auto",
+                    gridTemplateRows: "auto",
+                    gap: "2px"
                   }}
                 >
                   <div
                     style={{
-                      margin: 0,
-                      padding: 0,
-                      marginLeft: "10px"
+                      gridColumnStart: 1,
+                      gridColumnEnd: 1,
+                      gridRowStart: 1,
+                      gridRowEnd: 1,
+                      alignSelf: "center",
+                      justifySelf: "center"
                     }}
-                    className="searchBarWrapper"
                   >
-                    <SearchBar
-                      data={this.state.speciesData}
-                      kingdom={kingdom}
-                      familia={familia}
-                      species={species}
-                      genus={genus}
-                      setFilter={this.setFilter.bind(this)}
-                    />
+                    <div
+                      style={{
+                        margin: 0,
+                        padding: 0
+                      }}
+                      className="searchBarWrapper"
+                    >
+                      <SearchBar
+                        data={this.state.speciesData}
+                        kingdom={kingdom}
+                        familia={familia}
+                        species={species}
+                        genus={genus}
+                        setFilter={this.setFilter.bind(this)}
+                      />
+                    </div>
                   </div>
-                </div>
-                <div
-                  style={{
-                    gridColumnStart: 4,
-                    gridColumnEnd: 4,
-                    gridRowStart: 1,
-                    gridRowEnd: 1
-                  }}
-                >
-                  <div className="legend">
-                    <Legend
-                      onZoom={() => this.onZoom(1)}
-                      onZoomOut={() => this.onZoom(-1)}
-                      zoomLevel={this.state.zoomLevel}
-                      maxZoomLevel={this.state.maxZoomLevel}
-                      onPieStyle={this.onPieStyle.bind(this)}
-                      pieStyle={this.state.pieStyle}
-                      groupSame={this.state.groupSame}
-                      onGroupSame={this.onGroupSame.bind(this)}
-                      sortGrouped={this.state.sortGrouped}
-                      onSortGrouped={this.onSortGrouped.bind(this)}
-                      heatStyle={this.state.heatStyle}
-                      onHeatStyle={this.onHeatStyle.bind(this)}
-                      treeThreatType={this.state.treeThreatType}
-                      setTreeThreatType={this.setTreeThreatType.bind(this)}
-                      colorBlind={this.state.colorBlind}
-                      setFilter={this.setFilter.bind(this)}
-                      lastSpeciesThreats={lastSpeciesThreats}
-                      lastSpeciesSigns={lastSpeciesSigns}
-                      data={filteredSpeciesData}
-                      getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
-                    />
-                  </div>
-                </div>
-                <div
-                  style={{
-                    gridColumnStart: 6,
-                    gridColumnEnd: 6,
-                    gridRowStart: 1,
-                    gridRowEnd: 1,
-                    alignSelf: "center",
-                    justifySelf: "center"
-                  }}
-                >
                   <div
                     style={{
-                      margin: 0,
-                      marginLeft: "10px",
-                      padding: 0
+                      gridColumnStart: 2,
+                      gridColumnEnd: 2,
+                      gridRowStart: 1,
+                      gridRowEnd: 1,
+                      alignSelf: "center",
+                      justifySelf: "center"
                     }}
-                    className="searchBarWrapper"
                   >
-                    <MapSearchBar
-                      data={this.state.speciesData}
-                      setFilter={this.setFilter.bind(this)}
-                      mapSearchMode={this.state.mapSearchMode}
-                      mapSearchBarData={this.state.mapSearchBarData}
-                      value={mapSearchValue}
-                      mode={mapSearchMode}
-                    />
+                    <div
+                      style={{
+                        margin: 0,
+                        padding: 0,
+                        display: "grid",
+                        gridTemplateColumns: "auto",
+                        gridTemplateRows: "36px auto"
+                      }}
+                      className="searchBarWrapper"
+                    >
+                      <div
+                        className="switchWrapper"
+                        style={{ transform: "scale(0.8)" }}
+                      >
+                        <Switch
+                          onChange={(e, value) =>
+                            this.setState({
+                              colorBlind: !this.state.colorBlind
+                            })
+                          }
+                          checked={this.state.colorBlind}
+                          className="colorBlindSwitch"
+                          color="secondary"
+                        />
+                        <div
+                          className="noselect"
+                          style={{
+                            position: "absolute",
+                            top: "10px",
+                            left: this.state.colorBlind ? "23px" : "44px",
+                            transitionProperty: "left",
+                            transitionDuration: "0.3s",
+                            pointerEvents: "none"
+                          }}
+                        >
+                          {this.state.colorBlind ? "on" : "off"}
+                        </div>
+                      </div>
+                      <div style={{ fontSize: "smaller" }}>Color Friendly</div>
+                    </div>
                   </div>
+                  <div
+                    style={{
+                      gridColumnStart: 3,
+                      gridColumnEnd: 3,
+                      gridRowStart: 1,
+                      gridRowEnd: 1,
+                      alignSelf: "center",
+                      justifySelf: "center"
+                    }}
+                  >
+                    <div
+                      style={{
+                        margin: 0,
+                        padding: 0,
+                        display: "grid",
+                        gridTemplateColumns: "auto",
+                        gridTemplateRows: "8px 28px auto"
+                      }}
+                      className="searchBarWrapper buttonHover"
+                      onClick={() => {
+                        this.setState({ tutorial: "centerPanel", tour: 1 });
+                      }}
+                    >
+                      <div></div>
+                      <div className="switchWrapper">
+                        <PlayIcon style={{ width: "25px", height: "25px" }} />
+                      </div>
+                      <div style={{ fontSize: "smaller" }}>Take Tour!</div>
+                    </div>
+                  </div>
+
+                  <Legend
+                    onZoom={() => this.onZoom(1)}
+                    onZoomOut={() => this.onZoom(-1)}
+                    zoomLevel={this.state.zoomLevel}
+                    maxZoomLevel={this.state.maxZoomLevel}
+                    onPieStyle={this.onPieStyle.bind(this)}
+                    pieStyle={this.state.pieStyle}
+                    groupSame={this.state.groupSame}
+                    onGroupSame={this.onGroupSame.bind(this)}
+                    sortGrouped={this.state.sortGrouped}
+                    onSortGrouped={this.onSortGrouped.bind(this)}
+                    heatStyle={this.state.heatStyle}
+                    onHeatStyle={this.onHeatStyle.bind(this)}
+                    treeThreatType={this.state.treeThreatType}
+                    setTreeThreatType={this.setTreeThreatType.bind(this)}
+                    colorBlind={this.state.colorBlind}
+                    setFilter={this.setFilter.bind(this)}
+                    lastSpeciesThreats={lastSpeciesThreats}
+                    lastSpeciesSigns={lastSpeciesSigns}
+                    data={filteredSpeciesData}
+                    getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
+                    threatMode={true}
+                    category={category}
+                  />
                 </div>
+
                 <div
                   style={{
                     gridColumnStart: 2,
@@ -2044,77 +2104,96 @@ class Home extends Component {
                     justifySelf: "center"
                   }}
                 >
-                  <div
-                    style={{
-                      margin: 0,
-                      padding: 0,
-
-                      display: "grid",
-                      gridTemplateColumns: "auto",
-                      gridTemplateRows: "36px auto"
-                    }}
-                    className="searchBarWrapper"
-                  >
+                  <div className="switchWrapper">
                     <div
-                      className="switchWrapper"
-                      style={{ transform: "scale(0.8)" }}
+                      className="middlePieChart"
+                      style={{ position: "relative" }}
                     >
-                      <Switch
-                        onChange={(e, value) =>
-                          this.setState({ colorBlind: !this.state.colorBlind })
-                        }
-                        checked={this.state.colorBlind}
-                        className="colorBlindSwitch"
-                        color="secondary"
+                      <CenterPieChart
+                        data={filteredSpeciesData}
+                        getTreeThreatLevel={this.getSpeciesThreatLevel.bind(
+                          this
+                        )}
+                        treeThreatType={this.state.treeThreatType}
+                        colorBlind={this.state.colorBlind}
+                        lastSpeciesSigns={lastSpeciesSigns}
+                        lastSpeciesThreats={lastSpeciesThreats}
                       />
-                      <div
-                        className="noselect"
-                        style={{
-                          position: "absolute",
-                          top: "10px",
-                          left: this.state.colorBlind ? "23px" : "44px",
-                          transitionProperty: "left",
-                          transitionDuration: "0.3s",
-                          pointerEvents: "none"
-                        }}
-                      >
-                        {this.state.colorBlind ? "on" : "off"}
-                      </div>
                     </div>
-                    <div style={{ fontSize: "smaller" }}>Color Friendly</div>
+                    <div
+                      style={{
+                        lineHeight: "1.5em",
+                        fontSize: "large",
+                        fontWeight: "bold",
+                        textAlign: "center"
+                      }}
+                    >
+                      Species
+                    </div>
                   </div>
                 </div>
                 <div
                   style={{
-                    gridColumnStart: 3,
-                    gridColumnEnd: 3,
-                    gridRowStart: 1,
-                    gridRowEnd: 1,
-                    alignSelf: "center",
-                    justifySelf: "center"
+                    width: "100%",
+                    height: "100%",
+                    display: "grid",
+                    gridTemplateColumns: "auto auto",
+                    gridTemplateRows: "auto",
+                    gap: "2px"
                   }}
                 >
+                  <Legend
+                    onZoom={() => this.onZoom(1)}
+                    onZoomOut={() => this.onZoom(-1)}
+                    zoomLevel={this.state.zoomLevel}
+                    maxZoomLevel={this.state.maxZoomLevel}
+                    onPieStyle={this.onPieStyle.bind(this)}
+                    pieStyle={this.state.pieStyle}
+                    groupSame={this.state.groupSame}
+                    onGroupSame={this.onGroupSame.bind(this)}
+                    sortGrouped={this.state.sortGrouped}
+                    onSortGrouped={this.onSortGrouped.bind(this)}
+                    heatStyle={this.state.heatStyle}
+                    onHeatStyle={this.onHeatStyle.bind(this)}
+                    treeThreatType={this.state.treeThreatType}
+                    setTreeThreatType={this.setTreeThreatType.bind(this)}
+                    colorBlind={this.state.colorBlind}
+                    setFilter={this.setFilter.bind(this)}
+                    lastSpeciesThreats={lastSpeciesThreats}
+                    lastSpeciesSigns={lastSpeciesSigns}
+                    data={filteredSpeciesData}
+                    getTreeThreatLevel={this.getSpeciesThreatLevel.bind(this)}
+                    threatMode={false}
+                    category={category}
+                  />
                   <div
                     style={{
-                      margin: 0,
-                      padding: 0,
-                      display: "grid",
-                      gridTemplateColumns: "auto",
-                      gridTemplateRows: "8px 28px auto"
-                    }}
-                    className="searchBarWrapper buttonHover"
-                    onClick={() => {
-                      this.setState({ tutorial: "centerPanel", tour: 1 });
+                      gridColumnStart: 2,
+                      gridColumnEnd: 2,
+                      gridRowStart: 1,
+                      gridRowEnd: 1,
+                      alignSelf: "center",
+                      justifySelf: "center"
                     }}
                   >
-                    <div></div>
-                    <div className="switchWrapper">
-                      <PlayIcon style={{ width: "25px", height: "25px" }} />
+                    <div
+                      style={{
+                        margin: 0,
+                        padding: 0
+                      }}
+                      className="searchBarWrapper"
+                    >
+                      <MapSearchBar
+                        data={this.state.speciesData}
+                        setFilter={this.setFilter.bind(this)}
+                        mapSearchMode={this.state.mapSearchMode}
+                        mapSearchBarData={this.state.mapSearchBarData}
+                        value={mapSearchValue}
+                        mode={mapSearchMode}
+                      />
                     </div>
-                    <div style={{ fontSize: "smaller" }}>Take Tour!</div>
                   </div>
                 </div>
-                {/* <button onClick={this.fetchAndSetSpecies.bind(this)}>Run!</button> */}
               </div>
             </div>
           </div>
