@@ -30,7 +30,8 @@ export default function TimelineFront(props) {
                 height: "100%",
                 writingMode: "unset",
                 textOrientation: "unset",
-                backgroundColor: "rgba(128, 128, 128, 0.26)"
+                backgroundColor: "rgba(128, 128, 128, 0.26)",
+                fontSize: "small"
               }}
             >
               PROXY

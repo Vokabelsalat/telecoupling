@@ -7,6 +7,7 @@ import ResizeComponent from "./ResizeComponent";
 import CenterPanel from "./CenterPanel";
 import OrchestraNew from "./OrchestraNew";
 import TreeMapView from "./TreeMapViewNew";
+//import Map from "./MapNewTest";
 import Map from "./MapNew";
 import { getOrCreate, pushOrCreateWithoutDuplicates } from "../utils/utils";
 import {
@@ -20,6 +21,11 @@ import "leaflet/dist/leaflet.css";
 import "react-leaflet-markercluster/dist/styles.min.css";
 
 export default function HomeNew(props) {
+  const showMap = true;
+  const showTimeline = true;
+  const showOrchestra = false;
+  const showTreeMap = true;
+
   const [zoomOrigin, setZoomOrigin] = useState("0% 0%");
   const [zoomTransform, setZoomTransform] = useState("");
 
@@ -42,6 +48,8 @@ export default function HomeNew(props) {
 
   const [speciesSignThreats, setSpeciesSignThreats] = useState({});
   const [speciesCountries, setSpeciesCountries] = useState({});
+  const [speciesEcos, setSpeciesEcos] = useState({});
+  const [speciesHexas, setSpeciesHexas] = useState({});
   const [timelineData, setTimelineData] = useState({});
 
   const [filteredSpecies, setFilteredSpecies] = useState([]);
@@ -56,9 +64,13 @@ export default function HomeNew(props) {
   const [selectedGenus, setSelectedGenus] = useState();
   const [selectedSpecies, setSelectedSpecies] = useState();
 
+  const [selectedCountry, setSelectedCountry] = useState();
+
   const [treeMapFilter, setTreeMapFilter] = useState({});
 
   const [domainYears, setDomainYears] = useState({ maxYear: 1, minYear: 2 });
+
+  const [categoryFilter, setCategoryFilter] = useState(null);
 
   const slice = false;
 
@@ -157,6 +169,8 @@ export default function HomeNew(props) {
         let tmpInstrumentData = {};
         let tmpFilteredSpecies = [];
         let tmpSpeciesCountries = {};
+        let tmpSpeciesEcos = {};
+        let tmpSpeciesHexas = {};
         /* let tmpTreeMapData = {
           Animalia: { name: "Animalia", children:  },
           Plantae: { name: "Plantae", children: {} }
@@ -187,10 +201,6 @@ export default function HomeNew(props) {
             genera[genus].push(genusSpecies);
           } else {
             genera[genus] = [genusSpecies];
-          }
-
-          if (instrumentGroup && !speciesObj.groups.includes(instrumentGroup)) {
-            instrumentGroupHit = false;
           }
 
           tmpImageLinks[spec] = returnImageLink(speciesObj);
@@ -227,9 +237,7 @@ export default function HomeNew(props) {
           if (speciesObj.timeIUCN.length > 0) {
             let assessmentPerYear = {};
             for (let element of speciesObj.timeIUCN) {
-              if (instrumentGroupHit) {
-                tmpYears.add(parseInt(element.year));
-              }
+              tmpYears.add(parseInt(element.year));
               let year = element.year.toString();
               let assessment = iucnAssessment.get(element.code);
 
@@ -259,9 +267,7 @@ export default function HomeNew(props) {
             let assessmentPerYear = {};
             for (let element of speciesObj.timeThreat) {
               let year = element.year.toString();
-              if (instrumentGroupHit) {
-                tmpYears.add(parseInt(element.year));
-              }
+              tmpYears.add(parseInt(element.year));
               let assessment = bgciAssessment.get(element.danger);
 
               if (assessmentPerYear.hasOwnProperty(year)) {
@@ -290,9 +296,7 @@ export default function HomeNew(props) {
             let assessmentPerYear = {};
             for (let element of speciesObj.timeListing) {
               let year = element.year.toString();
-              if (instrumentGroupHit) {
-                tmpYears.add(parseInt(element.year));
-              }
+              tmpYears.add(parseInt(element.year));
               let assessment = citesAssessment.get(element.appendix);
 
               if (assessmentPerYear.hasOwnProperty(year)) {
@@ -324,9 +328,7 @@ export default function HomeNew(props) {
             iucn: [...tmpElement["iucn"]].pop()
           };
 
-          if (instrumentGroupHit) {
-            tmpFilteredSpecies.push(spec);
-          }
+          tmpFilteredSpecies.push(spec);
 
           let tmpCountries = [];
           if (speciesObj.hasOwnProperty("treeCountriesShort")) {
@@ -342,6 +344,8 @@ export default function HomeNew(props) {
           }
 
           tmpSpeciesCountries[genusSpecies] = tmpCountries;
+          tmpSpeciesEcos[genusSpecies] = speciesObj.ecoregions;
+          tmpSpeciesHexas[genusSpecies] = speciesObj.hexagons;
         }
 
         for (const group of Object.keys(tmpInstrumentGroupData)) {
@@ -371,6 +375,8 @@ export default function HomeNew(props) {
         setInstrumentGroupData(tmpInstrumentGroupData);
         setFilteredSpecies(tmpFilteredSpecies);
         setSpeciesCountries(tmpSpeciesCountries);
+        setSpeciesEcos(tmpSpeciesEcos);
+        setSpeciesHexas(tmpSpeciesHexas);
 
         /* console.log(kingdoms);
         console.log(families);
@@ -442,7 +448,7 @@ export default function HomeNew(props) {
       .catch((error) => {
         console.log(`Couldn't find file allSpecies.json`, error);
       });
-  }, [slice, instrumentGroup]);
+  }, [slice]);
 
   const filteredSpeciesData = species;
 
@@ -450,6 +456,28 @@ export default function HomeNew(props) {
   const mapSpecies = Object.fromEntries(
     Object.keys(filteredSpeciesData).map((e) => [e, 1])
   );
+
+  //FilterSection
+  let visibleSpeciesCountries = {};
+  let visibleSpeciesTimelineData = {};
+  let hit = true;
+
+  for (let speciesName of Object.keys(species)) {
+    let specCountries = speciesCountries[speciesName];
+
+    if (selectedCountry && speciesCountries) {
+      if (!specCountries.includes(selectedCountry)) {
+        continue;
+      }
+    }
+
+    visibleSpeciesCountries[speciesName] =
+      specCountries != null ? specCountries : [];
+
+    visibleSpeciesTimelineData[speciesName] = timelineData[speciesName];
+  }
+
+  //visibleSpeciesTimelineData = timelineData;
 
   return (
     <>
@@ -460,7 +488,7 @@ export default function HomeNew(props) {
           width: "100%",
           height: "100%",
           gridTemplateColumns: "50% 50%",
-          gridTemplateRows: "40% 20% 40%",
+          gridTemplateRows: "45% 10% 45%",
           transformOrigin: zoomOrigin,
           transform: zoomTransform,
           transitionProperty: "transform",
@@ -476,17 +504,19 @@ export default function HomeNew(props) {
             position: "relative"
           }}
         >
-          <ResizeComponent>
-            <OrchestraNew
-              instrumentData={instrumentData}
-              instrumentGroupData={instrumentGroupData}
-              getThreatLevel={getSpeciesSignThreat}
-              threatType={threatType}
-              colorBlind={colorBlind}
-              setInstrument={setInstrument}
-              setInstrumentGroup={setInstrumentGroup}
-            />
-          </ResizeComponent>
+          {showOrchestra && (
+            <ResizeComponent>
+              <OrchestraNew
+                instrumentData={instrumentData}
+                instrumentGroupData={instrumentGroupData}
+                getThreatLevel={getSpeciesSignThreat}
+                threatType={threatType}
+                colorBlind={colorBlind}
+                setInstrument={setInstrument}
+                setInstrumentGroup={setInstrumentGroup}
+              />
+            </ResizeComponent>
+          )}
           <FullScreenButton
             scaleString={zoomTransform}
             onClick={() => {
@@ -505,17 +535,23 @@ export default function HomeNew(props) {
             position: "relative"
           }}
         >
-          <ResizeComponent>
-            <TreeMapView
-              data={{ name: "Kingdom", children: kingdomData, filterDepth: 0 }}
-              /* kingdom={selectedKingdom}
+          {showTreeMap && (
+            <ResizeComponent>
+              <TreeMapView
+                data={{
+                  name: "Kingdom",
+                  children: kingdomData,
+                  filterDepth: 0
+                }}
+                /* kingdom={selectedKingdom}
               family={selectedFamily}
               genus={selectedGenus}
               species={selectedSpecies} */
-              treeMapFilter={treeMapFilter}
-              setTreeMapFilter={setTreeMapFilter}
-            />
-          </ResizeComponent>
+                treeMapFilter={treeMapFilter}
+                setTreeMapFilter={setTreeMapFilter}
+              />
+            </ResizeComponent>
+          )}
           <FullScreenButton
             scaleString={zoomTransform}
             onClick={() => {
@@ -534,12 +570,13 @@ export default function HomeNew(props) {
         >
           {
             <CenterPanel
-              data={timelineData}
+              data={visibleSpeciesTimelineData}
               getSpeciesThreatLevel={getSpeciesSignThreat}
               threatType={threatType}
               setThreatType={setThreatType}
               colorBlind={colorBlind}
               setColorBlind={setColorBlind}
+              setCategoryFilter={setCategoryFilter}
             />
           }
         </div>
@@ -553,22 +590,23 @@ export default function HomeNew(props) {
             height: "100%"
           }}
         >
-          {Object.keys(filteredSpeciesData).length > 0 && (
+          {Object.keys(visibleSpeciesTimelineData).length > 0 && (
             <>
-              <ResizeComponent>
-                <TimelineViewNew
-                  data={timelineData}
-                  getTreeThreatLevel={getSpeciesSignThreat}
-                  imageLinks={imageLinks}
-                  dummyImageLinks={dummyImageLinks}
-                  setTimeFrame={setTimeFrame}
-                  timeFrame={timeFrame}
-                  colorBlind={colorBlind}
-                  tooltip={setTooltip}
-                  domainYears={domainYears}
-                  filteredSpecies={filteredSpecies}
-                />
-              </ResizeComponent>
+              {showTimeline && (
+                <ResizeComponent>
+                  <TimelineViewNew
+                    data={visibleSpeciesTimelineData}
+                    getTreeThreatLevel={getSpeciesSignThreat}
+                    imageLinks={imageLinks}
+                    dummyImageLinks={dummyImageLinks}
+                    setTimeFrame={setTimeFrame}
+                    timeFrame={timeFrame}
+                    colorBlind={colorBlind}
+                    tooltip={setTooltip}
+                    domainYears={domainYears}
+                  />
+                </ResizeComponent>
+              )}
             </>
           )}
           <FullScreenButton
@@ -590,14 +628,44 @@ export default function HomeNew(props) {
             position: "relative"
           }}
         >
-          <ResizeComponent>
-            <Map
-              speciesCountries={speciesCountries}
-              colorBlind={colorBlind}
-              getSpeciesThreatLevel={getSpeciesSignThreat}
-              threatType={threatType}
-            />
-          </ResizeComponent>
+          <div>
+            {selectedCountry}
+            <button
+              onClick={() => {
+                setSelectedCountry(null);
+              }}
+            >
+              X
+            </button>
+          </div>
+          {showMap && (
+            <ResizeComponent>
+              <Map
+                /* speciesCountries={Object.fromEntries(
+                  Object.entries(speciesCountries).filter(
+                    ([key]) => key === "Paubrasilia echinata"
+                  )
+                )} */
+                speciesCountries={visibleSpeciesCountries}
+                /* speciesEcos={Object.fromEntries(
+                  Object.entries(speciesEcos).filter(
+                    ([key]) => key === "Paubrasilia echinata"
+                  )
+                )} */
+                speciesEcos={speciesEcos}
+                /* speciesHexas={Object.fromEntries(
+                  Object.entries(speciesHexas).filter(
+                    ([key]) => key === "Paubrasilia echinata"
+                  )
+                )} */
+                speciesHexas={speciesHexas}
+                colorBlind={colorBlind}
+                getSpeciesThreatLevel={getSpeciesSignThreat}
+                threatType={threatType}
+                setSelectedCountry={setSelectedCountry}
+              />
+            </ResizeComponent>
+          )}
           <FullScreenButton
             scaleString={zoomTransform}
             onClick={() => {

@@ -36,8 +36,7 @@ export default function Map(props) {
     speciesHexas,
     colorBlind,
     getSpeciesThreatLevel,
-    threatType,
-    setSelectedCountry
+    threatType
   } = props;
 
   const [countriesGeoJson, setCountriesGeoJson] = useState(null);
@@ -63,30 +62,16 @@ export default function Map(props) {
   const [hexagonHeatMap, setHexagonHeatMap] = useState(null);
   const [hexagonHeatMapMax, setHexagonHeatMapMax] = useState(null);
   const [isoToCountryID, setIsoToCountryID] = useState(null);
-  const [ecosToMyIDs, setEcosToMyIDs] = useState(null);
-
-  const [highlightLinesGeoJSON, setHighlightLinesGeoJSON] = useState(null);
-  const [ecoRegionsHighlightLinesIndex, setEcoRegionsHighlightLinesIndex] =
+  const [ecoRegionsGeoJsonLines, setEcoRegionsGeoJsonLines] = useState(null);
+  const [ecoRegionsGeoJsonLinesFiltered, setEcoRegionsGeoJsonLinesFiltered] =
     useState(null);
-  const [countriesHighlightLinesIndex, setCountriesHighlightLinesIndex] =
-    useState(null);
+  const [ecoToFeature, setEcoToFeature] = useState(null);
 
   useEffect(() => {
-    fetch("/UN_Worldmap-2.json")
+    /*  fetch("/UN_Worldmap-2.json")
       .then((res) => res.json())
       .then(function (geojson) {
         setCountriesGeoJson(geojson);
-      });
-
-    fetch("/UN_Worldmap-2_lines.json")
-      .then((res) => res.json())
-      .then(function (geojson) {
-        let tmpCountriesLinesIndex = {};
-        for (const country of geojson.features) {
-          country.properties.myID = country.id.toString() + "COUNTRY";
-          tmpCountriesLinesIndex[country.properties.myID] = country;
-        }
-        setCountriesHighlightLinesIndex(tmpCountriesLinesIndex);
       });
 
     fetch("/countryDictionary.json")
@@ -98,26 +83,20 @@ export default function Map(props) {
         }
         setCountriesDictionary(json);
         setOrchestrasToISO3(tmpOrchestraToISO3);
-      });
+      }); */
 
     fetch("/WWF_Terrestrial_Ecoregions2017-3.json")
       .then((res) => res.json())
       .then(function (geojson) {
         const tmpCentroids = [];
-        const newFeatures = [];
         for (const ecoRegion of geojson.features) {
           if (ecoRegion.geometry != null) {
             let centroid = turf.centroid(ecoRegion);
             centroid.properties = ecoRegion.properties;
             tmpCentroids.push(centroid);
           }
-          ecoRegion.properties.myID = ecoRegion.id.toString() + "EcoRegion";
-          newFeatures.push(ecoRegion);
         }
-        setEcoRegionsGeoJson({
-          features: newFeatures,
-          type: "FeatureCollection"
-        });
+        setEcoRegionsGeoJson(geojson);
         setCentroidsOfEcoregions({
           type: "FeatureCollection",
           features: tmpCentroids
@@ -127,15 +106,15 @@ export default function Map(props) {
     fetch("/WWF_Terrestrial_Ecoregions2017-3-5_lines.json")
       .then((res) => res.json())
       .then(function (geojson) {
-        let tmpEcoRegionLinesIndex = {};
+        let tmpEcoLines = {};
         for (const ecoRegion of geojson.features) {
-          ecoRegion.properties.myID = ecoRegion.id.toString() + "EcoRegion";
-          tmpEcoRegionLinesIndex[ecoRegion.properties.myID] = ecoRegion;
+          tmpEcoLines[ecoRegion["id"]] = ecoRegion;
         }
-        setEcoRegionsHighlightLinesIndex(tmpEcoRegionLinesIndex);
+        setEcoRegionsGeoJsonLines(geojson);
+        setEcoToFeature(tmpEcoLines);
       });
 
-    fetch("/POPP_capitals_FeaturesToJSON.json")
+    /*  fetch("/POPP_capitals_FeaturesToJSON.json")
       .then((res) => res.json())
       .then(function (geojson) {
         let tmpCapToISO = {};
@@ -144,9 +123,9 @@ export default function Map(props) {
         }
         setCapitalsToISO(tmpCapToISO);
         setCapitalsGeoJSON(geojson);
-      });
+      }); */
 
-    fetch("/Orchestras_worldwide.json")
+    /*  fetch("/Orchestras_worldwide.json")
       .then((res) => res.json())
       .then(function (geojson) {
         setOrchestraGeoJson(geojson);
@@ -156,10 +135,10 @@ export default function Map(props) {
       .then((res) => res.json())
       .then(function (geojson) {
         setHexagonGeoJSON(geojson);
-      });
+      }); */
   }, []);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (orchestraGeoJson && orchestrasToISO3 && countriesGeoJson) {
       let tmpOrchestraHeatMap = {};
       let tmpOrchestraHeatMapMax = 0;
@@ -188,11 +167,11 @@ export default function Map(props) {
       setOrchestraHeatMapMax(tmpOrchestraHeatMapMax);
       setCountriesGeoJson(countriesGeoJson);
     }
-  }, [orchestraGeoJson, orchestrasToISO3, countriesGeoJson]);
+  }, [orchestraGeoJson, orchestrasToISO3, countriesGeoJson]); */
 
   const [countriesToSpecies, setCountriesToSpecies] = useState(null);
 
-  useEffect(() => {
+  /* useEffect(() => {
     const tmpIsoToSpecies = {};
     let tmpCountriesHeatMap = {};
     let tmpCountriesHeatMapMax = 0;
@@ -214,15 +193,12 @@ export default function Map(props) {
     const tmpIsoToCountryID = {};
     if (countriesGeoJson) {
       for (let country of countriesGeoJson.features) {
-        country.properties.myID = country.id.toString() + "COUNTRY";
-
         country.properties.speciesCount =
           tmpIsoToSpecies[country.properties["ISO3CD"]] != null
             ? tmpIsoToSpecies[country.properties["ISO3CD"]].length
             : 0;
 
-        tmpIsoToCountryID[country.properties["ISO3CD"]] =
-          country.properties.myID;
+        tmpIsoToCountryID[country.properties["ISO3CD"]] = country.id;
 
         if (country.properties.speciesCount > tmpCountriesHeatMapMax) {
           tmpCountriesHeatMapMax = country.properties.speciesCount;
@@ -235,7 +211,7 @@ export default function Map(props) {
     setCountriesHeatMap(tmpCountriesHeatMap);
     setCountriesHeatMapMax(tmpCountriesHeatMapMax);
     setCountriesGeoJson(countriesGeoJson);
-  }, [speciesCountries, countriesDictionary, countriesGeoJson]);
+  }, [speciesCountries, countriesDictionary, countriesGeoJson]); */
 
   const [ecosToSpecies, setEcosToSpecies] = useState(null);
 
@@ -255,7 +231,6 @@ export default function Map(props) {
     }
 
     let tmpEcoregionHeatMap = {};
-    let tmpEcosToMyIDs = {};
     let tmpEcoregionHeatMapMax = 0;
     if (ecoRegionsGeoJson) {
       for (let ecoregion of ecoRegionsGeoJson.features) {
@@ -266,10 +241,6 @@ export default function Map(props) {
 
         tmpEcoregionHeatMap[ecoregion.properties["ECO_ID"].toString()] =
           ecoregion.properties.speciesCount;
-
-        tmpEcosToMyIDs[ecoregion.properties["ECO_ID"].toString()] =
-          ecoregion.properties.myID;
-
         if (ecoregion.properties.speciesCount > tmpEcoregionHeatMapMax) {
           tmpEcoregionHeatMapMax = ecoregion.properties.speciesCount;
         }
@@ -280,10 +251,9 @@ export default function Map(props) {
     setEcoRegionsGeoJson(ecoRegionsGeoJson);
     setEcoregionHeatMapMax(tmpEcoregionHeatMapMax);
     setEcoregionHeatMap(tmpEcoregionHeatMap);
-    setEcosToMyIDs(tmpEcosToMyIDs);
   }, [speciesEcos, ecoRegionsGeoJson]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     const tmpHexasToSpecies = {};
     for (let species of Object.keys(speciesHexas)) {
       const hexas = speciesHexas[species];
@@ -317,7 +287,7 @@ export default function Map(props) {
     setHexagonGeoJSON(hexagonGeoJSON);
     setHexagonHeatMapMax(tmpHexagonHeatMapMax);
     setHexagonHeatMap(tmpHexagonHeatMap);
-  }, [hexagonGeoJSON, speciesHexas]);
+  }, [hexagonGeoJSON, speciesHexas]); */
 
   const mapRef = useRef(null);
 
@@ -345,7 +315,6 @@ export default function Map(props) {
         props.ecos = props.ECO_ID.toString();
       }
       //const id = props.cluster_id;
-      let ecosArray = [];
 
       let data = Object.fromEntries(
         [
@@ -353,7 +322,6 @@ export default function Map(props) {
             props.ecos
               .split(" ")
               .flatMap((e) => {
-                ecosArray.push(e);
                 return ecosToSpecies[e];
               })
               .filter((element) => {
@@ -387,8 +355,7 @@ export default function Map(props) {
       newMarkers.push({
         element: markerElement,
         lng: coords[0],
-        lat: coords[1],
-        ecosArray: ecosArray
+        lat: coords[1]
       });
     }
     setEcoThreatMarkers(newMarkers);
@@ -396,87 +363,21 @@ export default function Map(props) {
   }
 
   function highlight(array) {
+    /* if (isoToCountryID && Object.keys(isoToCountryID).length > 0) {
+      setHoveredStateIds([
+        ...hoveredStateIds,
+        ...array.map((e) => isoToCountryID[e])
+      ]);
+    } */
+  }
+
+  function highlightEcosUnderDonut(array) {
     if (isoToCountryID && Object.keys(isoToCountryID).length > 0) {
       setHoveredStateIds([
         ...hoveredStateIds,
         ...array.map((e) => isoToCountryID[e])
       ]);
     }
-  }
-
-  function highlightEcosUnderDonut(array) {
-    if (ecosToMyIDs && Object.keys(ecosToMyIDs).length > 0) {
-      setHoveredStateIds([
-        ...hoveredStateIds,
-        ...array.map((e) => ecosToMyIDs[e])
-      ]);
-    }
-  }
-
-  function updateMarkers() {
-    const newMarkers = [];
-    const tmpCapitalMarkerCache = capitalMarkerCache;
-    //const features = mapRef.current.querySourceFeatures("capitalssource");
-    const features = mapRef.current.querySourceFeatures("threatCapitalsSource");
-
-    // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
-    // and add it to the map if it's not there already
-    for (const feature of features) {
-      const coords = feature.geometry.coordinates;
-      const props = feature.properties;
-      if (!props.cluster) {
-        props.countries = props.ISO3CD;
-      }
-      //const id = props.cluster_id;
-
-      const countriesArray = [];
-
-      let data = Object.fromEntries(
-        [
-          ...new Set(
-            props.countries
-              .match(/.{1,3}/g)
-              .flatMap((e) => {
-                countriesArray.push(e);
-                return countriesToSpecies[e];
-              })
-              .filter((element) => {
-                return element != null;
-              })
-          )
-        ].map((spec) => {
-          return [spec, getSpeciesThreatLevel(spec, threatType)];
-        })
-      );
-
-      if (Object.keys(data).length === 0) {
-        continue;
-      }
-
-      props.data = data;
-      props.countriesArray = countriesArray;
-
-      const threatNumvalues = Object.values(data).map((threat) => {
-        return threat.numvalue;
-      });
-      const markerKey = `${threatNumvalues
-        .sort()
-        .join()}${threatType}${colorBlind}`;
-
-      let markerElement = tmpCapitalMarkerCache[markerKey];
-      if (!markerElement) {
-        markerElement = createDonutChart(props);
-        tmpCapitalMarkerCache[markerKey] = markerElement;
-      }
-      newMarkers.push({
-        element: markerElement,
-        lng: coords[0],
-        lat: coords[1],
-        countriesArray: countriesArray
-      });
-    }
-    setCapitalThreatMarkers(newMarkers);
-    setCapitalMarkerCache(tmpCapitalMarkerCache);
   }
 
   function groupBy(xs, key) {
@@ -554,33 +455,15 @@ export default function Map(props) {
     );
   }
 
-  const [hoveredStateIds, setHoveredStateIds] = useState([]);
-  /*   const tester = useMemo(
-    () => ["in", ["get", "myID"], ["literal", hoveredStateIds]],
+  const [hoveredStateIds, setHoveredStateIds] = useState(null);
+  const tester = useMemo(
+    () => ["==", ["id"], hoveredStateIds],
     [hoveredStateIds]
-  ); */
+  );
 
-  useEffect(() => {
-    let tmpHighlightLines = hoveredStateIds
-      .map((e) => {
-        if (ecoRegionsHighlightLinesIndex.hasOwnProperty(e)) {
-          return ecoRegionsHighlightLinesIndex[e];
-        } else if (countriesHighlightLinesIndex.hasOwnProperty(e)) {
-          return countriesHighlightLinesIndex[e];
-        } else {
-          return null;
-        }
-      })
-      .filter((e) => e != null);
-    setHighlightLinesGeoJSON({
-      type: "FeatureCollection",
-      features: tmpHighlightLines
-    });
-  }, [
-    hoveredStateIds,
-    ecoRegionsHighlightLinesIndex,
-    countriesHighlightLinesIndex
-  ]);
+  /* useEffect((
+
+  )=>{},[hoveredStateIds]) */
 
   return (
     <div style={{ width: "100%", height: `${height}px` }}>
@@ -633,10 +516,6 @@ export default function Map(props) {
         //mapStyle="https://demotiles.maplibre.org/style.json"
         mapStyle="mapbox://styles/mapbox/streets-v11"
         onRender={() => {
-          if (capitalsGeoJSON && mapMode === "countries") {
-            updateMarkers();
-          }
-
           if (
             ecoRegionsGeoJson &&
             ["hexagons", "ecoregions", "protection"].includes(mapMode)
@@ -648,78 +527,28 @@ export default function Map(props) {
         projection="equalEarth"
         //mapLib={maplibregl}
         mapboxAccessToken="pk.eyJ1IjoiamFrb2JrdXNuaWNrIiwiYSI6ImNsYTAzYjQ2NjBrdnQzcWx0d2EyajFzbHQifQ.LQN-NvTn6PbHEbXHJO0CTw"
-        interactiveLayerIds={[
-          "countriesSpecies",
-          "ecoRegions",
-          "ecoRegionsProtection"
-        ]}
+        interactiveLayerIds={["ecoRegions"]}
         onMouseMove={(event) => {
           /* let cluster = mapRef.current.queryRenderedFeatures(event.point, {
             layers: ["threatCapitalsClusters"]
           }); */
           if (event.features.length > 0) {
-            let id = event.features[0].properties.myID;
-            if (!hoveredStateIds.includes(id)) {
-              setHoveredStateIds([id]);
+            let id = event.features[0].id;
+            if (hoveredStateIds !== id) {
+              setEcoRegionsGeoJsonLinesFiltered({
+                type: "FeatureCollection",
+                features: [ecoToFeature[id]]
+              });
+              //setHoveredStateIds(id);
             }
           }
         }}
         onMouseLeave={(event) => {
-          setHoveredStateIds([]);
-        }}
-        onClick={(event) => {
-          if (event.features.length > 0) {
-            if (event.features[0].properties.hasOwnProperty("ROMNAM")) {
-              setSelectedCountry(event.features[0].properties.ROMNAM);
-            }
-          }
+          //setHoveredStateIds(null);
         }}
       >
         <NavigationControl />
         <ScaleControl />
-
-        {countriesHeatMapMax && countriesHeatMap && (
-          <Source type="geojson" id="countriesSource" data={countriesGeoJson}>
-            <Layer
-              key={`countriesFillLayer`}
-              {...{
-                id: "countriesSpecies",
-                type: "fill",
-                source: "countriesSource",
-                paint: {
-                  "fill-color": [
-                    "interpolate",
-                    ["linear"],
-                    ["get", "speciesCount"],
-                    0,
-                    "rgba(0,0,0,0)",
-                    countriesHeatMapMax,
-                    "rgba(0,0,255,1)"
-                  ]
-                },
-                layout: {
-                  visibility: mapMode === "countries" ? "visible" : "none"
-                }
-              }}
-            />
-            {/*  <Layer
-              key={`countriesLineLayer${hoveredStateIds.join("")}`}
-              {...{
-                id: "countriesSpeciesLines",
-                type: "line",
-                source: "countriesSource",
-                paint: {
-                  "line-color": "purple",
-                  "line-width": 2
-                },
-                filter: tester,
-                layout: {
-                  visibility: mapMode === "countries" ? "visible" : "none"
-                }
-              }}
-            /> */}
-          </Source>
-        )}
 
         {ecoregionHeatMap && ecoregionHeatMapMax && (
           <Source type="geojson" id="ecoregionsource" data={ecoRegionsGeoJson}>
@@ -751,232 +580,81 @@ export default function Map(props) {
                 }
               }}
             />
-          </Source>
-        )}
-
-        <Source
-          type="geojson"
-          id="ecoregionProtectionsource"
-          data={ecoRegionsGeoJson}
-        >
-          <Layer
-            {...{
-              id: "ecoRegionsProtection",
-              type: "fill",
-              source: "ecoregionProtectionsource",
-              paint: {
-                "fill-color": [
-                  "case",
-                  ["==", ["get", "NNH"], 0],
-                  bgciAssessment.get("DD").getColor(colorBlind),
-                  ["==", ["get", "NNH"], 1],
-                  bgciAssessment.get("nT").getColor(colorBlind),
-                  ["==", ["get", "NNH"], 2],
-                  bgciAssessment.get("PT").getColor(colorBlind),
-                  ["==", ["get", "NNH"], 3],
-                  bgciAssessment.get("TH").getColor(colorBlind),
-                  ["==", ["get", "NNH"], 4],
-                  bgciAssessment.get("EX").getColor(colorBlind),
-                  "white"
-                ],
-                "fill-outline-color": "white"
-              },
-              layout: {
-                visibility: mapMode === "protection" ? "visible" : "none"
-              }
-            }}
-          />
-        </Source>
-
-        <Source
-          type="geojson"
-          id="ecoregionsourceCentroid"
-          data={centroidsOfEcoregions}
-          cluster={true}
-          key={`${threatType}${colorBlind}Centroids`}
-          clusterRadius={50}
-          clusterProperties={{
-            ecos: ["concat", ["concat", " ", ["get", "ECO_ID"]]]
-          }}
-        >
-          <Layer
-            {...{
-              id: "ecoregionCentroidClusters",
-              source: "ecoregionsourceCentroid",
-              type: "circle",
-              paint: {
-                "circle-color": "transparent",
-                "circle-radius": 0
-              },
-              layout: {
-                visibility: ["hexagons", "ecoregions", "protection"].includes(
-                  mapMode
-                )
-                  ? "visible"
-                  : "none"
-              }
-            }}
-          />
-        </Source>
-
-        {orchestraHeatMap && orchestraHeatMapMax && (
-          <Source
-            id="countriesOrchestraSource"
-            type="geojson"
-            data={countriesGeoJson}
-          >
-            <Layer
+            {/* <Layer
+              key={`ecoregionLineLayer${hoveredStateIds}`}
               {...{
-                id: "countriesOrchestras",
-                type: "fill",
-                source: "countriesOrchestraSource",
+                id: "ecoRegionsLines",
+                type: "line",
+                source: "ecoregionsource",
                 paint: {
-                  "fill-color": [
-                    "interpolate",
-                    ["linear"],
-                    ["get", "orchestraCount"],
-                    0,
-                    "rgba(0,0,0,0)",
-                    orchestraHeatMapMax,
-                    "rgba(0,0,255,1.0)"
-                  ]
+                  "line-color": [
+                    "case",
+                    ["boolean", tester, false],
+                    "purple",
+                    "transparent"
+                  ],
+                  "line-width": 2
                 },
                 layout: {
-                  visibility: mapMode === "orchestras" ? "visible" : "none"
+                  visibility: mapMode === "ecoregions" ? "visible" : "none"
                 }
               }}
-            />
+            /> */}
           </Source>
         )}
 
-        {orchestraHeatMap && orchestraHeatMapMax && (
+        {/* {ecoregionHeatMap && ecoregionHeatMapMax && (
           <Source
             type="geojson"
-            id="orchestrassource"
-            data={orchestraGeoJson}
-            cluster={true}
-            clusterMaxZoom={14}
-            clusterRadius={50}
+            id="ecoregionsourceLines"
+            data={ecoRegionsGeoJsonLines}
           >
             <Layer
+              key={`ecoregionLineLayer${hoveredStateIds}`}
               {...{
-                id: "orchestras",
-                type: "circle",
-                source: "orchestrassource",
-                filter: ["has", "point_count"],
+                id: "ecoRegionsLines",
+                type: "line",
+                source: "ecoregionsourceLines",
                 paint: {
-                  "circle-color": "purple",
-                  "circle-radius": [
-                    "step",
-                    ["get", "point_count"],
-                    5,
-                    25,
-                    20,
-                    100,
-                    30,
-                    750,
-                    35
-                  ]
+                  "line-color": [
+                    "case",
+                    ["boolean", tester, false],
+                    "purple",
+                    "transparent"
+                  ],
+                  "line-width": 2
                 },
                 layout: {
-                  visibility: mapMode === "orchestras" ? "visible" : "none"
-                }
-              }}
-            />
-
-            <Layer
-              {...{
-                id: "orchestrasCount",
-                type: "symbol",
-                source: "orchestrassource",
-                filter: ["has", "point_count"],
-                layout: {
-                  "text-field": "{point_count_abbreviated}",
-                  "text-size": 12,
-                  visibility: mapMode === "orchestras" ? "visible" : "none"
-                },
-                paint: {
-                  "text-color": "white"
-                }
-              }}
-            />
-
-            <Layer
-              {...{
-                id: "unclustered-orchestras",
-                type: "circle",
-                source: "orchestrassource",
-                filter: ["!", ["has", "point_count"]],
-                paint: {
-                  "circle-color": "purple",
-                  "circle-radius": 4,
-                  "circle-stroke-width": 1,
-                  "circle-stroke-color": "#fff"
-                },
-                layout: {
-                  visibility: mapMode === "orchestras" ? "visible" : "none"
+                  visibility: mapMode === "ecoregions" ? "visible" : "none"
                 }
               }}
             />
           </Source>
-        )}
+        )} */}
 
-        {isoToCountryID && Object.keys(isoToCountryID).length > 0 && (
+        {ecoregionHeatMap && ecoregionHeatMapMax && (
           <Source
             type="geojson"
-            id="threatCapitalsSource"
-            data={capitalsGeoJSON}
-            cluster={true}
-            key={`${threatType}${colorBlind}${mapMode}`}
-            clusterRadius={50}
-            clusterProperties={{
-              countries: ["concat", ["get", "ISO3CD"]]
-            }}
+            id="ecoregionsourceLines"
+            data={ecoRegionsGeoJsonLinesFiltered}
           >
             <Layer
+              key={`ecoregionLineLayer${hoveredStateIds}`}
               {...{
-                id: "threatCapitals",
-                source: "threatCapitalsSource",
-                type: "circle",
-                filter: ["!=", "cluster", true],
+                id: "ecoRegionsLines",
+                type: "line",
+                source: "ecoregionsourceLines",
                 paint: {
-                  "circle-color": colors[2],
-                  "circle-radius": 0,
-                  "circle-opacity": 0.8
+                  "line-color": "purple",
+                  "line-width": 2
                 },
                 layout: {
-                  visibility: mapMode === "countries" ? "visible" : "none"
+                  visibility: mapMode === "ecoregions" ? "visible" : "none"
                 }
               }}
             />
           </Source>
         )}
-
-        {capitalThreatMarkers &&
-          mapMode === "countries" &&
-          capitalThreatMarkers.map((element, index) => {
-            return (
-              <Marker
-                key={`marker-${index}${threatType}${colorBlind}${mapMode}`}
-                longitude={element.lng}
-                latitude={element.lat}
-                anchor="center"
-              >
-                <div
-                  className={"threatIconOnMap"}
-                  onMouseMove={(event) => {
-                    highlight(element.countriesArray);
-                    event.stopPropagation();
-                  }}
-                  onMouseLeave={(event) => {
-                    setHoveredStateIds([]);
-                  }}
-                >
-                  {element.element}
-                </div>
-              </Marker>
-            );
-          })}
 
         {ecoThreatMarkers &&
           ["hexagons", "ecoregions", "protection"].includes(mapMode) &&
@@ -989,13 +667,12 @@ export default function Map(props) {
                 anchor="center"
               >
                 <div
-                  className={"threatIconOnMap"}
                   onMouseMove={(event) => {
-                    highlightEcosUnderDonut(element.ecosArray);
+                    highlightEcosUnderDonut(element.ecos);
                     event.stopPropagation();
                   }}
                   onMouseLeave={(event) => {
-                    setHoveredStateIds([]);
+                    setHoveredStateIds(null);
                   }}
                 >
                   {element.element}
@@ -1003,53 +680,6 @@ export default function Map(props) {
               </Marker>
             );
           })}
-
-        {hexagonHeatMap && hexagonHeatMapMax && (
-          <Source type="geojson" id="hexagonsource" data={hexagonGeoJSON}>
-            <Layer
-              {...{
-                id: "hexagons",
-                type: "fill",
-                source: "hexagonsource",
-                paint: {
-                  "fill-color": [
-                    "interpolate",
-                    ["linear"],
-                    ["get", "speciesCount"],
-                    0,
-                    "rgba(0,0,0,0)",
-                    hexagonHeatMapMax,
-                    "rgba(0,0,255,1)"
-                  ]
-                  /* "fill-color": "rgba(0,0,255,0.5)",
-                  "fill-outline-color": "rgba(0,0,255,1)" */
-                },
-                layout: {
-                  visibility: mapMode === "hexagons" ? "visible" : "none"
-                }
-              }}
-            />
-          </Source>
-        )}
-
-        <Source
-          type="geojson"
-          id="highlightLinesSource"
-          data={highlightLinesGeoJSON}
-        >
-          <Layer
-            //key={`ecoregionLineLayer${hoveredStateIds.join("")}`}
-            {...{
-              id: "highlightLines",
-              type: "line",
-              source: "highlightLinesSource",
-              paint: {
-                "line-color": "purple",
-                "line-width": 2
-              }
-            }}
-          />
-        </Source>
       </ReactMapGL>
     </div>
   );

@@ -691,3 +691,49 @@ path.handle:focus {
 .treeMapLevel:hover {
   border: 2px solid var(--highlightpurple);
 }
+
+.threatIconOnMap:hover {
+  transform: scale(1.5);
+  transition-property: transform;
+  transition-duration: 0.1s;
+}
+
+.threatTypeButton {
+  background-color: white;
+  border-radius: 40px;
+  border: 1px solid gray;
+  padding: 2px 12px;
+  box-sizing: border-box;
+}
+
+.threatTypeButton:hover {
+  box-shadow: 0 0 20px #d3d3d3;
+}
+
+.threatTypeButton.active {
+  font-weight: bold;
+}
+
+.threatTypeButton.active,
+.threatTypeButton:hover {
+  border: 2px solid var(--highlightpurple) !important;
+  margin: -1px;
+}
+
+.legendEntry {
+  display: inline-block;
+  height: 15px;
+  line-height: 15px;
+  font-size: smaller;
+  text-align: center;
+}
+
+.legendEntry.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  border: 2px solid var(--highlightpurple);
+  box-sizing: border-box;
+  line-height: 11px;
+}

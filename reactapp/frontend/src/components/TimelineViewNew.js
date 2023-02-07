@@ -50,7 +50,7 @@ export default function TimelineViewNew(props) {
   }
 
   const sortedKeys = Object.keys(data)
-    .filter((e) => filteredSpecies.includes(e))
+    //.filter((e) => filteredSpecies.includes(e))
     .sort();
 
   return (
