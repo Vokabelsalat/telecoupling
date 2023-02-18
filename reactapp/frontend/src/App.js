@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "mapbox-gl/dist/mapbox-gl.css";
-import "./App.css";
 import TimelineView from "./components/TimelineView";
 import Statistics from "./components/Statistics";
 import Home from "./components/Home";
 import HomeNew from "./components/HomeNew";
+import BowStory from "./components/BowStory/BowStory";
+import "./App.css";
 
 function HomeWithParams({ match }) {
   let { instrumentGroup } = match.params;
@@ -51,6 +52,7 @@ class App extends Component {
             <Route path="/:instrumentGroup" component={HomeWithParams} /> */}
             {/* <Route exact path="/" element={<Home />} /> */}
             <Route exact path="/" element={<HomeNew />} />
+            <Route exact path="/bowstory" element={<BowStory />} />
           </Routes>
           {/* <Route exact path="/timeline">
             <TimelineView />

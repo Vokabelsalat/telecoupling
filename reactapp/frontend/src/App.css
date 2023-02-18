@@ -1,3 +1,9 @@
+@import url("https://fonts.googleapis.com/css?family=Great+Vibes");
+@import url("https://fonts.googleapis.com/css?family=Montserrat");
+
+@import url("https://fonts.googleapis.com/css?family=Libre+Baskerville");
+@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro");
+
 :root {
   --main: rgba(45, 188, 233, 1);
   --highlight: rgba(251, 176, 59, 1);
@@ -33,9 +39,9 @@
   color: white;
 }
 
-.App-link {
+/* .App-link {
   color: #61dafb;
-}
+} */
 
 @keyframes App-logo-spin {
   from {
@@ -71,7 +77,6 @@ body {
   font-size: 16px;
   font-family: Arial, Helvetica, sans-serif;
   height: 100vh;
-  padding: 10px;
   position: fixed;
   top: 0;
   left: 0;
@@ -736,4 +741,18 @@ path.handle:focus {
   border: 2px solid var(--highlightpurple);
   box-sizing: border-box;
   line-height: 11px;
+}
+
+.copyrightQuote > * > a:-webkit-any-link,
+a:any-link {
+  color: gray !important;
+}
+
+.contentWrapper:after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 1px;
+  width: 25%;
+  border-bottom: 1px solid #c4c4c4;
 }
