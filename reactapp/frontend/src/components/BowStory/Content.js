@@ -1,5 +1,6 @@
 import { padding } from "@mui/system";
-import { forwardRef, useMemo } from "react";
+import { forwardRef, useMemo, useRef, useEffect } from "react";
+import ReactAudioPlayer from "react-audio-player";
 // import { useOnParent } from "./useOnParent";
 
 const Content = forwardRef((props, ref) => {
@@ -8,15 +9,29 @@ const Content = forwardRef((props, ref) => {
     type,
     text,
     image,
+    audio,
     quote,
     fontStyle,
     alignment,
     height,
-    width
+    width,
+    playAudio = false
   } = props;
 
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    if (audioRef.current != null) {
+      if (playAudio) {
+        audioRef.current.audioEl.current.play();
+      } else {
+        audioRef.current.audioEl.current.pause();
+      }
+    }
+  }, [playAudio]);
+
   const { titlePrimary, titleSecondary, textPrimary, textSecondary } =
-    (function () {
+    useMemo(() => {
       switch (fontStyle) {
         case "classic":
         default:
@@ -27,9 +42,9 @@ const Content = forwardRef((props, ref) => {
             textSecondary: "Source Sans Pro"
           };
       }
-    })();
+    }, [fontStyle]);
 
-  const { textAlign, blockText } = (function () {
+  const { textAlign, blockText } = useMemo(() => {
     switch (alignment) {
       case "centerBlockText":
         return { textAlign: "center", blockText: true };
@@ -41,7 +56,7 @@ const Content = forwardRef((props, ref) => {
       default:
         return { textAlign: "start" };
     }
-  })();
+  }, [alignment]);
 
   const html = useMemo(() => {
     switch (type) {
@@ -82,19 +97,33 @@ const Content = forwardRef((props, ref) => {
           </div>
         );
       case "fullSizeQuote":
+        console.log(type, image);
         return (
           <div
             style={{
-              textAlign: "center",
-              verticalAlign: "middle",
+              //verticalAlign: "middle",
+              display: "grid",
+              gridTemplateColumns: "auto",
+              gridTemplateRows: "auto auto auto",
+              gap: "10px",
               padding: "10px",
-              height: "100vh",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexDirection: "column"
+              textAlign: textAlign,
+              height: "100vh"
             }}
           >
+            {image !== undefined && (
+              <div
+                style={{
+                  width: image.width ? image.width : "50%",
+                  justifySelf: textAlign,
+                  marginBottom: "15px"
+                }}
+              >
+                <div className="vignette-radial">
+                  <img style={{ width: "100%" }} src={image.url}></img>
+                </div>
+              </div>
+            )}
             <div
               style={{
                 fontSize: "xxx-large",
@@ -158,6 +187,7 @@ const Content = forwardRef((props, ref) => {
             {image !== undefined && (
               <div
                 style={{
+                  marginTop: "15px",
                   width: image.width ? image.width : "50%",
                   display: "grid",
                   gridTemplateColumns: "auto",
@@ -175,6 +205,36 @@ const Content = forwardRef((props, ref) => {
                   style={{ width: "100%", color: "gray" }}
                 >
                   {image.copyright}
+                </div>
+              </div>
+            )}
+            {audio !== undefined && (
+              <div
+                style={{
+                  marginTop: "15px",
+                  width: image.width ? image.width : "50%",
+                  display: "grid",
+                  gridTemplateColumns: "auto",
+                  gridTemplateRows: "auto auto auto",
+                  gap: "10px",
+                  justifySelf: textAlign,
+                  justifyItems: textAlign
+                }}
+              >
+                <ReactAudioPlayer
+                  ref={audioRef}
+                  src={audio.url}
+                  controls
+                  preload="auto"
+                />
+                <div style={{ width: "100%", fontSize: "large" }}>
+                  {audio.caption}
+                </div>
+                <div
+                  className="copyrightQuote"
+                  style={{ width: "100%", color: "gray" }}
+                >
+                  {audio.copyright}
                 </div>
               </div>
             )}
@@ -200,7 +260,7 @@ const Content = forwardRef((props, ref) => {
       ref={ref}
       className={`content`}
       style={{
-        padding: "8px",
+        padding: "5%",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

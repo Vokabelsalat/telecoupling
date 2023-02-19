@@ -1,6 +1,9 @@
 import ContentPanel from "./ContentPanel";
 import ContentWrapper from "./ContentWrapper";
 import Content from "./Content";
+import ResizeComponent from "../ResizeComponent";
+import StoryMap from "../StoryMap";
+import contents from "./StoryContents";
 
 import { useEffect, useRef, useState, useMemo } from "react";
 
@@ -14,10 +17,27 @@ export default function BowStory(props) {
   const [activeFigure, setActiveFigure] = useState();
 
   const [trigger, setTrigger] = useState(true);
+  const [isIntro, setIsIntro] = useState(true);
+  const [enableAutoPlay, setEnableAutoPlay] = useState(false);
   const offset = 0;
 
   const fontStyle = "classic"; // "modern" | "classic"
   const alignment = "centerBlockText"; // "center" | "left" | "right" | "centerBlockText"
+  const [effect, setEffect] = useState("");
+  const [mapMode, setMapMode] = useState("light");
+
+  const mapRef = useRef(null);
+
+  function flyToMapPosition(flyTo) {
+    if (mapRef.current) {
+      mapRef.current.flyTo({
+        /* center: [(Math.random() - 0.5) * 360, (Math.random() - 0.5) * 100],
+        essential: true // this animation is considered essential with respect to prefers-reduced-motion */
+        ...flyTo,
+        essential: true
+      });
+    }
+  }
 
   useEffect(() => {
     const scrollToHashElement = () => {
@@ -50,11 +70,11 @@ export default function BowStory(props) {
       if (entry.isIntersecting === true) {
         /* const tmpTest = [...activeFigure];
         tmpTest[idx] = entry.intersectionRatio; */
-        if (typeof window.history.pushState == "function") {
+        /*   if (typeof window.history.pushState == "function") {
           window.history.pushState(null, `bowstory#${idx}`, `bowstory#${idx}`);
         } else {
           window.location.hash = idx;
-        }
+        } */
         setActiveFigure(idx);
       }
 
@@ -69,137 +89,39 @@ export default function BowStory(props) {
     }
   );
 
-  const contents = [
-    {
-      type: "storyTitle",
-      title: (
-        <div>
-          The Story of
-          <br />
-          Stringed Instrument Bows
-        </div>
-      )
-    },
-    {
-      type: "fullSizeQuote",
-      quote: {
-        text: (
-          <div>
-            <div
-              style={{
-                marginLeft: "-100%",
-                whiteSpace: "nowrap"
-              }}
-            >
-              "Le violon
-            </div>
-            <div
-              style={{
-                marginRight: "-100%",
-                whiteSpace: "nowrap"
-              }}
-            >
-              c'est l'archet"
-            </div>
-          </div>
-        ),
-        author: "Giovanni Battista Viotti (violanist)",
-        translation: "The violin, that is the bow."
-      }
-    },
-    {
-      type: "text",
-      title: "Mata Atlântica",
-      text: "The emblematic and culturally important brazilwood tree tells a bundle of stories - on one hand a story of social and cultural exploitation and on the other of music and culture. The beauty of its flowers with their sweet smell attracts bees and fascinates people. Brazilwood is an endemic species only found in the Mata Atlântica biome located along the east coast of Brazil. This coastal rainforest counts with an extraordinary species richness, many of these species being endemic while at the same time ⅔ of Brazilians population is living in that same region. As a result of deforestation, land use change and urbanization the Mata Atlântica is decimated to only 7% of its original extent, a highly threatened ecoregion and one of the 36 global biodiversity hotspots."
-    },
-    {
-      type: "text",
-      title: "Mata Atlântica",
-      text: "The emblematic and culturally important brazilwood tree tells a bundle of stories - on one hand a story of social and cultural exploitation and on the other of music and culture. The beauty of its flowers with their sweet smell attracts bees and fascinates people. Brazilwood is an endemic species only found in the Mata Atlântica biome located along the east coast of Brazil. This coastal rainforest counts with an extraordinary species richness, many of these species being endemic while at the same time ⅔ of Brazilians population is living in that same region. As a result of deforestation, land use change and urbanization the Mata Atlântica is decimated to only 7% of its original extent, a highly threatened ecoregion and one of the 36 global biodiversity hotspots.",
-      image: {
-        url: "https://upload.wikimedia.org/wikipedia/commons/8/85/Ba%C3%ADa_de_Antonina_vista_da_Serra_do_Mar2.JPG",
-        caption: "Antonina Bay as viewed from the Serra do Mar Paranaense.",
-        width: "60%",
-        copyright: (
-          <>
-            <a href="https://commons.wikimedia.org/wiki/File:Ba%C3%ADa_de_Antonina_vista_da_Serra_do_Mar2.JPG">
-              Deyvid Setti e Eloy Olindo Setti
-            </a>
-            ,{" "}
-            <a href="https://creativecommons.org/licenses/by-sa/3.0">
-              CC BY-SA 3.0
-            </a>
-            , via Wikimedia Commons
-          </>
-        )
-      }
-    },
-    {
-      type: "text",
-      title: "Mata Atlântica",
-      text: "The emblematic and culturally important brazilwood tree tells a bundle of stories - on one hand a story of social and cultural exploitation and on the other of music and culture. The beauty of its flowers with their sweet smell attracts bees and fascinates people. Brazilwood is an endemic species only found in the Mata Atlântica biome located along the east coast of Brazil. This coastal rainforest counts with an extraordinary species richness, many of these species being endemic while at the same time ⅔ of Brazilians population is living in that same region. As a result of deforestation, land use change and urbanization the Mata Atlântica is decimated to only 7% of its original extent, a highly threatened ecoregion and one of the 36 global biodiversity hotspots."
-    },
-    {
-      type: "text",
-      title: "Mata Atlântica",
-      text: "The emblematic and culturally important brazilwood tree tells a bundle of stories - on one hand a story of social and cultural exploitation and on the other of music and culture. The beauty of its flowers with their sweet smell attracts bees and fascinates people. Brazilwood is an endemic species only found in the Mata Atlântica biome located along the east coast of Brazil. This coastal rainforest counts with an extraordinary species richness, many of these species being endemic while at the same time ⅔ of Brazilians population is living in that same region. As a result of deforestation, land use change and urbanization the Mata Atlântica is decimated to only 7% of its original extent, a highly threatened ecoregion and one of the 36 global biodiversity hotspots.",
-      width: "50%"
-    },
-    {
-      type: "text",
-      title: "Mata Atlântica",
-      text: "The emblematic and culturally important brazilwood tree tells a bundle of stories - on one hand a story of social and cultural exploitation and on the other of music and culture. The beauty of its flowers with their sweet smell attracts bees and fascinates people. Brazilwood is an endemic species only found in the Mata Atlântica biome located along the east coast of Brazil. This coastal rainforest counts with an extraordinary species richness, many of these species being endemic while at the same time ⅔ of Brazilians population is living in that same region. As a result of deforestation, land use change and urbanization the Mata Atlântica is decimated to only 7% of its original extent, a highly threatened ecoregion and one of the 36 global biodiversity hotspots."
-    },
-    { type: "end", title: "Le Fin" },
-    {
-      type: "text",
-      title: "Authors",
-      height: "25vh",
-      text: (
-        <>
-          Silke Lichtenberg
-          <br />
-          Jakob Kusnick
-        </>
-      )
-    },
-    {
-      type: "text",
-      title: "Images",
-      height: "25vh",
-      text: (
-        <>
-          Silke Lichtenberg
-          <br />
-          Jakob Kusnick
-        </>
-      )
-    },
-    {
-      type: "text",
-      title: "Music",
-      height: "25vh",
-      text: (
-        <>
-          Silke Lichtenberg
-          <br />
-          Jakob Kusnick
-        </>
-      )
-    },
-    {
-      type: "text",
-      title: "Thanks",
-      height: "25vh",
-      text: (
-        <>
-          Silke Lichtenberg
-          <br />
-          Jakob Kusnick
-        </>
-      )
+  function applyContentEffect(effect) {
+    switch (effect.type) {
+      case "black":
+        setMapMode("dark");
+        setEffect(effect.type);
+        break;
+      default:
     }
-  ];
+  }
+
+  useEffect(() => {
+    if (activeFigure != null) {
+      if (activeFigure > 0) {
+        setIsIntro(false);
+      } else {
+        setIsIntro(true);
+      }
+    }
+
+    if (activeFigure != null && contents[activeFigure].effect != null) {
+      console.log("EFFECT", contents[activeFigure].effect);
+      applyContentEffect(contents[activeFigure].effect);
+    } else {
+      setEffect("");
+      setMapMode("light");
+    }
+
+    console.log("CHANGED!", activeFigure, contents, contents[activeFigure]);
+    if (activeFigure != null && contents[activeFigure].flyTo != null) {
+      console.log("FLY TO!", contents[activeFigure].flyTo);
+      flyToMapPosition(contents[activeFigure].flyTo);
+    }
+  }, [activeFigure]);
 
   return (
     <div
@@ -208,12 +130,75 @@ export default function BowStory(props) {
         height: "100vh",
         display: "grid",
         gridTemplateRows: "100vh",
-        gridTemplateColumns: "50% 50%",
-        color: "#1C0F13"
+        gridTemplateColumns: "50% 50%"
       }}
     >
-      <div style={{ width: "100%", height: "100%" }}>{activeFigure}</div>
-      <ContentPanel ref={ref}>
+      <div style={{ width: "100%", height: "100%", position: "relative" }}>
+        <ResizeComponent>
+          <StoryMap
+            /* speciesCountries={Object.fromEntries(
+                  Object.entries(speciesCountries).filter(
+                    ([key]) => key === "Paubrasilia echinata"
+                  )
+                )} */
+            // speciesCountries={visibleSpeciesCountries}
+            /* speciesEcos={Object.fromEntries(
+                  Object.entries(speciesEcos).filter(
+                    ([key]) => key === "Paubrasilia echinata"
+                  )
+                )} */
+            // speciesEcos={speciesEcos}
+            /* speciesHexas={Object.fromEntries(
+                  Object.entries(speciesHexas).filter(
+                    ([key]) => key === "Paubrasilia echinata"
+                  )
+                )} */
+            // speciesHexas={speciesHexas}
+            // colorBlind={colorBlind}
+            // getSpeciesThreatLevel={getSpeciesSignThreat}
+            // threatType={threatType}
+            // setSelectedCountry={setSelectedCountry}
+            ref={mapRef}
+            mode={mapMode}
+          />
+        </ResizeComponent>
+        <div
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+            top: 0,
+            left: 0,
+            display: isIntro ? "flex" : "none",
+            justifyContent: "center",
+            alignItems: "center"
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              boxShadow: "5px 10px 8px #888888",
+              padding: "15px"
+            }}
+          >
+            <div>Welcome to the story!</div>
+            <div>For the full immersive experience please enable</div>
+            <label class="checkMarkContainer">
+              Automatic Replay of Audios & Videos
+              <input
+                type="checkbox"
+                checked={enableAutoPlay ? "checked" : ""}
+                onChange={(event) => {
+                  setEnableAutoPlay(event.target.checked);
+                }}
+              />
+              <span class="checkmark"></span>
+            </label>
+            <div>Use you mouse or trackpad to experience the story.</div>
+          </div>
+        </div>
+      </div>
+      <ContentPanel className={`contentPanel ${effect}`} ref={ref}>
         {contents.map((content, index) => {
           return (
             <ContentWrapper
@@ -234,7 +219,11 @@ export default function BowStory(props) {
               >
                 {index}
               </div> */}
-              <Content {...content} alignment={alignment} />
+              <Content
+                {...content}
+                alignment={alignment}
+                playAudio={enableAutoPlay && activeFigure === index}
+              />
             </ContentWrapper>
           );
         })}

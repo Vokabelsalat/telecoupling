@@ -23,7 +23,7 @@ import "react-leaflet-markercluster/dist/styles.min.css";
 export default function HomeNew(props) {
   const showMap = true;
   const showTimeline = true;
-  const showOrchestra = false;
+  const showOrchestra = true;
   const showTreeMap = true;
 
   const [zoomOrigin, setZoomOrigin] = useState("0% 0%");

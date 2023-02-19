@@ -1,5 +1,5 @@
 import * as turf from "@turf/turf";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, forwardRef } from "react";
 
 import ReactMapGL, {
   Layer,
@@ -11,7 +11,7 @@ import ReactMapGL, {
 
 import { bgciAssessment } from "../utils/timelineUtils";
 
-export default function Map(props) {
+const StoryMap = forwardRef((props, ref) => {
   const {
     width,
     height,
@@ -23,7 +23,8 @@ export default function Map(props) {
       return "DD";
     },
     threatType = "economically",
-    setSelectedCountry = () => {}
+    setSelectedCountry = () => {},
+    mode = "light"
   } = props;
 
   const [countriesGeoJson, setCountriesGeoJson] = useState(null);
@@ -307,8 +308,6 @@ export default function Map(props) {
     setHexagonHeatMap(tmpHexagonHeatMap);
   }, [hexagonGeoJSON, speciesHexas]); */
 
-  const mapRef = useRef(null);
-
   const mag1 = ["<", ["get", "FID"], 50];
   const mag2 = ["all", [">=", ["get", "FID"], 50], ["<", ["get", "FID"], 100]];
   const mag3 = ["all", [">=", ["get", "FID"], 100], ["<", ["get", "FID"], 150]];
@@ -320,9 +319,7 @@ export default function Map(props) {
   function updateEcoregions() {
     const newMarkers = [];
     const tmpEcoThreatMarkersCache = ecoThreatMarkersCache;
-    const features = mapRef.current.querySourceFeatures(
-      "ecoregionsourceCentroid"
-    );
+    const features = ref.current.querySourceFeatures("ecoregionsourceCentroid");
 
     // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
     // and add it to the map if it's not there already
@@ -404,8 +401,8 @@ export default function Map(props) {
   function updateMarkers() {
     const newMarkers = [];
     const tmpCapitalMarkerCache = capitalMarkerCache;
-    //const features = mapRef.current.querySourceFeatures("capitalssource");
-    const features = mapRef.current.querySourceFeatures("threatCapitalsSource");
+    //const features = ref.current.querySourceFeatures("capitalssource");
+    const features = ref.current.querySourceFeatures("threatCapitalsSource");
 
     // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
     // and add it to the map if it's not there already
@@ -572,7 +569,7 @@ export default function Map(props) {
 
   return (
     <div style={{ width: "100%", height: `${height}px` }}>
-      <div>
+      {/*       <div>
         <form
           onChange={(e) => {
             setMapMode(e.target.value);
@@ -610,16 +607,19 @@ export default function Map(props) {
           />
           <label htmlFor="javascript">Protection Potential</label>
         </form>
-      </div>
+      </div> */}
       <ReactMapGL
-        ref={mapRef}
+        ref={ref}
         /* reuseMaps={false} */
         key={`thatIsMyMap`}
         //initialViewState={mapViewport}
         style={{ width: "100%", height: "100%" }}
-        //mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
-        //mapStyle="https://demotiles.maplibre.org/style.json"
-        mapStyle="mapbox://styles/mapbox/streets-v11"
+        // mapStyle={
+        //   mode === "dark"
+        //     ? "mapbox://styles/mapbox/dark-v11"
+        //     : "mapbox://styles/mapbox/light-v11"
+        // }
+        mapStyle={"mapbox://styles/mapbox/light-v11"}
         onRender={() => {
           if (capitalsGeoJSON && mapMode === "countries") {
             updateMarkers();
@@ -636,32 +636,32 @@ export default function Map(props) {
         projection="equalEarth"
         //mapLib={maplibregl}
         mapboxAccessToken="pk.eyJ1IjoiamFrb2JrdXNuaWNrIiwiYSI6ImNsYTAzYjQ2NjBrdnQzcWx0d2EyajFzbHQifQ.LQN-NvTn6PbHEbXHJO0CTw"
-        interactiveLayerIds={[
-          "countriesSpecies",
-          "ecoRegions",
-          "ecoRegionsProtection"
-        ]}
-        onMouseMove={(event) => {
-          /* let cluster = mapRef.current.queryRenderedFeatures(event.point, {
-            layers: ["threatCapitalsClusters"]
-          }); */
-          if (event.features.length > 0) {
-            let id = event.features[0].properties.myID;
-            if (!hoveredStateIds.includes(id)) {
-              setHoveredStateIds([id]);
-            }
-          }
-        }}
-        onMouseLeave={(event) => {
-          setHoveredStateIds([]);
-        }}
-        onClick={(event) => {
-          if (event.features.length > 0) {
-            if (event.features[0].properties.hasOwnProperty("ROMNAM")) {
-              setSelectedCountry(event.features[0].properties.ROMNAM);
-            }
-          }
-        }}
+        // interactiveLayerIds={[
+        //   "countriesSpecies",
+        //   "ecoRegions",
+        //   "ecoRegionsProtection"
+        // ]}
+        // onMouseMove={(event) => {
+        //   /* let cluster = ref.current.queryRenderedFeatures(event.point, {
+        //     layers: ["threatCapitalsClusters"]
+        //   }); */
+        //   if (event.features.length > 0) {
+        //     let id = event.features[0].properties.myID;
+        //     if (!hoveredStateIds.includes(id)) {
+        //       setHoveredStateIds([id]);
+        //     }
+        //   }
+        // }}
+        // onMouseLeave={(event) => {
+        //   setHoveredStateIds([]);
+        // }}
+        // onClick={(event) => {
+        //   if (event.features.length > 0) {
+        //     if (event.features[0].properties.hasOwnProperty("ROMNAM")) {
+        //       setSelectedCountry(event.features[0].properties.ROMNAM);
+        //     }
+        //   }
+        // }}
       >
         <NavigationControl />
         <ScaleControl />
@@ -1041,4 +1041,8 @@ export default function Map(props) {
       </ReactMapGL>
     </div>
   );
-}
+});
+
+StoryMap.displayName = "StoryMap";
+
+export default StoryMap;

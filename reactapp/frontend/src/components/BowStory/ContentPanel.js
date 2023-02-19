@@ -2,10 +2,11 @@ import { positions } from "@mui/system";
 import { forwardRef } from "react";
 
 const ContentPanel = forwardRef((props, ref) => {
-  const { children } = props;
+  const { children, className } = props;
 
   return (
     <div
+      className={className}
       ref={ref}
       style={{
         width: "100%",
