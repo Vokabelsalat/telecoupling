@@ -82,7 +82,7 @@ export const Content = (props) => {
           >
             <div
               style={{
-                fontSize: "xxx-large",
+                fontSize: "-webkit-xxx-large",
                 fontFamily: titlePrimary
                 //marginTop: "-50%"
               }}
@@ -123,7 +123,7 @@ export const Content = (props) => {
             style={{
               textAlign: "center",
               verticalAlign: "middle",
-              fontSize: "xxx-large",
+              fontSize: "-webkit-xxx-large",
               fontFamily: titlePrimary,
               padding: "10px",
               height: "100%",
@@ -166,7 +166,7 @@ export const Content = (props) => {
             <div>
               <div
                 style={{
-                  fontSize: "xxx-large",
+                  fontSize: "-webkit-xxx-large",
                   fontFamily: titlePrimary
                 }}
               >
