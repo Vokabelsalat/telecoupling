@@ -96,7 +96,7 @@ const contents = [
     },
     visualization: {},
     audio: {
-      url: "https://upload.wikimedia.org/wikipedia/commons/3/30/Mahler_-_Symphony_N%C2%B0_9_-_I_%28B._Walter%2C_1938%29.ogg#t=00:00:24",
+      url: "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/30/Mahler_-_Symphony_N°_9_-_I_%28B._Walter%2C_1938%29.ogg/Mahler_-_Symphony_N°_9_-_I_%28B._Walter%2C_1938%29.ogg.mp3#t=00:00:24",
       copyright: (
         <>
           <a href="https://commons.wikimedia.org/wiki/File:Mahler_-_Symphony_N%C2%B0_9_-_I_(B._Walter,_1938).ogg">
