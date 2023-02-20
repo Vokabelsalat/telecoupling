@@ -1,17 +1,20 @@
 import ContentPanel from "./ContentPanel";
 import ContentWrapper from "./ContentWrapper";
-import Content from "./Content";
+import { Content } from "./Content";
 import ResizeComponent from "../ResizeComponent";
 import StoryMap from "../StoryMap";
 import contents from "./StoryContents";
+import { useRefDimensions } from "./useRefDimensions";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useLayoutEffect } from "react";
 
 import { useIntersection } from "./useIntersection";
 import { active } from "d3";
 import { padding } from "@mui/system";
 
 export default function BowStory(props) {
+  const { width, height } = props;
+
   const ref = useRef(null);
 
   const [activeFigure, setActiveFigure] = useState();
@@ -27,6 +30,7 @@ export default function BowStory(props) {
   const [mapMode, setMapMode] = useState("light");
 
   const mapRef = useRef(null);
+  const wrapperRef = useRef(null);
 
   function flyToMapPosition(flyTo) {
     if (mapRef.current) {
@@ -38,6 +42,14 @@ export default function BowStory(props) {
       });
     }
   }
+
+  const mobile = useMemo(() => {
+    if (width < 600) {
+      return true;
+    } else {
+      return false;
+    }
+  }, [width]);
 
   useEffect(() => {
     const scrollToHashElement = () => {
@@ -70,11 +82,19 @@ export default function BowStory(props) {
       if (entry.isIntersecting === true) {
         /* const tmpTest = [...activeFigure];
         tmpTest[idx] = entry.intersectionRatio; */
-        /*   if (typeof window.history.pushState == "function") {
-          window.history.pushState(null, `bowstory#${idx}`, `bowstory#${idx}`);
+        if (typeof window.history.pushState == "function") {
+          setTimeout(() => {
+            window.history.pushState(
+              null,
+              `bowstory#${idx}`,
+              `bowstory#${idx}`
+            );
+          }, 500);
         } else {
-          window.location.hash = idx;
-        } */
+          setTimeout(() => {
+            window.location.hash = idx;
+          }, 500);
+        }
         setActiveFigure(idx);
       }
 
@@ -85,7 +105,8 @@ export default function BowStory(props) {
     {
       // threshold: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
       threshold: 0,
-      rootMargin: "-49% 0px -49% 0px"
+      rootMargin: "-33% 0px -43% 0px"
+      // rootMargin: "0px 0px 0px 0px"
     }
   );
 
@@ -108,17 +129,22 @@ export default function BowStory(props) {
       }
     }
 
-    if (activeFigure != null && contents[activeFigure].effect != null) {
-      console.log("EFFECT", contents[activeFigure].effect);
+    if (
+      activeFigure != null &&
+      contents[activeFigure] != null &&
+      contents[activeFigure].effect != null
+    ) {
       applyContentEffect(contents[activeFigure].effect);
     } else {
       setEffect("");
       setMapMode("light");
     }
 
-    console.log("CHANGED!", activeFigure, contents, contents[activeFigure]);
-    if (activeFigure != null && contents[activeFigure].flyTo != null) {
-      console.log("FLY TO!", contents[activeFigure].flyTo);
+    if (
+      activeFigure != null &&
+      contents[activeFigure] &&
+      contents[activeFigure].flyTo != null
+    ) {
       flyToMapPosition(contents[activeFigure].flyTo);
     }
   }, [activeFigure]);
@@ -127,11 +153,12 @@ export default function BowStory(props) {
     <div
       style={{
         width: "100%",
-        height: "100vh",
+        height: "100%",
         display: "grid",
-        gridTemplateRows: "100vh",
-        gridTemplateColumns: "50% 50%"
+        gridTemplateRows: "repeat(auto-fit, minmax(100px, 1fr))",
+        gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))"
       }}
+      ref={wrapperRef}
     >
       <div style={{ width: "100%", height: "100%", position: "relative" }}>
         <ResizeComponent>
@@ -178,38 +205,70 @@ export default function BowStory(props) {
             style={{
               backgroundColor: "white",
               boxShadow: "5px 10px 8px #888888",
-              padding: "15px"
+              padding: "15px",
+              borderRadius: "5px"
             }}
           >
-            <div>Welcome to the story!</div>
-            <div>For the full immersive experience please enable</div>
-            <label class="checkMarkContainer">
-              Automatic Replay of Audios & Videos
-              <input
-                type="checkbox"
-                checked={enableAutoPlay ? "checked" : ""}
-                onChange={(event) => {
-                  setEnableAutoPlay(event.target.checked);
+            <div
+              style={{
+                display: "grid",
+                gap: "5px",
+                gridTemplateColumns: "auto auto"
+              }}
+            >
+              <div
+                style={{
+                  gridColumn: "span 2"
+                  /* fontSize: "x-large",
+                  fontWeight: "bold",
+                  marginBottom: "15px" */
                 }}
-              />
-              <span class="checkmark"></span>
-            </label>
-            <div>Use you mouse or trackpad to experience the story.</div>
+              >
+                <h3>Welcome to the Story of Stringed Instrument Bows!</h3>
+              </div>
+              <div style={{ gridColumn: "span 2" }}>
+                For the full immersive experience please enable:
+              </div>
+              <label
+                style={{ gridColumn: "span 2" }}
+                class="checkMarkContainer"
+              >
+                <div style={{ gridColumn: "1" }}>
+                  &#x266A; Automatic Replay of Audios & Videos
+                </div>
+                <input
+                  style={{ gridColumn: "2" }}
+                  type="checkbox"
+                  checked={enableAutoPlay ? "checked" : ""}
+                  onChange={(event) => {
+                    setEnableAutoPlay(event.target.checked);
+                  }}
+                />
+                <span style={{ gridColumn: "2" }} class="checkmark"></span>
+              </label>
+            </div>
           </div>
         </div>
       </div>
-      <ContentPanel className={`contentPanel ${effect}`} ref={ref}>
-        {contents.map((content, index) => {
-          return (
-            <ContentWrapper
-              id={index}
-              key={`content${index}`}
-              parentRef={ref}
-              style={{
-                opacity: activeFigure === index ? 1.0 : 0.3
-              }}
-            >
-              {/* <div
+      <div style={{ width: "100%", height: "100%", position: "relative" }}>
+        <ContentPanel className={`contentPanel ${effect}`} ref={ref}>
+          {contents.map((content, index) => {
+            return (
+              <ContentWrapper
+                id={index}
+                key={`content${index}`}
+                style={{
+                  opacity: activeFigure === index ? 1.0 : 0.3,
+                  height: ["storyTitle", "fullSizeQuote", "end"].includes(
+                    content.type
+                  )
+                    ? mobile
+                      ? "45vh"
+                      : "100vh"
+                    : null
+                }}
+              >
+                {/* <div
                 style={{
                   height: "600px",
                   width: "100%",
@@ -219,18 +278,20 @@ export default function BowStory(props) {
               >
                 {index}
               </div> */}
-              <Content
-                {...content}
-                alignment={alignment}
-                playAudio={enableAutoPlay && activeFigure === index}
-              />
-            </ContentWrapper>
-          );
-        })}
-        <ContentWrapper>
-          <Content type={"restart"} height={"25vh"} alignment={alignment} />
-        </ContentWrapper>
-      </ContentPanel>
+                <Content
+                  {...content}
+                  alignment={alignment}
+                  playAudio={enableAutoPlay && activeFigure === index}
+                  mobile={mobile}
+                />
+              </ContentWrapper>
+            );
+          })}
+          <ContentWrapper>
+            <Content type={"restart"} height={"25vh"} alignment={alignment} />
+          </ContentWrapper>
+        </ContentPanel>
+      </div>
     </div>
   );
 }

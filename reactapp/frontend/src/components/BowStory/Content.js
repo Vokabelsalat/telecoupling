@@ -1,21 +1,25 @@
 import { padding } from "@mui/system";
 import { forwardRef, useMemo, useRef, useEffect } from "react";
 import ReactAudioPlayer from "react-audio-player";
+import { ImageSource } from "react-map-gl";
 // import { useOnParent } from "./useOnParent";
 
-const Content = forwardRef((props, ref) => {
+export const Content = (props) => {
   const {
     title,
+    authors,
     type,
     text,
     image,
+    imageArray,
     audio,
     quote,
     fontStyle,
     alignment,
     height,
     width,
-    playAudio = false
+    playAudio = false,
+    mobile = false
   } = props;
 
   const audioRef = useRef(null);
@@ -66,16 +70,51 @@ const Content = forwardRef((props, ref) => {
             style={{
               textAlign: "center",
               verticalAlign: "middle",
-              fontSize: "xxx-large",
-              fontFamily: titlePrimary,
               padding: "10px",
-              height: "100vh",
-              display: "flex",
+              height: "100%",
+              display: "grid",
               alignItems: "center",
-              justifyContent: "center"
+              justifyContent: "center",
+              position: "relative",
+              flexFlow: "column",
+              gap: "5px"
             }}
           >
-            {title}
+            <div
+              style={{
+                fontSize: "xxx-large",
+                fontFamily: titlePrimary
+                //marginTop: "-50%"
+              }}
+            >
+              {title}
+            </div>
+            {authors !== undefined && (
+              <div style={{ fontFamily: titleSecondary, fontSize: "larger" }}>
+                {authors}
+              </div>
+            )}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                flexFlow: "column"
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "initial",
+                  fontFamily: titleSecondary,
+                  alignSelf: "center"
+                }}
+              >
+                Scroll to experience the story.
+              </div>
+              <div class="mouse-icon">
+                <div class="wheel"></div>
+              </div>
+            </div>
           </div>
         );
       case "end":
@@ -87,7 +126,7 @@ const Content = forwardRef((props, ref) => {
               fontSize: "xxx-large",
               fontFamily: titlePrimary,
               padding: "10px",
-              height: "100vh",
+              height: "100%",
               display: "flex",
               alignItems: "center",
               justifyContent: "center"
@@ -97,60 +136,92 @@ const Content = forwardRef((props, ref) => {
           </div>
         );
       case "fullSizeQuote":
-        console.log(type, image);
         return (
           <div
             style={{
               //verticalAlign: "middle",
               display: "grid",
               gridTemplateColumns: "auto",
-              gridTemplateRows: "auto auto auto",
-              gap: "10px",
+              gridTemplateRows: "1fr 1fr auto",
+              // gap: "10px",
               padding: "10px",
               textAlign: textAlign,
-              height: "100vh"
+              height: "100%",
+              alignItems: "center"
             }}
           >
             {image !== undefined && (
               <div
+                className="vignette-radial"
                 style={{
-                  width: image.width ? image.width : "50%",
-                  justifySelf: textAlign,
-                  marginBottom: "15px"
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                  alignItems: "center",
+                  backgroundImage: `url('${image.url}')`,
+                  backgroundSize: "cover"
+                }}
+              ></div>
+            )}
+            <div>
+              <div
+                style={{
+                  fontSize: "xxx-large",
+                  fontFamily: titlePrimary
                 }}
               >
-                <div className="vignette-radial">
-                  <img style={{ width: "100%" }} src={image.url}></img>
+                {quote.text}
+              </div>
+              <div
+                style={{
+                  marginTop: "1em",
+                  fontSize: "x-large",
+                  fontFamily: titleSecondary
+                }}
+              >
+                "{quote.translation}"
+              </div>
+              <div
+                style={{
+                  fontFamily: titleSecondary,
+                  color: "gray",
+                  marginTop: "1em",
+                  fontSize: "large"
+                }}
+              >
+                {quote.author}
+              </div>
+            </div>
+            {audio !== undefined && (
+              <div
+                style={{
+                  marginTop: "15px",
+                  width: image.width ? image.width : "50%",
+                  display: "grid",
+                  gridTemplateColumns: "auto",
+                  gridTemplateRows: "auto auto auto",
+                  gap: "10px",
+                  justifySelf: textAlign,
+                  justifyItems: textAlign
+                }}
+              >
+                <ReactAudioPlayer
+                  ref={audioRef}
+                  src={audio.url}
+                  controls
+                  preload="auto"
+                />
+                <div style={{ width: "100%", fontSize: "large" }}>
+                  {audio.caption}
+                </div>
+                <div
+                  className="copyrightQuote"
+                  style={{ width: "100%", color: "gray" }}
+                >
+                  {audio.copyright}
                 </div>
               </div>
             )}
-            <div
-              style={{
-                fontSize: "xxx-large",
-                fontFamily: titlePrimary
-              }}
-            >
-              {quote.text}
-            </div>
-            <div
-              style={{
-                marginTop: "1em",
-                fontSize: "x-large",
-                fontFamily: titleSecondary
-              }}
-            >
-              "{quote.translation}"
-            </div>
-            <div
-              style={{
-                fontFamily: titleSecondary,
-                color: "gray",
-                marginTop: "1em",
-                fontSize: "large"
-              }}
-            >
-              {quote.author}
-            </div>
           </div>
         );
       case "text":
@@ -208,11 +279,65 @@ const Content = forwardRef((props, ref) => {
                 </div>
               </div>
             )}
+            {imageArray !== undefined && (
+              <div
+                style={{
+                  marginTop: "15px",
+                  width: "100%",
+                  display: "grid",
+                  gridTemplateColumns: `${imageArray
+                    .map((i) => {
+                      return i.width ?? "auto";
+                    })
+                    .join(" ")}`,
+                  gridTemplateRows: "auto auto auto",
+                  gap: "10px",
+                  justifySelf: textAlign
+                }}
+              >
+                {imageArray.map((image, index) => {
+                  return (
+                    <>
+                      <img
+                        style={{
+                          gridColumn: index + 1,
+                          gridRow: 1,
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover"
+                        }}
+                        src={image.url}
+                      ></img>
+                      <div
+                        style={{
+                          gridColumn: index + 1,
+                          gridRow: 2,
+                          width: "100%",
+                          fontSize: "large"
+                        }}
+                      >
+                        {image.caption}
+                      </div>
+                      <div
+                        className="copyrightQuote"
+                        style={{
+                          width: "100%",
+                          color: "gray",
+                          gridColumn: index + 1,
+                          gridRow: 3
+                        }}
+                      >
+                        {image.copyright}
+                      </div>
+                    </>
+                  );
+                })}
+              </div>
+            )}
             {audio !== undefined && (
               <div
                 style={{
                   marginTop: "15px",
-                  width: image.width ? image.width : "50%",
                   display: "grid",
                   gridTemplateColumns: "auto",
                   gridTemplateRows: "auto auto auto",
@@ -245,34 +370,33 @@ const Content = forwardRef((props, ref) => {
       case "restart":
         return (
           <a style={{ textDecoration: "none", textAlign: textAlign }} href="#0">
-            <span style={{ fontSize: "50px" }}>&#8682;</span>
-            <br />
-            Restart
+            <div style={{ color: "#ab6318", fontSize: "50px" }}>&#8682;</div>
+            Restart the Story
           </a>
         );
       default:
         return <div>Nothin to see here...</div>;
     }
-  }, [type, title, image, text]);
+  });
 
   return (
     <div
-      ref={ref}
       className={`content`}
       style={{
         padding: "5%",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        height: height ?? null,
-        width: width ?? null
+        height: height ?? "100%",
+        width: width ?? "unset"
       }}
     >
       {html}
     </div>
   );
-});
+};
 
-Content.displayName = "Content";
+/* Content.displayName = "Content";
 
 export default Content;
+ */

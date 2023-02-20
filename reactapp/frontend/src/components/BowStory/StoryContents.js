@@ -7,7 +7,15 @@ const contents = [
         <br />
         Stringed Instrument Bows
       </div>
-    )
+    ),
+    authors: <>S. Lichtenberg & J.Kusnick</>,
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [16.3727683154214, 48.20050021403356],
+      zoom: 4,
+      speed: 1.0
+    }
   },
   {
     type: "text",
@@ -192,42 +200,6 @@ const contents = [
     }
   },
   {
-    type: "fullSizeQuote",
-    quote: {
-      text: (
-        <div>
-          <div
-            style={{
-              marginLeft: "-100%",
-              whiteSpace: "nowrap"
-            }}
-          >
-            "Le violon
-          </div>
-          <div
-            style={{
-              marginRight: "-100%",
-              whiteSpace: "nowrap"
-            }}
-          >
-            c'est l'archet"
-          </div>
-        </div>
-      ),
-      author: "Giovanni Battista Viotti (violanist)",
-      translation: "The violin, that's the bow."
-    },
-    image: {
-      url: "https://upload.wikimedia.org/wikipedia/commons/a/a7/Giovanni_Battista_Viotti_by_Ducarme.jpg",
-      width: "100%"
-    }
-  },
-  {
-    type: "text",
-    title: "Mata Atlântica",
-    text: "The emblematic and culturally important brazilwood tree tells a bundle of stories - on one hand a story of social and cultural exploitation and on the other of music and culture. The beauty of its flowers with their sweet smell attracts bees and fascinates people. Brazilwood is an endemic species only found in the Mata Atlântica biome located along the east coast of Brazil. This coastal rainforest counts with an extraordinary species richness, many of these species being endemic while at the same time ⅔ of Brazilians population is living in that same region. As a result of deforestation, land use change and urbanization the Mata Atlântica is decimated to only 7% of its original extent, a highly threatened ecoregion and one of the 36 global biodiversity hotspots."
-  },
-  {
     type: "text",
     title: "Mata Atlântica",
     text: "The emblematic and culturally important brazilwood tree tells a bundle of stories - on one hand a story of social and cultural exploitation and on the other of music and culture. The beauty of its flowers with their sweet smell attracts bees and fascinates people. Brazilwood is an endemic species only found in the Mata Atlântica biome located along the east coast of Brazil. This coastal rainforest counts with an extraordinary species richness, many of these species being endemic while at the same time ⅔ of Brazilians population is living in that same region. As a result of deforestation, land use change and urbanization the Mata Atlântica is decimated to only 7% of its original extent, a highly threatened ecoregion and one of the 36 global biodiversity hotspots.",
@@ -258,19 +230,196 @@ const contents = [
   },
   {
     type: "text",
-    title: "Mata Atlântica",
-    text: "The emblematic and culturally important brazilwood tree tells a bundle of stories - on one hand a story of social and cultural exploitation and on the other of music and culture. The beauty of its flowers with their sweet smell attracts bees and fascinates people. Brazilwood is an endemic species only found in the Mata Atlântica biome located along the east coast of Brazil. This coastal rainforest counts with an extraordinary species richness, many of these species being endemic while at the same time ⅔ of Brazilians population is living in that same region. As a result of deforestation, land use change and urbanization the Mata Atlântica is decimated to only 7% of its original extent, a highly threatened ecoregion and one of the 36 global biodiversity hotspots."
+    title: <i>Paubrasilia echinata</i>,
+    text: (
+      <>
+        <i>Paubrasilia echinata</i> is a species of flowering plant in the
+        legume family, Fabaceae, that is endemic to the Atlantic Forest of
+        Brazil. It is a Brazilian timber tree commonly known as Pernambuco wood
+        or brazilwood and is the national tree of Brazil. This plant has a
+        dense, orange-red heartwood that takes a high shine, and it is the
+        premier wood used for making bows for stringed instruments. The wood
+        also yields a historically important red dye called brazilin, which
+        oxidizes to brazilein.
+      </>
+    ),
+    width: "70%",
+    imageArray: [
+      {
+        url: "./P1030585.JPG",
+        caption: "Bee on the intensivly scenting Paubrasil's blossoms.",
+        width: "40%",
+        copyright: "Silke Lichtenberg"
+      },
+      {
+        url: "./P1020974.JPG",
+        caption: "The typical spiked birch of the Paubrasil tree.",
+        width: "60%",
+        copyright: "Silke Lichtenberg"
+      }
+    ],
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [-0.08533793, 51.50438536],
+      zoom: 13,
+      speed: 0.6
+    }
   },
   {
     type: "text",
-    title: "Mata Atlântica",
-    text: "The emblematic and culturally important brazilwood tree tells a bundle of stories - on one hand a story of social and cultural exploitation and on the other of music and culture. The beauty of its flowers with their sweet smell attracts bees and fascinates people. Brazilwood is an endemic species only found in the Mata Atlântica biome located along the east coast of Brazil. This coastal rainforest counts with an extraordinary species richness, many of these species being endemic while at the same time ⅔ of Brazilians population is living in that same region. As a result of deforestation, land use change and urbanization the Mata Atlântica is decimated to only 7% of its original extent, a highly threatened ecoregion and one of the 36 global biodiversity hotspots.",
-    width: "50%"
+    title: "The Cultural Importane of Paubrasil for Brazil",
+    text: "",
+    visualization: {},
+    audio: {
+      url: "./hochemotionale_debatte_silke_lichtenberg_ueber_den_umgang_dlf_20221114_2012_5ed5f0a8.mp3",
+      caption: (
+        <>
+          Wenn Umweltschutz das Weltkulturerbe gefährdet
+          <br />
+          Geigenbauer fürchten Handelsverbot mit Fernambuk-Holz
+        </>
+      ),
+      copyright: (
+        <>
+          Vratz, Christoph; Lichtenberg, Silke | 14. November 2022
+          <br />
+          <a href="https://www.deutschlandfunk.de/hochemotionale-debatte-silke-lichtenberg-ueber-den-umgang-mit-fernambuk-holz-dlf-5ed5f0a8-100.html">
+            Deutschlandfunk
+          </a>
+        </>
+      )
+    },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [-73.97992337336923, 40.76512993427731],
+      zoom: 19,
+      speed: 0.4
+    }
+  },
+  {
+    type: "fullSizeQuote",
+    quote: {
+      text: (
+        <div>
+          <div
+            style={{
+              marginLeft: "-50%",
+              whiteSpace: "nowrap"
+            }}
+          >
+            "Le violon
+          </div>
+          <div
+            style={{
+              marginRight: "-50%",
+              whiteSpace: "nowrap"
+            }}
+          >
+            c'est l'archet"
+          </div>
+        </div>
+      ),
+      author: "Giovanni Battista Viotti (violanist)",
+      translation: "The violin, that's the bow."
+    },
+    image: {
+      url: "https://upload.wikimedia.org/wikipedia/commons/a/a7/Giovanni_Battista_Viotti_by_Ducarme.jpg"
+    }
   },
   {
     type: "text",
-    title: "Mata Atlântica",
-    text: "The emblematic and culturally important brazilwood tree tells a bundle of stories - on one hand a story of social and cultural exploitation and on the other of music and culture. The beauty of its flowers with their sweet smell attracts bees and fascinates people. Brazilwood is an endemic species only found in the Mata Atlântica biome located along the east coast of Brazil. This coastal rainforest counts with an extraordinary species richness, many of these species being endemic while at the same time ⅔ of Brazilians population is living in that same region. As a result of deforestation, land use change and urbanization the Mata Atlântica is decimated to only 7% of its original extent, a highly threatened ecoregion and one of the 36 global biodiversity hotspots."
+    title: "Illegal Trade & Seizures",
+    text: "",
+    image: {
+      url: "https://www.gov.br/pf/pt-br/assuntos/noticias/2022/11/policia-federal-e-ibama-deflagram-a-operacao-ibirapitanga-ii/86b5fa84-e347-4816-9984-0ee30894c3dc.jpeg/@@images/4237c502-5305-4f35-905e-9abb1b88fdba.jpeg",
+      caption: <>Seizures of Bow Stick Slugs</>,
+      copyright: (
+        <>
+          Polícia Federal e IBAMA deflagram a Operação Ibirapitanga II
+          <br />
+          <a href="https://www.gov.br/pf/pt-br/assuntos/noticias/2022/11/policia-federal-e-ibama-deflagram-a-operacao-ibirapitanga-ii">
+            www.gov.br
+          </a>
+        </>
+      )
+    },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [-73.97992337336923, 40.76512993427731],
+      zoom: 19,
+      speed: 0.4
+    }
+  },
+  {
+    type: "text",
+    title: "International Trade",
+    text: "",
+    image: {
+      url: "./johannesTool.png",
+      caption: (
+        <>
+          International Import / Export of Paubrasilia echinata from and to
+          Brazil
+        </>
+      ),
+      copyright: <>Johanne's Tool</>,
+      width: "100%"
+    },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [-73.97992337336923, 40.76512993427731],
+      zoom: 19,
+      speed: 0.4
+    }
+  },
+  {
+    type: "text",
+    title: "Process and Importance during the Manufacturing",
+    text: "",
+    image: {
+      url: "https://upload.wikimedia.org/wikipedia/commons/6/65/Pracownia_lutnicza_Mardu%C5%82%C3%B3w_w_Zakopanem%2C_fot._K._Schubert_MIK_2019_%2849140662183%29.jpg",
+      caption:
+        "Pracownia lutnicza Mardułów w Zakopanem, fot. K. Schubert MIK 2019",
+      copyright: (
+        <>
+          <a href="https://commons.wikimedia.org/wiki/File:Pracownia_lutnicza_Mardu%C5%82%C3%B3w_w_Zakopanem,_fot._K._Schubert_MIK_2019_(49140662183).jpg">
+            mik Krakow
+          </a>
+          ,{" "}
+          <a href="https://creativecommons.org/licenses/by-sa/2.0">
+            CC BY-SA 2.0
+          </a>
+          , via Wikimedia Commons
+        </>
+      ),
+      width: "80%"
+    }
+  },
+  {
+    type: "text",
+    title: "Musicians",
+    text: "",
+    image: {
+      url: "https://upload.wikimedia.org/wikipedia/commons/d/dd/Talented_Violin_Player_Brisbane_Mall-3_%2816482748510%29.jpg",
+      caption: "Talented Violin Player Brisbane Mall",
+      copyright: (
+        <>
+          <a href="https://commons.wikimedia.org/wiki/File:Talented_Violin_Player_Brisbane_Mall-3_(16482748510).jpg">
+            Sheba_Also 43,000 photos
+          </a>
+          ,{" "}
+          <a href="https://creativecommons.org/licenses/by-sa/2.0">
+            CC BY-SA 2.0
+          </a>
+          , via Wikimedia Commons
+        </>
+      ),
+      width: "80%"
+    }
   },
   { type: "end", title: "Le Fin" },
   {

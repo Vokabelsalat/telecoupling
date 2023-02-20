@@ -5,8 +5,15 @@ import TimelineView from "./components/TimelineView";
 import Statistics from "./components/Statistics";
 import Home from "./components/Home";
 import HomeNew from "./components/HomeNew";
+import ResizeComponent from "./components/ResizeComponent";
 import BowStory from "./components/BowStory/BowStory";
 import "./App.css";
+
+const appHeight = () => {
+  const doc = document.documentElement;
+  doc.style.setProperty("--app-height", `${window.innerHeight}px`);
+};
+window.addEventListener("resize", appHeight);
 
 function HomeWithParams({ match }) {
   let { instrumentGroup } = match.params;
@@ -31,7 +38,9 @@ class App extends Component {
     super(props);
   } */
 
-  componentDidMount() {}
+  componentDidMount() {
+    appHeight();
+  }
 
   render() {
     return (
@@ -52,7 +61,22 @@ class App extends Component {
             <Route path="/:instrumentGroup" component={HomeWithParams} /> */}
             {/* <Route exact path="/" element={<Home />} /> */}
             <Route exact path="/" element={<HomeNew />} />
-            <Route exact path="/bowstory" element={<BowStory />} />
+            <Route
+              exact
+              path="/bowstory"
+              element={
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%"
+                  }}
+                >
+                  <ResizeComponent>
+                    <BowStory />
+                  </ResizeComponent>
+                </div>
+              }
+            />
           </Routes>
           {/* <Route exact path="/timeline">
             <TimelineView />
