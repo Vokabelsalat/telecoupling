@@ -12,9 +12,12 @@ const contents = [
     flyTo: {
       // bearing: 90,
       // pitch: 40
-      center: [16.3727683154214, 48.20050021403356],
-      zoom: 4,
+      center: [0.0, 0.0],
+      zoom: 1,
       speed: 1.0
+    },
+    mapLayer: {
+      type: "orchestras"
     }
   },
   {
@@ -56,8 +59,11 @@ const contents = [
       // bearing: 90,
       // pitch: 40
       center: [16.3727683154214, 48.20050021403356],
-      zoom: 15,
+      zoom: 18,
       speed: 0.8
+    },
+    mapLayer: {
+      type: "orchestras"
     },
     width: "100%"
   },
@@ -94,7 +100,6 @@ const contents = [
         </>
       )
     },
-    visualization: {},
     audio: {
       url: "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/30/Mahler_-_Symphony_N°_9_-_I_%28B._Walter%2C_1938%29.ogg/Mahler_-_Symphony_N°_9_-_I_%28B._Walter%2C_1938%29.ogg.mp3#t=00:00:24",
       copyright: (
@@ -129,10 +134,9 @@ const contents = [
     type: "text",
     title: "The Orchestra & It's Instruments",
     text: "",
-    image: {
-      url: "./orchestraScreenshot.png",
-      caption: "",
-      width: "80%"
+    visualization: {
+      type: "orchestra",
+      width: "100%"
     }
   },
   {
@@ -167,6 +171,10 @@ const contents = [
       center: [-47.882778, -15.793889],
       zoom: 3,
       speed: 0.8
+    },
+    mapLayer: {
+      type: "countries",
+      filter: { by: "ISO", values: ["BRA"] }
     }
   },
   {
@@ -190,6 +198,9 @@ const contents = [
       caption:
         "Aerial view of the Amazon Rainforest, near Manaus, the capital of the Brazilian state of Amazonas.",
       width: "60%"
+    },
+    mapLayer: {
+      type: "ecoregions"
     },
     flyTo: {
       // bearing: 90,
@@ -219,6 +230,9 @@ const contents = [
           , via Wikimedia Commons
         </>
       )
+    },
+    mapLayer: {
+      type: "hexagons"
     },
     flyTo: {
       // bearing: 90,

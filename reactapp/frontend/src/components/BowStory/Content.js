@@ -2,6 +2,8 @@ import { padding } from "@mui/system";
 import { forwardRef, useMemo, useRef, useEffect } from "react";
 import ReactAudioPlayer from "react-audio-player";
 import { ImageSource } from "react-map-gl";
+import ResizeComponent from "../ResizeComponent";
+import OrchestraNew from "../OrchestraNew";
 // import { useOnParent } from "./useOnParent";
 
 export const Content = (props) => {
@@ -19,10 +21,30 @@ export const Content = (props) => {
     height,
     width,
     playAudio = false,
-    mobile = false
+    mobile = false,
+    visualization
   } = props;
 
   const audioRef = useRef(null);
+
+  const getVisualization = (vis) => {
+    switch (vis.type) {
+      case "orchestra":
+        return (
+          <OrchestraNew
+            instrumentData={vis.instrumentData}
+            instrumentGroupData={vis.instrumentGroupData}
+            getThreatLevel={vis.getThreatLevel}
+            threatType={vis.threatType}
+            colorBlind={vis.colorBlind}
+            setInstrument={vis.setInstrument}
+            setInstrumentGroup={vis.setInstrumentGroup}
+          />
+        );
+      default:
+        return <></>;
+    }
+  };
 
   useEffect(() => {
     if (audioRef.current != null) {
@@ -361,6 +383,24 @@ export const Content = (props) => {
                 >
                   {audio.copyright}
                 </div>
+              </div>
+            )}
+            {visualization != null && (
+              <div
+                style={{
+                  marginTop: "15px",
+                  width: visualization.width ? visualization.width : "50%",
+                  height: "300px"
+                  /* display: "grid",
+                  gridTemplateColumns: "auto",
+                  gridTemplateRows: "auto auto auto",
+                  gap: "10px",
+                  justifySelf: textAlign */
+                }}
+              >
+                <ResizeComponent>
+                  {getVisualization(visualization)}
+                </ResizeComponent>
               </div>
             )}
           </div>

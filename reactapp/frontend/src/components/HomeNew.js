@@ -20,6 +20,29 @@ import Orchestra from "./Orchestra";
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-markercluster/dist/styles.min.css";
 
+export const returnDummyLink = (speciesObj) => {
+  return speciesObj["Foto dummy"].trim() !== ""
+    ? "fotos/" + speciesObj["Foto dummy"].replace(" ", "")
+    : null;
+};
+
+export const returnImageLink = (speciesObj) => {
+  if (speciesObj["Foto assigment"] !== "") {
+    let splitter = "|";
+    if (speciesObj["Foto assigment"].includes(",")) {
+      splitter = ",";
+    }
+    let photos = speciesObj["Foto assigment"].split(splitter);
+    if (photos.length > 0) {
+      if (speciesObj["Family"] === "Balaenidae") {
+        return "fotos/" + photos[1].trim();
+      }
+      return "fotos/" + photos[0].replace(" ", "");
+    }
+  }
+  return null;
+};
+
 export default function HomeNew(props) {
   const showMap = true;
   const showTimeline = true;
@@ -77,29 +100,6 @@ export default function HomeNew(props) {
   const setTooltip = (text, position) => {
     setTooltipText(text);
     setTooltipPosition(position);
-  };
-
-  const returnDummyLink = (speciesObj) => {
-    return speciesObj["Foto dummy"].trim() !== ""
-      ? "fotos/" + speciesObj["Foto dummy"].replace(" ", "")
-      : null;
-  };
-
-  const returnImageLink = (speciesObj) => {
-    if (speciesObj["Foto assigment"] !== "") {
-      let splitter = "|";
-      if (speciesObj["Foto assigment"].includes(",")) {
-        splitter = ",";
-      }
-      let photos = speciesObj["Foto assigment"].split(splitter);
-      if (photos.length > 0) {
-        if (speciesObj["Family"] === "Balaenidae") {
-          return "fotos/" + photos[1].trim();
-        }
-        return "fotos/" + photos[0].replace(" ", "");
-      }
-    }
-    return null;
   };
 
   const getSpeciesSignThreat = (species, type = null) => {

@@ -2,9 +2,16 @@ import ContentPanel from "./ContentPanel";
 import ContentWrapper from "./ContentWrapper";
 import { Content } from "./Content";
 import ResizeComponent from "../ResizeComponent";
-import StoryMap from "../StoryMap";
+import StoryMap from "../StoryMapCleanUp";
 import contents from "./StoryContents";
 import { useRefDimensions } from "./useRefDimensions";
+import {
+  bgciAssessment,
+  citesAssessment,
+  iucnAssessment
+} from "../../utils/timelineUtils";
+
+import { returnDummyLink, returnImageLink } from "../HomeNew";
 
 import { useEffect, useRef, useState, useMemo, useLayoutEffect } from "react";
 
@@ -18,6 +25,7 @@ export default function BowStory(props) {
   const ref = useRef(null);
 
   const [activeFigure, setActiveFigure] = useState();
+  const [activeMapLayer, setActiveMapLayer] = useState();
 
   const [trigger, setTrigger] = useState(true);
   const [isIntro, setIsIntro] = useState(true);
@@ -31,6 +39,54 @@ export default function BowStory(props) {
 
   const mapRef = useRef(null);
   const wrapperRef = useRef(null);
+
+  const [timeFrame, setTimeFrame] = useState([]);
+  const [threatType, setThreatType] = useState("economically");
+
+  const getSpeciesSignThreat = (species, type = null) => {
+    if (type === null) {
+      type = threatType;
+    }
+
+    const speciesObj = timelineData[species];
+
+    if (speciesObj == null) {
+      return citesAssessment.dataDeficient;
+    }
+
+    if (type === "economically") {
+      let lastElement = [...speciesObj["cites"]]
+        .filter((e) =>
+          timeFrame[1] !== undefined ? e.element.year < timeFrame[1] : true
+        )
+        .pop();
+      if (lastElement) {
+        return lastElement.assessment;
+      } else {
+        return citesAssessment.dataDeficient;
+      }
+    } else {
+      let lastElementIUCN = [...speciesObj["iucn"]]
+        .filter((e) =>
+          timeFrame[1] !== undefined ? e.element.year < timeFrame[1] : true
+        )
+        .pop();
+      if (lastElementIUCN) {
+        return lastElementIUCN.assessment;
+      } else {
+        let lastElementBGCI = [...speciesObj["bgci"]]
+          .filter((e) =>
+            timeFrame[1] !== undefined ? e.element.year < timeFrame[1] : true
+          )
+          .pop();
+        if (lastElementBGCI) {
+          return lastElementBGCI.assessment;
+        } else {
+          return bgciAssessment.dataDeficient;
+        }
+      }
+    }
+  };
 
   function flyToMapPosition(flyTo) {
     if (mapRef.current) {
@@ -105,7 +161,7 @@ export default function BowStory(props) {
     {
       // threshold: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
       threshold: 0,
-      rootMargin: "-33% 0px -43% 0px"
+      rootMargin: "-30% 0px -65% 0px"
       // rootMargin: "0px 0px 0px 0px"
     }
   );
@@ -130,6 +186,14 @@ export default function BowStory(props) {
     }
 
     if (
+      activeFigure !== null &&
+      contents[activeFigure] != null &&
+      contents[activeFigure].mapLayer != null
+    ) {
+      setActiveMapLayer(contents[activeFigure].mapLayer);
+    }
+
+    if (
       activeFigure != null &&
       contents[activeFigure] != null &&
       contents[activeFigure].effect != null
@@ -148,6 +212,325 @@ export default function BowStory(props) {
       flyToMapPosition(contents[activeFigure].flyTo);
     }
   }, [activeFigure]);
+
+  const [instrumentGroupData, setInstrumentGroupData] = useState({});
+  const [instrumentData, setInstrumentData] = useState({});
+  const [imageLinks, setImageLinks] = useState({});
+  const [dummyImageLinks, setDummyImageLinks] = useState({});
+  const [species, setSpecies] = useState({});
+  const [timelineData, setTimelineData] = useState({});
+  const [speciesSignThreats, setSpeciesSignThreats] = useState({});
+  const [domainYears, setDomainYears] = useState({ maxYear: 1, minYear: 2 });
+  const [filteredSpecies, setFilteredSpecies] = useState([]);
+  const [speciesCountries, setSpeciesCountries] = useState({});
+  const [speciesEcos, setSpeciesEcos] = useState({});
+  const [speciesHexas, setSpeciesHexas] = useState({});
+  const [kingdomData, setKingdomData] = useState([]);
+  const [instrument, setInstrument] = useState();
+  const [instrumentGroup, setInstrumentGroup] = useState();
+  const [colorBlind, setColorBlind] = useState(false);
+
+  useEffect(() => {
+    fetch("/generatedOutput/allSpecies.json")
+      .then((res) => res.json())
+      .then(function (speciesData) {
+        speciesData = Object.fromEntries(
+          Object.entries(speciesData).filter(
+            (t) => (t[1].Kingdom ? t[1].Kingdom.trim() !== "" : false)
+            //t[0] === "Dalbergia nigra" || t[0] === "Paubrasilia echinata"
+          )
+          // .slice(0, slice ? 70 : Object.keys(speciesData).length)
+        );
+
+        let tmpImageLinks = {};
+        let tmpDummyImageLinks = {};
+        let tmpSpeciesSignThreats = {};
+        let tmpTimelineData = {};
+        let tmpYears = new Set();
+        let tmpInstrumentGroupData = {};
+        let tmpInstrumentData = {};
+        let tmpFilteredSpecies = [];
+        let tmpSpeciesCountries = {};
+        let tmpSpeciesEcos = {};
+        let tmpSpeciesHexas = {};
+        /* let tmpTreeMapData = {
+          Animalia: { name: "Animalia", children:  },
+          Plantae: { name: "Plantae", children: {} }
+        }; */
+
+        let kingdoms = { Animalia: [], Plantae: [] };
+        let families = {};
+        let genera = {};
+        let speciesTreeMapData = {};
+
+        for (const spec of Object.keys(speciesData)) {
+          let instrumentGroupHit = true;
+          const speciesObj = speciesData[spec];
+
+          let family = speciesObj.Family.trim();
+          let genus = speciesObj.Genus.trim();
+          let species = speciesObj.Species.trim();
+          let genusSpecies = `${genus.trim()} ${species.trim()}`;
+
+          kingdoms[speciesObj.Kingdom].push(family);
+          if (families.hasOwnProperty(family)) {
+            families[family].push(genus);
+          } else {
+            families[family] = [genus];
+          }
+
+          if (genera.hasOwnProperty(genus)) {
+            genera[genus].push(genusSpecies);
+          } else {
+            genera[genus] = [genusSpecies];
+          }
+
+          tmpImageLinks[spec] = returnImageLink(speciesObj);
+          tmpDummyImageLinks[spec] = returnDummyLink(speciesObj);
+
+          speciesTreeMapData[genusSpecies] = tmpImageLinks[spec]
+            ? tmpImageLinks[spec]
+            : tmpDummyImageLinks[spec];
+
+          for (const mat of speciesObj.origMat) {
+            if (tmpInstrumentGroupData[mat.Instrument_groups]) {
+              tmpInstrumentGroupData[mat.Instrument_groups].push(
+                mat.Instruments
+              );
+            } else {
+              tmpInstrumentGroupData[mat.Instrument_groups] = [mat.Instruments];
+            }
+
+            if (tmpInstrumentData[mat.Instruments]) {
+              tmpInstrumentData[mat.Instruments].push(spec);
+            } else {
+              tmpInstrumentData[mat.Instruments] = [spec];
+            }
+          }
+
+          let tmpElement = {
+            iucn: [],
+            cites: [],
+            bgci: [],
+            populationTrend: speciesObj.populationTrend,
+            isAnimal: speciesObj.Kingdom === "Animalia" ? true : false
+          };
+
+          if (speciesObj.timeIUCN.length > 0) {
+            let assessmentPerYear = {};
+            for (let element of speciesObj.timeIUCN) {
+              tmpYears.add(parseInt(element.year));
+              let year = element.year.toString();
+              let assessment = iucnAssessment.get(element.code);
+
+              if (assessmentPerYear.hasOwnProperty(year)) {
+                if (assessment.sort > assessmentPerYear[year].assessment.sort) {
+                  assessmentPerYear[year] = {
+                    assessment: assessment,
+                    element: element
+                  };
+                }
+              } else {
+                assessmentPerYear[year] = {
+                  assessment: assessment,
+                  element: element
+                };
+              }
+            }
+
+            tmpElement["iucn"] = Object.values(assessmentPerYear).sort(
+              (a, b) => {
+                return parseInt(a.element.year) - parseInt(b.element.year);
+              }
+            );
+          }
+
+          if (speciesObj.timeThreat.length > 0) {
+            let assessmentPerYear = {};
+            for (let element of speciesObj.timeThreat) {
+              let year = element.year.toString();
+              tmpYears.add(parseInt(element.year));
+              let assessment = bgciAssessment.get(element.danger);
+
+              if (assessmentPerYear.hasOwnProperty(year)) {
+                if (assessment.sort > assessmentPerYear[year].assessment.sort) {
+                  assessmentPerYear[year] = {
+                    assessment: assessment,
+                    element: element
+                  };
+                }
+              } else {
+                assessmentPerYear[year] = {
+                  assessment: assessment,
+                  element: element
+                };
+              }
+            }
+
+            tmpElement["bgci"] = Object.values(assessmentPerYear).sort(
+              (a, b) => {
+                return parseInt(a.element.year) - parseInt(b.element.year);
+              }
+            );
+          }
+
+          if (speciesObj.timeListing.length > 0) {
+            let assessmentPerYear = {};
+            for (let element of speciesObj.timeListing) {
+              let year = element.year.toString();
+              tmpYears.add(parseInt(element.year));
+              let assessment = citesAssessment.get(element.appendix);
+
+              if (assessmentPerYear.hasOwnProperty(year)) {
+                if (assessment.sort > assessmentPerYear[year].assessment.sort) {
+                  assessmentPerYear[year] = {
+                    assessment: assessment,
+                    element: element
+                  };
+                }
+              } else {
+                assessmentPerYear[year] = {
+                  assessment: assessment,
+                  element: element
+                };
+              }
+            }
+
+            tmpElement["cites"] = Object.values(assessmentPerYear).sort(
+              (a, b) => {
+                return parseInt(a.element.year) - parseInt(b.element.year);
+              }
+            );
+          }
+
+          tmpTimelineData[spec] = tmpElement;
+          tmpSpeciesSignThreats[spec] = {
+            cites: [...tmpElement["cites"]].pop(),
+            threats: [...tmpElement["bgci"]].pop(),
+            iucn: [...tmpElement["iucn"]].pop()
+          };
+
+          tmpFilteredSpecies.push(spec);
+
+          let tmpCountries = [];
+          if (speciesObj.hasOwnProperty("treeCountriesShort")) {
+            tmpCountries = speciesObj["treeCountriesShort"];
+          } else {
+            if (this.props.data[species].hasOwnProperty("iucnCountriesShort")) {
+              tmpCountries = speciesObj["iucnCountriesShort"];
+            } else {
+              if (this.props.data[species].hasOwnProperty("allCountries")) {
+                tmpCountries = speciesObj["allCountries"];
+              }
+            }
+          }
+
+          tmpSpeciesCountries[genusSpecies] = tmpCountries;
+          tmpSpeciesEcos[genusSpecies] = speciesObj.ecoregions;
+          tmpSpeciesHexas[genusSpecies] = speciesObj.hexagons;
+        }
+
+        for (const group of Object.keys(tmpInstrumentGroupData)) {
+          tmpInstrumentGroupData[group] = [
+            ...new Set(tmpInstrumentGroupData[group])
+          ];
+        }
+
+        for (const instrument of Object.keys(tmpInstrumentData)) {
+          tmpInstrumentData[instrument] = [
+            ...new Set(tmpInstrumentData[instrument])
+          ];
+        }
+
+        let tmpDomainYears = {
+          maxYear: Math.max(...tmpYears) + 1,
+          minYear: Math.min(...tmpYears) - 1
+        };
+
+        setImageLinks(tmpImageLinks);
+        setDummyImageLinks(tmpDummyImageLinks);
+        setSpeciesSignThreats(tmpSpeciesSignThreats);
+        setTimelineData(tmpTimelineData);
+        setSpecies(speciesData);
+        setDomainYears(tmpDomainYears);
+        setInstrumentData(tmpInstrumentData);
+        setInstrumentGroupData(tmpInstrumentGroupData);
+        setFilteredSpecies(tmpFilteredSpecies);
+        setSpeciesCountries(tmpSpeciesCountries);
+        setSpeciesEcos(tmpSpeciesEcos);
+        setSpeciesHexas(tmpSpeciesHexas);
+
+        /* console.log(kingdoms);
+        console.log(families);
+        console.log(genera);
+        console.log(speciesTreeMapData); */
+
+        let tmpKingdomData = [];
+        for (let kingdom of Object.keys(kingdoms)) {
+          let familiesInKingdom = [...new Set(kingdoms[kingdom])];
+          let kingdomValue = 0;
+
+          let familyData = [];
+          for (let family of familiesInKingdom) {
+            let genusInFamily = [...new Set(families[family])];
+
+            let genusData = [];
+            let familyValue = 0;
+            for (let genus of genusInFamily) {
+              let speciesInGenus = genera[genus];
+
+              let speciesData = [];
+              let speciesCount = {};
+              let genusValue = 0;
+              for (let genusSpecies of speciesInGenus) {
+                if (speciesCount.hasOwnProperty(genusSpecies)) {
+                  speciesCount[genusSpecies] = speciesCount[genusSpecies] + 1;
+                } else {
+                  speciesCount[genusSpecies] = 1;
+                }
+              }
+
+              for (let genusSpecies of [...new Set(speciesInGenus)]) {
+                speciesData.push({
+                  name: genusSpecies,
+                  image: speciesTreeMapData[genusSpecies],
+                  value: speciesCount[genusSpecies],
+                  filterDepth: 4
+                });
+                //genusValue = genusValue + speciesCount[genusSpecies];
+              }
+
+              genusData.push({
+                name: genus,
+                children: speciesData,
+                filterDepth: 3
+                //value: genusValue
+              });
+
+              familyValue = familyValue + genusValue;
+            }
+            familyData.push({
+              name: family,
+              children: genusData,
+              filterDepth: 2
+              //value: familyValue
+            });
+            kingdomValue = kingdomValue + familyValue;
+          }
+          tmpKingdomData.push({
+            name: kingdom,
+            children: familyData,
+            /* value: kingdomValue, */
+            filterDepth: 1
+          });
+        }
+
+        setKingdomData(tmpKingdomData);
+      })
+      .catch((error) => {
+        console.log(`Couldn't find file allSpecies.json`, error);
+      });
+  }, []);
 
   return (
     <div
@@ -168,25 +551,26 @@ export default function BowStory(props) {
                     ([key]) => key === "Paubrasilia echinata"
                   )
                 )} */
-            // speciesCountries={visibleSpeciesCountries}
+            speciesCountries={speciesCountries}
             /* speciesEcos={Object.fromEntries(
                   Object.entries(speciesEcos).filter(
                     ([key]) => key === "Paubrasilia echinata"
                   )
                 )} */
-            // speciesEcos={speciesEcos}
+            speciesEcos={speciesEcos}
             /* speciesHexas={Object.fromEntries(
                   Object.entries(speciesHexas).filter(
                     ([key]) => key === "Paubrasilia echinata"
                   )
                 )} */
-            // speciesHexas={speciesHexas}
+            speciesHexas={speciesHexas}
             // colorBlind={colorBlind}
-            // getSpeciesThreatLevel={getSpeciesSignThreat}
+            getSpeciesThreatLevel={getSpeciesSignThreat}
             // threatType={threatType}
             // setSelectedCountry={setSelectedCountry}
             ref={mapRef}
             mode={mapMode}
+            activeMapLayer={activeMapLayer}
           />
         </ResizeComponent>
         <div
@@ -283,6 +667,20 @@ export default function BowStory(props) {
                   alignment={alignment}
                   playAudio={enableAutoPlay && activeFigure === index}
                   mobile={mobile}
+                  visualization={
+                    content.visualization != null
+                      ? {
+                          ...content.visualization,
+                          instrumentData: instrumentData,
+                          instrumentGroupData: instrumentGroupData,
+                          getThreatLevel: getSpeciesSignThreat,
+                          threatType: threatType,
+                          colorBlind: colorBlind,
+                          setInstrument: setInstrument,
+                          setInstrumentGroup: setInstrumentGroup
+                        }
+                      : null
+                  }
                 />
               </ContentWrapper>
             );
