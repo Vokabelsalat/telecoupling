@@ -19,6 +19,7 @@ const StoryMap = forwardRef((props, ref) => {
     speciesEcos = {},
     speciesHexas = {},
     colorBlind = false,
+    showCountries = true,
     getSpeciesThreatLevel = () => {
       return "DD";
     },
@@ -688,7 +689,7 @@ const StoryMap = forwardRef((props, ref) => {
           />
         </Source>
 
-        {orchestraHeatMap && orchestraHeatMapMax && (
+        {orchestraHeatMap && orchestraHeatMapMax && showCountries && (
           <Source
             id="countriesOrchestraSource"
             type="geojson"

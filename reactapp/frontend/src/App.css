@@ -145,10 +145,6 @@ thead > tr > td {
   width: 25%;
 }
 
-/* img {
-  width: 300px;
-} */
-
 .leaflet-control-container {
   height: 100%;
 }
@@ -355,6 +351,10 @@ thead > tr > td {
 
 svg {
   vertical-align: top;
+}
+
+img {
+  width: auto;
 }
 
 .timelineHeader {
@@ -928,4 +928,10 @@ a:any-link {
     top: 25px;
     opacity: 0;
   }
+}
+
+.overlay > img {
+  width: auto;
+  height: 100%;
+  cursor: zoom-out;
 }

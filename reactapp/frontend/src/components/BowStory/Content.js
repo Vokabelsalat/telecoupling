@@ -4,6 +4,8 @@ import ReactAudioPlayer from "react-audio-player";
 import { ImageSource } from "react-map-gl";
 import ResizeComponent from "../ResizeComponent";
 import OrchestraNew from "../OrchestraNew";
+import TimelineViewNew from "../TimelineViewNew";
+import OverlayLink from "../Overlay/OverlayLink";
 // import { useOnParent } from "./useOnParent";
 
 export const Content = (props) => {
@@ -22,7 +24,8 @@ export const Content = (props) => {
     width,
     playAudio = false,
     mobile = false,
-    visualization
+    visualization,
+    setOverlayContent
   } = props;
 
   const audioRef = useRef(null);
@@ -39,6 +42,19 @@ export const Content = (props) => {
             colorBlind={vis.colorBlind}
             setInstrument={vis.setInstrument}
             setInstrumentGroup={vis.setInstrumentGroup}
+          />
+        );
+      case "timeline":
+        return (
+          <TimelineViewNew
+            data={vis.speciesTimelineData}
+            getTreeThreatLevel={vis.getThreatLevel}
+            imageLinks={vis.imageLinks}
+            dummyImageLinks={vis.dummyImageLinks}
+            setTimeFrame={vis.setTimeFrame}
+            timeFrame={vis.timeFrame}
+            colorBlind={vis.colorBlind}
+            domainYears={vis.domainYears}
           />
         );
       default:
@@ -175,15 +191,15 @@ export const Content = (props) => {
             {image !== undefined && (
               <div
                 className="vignette-radial"
-                style={{
+                /* style={{
                   display: "flex",
                   flexDirection: "column",
                   height: "100%",
-                  alignItems: "center",
-                  backgroundImage: `url('${image.url}')`,
-                  backgroundSize: "cover"
-                }}
-              ></div>
+                  alignItems: "center"
+                }} */
+              >
+                <img style={{ height: "45vh" }} src={`${image.url}`} />
+              </div>
             )}
             <div>
               <div
@@ -218,7 +234,7 @@ export const Content = (props) => {
               <div
                 style={{
                   marginTop: "15px",
-                  width: image.width ? image.width : "50%",
+                  width: audio.width ? audio.width : "50%",
                   display: "grid",
                   gridTemplateColumns: "auto",
                   gridTemplateRows: "auto auto auto",
@@ -289,7 +305,9 @@ export const Content = (props) => {
                   justifySelf: textAlign
                 }}
               >
-                <img style={{ width: "100%" }} src={image.url}></img>
+                <OverlayLink setOverlayContent={setOverlayContent}>
+                  <img style={{ width: "100%" }} src={image.url}></img>
+                </OverlayLink>
                 <div style={{ width: "100%", fontSize: "large" }}>
                   {image.caption}
                 </div>
@@ -320,16 +338,18 @@ export const Content = (props) => {
                 {imageArray.map((image, index) => {
                   return (
                     <>
-                      <img
-                        style={{
-                          gridColumn: index + 1,
-                          gridRow: 1,
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover"
-                        }}
-                        src={image.url}
-                      ></img>
+                      <OverlayLink setOverlayContent={setOverlayContent}>
+                        <img
+                          style={{
+                            gridColumn: index + 1,
+                            gridRow: 1,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover"
+                          }}
+                          src={image.url}
+                        ></img>
+                      </OverlayLink>
                       <div
                         style={{
                           gridColumn: index + 1,

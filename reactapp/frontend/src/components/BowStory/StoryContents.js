@@ -18,7 +18,8 @@ const contents = [
     },
     mapLayer: {
       type: "orchestras"
-    }
+    },
+    showCountries: true
   },
   {
     type: "text",
@@ -65,6 +66,7 @@ const contents = [
     mapLayer: {
       type: "orchestras"
     },
+    showCountries: false,
     width: "100%"
   },
   {
@@ -128,6 +130,10 @@ const contents = [
       zoom: 19,
       speed: 0.4
     },
+    mapLayer: {
+      type: "orchestras"
+    },
+    showCountries: false,
     width: "100%"
   },
   {
@@ -137,6 +143,16 @@ const contents = [
     visualization: {
       type: "orchestra",
       width: "100%"
+    },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [0, 0],
+      zoom: 1,
+      speed: 0.8
+    },
+    mapLayer: {
+      type: "countries"
     }
   },
   {
@@ -173,8 +189,7 @@ const contents = [
       speed: 0.8
     },
     mapLayer: {
-      type: "countries",
-      filter: { by: "ISO", values: ["BRA"] }
+      type: "countries"
     }
   },
   {
@@ -231,15 +246,17 @@ const contents = [
         </>
       )
     },
-    mapLayer: {
-      type: "hexagons"
-    },
     flyTo: {
       // bearing: 90,
       // pitch: 40
-      center: [-0.08533793, 51.50438536],
-      zoom: 13,
-      speed: 0.6
+      center: [-34.38824229932922, -6.515708961589885],
+      zoom: 8,
+      speed: 0.8
+    },
+    mapLayer: {
+      type: "hexagons",
+      mapStyle: "satellite",
+      polygonFill: false
     }
   },
   {
@@ -275,10 +292,38 @@ const contents = [
     flyTo: {
       // bearing: 90,
       // pitch: 40
-      center: [-0.08533793, 51.50438536],
-      zoom: 13,
-      speed: 0.6
-    }
+      center: [-44.15647211862972, -24.502996210127023],
+      zoom: 8,
+      speed: 0.1
+    },
+    mapLayer: {
+      type: "hexagons",
+      mapStyle: "satellite",
+      polygonFill: false
+    },
+    speciesFilter: ["Paubrasilia echinata"]
+  },
+  {
+    type: "text",
+    title: "Cites",
+    text: "",
+    visualization: {
+      type: "timeline",
+      width: "100%"
+    },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [0, 0],
+      zoom: 1,
+      speed: 0.8
+    },
+    mapLayer: {
+      type: "hexagons",
+      mapStyle: "satellite",
+      polygonFill: false
+    },
+    speciesFilter: ["Paubrasilia echinata"]
   },
   {
     type: "text",

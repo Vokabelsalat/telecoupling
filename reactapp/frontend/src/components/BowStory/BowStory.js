@@ -18,6 +18,7 @@ import { useEffect, useRef, useState, useMemo, useLayoutEffect } from "react";
 import { useIntersection } from "./useIntersection";
 import { active } from "d3";
 import { padding } from "@mui/system";
+import Overlay from "../Overlay/Overlay";
 
 export default function BowStory(props) {
   const { width, height } = props;
@@ -36,12 +37,15 @@ export default function BowStory(props) {
   const alignment = "centerBlockText"; // "center" | "left" | "right" | "centerBlockText"
   const [effect, setEffect] = useState("");
   const [mapMode, setMapMode] = useState("light");
+  const [showCountries, setShowCountries] = useState(true);
 
   const mapRef = useRef(null);
   const wrapperRef = useRef(null);
 
   const [timeFrame, setTimeFrame] = useState([]);
   const [threatType, setThreatType] = useState("economically");
+
+  const [overlayContent, setOverlayContent] = useState(null);
 
   const getSpeciesSignThreat = (species, type = null) => {
     if (type === null) {
@@ -185,12 +189,16 @@ export default function BowStory(props) {
       }
     }
 
+    if (activeFigure !== null && contents[activeFigure] != null) {
+      setActiveMapLayer(contents[activeFigure].mapLayer ?? null);
+    }
+
     if (
       activeFigure !== null &&
       contents[activeFigure] != null &&
-      contents[activeFigure].mapLayer != null
+      contents[activeFigure].showCountries != null
     ) {
-      setActiveMapLayer(contents[activeFigure].mapLayer);
+      setShowCountries(contents[activeFigure].showCountries);
     }
 
     if (
@@ -202,6 +210,26 @@ export default function BowStory(props) {
     } else {
       setEffect("");
       setMapMode("light");
+    }
+
+    if (
+      activeFigure != null &&
+      contents[activeFigure] != null &&
+      contents[activeFigure].speciesFilter != null
+    ) {
+      setSpeciesFilter(contents[activeFigure].speciesFilter);
+    } else {
+      setSpeciesFilter([]);
+    }
+
+    if (
+      activeFigure != null &&
+      contents[activeFigure] != null &&
+      contents[activeFigure].countriesFilter != null
+    ) {
+      setCountriesFilter(contents[activeFigure].countriesFilter);
+    } else {
+      setCountriesFilter([]);
     }
 
     if (
@@ -532,127 +560,264 @@ export default function BowStory(props) {
       });
   }, []);
 
+  function arrayIntersection(a, b) {
+    const setA = new Set(a);
+    return b.filter((value) => setA.has(value));
+  }
+
+  const [speciesFilter, setSpeciesFilter] = useState([]);
+  const [hexaFilter, setHexaFilter] = useState([]);
+  const [countriesFilter, setCountriesFilter] = useState([]);
+
+  const filteredSpeciesCountries = useMemo(() => {
+    return Object.fromEntries(
+      Object.entries(speciesCountries).filter(([key]) => {
+        let hit = true;
+
+        if (speciesFilter.length > 0) {
+          hit = speciesFilter.includes(key);
+        }
+
+        if (hit && countriesFilter.length > 0) {
+          hit =
+            arrayIntersection(speciesCountries[key], countriesFilter).length >
+            0;
+        }
+
+        if (hit && instrumentGroup != null) {
+          let filteredInstruments = instrumentGroupData[instrumentGroup];
+
+          if (hit && instrument != null) {
+            filteredInstruments = [instrument];
+          }
+
+          const testSpecies = [];
+
+          filteredInstruments.forEach((inst) => {
+            if (instrumentData[inst].includes(key)) {
+              testSpecies.push(inst);
+            }
+          });
+
+          hit = testSpecies.length > 0;
+        }
+        return hit;
+      })
+    );
+  }, [
+    speciesCountries,
+    speciesFilter,
+    countriesFilter,
+    instrument,
+    instrumentGroup,
+    instrumentData,
+    instrumentGroupData
+  ]);
+
+  const filteredSpeciesEcos = useMemo(() => {
+    return Object.fromEntries(
+      Object.entries(speciesEcos).filter(([key]) => {
+        let hit = true;
+
+        if (speciesFilter.length > 0) {
+          hit = speciesFilter.includes(key);
+        }
+
+        return hit;
+      })
+    );
+  }, [speciesEcos, speciesFilter]);
+
+  console.log("timeline", timelineData);
+
+  const filteredSpeciesTimelineData = useMemo(() => {
+    return Object.fromEntries(
+      Object.entries(timelineData).filter(([key]) => {
+        let hit = true;
+
+        if (speciesFilter.length > 0) {
+          hit = speciesFilter.includes(key);
+        }
+
+        return hit;
+      })
+    );
+  }, [speciesFilter, timelineData]);
+
+  const filteredSpeciesHexas = useMemo(() => {
+    return Object.fromEntries(
+      Object.entries(speciesHexas).filter(([key]) => {
+        let hit = true;
+
+        if (speciesFilter.length > 0) {
+          hit = speciesFilter.includes(key);
+        }
+
+        /*   if (hit && hexaFilter.length > 0) {
+          hit = arrayIntersection(speciesHexas[key], hexaFilter).length > 0;
+        }
+
+        if (hit && instrumentGroup != null) {
+          let filteredInstruments = instrumentGroupData[instrumentGroup];
+
+          if (hit && instrument != null) {
+            filteredInstruments = [instrument];
+          }
+
+          const testSpecies = [];
+
+          filteredInstruments.forEach((inst) => {
+            if (instrumentData[inst].includes(key)) {
+              testSpecies.push(inst);
+            }
+          });
+
+          hit = testSpecies.length > 0;
+        } */
+        return hit;
+      })
+    );
+  }, [
+    speciesHexas,
+    speciesFilter,
+    hexaFilter,
+    instrument,
+    instrumentGroup,
+    instrumentData,
+    instrumentGroupData
+  ]);
+
+  /*  const filteredSpeciesHexas = useMemo(() => {
+    return Object.fromEntries(
+      Object.entries(speciesHexas).filter(([key]) =>
+        speciesFilter.includes(key)
+      )
+    );
+  }, [speciesHexas, speciesFilter]); */
+
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "grid",
-        gridTemplateRows: "repeat(auto-fit, minmax(100px, 1fr))",
-        gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))"
-      }}
-      ref={wrapperRef}
-    >
-      <div style={{ width: "100%", height: "100%", position: "relative" }}>
-        <ResizeComponent>
-          <StoryMap
-            /* speciesCountries={Object.fromEntries(
+    <>
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "grid",
+          gridTemplateRows: "repeat(auto-fit, minmax(100px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))"
+        }}
+        ref={wrapperRef}
+      >
+        <div style={{ width: "100%", height: "100%", position: "relative" }}>
+          <ResizeComponent>
+            <StoryMap
+              /* speciesCountries={Object.fromEntries(
                   Object.entries(speciesCountries).filter(
                     ([key]) => key === "Paubrasilia echinata"
                   )
                 )} */
-            speciesCountries={speciesCountries}
-            /* speciesEcos={Object.fromEntries(
+              speciesCountries={filteredSpeciesCountries}
+              /* speciesEcos={Object.fromEntries(
                   Object.entries(speciesEcos).filter(
                     ([key]) => key === "Paubrasilia echinata"
                   )
                 )} */
-            speciesEcos={speciesEcos}
-            /* speciesHexas={Object.fromEntries(
+              speciesEcos={filteredSpeciesEcos}
+              /* speciesHexas={Object.fromEntries(
                   Object.entries(speciesHexas).filter(
                     ([key]) => key === "Paubrasilia echinata"
                   )
                 )} */
-            speciesHexas={speciesHexas}
-            // colorBlind={colorBlind}
-            getSpeciesThreatLevel={getSpeciesSignThreat}
-            // threatType={threatType}
-            // setSelectedCountry={setSelectedCountry}
-            ref={mapRef}
-            mode={mapMode}
-            activeMapLayer={activeMapLayer}
-          />
-        </ResizeComponent>
-        <div
-          style={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-            top: 0,
-            left: 0,
-            display: isIntro ? "flex" : "none",
-            justifyContent: "center",
-            alignItems: "center"
-          }}
-        >
+              speciesHexas={filteredSpeciesHexas}
+              // colorBlind={colorBlind}
+              getSpeciesThreatLevel={getSpeciesSignThreat}
+              // threatType={threatType}
+              // setSelectedCountry={setSelectedCountry}
+              ref={mapRef}
+              mode={mapMode}
+              activeMapLayer={activeMapLayer}
+              showCountries={showCountries}
+            />
+          </ResizeComponent>
           <div
             style={{
-              backgroundColor: "white",
-              boxShadow: "5px 10px 8px #888888",
-              padding: "15px",
-              borderRadius: "5px"
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              top: 0,
+              left: 0,
+              display: isIntro ? "flex" : "none",
+              justifyContent: "center",
+              alignItems: "center"
             }}
           >
             <div
               style={{
-                display: "grid",
-                gap: "5px",
-                gridTemplateColumns: "auto auto"
+                backgroundColor: "white",
+                boxShadow: "5px 10px 8px #888888",
+                padding: "15px",
+                borderRadius: "5px"
               }}
             >
               <div
                 style={{
-                  gridColumn: "span 2"
-                  /* fontSize: "x-large",
-                  fontWeight: "bold",
-                  marginBottom: "15px" */
+                  display: "grid",
+                  gap: "5px",
+                  gridTemplateColumns: "auto auto"
                 }}
               >
-                <h3>Welcome to the Story of Stringed Instrument Bows!</h3>
-              </div>
-              <div style={{ gridColumn: "span 2" }}>
-                For the full immersive experience please enable:
-              </div>
-              <label
-                style={{ gridColumn: "span 2" }}
-                class="checkMarkContainer"
-              >
-                <div style={{ gridColumn: "1" }}>
-                  &#x266A; Automatic Replay of Audios & Videos
-                </div>
-                <input
-                  style={{ gridColumn: "2" }}
-                  type="checkbox"
-                  checked={enableAutoPlay ? "checked" : ""}
-                  onChange={(event) => {
-                    setEnableAutoPlay(event.target.checked);
+                <div
+                  style={{
+                    gridColumn: "span 2"
+                    /* fontSize: "x-large",
+                  fontWeight: "bold",
+                  marginBottom: "15px" */
                   }}
-                />
-                <span style={{ gridColumn: "2" }} class="checkmark"></span>
-              </label>
+                >
+                  <h3>Welcome to the Story of Stringed Instrument Bows!</h3>
+                </div>
+                <div style={{ gridColumn: "span 2" }}>
+                  For the full immersive experience please enable:
+                </div>
+                <label
+                  style={{ gridColumn: "span 2" }}
+                  class="checkMarkContainer"
+                >
+                  <div style={{ gridColumn: "1" }}>
+                    &#x266A; Automatic Replay of Audios & Videos
+                  </div>
+                  <input
+                    style={{ gridColumn: "2" }}
+                    type="checkbox"
+                    checked={enableAutoPlay ? "checked" : ""}
+                    onChange={(event) => {
+                      setEnableAutoPlay(event.target.checked);
+                    }}
+                  />
+                  <span style={{ gridColumn: "2" }} class="checkmark"></span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div style={{ width: "100%", height: "100%", position: "relative" }}>
-        <ContentPanel className={`contentPanel ${effect}`} ref={ref}>
-          {contents.map((content, index) => {
-            return (
-              <ContentWrapper
-                id={index}
-                key={`content${index}`}
-                style={{
-                  opacity: activeFigure === index ? 1.0 : 0.3,
-                  height: ["storyTitle", "fullSizeQuote", "end"].includes(
-                    content.type
-                  )
-                    ? mobile
-                      ? "45vh"
-                      : "100vh"
-                    : null
-                }}
-              >
-                {/* <div
+        <div style={{ width: "100%", height: "100%", position: "relative" }}>
+          <ContentPanel className={`contentPanel ${effect}`} ref={ref}>
+            {contents.map((content, index) => {
+              return (
+                <ContentWrapper
+                  id={index}
+                  key={`content${index}`}
+                  style={{
+                    opacity: activeFigure === index ? 1.0 : 0.3,
+                    height: ["storyTitle", "fullSizeQuote", "end"].includes(
+                      content.type
+                    )
+                      ? mobile
+                        ? "45vh"
+                        : "100vh"
+                      : null
+                  }}
+                >
+                  {/* <div
                 style={{
                   height: "600px",
                   width: "100%",
@@ -662,34 +827,50 @@ export default function BowStory(props) {
               >
                 {index}
               </div> */}
-                <Content
-                  {...content}
-                  alignment={alignment}
-                  playAudio={enableAutoPlay && activeFigure === index}
-                  mobile={mobile}
-                  visualization={
-                    content.visualization != null
-                      ? {
-                          ...content.visualization,
-                          instrumentData: instrumentData,
-                          instrumentGroupData: instrumentGroupData,
-                          getThreatLevel: getSpeciesSignThreat,
-                          threatType: threatType,
-                          colorBlind: colorBlind,
-                          setInstrument: setInstrument,
-                          setInstrumentGroup: setInstrumentGroup
-                        }
-                      : null
-                  }
-                />
-              </ContentWrapper>
-            );
-          })}
-          <ContentWrapper>
-            <Content type={"restart"} height={"25vh"} alignment={alignment} />
-          </ContentWrapper>
-        </ContentPanel>
+                  <Content
+                    {...content}
+                    alignment={alignment}
+                    playAudio={enableAutoPlay && activeFigure === index}
+                    mobile={mobile}
+                    setOverlayContent={setOverlayContent}
+                    visualization={
+                      content.visualization != null
+                        ? {
+                            ...content.visualization,
+                            instrumentData: instrumentData,
+                            instrumentGroupData: instrumentGroupData,
+                            getThreatLevel: getSpeciesSignThreat,
+                            threatType: threatType,
+                            colorBlind: colorBlind,
+                            setInstrument: setInstrument,
+                            setInstrumentGroup: setInstrumentGroup,
+                            speciesTimelineData: filteredSpeciesTimelineData,
+                            imageLinks: imageLinks,
+                            dummyImageLinks: dummyImageLinks,
+                            setTimeFrame: setTimeFrame,
+                            timeFrame: timeFrame,
+                            domainYears: domainYears
+                          }
+                        : null
+                    }
+                  />
+                </ContentWrapper>
+              );
+            })}
+            <ContentWrapper>
+              <Content type={"restart"} height={"25vh"} alignment={alignment} />
+            </ContentWrapper>
+          </ContentPanel>
+        </div>
       </div>
-    </div>
+      <Overlay
+        open={overlayContent !== null}
+        onClose={() => {
+          setOverlayContent(null);
+        }}
+      >
+        {overlayContent}
+      </Overlay>
+    </>
   );
 }
