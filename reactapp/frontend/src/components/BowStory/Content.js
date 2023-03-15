@@ -11,6 +11,7 @@ import OverlayLink from "../Overlay/OverlayLink";
 export const Content = (props) => {
   const {
     title,
+    subtitle,
     authors,
     type,
     text,
@@ -127,6 +128,11 @@ export const Content = (props) => {
             >
               {title}
             </div>
+            {subtitle !== undefined && (
+              <div style={{ fontFamily: titleSecondary, fontSize: "larger" }}>
+                {subtitle}
+              </div>
+            )}
             {authors !== undefined && (
               <div style={{ fontFamily: titleSecondary, fontSize: "larger" }}>
                 {authors}

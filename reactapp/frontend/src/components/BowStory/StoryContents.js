@@ -2,13 +2,21 @@ const contents = [
   {
     type: "storyTitle",
     title: (
-      <div>
-        The Story of
-        <br />
-        Stringed Instrument Bows
-      </div>
+      <>
+        <div>
+          The Story of
+          <br />
+          Stringed Instrument Bows
+        </div>
+      </>
     ),
     authors: <>S. Lichtenberg & J.Kusnick</>,
+    subtitle: (
+      <>
+        The Threatened Cultural and Natural Heritage <br />
+        Call for Pathways to a More Sustainable Future
+      </>
+    ),
     flyTo: {
       // bearing: 90,
       // pitch: 40
@@ -138,8 +146,8 @@ const contents = [
   },
   {
     type: "text",
-    title: "The Orchestra & It's Instruments",
-    text: "",
+    title: "The Orchestra Ecosystem",
+    text: "Each musical instrument group with all its musical instruments and instrument parts is made of a potential number of different species specifically indicated in the pie charts that also show how many of them are to which extent trade regulated through CITES. eel invited to explore the orchestra by selecting and diving into the different musical instrument groups to discover the musical instruments belonging to the group.",
     visualization: {
       type: "orchestra",
       width: "100%"
@@ -158,7 +166,7 @@ const contents = [
   {
     type: "text",
     title: "Stringed Instrument Bows",
-    text: "In music, a bow is a tensioned stick which has hair (usually horse-tail hair) coated in rosin (to facilitate friction) affixed to it. It is moved across some part (generally some type of strings) of a musical instrument to cause vibration, which the instrument emits as sound. The vast majority of bows are used with string instruments, such as the violin, viola, cello, and bass, although some bows are used with musical saws and other bowed idiophones.",
+    text: "But more than that an orchestra is an ecosystem as it is also connected to huge diversity of ecosystems all around the world as every single instrument part of each musical instrument made from natural materials is connected to the provenance, where these materials come from. Originating from species around the world that themselves form part of different unique ecosystems.",
     image: {
       url: "https://upload.wikimedia.org/wikipedia/commons/7/78/Violin_Bow_MET_256002.jpg",
       caption: "Violin Bow, French (MET, 1991.28.4)",
@@ -227,8 +235,8 @@ const contents = [
   },
   {
     type: "text",
-    title: "Mata Atlântica",
-    text: "The emblematic and culturally important brazilwood tree tells a bundle of stories - on one hand a story of social and cultural exploitation and on the other of music and culture. The beauty of its flowers with their sweet smell attracts bees and fascinates people. Brazilwood is an endemic species only found in the Mata Atlântica biome located along the east coast of Brazil. This coastal rainforest counts with an extraordinary species richness, many of these species being endemic while at the same time ⅔ of Brazilians population is living in that same region. As a result of deforestation, land use change and urbanization the Mata Atlântica is decimated to only 7% of its original extent, a highly threatened ecoregion and one of the 36 global biodiversity hotspots.",
+    title: "Mata Atlântica – Area of the Superlatives",
+    text: "Long before the Europeans invaded Brazil the tree had already developed the same preference as human beings, the Brazilian Coast. Today 2/3 of Brazilians populations lives along its coast. The Mata Atlântica is one of the worldwide biodiversity hotspots with an extraordinary species richness and at the same time one of the most threatened and degradaded biomes in the world. It consists of 15 different ecoregions with their characteristic, geographically distinct assemblages of natural communities and species.",
     image: {
       url: "https://upload.wikimedia.org/wikipedia/commons/8/85/Ba%C3%ADa_de_Antonina_vista_da_Serra_do_Mar2.JPG",
       caption: "Antonina Bay as viewed from the Serra do Mar Paranaense.",
@@ -261,17 +269,16 @@ const contents = [
   },
   {
     type: "text",
-    title: <i>Paubrasilia echinata</i>,
+    title: <>Where can this unique tree potentially be found?</>,
     text: (
       <>
-        <i>Paubrasilia echinata</i> is a species of flowering plant in the
-        legume family, Fabaceae, that is endemic to the Atlantic Forest of
-        Brazil. It is a Brazilian timber tree commonly known as Pernambuco wood
-        or brazilwood and is the national tree of Brazil. This plant has a
-        dense, orange-red heartwood that takes a high shine, and it is the
-        premier wood used for making bows for stringed instruments. The wood
-        also yields a historically important red dye called brazilin, which
-        oxidizes to brazilein.
+        Pau-brasil is even more picky and grows naturally only between Rio
+        Grande do Norte and Rio de Janeiro, which means it is endemic to the
+        Mata Atlântica biome. The emblematic and culturally important pau-brasil
+        tree tells a bundle of stories - on one hand a story of social and
+        cultural exploitation and on the other of music and culture. The beauty
+        of its flowers with their sweet smell attracts bees and fascinates
+        people.
       </>
     ),
     width: "70%",
@@ -305,8 +312,20 @@ const contents = [
   },
   {
     type: "text",
-    title: "Cites",
-    text: "",
+    title: "CITES CoP19 Panama, Proposal of Listing Pau-brasil in Appendix I",
+    text: (
+      <>
+        <iframe
+          width="360"
+          height="200"
+          src="https://www.youtube.com/embed/TBIJ0zGiryk?controls=0&amp;start=3727"
+          title="YouTube video player"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      </>
+    ),
     visualization: {
       type: "timeline",
       width: "100%"

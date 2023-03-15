@@ -1065,7 +1065,7 @@ const StoryMap = forwardRef((props, ref) => {
               data={orchestraGeoJson}
               cluster={true}
               clusterMaxZoom={14}
-              clusterRadius={50}
+              clusterRadius={35}
             >
               <Layer
                 {...{
@@ -1075,6 +1075,8 @@ const StoryMap = forwardRef((props, ref) => {
                   filter: ["has", "point_count"],
                   paint: {
                     "circle-color": "purple",
+                    "circle-stroke-width": 1,
+                    "circle-stroke-color": "#fff",
                     "circle-radius": [
                       "step",
                       ["get", "point_count"],
@@ -1234,7 +1236,7 @@ const StoryMap = forwardRef((props, ref) => {
                     hexagonHeatMapMax,
                     polygonFill === true ? "rgba(0,0,255,1)" : "rgba(0,0,0,0)"
                   ],
-                  "fill-outline-color": "rgba(0,0,255,1)"
+                  "fill-outline-color": "rgba(240,240,240,1)"
                 },
                 layout: {
                   visibility: mapMode === "hexagons" ? "visible" : "none"
