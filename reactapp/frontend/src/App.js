@@ -60,10 +60,10 @@ class App extends Component {
             />
             <Route path="/:instrumentGroup" component={HomeWithParams} /> */}
             {/* <Route exact path="/" element={<Home />} /> */}
-            <Route exact path="/" element={<HomeNew />} />
+            {/* <Route exact path="/" element={<HomeNew />} /> */}
             <Route
               exact
-              path="/bowstory"
+              path="/"
               element={
                 <div
                   style={{
