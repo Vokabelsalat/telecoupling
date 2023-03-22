@@ -103,6 +103,17 @@ export default function BowStory(props) {
     }
   }
 
+  function keyDown(event) {
+    var code = event.code;
+    // Alert the key name and key code on keydown
+    //alert(`Key pressed ${name} \r\n Key code value: ${code}`);
+    if (code === "KeyM") {
+      setActiveFigure(activeFigure + 1);
+    } else if (code === "KeyN") {
+      setActiveFigure(activeFigure - 1);
+    }
+  }
+
   const mobile = useMemo(() => {
     if (width < 600) {
       return true;
@@ -703,9 +714,10 @@ export default function BowStory(props) {
           height: "100%",
           display: "grid",
           gridTemplateRows: "repeat(auto-fit, minmax(100px, 1fr))",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))"
+          gridTemplateColumns: "100% 20px"
         }}
         ref={wrapperRef}
+        onKeyDown={keyDown}
       >
         <div style={{ width: "100%", height: "100%", position: "relative" }}>
           <ResizeComponent>

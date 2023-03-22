@@ -197,6 +197,7 @@ const contents = [
       speed: 0.8
     },
     mapLayer: {
+      mapStyle: "satellite",
       type: "countries"
     }
   },

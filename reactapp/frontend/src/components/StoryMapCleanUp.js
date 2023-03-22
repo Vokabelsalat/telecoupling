@@ -70,7 +70,8 @@ const StoryMap = forwardRef((props, ref) => {
   const { mapMode, interactiveLayerIds, mapStyle, polygonFill } =
     useMemo(() => {
       console.log("activeMapLayer", activeMapLayer);
-      let mapStyle = "mapbox://styles/mapbox/light-v11?optimize=true";
+      // let mapStyle = "mapbox://styles/mapbox/light-v11?optimize=true";
+      let mapStyle = "mapbox://styles/mapbox/outdoors-v12?optimize=true";
       let mapMode = "countries";
       let polygonFill = true;
       let interactiveLayerIds = ["countriesSpecies"];
@@ -104,6 +105,12 @@ const StoryMap = forwardRef((props, ref) => {
             break;
           case "satellite":
             mapStyle = "mapbox://styles/mapbox/satellite-v9?optimize=true";
+            break;
+          case "outdoors":
+            mapStyle = "mapbox://styles/mapbox/outdoors-v12?optimize=true";
+            break;
+          case "basic":
+            mapStyle = "mapbox://styles/mapbox/basic-v11?optimize=true";
             break;
           default:
             break;
@@ -840,8 +847,8 @@ const StoryMap = forwardRef((props, ref) => {
           latitude: 0,
           zoom: 1
         }}
-        //projection="globe"
-        projection="equalEarth"
+        projection="globe"
+        //projection="equalEarth"
         //mapLib={maplibregl}
         mapboxAccessToken="pk.eyJ1IjoiamFrb2JrdXNuaWNrIiwiYSI6ImNsYTAzYjQ2NjBrdnQzcWx0d2EyajFzbHQifQ.LQN-NvTn6PbHEbXHJO0CTw"
         interactiveLayerIds={interactiveLayerIds}
@@ -889,7 +896,7 @@ const StoryMap = forwardRef((props, ref) => {
                     ["linear"],
                     ["get", "speciesCount"],
                     0,
-                    "rgba(0,0,0,0)",
+                    "rgba(255,255,255,1)",
                     countriesHeatMapMax,
                     "rgba(0,0,255,1)"
                   ]
