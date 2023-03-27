@@ -65,6 +65,7 @@ export default function TimelineRow(props) {
               transform={`translate(${xVal}, 0)`}
             >
               <TimelineMarker
+                iconWidth={Math.min(width, x.bandwidth())}
                 width={width}
                 height={rowHeight}
                 assessmentAndElement={assessmentAndElement}
@@ -81,8 +82,8 @@ export default function TimelineRow(props) {
               style={{
                 height: "100%",
                 width: "15px",
-                backgroundColor: populationTrendColor,
                 display: "flex",
+                backgroundColor: populationTrendColor,
                 justifyContent: "center",
                 fontSize: populationTrend !== "Stable" ? "17px" : "13px"
               }}

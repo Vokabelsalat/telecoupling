@@ -3,7 +3,7 @@ import { OverlayContext } from "./OverlayProvider";
 import { TooltipContext } from "./TooltipProvider";
 
 export default function TimelineMarker(props) {
-  const { assessmentAndElement, colorBlind, width, height } = props;
+  const { assessmentAndElement, colorBlind, width, height, iconWidth } = props;
 
   const [hover, setHover] = useState(false);
 
@@ -53,7 +53,7 @@ export default function TimelineMarker(props) {
         stroke={hover ? "black" : null}
       ></rect>
       <path
-        d={`M 0 0 L ${height} ${height / 2} L 0 ${height} z`}
+        d={`M 0 0 L ${iconWidth} ${height / 2} L 0 ${height} z`}
         fill={color}
         stroke={hover ? "black" : null}
       />
