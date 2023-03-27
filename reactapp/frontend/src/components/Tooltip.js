@@ -1,15 +1,18 @@
-export default function Tooltip(props) {
-  const { text, position = { x: 0, y: 0 } } = props;
+import { useContext } from "react";
+import { TooltipContext } from "./TooltipProvider";
 
-  if (text === "") {
+export default function Tooltip(props) {
+  const { tooltipText, tooltipPosition } = useContext(TooltipContext);
+
+  if (tooltipText === "") {
     return <></>;
   } else {
     return (
       <div
         style={{
           position: "absolute",
-          left: `${position.x}px`,
-          top: `${position.y}px`,
+          left: `${tooltipPosition.x}px`,
+          top: `${tooltipPosition.y}px`,
           border: "1px solid gray",
           padding: "3px",
           borderRadius: "5px",
@@ -17,7 +20,7 @@ export default function Tooltip(props) {
           zIndex: 99999
         }}
       >
-        {text}
+        {tooltipText}
       </div>
     );
   }

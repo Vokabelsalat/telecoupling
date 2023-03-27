@@ -459,8 +459,20 @@ class Home extends Component {
     }
 
     let returnImageLink = (speciesObj) => {
-      if (speciesObj["Foto assigment"] !== "") {
-        let splitter = "|";
+      if (speciesObj["photos"] !== "") {
+        let sortedPhotos = speciesObj["photos"].sort((pA, pB) => {
+          return pA.Priority - pB.Priority;
+        });
+
+        if (sortedPhotos.length > 0) {
+          if (sortedPhotos[0].Foto !== null) {
+            return "fotos/" + sortedPhotos[0].Foto;
+          } else if (sortedPhotos[0].Proxy !== null) {
+            return "fotos/" + sortedPhotos[0].Proxy;
+          }
+        }
+
+        /* let splitter = "|";
         if (speciesObj["Foto assigment"].includes(",")) {
           splitter = ",";
         }
@@ -471,6 +483,7 @@ class Home extends Component {
           }
           return "fotos/" + photos[0].replace(" ", "");
         }
+      } */
       }
       return null;
     };

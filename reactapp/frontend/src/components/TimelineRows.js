@@ -4,8 +4,7 @@ import useResizeObserver from "use-resize-observer";
 import { tooltip } from "leaflet";
 
 export default function TimelineRows(props) {
-  const { data, x, width, colorBlind, populationTrend, timeFrame, tooltip } =
-    props;
+  const { data, x, width, colorBlind, populationTrend, timeFrame } = props;
 
   return (
     <div
@@ -27,7 +26,6 @@ export default function TimelineRows(props) {
           data={data.cites}
           x={x}
           colorBlind={colorBlind}
-          tooltip={tooltip}
         />
       )}
       {data.iucn.length > 0 && (
@@ -38,7 +36,6 @@ export default function TimelineRows(props) {
           x={x}
           colorBlind={colorBlind}
           populationTrend={data.populationTrend}
-          tooltip={tooltip}
         />
       )}
       {data.bgci.length > 0 && (
@@ -48,7 +45,6 @@ export default function TimelineRows(props) {
           data={data.bgci}
           x={x}
           colorBlind={colorBlind}
-          tooltip={tooltip}
         />
       )}
     </div>

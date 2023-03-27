@@ -6,14 +6,15 @@ import {
   iucnAssessment
 } from "../utils/timelineUtils";
 import { pushOrCreate } from "../utils/utils";
+import TimelineMarker from "./TimelineMarker";
 
 export default function TimelineRow(props) {
-  const { type, data, x, width, colorBlind, populationTrend, tooltip } = props;
+  const { type, data, x, width, colorBlind, populationTrend } = props;
 
   const rowHeight = 20;
 
   let populationTrendColor = "transparent";
-  let populationTrendIcon = "transparent";
+  let populationTrendIcon = "";
 
   switch (populationTrend) {
     case "Decreasing":
@@ -52,37 +53,22 @@ export default function TimelineRow(props) {
         {type.toUpperCase()}
       </div>
       <svg height={`${rowHeight}`} width={width}>
-        {data.map((assessmentAndElement) => {
-          let year = assessmentAndElement.element.year;
+        {data.map((assessmentAndElement, index) => {
           let xVal = x(parseInt(assessmentAndElement.element.year));
           if (xVal < 0) {
             return;
           }
 
-          let color = assessmentAndElement.assessment.getColor(colorBlind);
           return (
             <g
               key={`${assessmentAndElement.element.year}${assessmentAndElement.element.type}${assessmentAndElement.element.text}${assessmentAndElement.element.sciName}${colorBlind}`}
               transform={`translate(${xVal}, 0)`}
             >
-              <rect
-                height={4}
-                width={width - xVal}
-                x={0}
-                y={rowHeight / 2 - 2}
-                fill={color}
-              ></rect>
-              <path
-                d={`M 0 0 L ${Math.min(rowHeight, x.bandwidth())} ${
-                  rowHeight / 2
-                } L 0 ${rowHeight} z`}
-                fill={color}
-                onMouseEnter={(event) => {
-                  tooltip(year, { x: event.pageX + 15, y: event.pageY + 15 });
-                }}
-                onMouseLeave={(event) => {
-                  tooltip("", { x: event.pageX + 15, y: event.pageY + 15 });
-                }}
+              <TimelineMarker
+                width={width}
+                height={rowHeight}
+                assessmentAndElement={assessmentAndElement}
+                colorBlind={colorBlind}
               />
             </g>
           );

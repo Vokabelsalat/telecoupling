@@ -16,14 +16,19 @@ import {
   iucnAssessment
 } from "../utils/timelineUtils";
 import Orchestra from "./Orchestra";
+import Overlay from "./Overlay";
 
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-markercluster/dist/styles.min.css";
 
+import { HoverProvider } from "./HoverProvider";
+import { TooltipProvider } from "./TooltipProvider";
+import { OverlayProvider } from "./OverlayProvider";
+
 export default function HomeNew(props) {
   const showMap = true;
   const showTimeline = true;
-  const showOrchestra = false;
+  const showOrchestra = true;
   const showTreeMap = true;
 
   const [zoomOrigin, setZoomOrigin] = useState("0% 0%");
@@ -79,24 +84,37 @@ export default function HomeNew(props) {
     setTooltipPosition(position);
   };
 
-  const returnDummyLink = (speciesObj) => {
+  /* const returnDummyLink = (speciesObj) => {
     return speciesObj["Foto dummy"].trim() !== ""
       ? "fotos/" + speciesObj["Foto dummy"].replace(" ", "")
       : null;
+  }; */
+
+  let returnImageLink = (speciesObj) => {
+    if (speciesObj["photos"] !== null) {
+      let sortedPhotos = speciesObj["photos"].sort((pA, pB) => {
+        return pA.Priority - pB.Priority;
+      });
+
+      if (sortedPhotos.length > 0) {
+        if (sortedPhotos[0].Foto !== null) {
+          return "fotos/" + sortedPhotos[0].Foto.replace(" ", "");
+        }
+      }
+    }
+    return null;
   };
 
-  const returnImageLink = (speciesObj) => {
-    if (speciesObj["Foto assigment"] !== "") {
-      let splitter = "|";
-      if (speciesObj["Foto assigment"].includes(",")) {
-        splitter = ",";
-      }
-      let photos = speciesObj["Foto assigment"].split(splitter);
-      if (photos.length > 0) {
-        if (speciesObj["Family"] === "Balaenidae") {
-          return "fotos/" + photos[1].trim();
+  let returnDummyLink = (speciesObj) => {
+    if (speciesObj["photos"] !== null) {
+      let sortedPhotos = speciesObj["photos"].sort((pA, pB) => {
+        return pA.Priority - pB.Priority;
+      });
+
+      if (sortedPhotos.length > 0) {
+        if (sortedPhotos[0].Proxy !== null) {
+          return "fotos/" + sortedPhotos[0].Proxy.replace(" ", "");
         }
-        return "fotos/" + photos[0].replace(" ", "");
       }
     }
     return null;
@@ -135,7 +153,9 @@ export default function HomeNew(props) {
       } else {
         let lastElementBGCI = [...speciesObj["bgci"]]
           .filter((e) =>
-            timeFrame[1] !== undefined ? e.element.year < timeFrame[1] : true
+            timeFrame[1] !== undefined
+              ? e.element.assessmentYear < timeFrame[1]
+              : true
           )
           .pop();
         if (lastElementBGCI) {
@@ -185,10 +205,39 @@ export default function HomeNew(props) {
           let instrumentGroupHit = true;
           const speciesObj = speciesData[spec];
 
-          let family = speciesObj.Family.trim();
+          if (
+            speciesObj.Kingdom === null ||
+            !Object.keys(kingdoms).includes(speciesObj.Kingdom)
+          ) {
+            let tempKingdom = null;
+            for (let mat of speciesObj.origMat) {
+              if (
+                mat.Kingdom != null &&
+                Object.keys(kingdoms).includes(mat.Kingdom)
+              ) {
+                tempKingdom = mat.Kingdom;
+              }
+            }
+            speciesObj.Kingdom = tempKingdom;
+          }
+
+          if (speciesObj.Family === null) {
+            let tempFamily = null;
+            for (let mat of speciesObj.origMat) {
+              if (mat.Family != null) {
+                tempFamily = mat.Family;
+              }
+            }
+            speciesObj.Family = tempFamily;
+          }
+
+          let family =
+            speciesObj.Family != null ? speciesObj.Family.trim() : "";
           let genus = speciesObj.Genus.trim();
           let species = speciesObj.Species.trim();
           let genusSpecies = `${genus.trim()} ${species.trim()}`;
+
+          console.log(speciesObj.Kingdom, speciesObj);
 
           kingdoms[speciesObj.Kingdom].push(family);
           if (families.hasOwnProperty(family)) {
@@ -211,12 +260,17 @@ export default function HomeNew(props) {
             : tmpDummyImageLinks[spec];
 
           for (const mat of speciesObj.origMat) {
-            if (tmpInstrumentGroupData[mat.Instrument_groups]) {
-              tmpInstrumentGroupData[mat.Instrument_groups].push(
+            if (
+              tmpInstrumentGroupData[mat["Instrument groups"]] &&
+              mat.Instruments != null
+            ) {
+              tmpInstrumentGroupData[mat["Instrument groups"]].push(
                 mat.Instruments
               );
-            } else {
-              tmpInstrumentGroupData[mat.Instrument_groups] = [mat.Instruments];
+            } else if (mat.Instruments != null) {
+              tmpInstrumentGroupData[mat["Instrument groups"]] = [
+                mat.Instruments
+              ];
             }
 
             if (tmpInstrumentData[mat.Instruments]) {
@@ -266,9 +320,17 @@ export default function HomeNew(props) {
           if (speciesObj.timeThreat.length > 0) {
             let assessmentPerYear = {};
             for (let element of speciesObj.timeThreat) {
-              let year = element.year.toString();
-              tmpYears.add(parseInt(element.year));
-              let assessment = bgciAssessment.get(element.danger);
+              if (
+                element.assessmentYear === null ||
+                element.bgciScope !== "Global"
+              ) {
+                continue;
+              }
+              let year = element.assessmentYear.toString();
+              element.year = year;
+              element.type = "bgci";
+              tmpYears.add(parseInt(element.assessmentYear));
+              let assessment = bgciAssessment.get(element.threatened);
 
               if (assessmentPerYear.hasOwnProperty(year)) {
                 if (assessment.sort > assessmentPerYear[year].assessment.sort) {
@@ -331,8 +393,8 @@ export default function HomeNew(props) {
           tmpFilteredSpecies.push(spec);
 
           let tmpCountries = [];
-          if (speciesObj.hasOwnProperty("treeCountriesShort")) {
-            tmpCountries = speciesObj["treeCountriesShort"];
+          if (speciesObj.hasOwnProperty("treeCountries")) {
+            tmpCountries = speciesObj["treeCountries"];
           } else {
             if (this.props.data[species].hasOwnProperty("iucnCountriesShort")) {
               tmpCountries = speciesObj["iucnCountriesShort"];
@@ -481,212 +543,218 @@ export default function HomeNew(props) {
 
   return (
     <>
-      {<Tooltip text={tooltipText} position={tooltipPosition} />}
-      <div
-        style={{
-          display: "grid",
-          width: "100%",
-          height: "100%",
-          gridTemplateColumns: "50% 50%",
-          gridTemplateRows: "45% 10% 45%",
-          transformOrigin: zoomOrigin,
-          transform: zoomTransform,
-          transitionProperty: "transform",
-          transitionDuration: "0.4s"
-        }}
-      >
-        <div
-          style={{
-            gridColumnStart: 1,
-            gridColumnEnd: 1,
-            gridRowStart: 1,
-            gridRowEnd: 1,
-            position: "relative"
-          }}
-        >
-          {showOrchestra && (
-            <ResizeComponent>
-              <OrchestraNew
-                instrumentData={instrumentData}
-                instrumentGroupData={instrumentGroupData}
-                getThreatLevel={getSpeciesSignThreat}
-                threatType={threatType}
-                colorBlind={colorBlind}
-                setInstrument={setInstrument}
-                setInstrumentGroup={setInstrumentGroup}
-              />
-            </ResizeComponent>
-          )}
-          <FullScreenButton
-            scaleString={zoomTransform}
-            onClick={() => {
-              setZoomTransform(zoomTransform !== "" ? "" : "scale(2)");
-              setZoomOrigin(zoomTransform !== "" ? "0% 0%" : "0% 0%");
-            }}
-            setTooltip={setTooltip}
-          />
-        </div>
-        <div
-          style={{
-            gridColumnStart: 2,
-            gridColumnEnd: 2,
-            gridRowStart: 1,
-            gridRowEnd: 1,
-            position: "relative"
-          }}
-        >
-          {showTreeMap && (
-            <ResizeComponent>
-              <TreeMapView
-                data={{
-                  name: "Kingdom",
-                  children: kingdomData,
-                  filterDepth: 0
+      <HoverProvider>
+        <TooltipProvider>
+          <OverlayProvider>
+            {<Tooltip />}
+            {<Overlay />}
+            <div
+              style={{
+                display: "grid",
+                width: "100%",
+                height: "100%",
+                gridTemplateColumns: "50% 50%",
+                gridTemplateRows: "45% 10% 45%",
+                transformOrigin: zoomOrigin,
+                transform: zoomTransform,
+                transitionProperty: "transform",
+                transitionDuration: "0.4s"
+              }}
+            >
+              <div
+                style={{
+                  gridColumnStart: 1,
+                  gridColumnEnd: 1,
+                  gridRowStart: 1,
+                  gridRowEnd: 1,
+                  position: "relative"
                 }}
-                /* kingdom={selectedKingdom}
+              >
+                {showOrchestra && (
+                  <ResizeComponent>
+                    <OrchestraNew
+                      instrumentData={instrumentData}
+                      instrumentGroupData={instrumentGroupData}
+                      getThreatLevel={getSpeciesSignThreat}
+                      threatType={threatType}
+                      colorBlind={colorBlind}
+                      setInstrument={setInstrument}
+                      setInstrumentGroup={setInstrumentGroup}
+                    />
+                  </ResizeComponent>
+                )}
+                <FullScreenButton
+                  scaleString={zoomTransform}
+                  onClick={() => {
+                    setZoomTransform(zoomTransform !== "" ? "" : "scale(2)");
+                    setZoomOrigin(zoomTransform !== "" ? "0% 0%" : "0% 0%");
+                  }}
+                  setTooltip={setTooltip}
+                />
+              </div>
+              <div
+                style={{
+                  gridColumnStart: 2,
+                  gridColumnEnd: 2,
+                  gridRowStart: 1,
+                  gridRowEnd: 1,
+                  position: "relative"
+                }}
+              >
+                {showTreeMap && (
+                  <ResizeComponent>
+                    <TreeMapView
+                      data={{
+                        name: "Kingdom",
+                        children: kingdomData,
+                        filterDepth: 0
+                      }}
+                      /* kingdom={selectedKingdom}
               family={selectedFamily}
               genus={selectedGenus}
               species={selectedSpecies} */
-                treeMapFilter={treeMapFilter}
-                setTreeMapFilter={setTreeMapFilter}
-              />
-            </ResizeComponent>
-          )}
-          <FullScreenButton
-            scaleString={zoomTransform}
-            onClick={() => {
-              setZoomTransform(zoomTransform !== "" ? "" : "scale(2)");
-              setZoomOrigin(zoomTransform !== "" ? "0% 0%" : "100% 0%");
-            }}
-          />
-        </div>
-        <div
-          style={{
-            gridColumnStart: 1,
-            gridColumnEnd: "span 2",
-            gridRowStart: 2,
-            gridRowEnd: 2
-          }}
-        >
-          {
-            <CenterPanel
-              data={visibleSpeciesTimelineData}
-              getSpeciesThreatLevel={getSpeciesSignThreat}
-              threatType={threatType}
-              setThreatType={setThreatType}
-              colorBlind={colorBlind}
-              setColorBlind={setColorBlind}
-              setCategoryFilter={setCategoryFilter}
-            />
-          }
-        </div>
-        <div
-          style={{
-            gridColumnStart: 1,
-            gridColumnEnd: 1,
-            gridRowStart: 3,
-            gridRowEnd: 3,
-            position: "relative",
-            height: "100%"
-          }}
-        >
-          {Object.keys(visibleSpeciesTimelineData).length > 0 && (
-            <>
-              {showTimeline && (
-                <ResizeComponent>
-                  <TimelineViewNew
+                      treeMapFilter={treeMapFilter}
+                      setTreeMapFilter={setTreeMapFilter}
+                    />
+                  </ResizeComponent>
+                )}
+                <FullScreenButton
+                  scaleString={zoomTransform}
+                  onClick={() => {
+                    setZoomTransform(zoomTransform !== "" ? "" : "scale(2)");
+                    setZoomOrigin(zoomTransform !== "" ? "0% 0%" : "100% 0%");
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  gridColumnStart: 1,
+                  gridColumnEnd: "span 2",
+                  gridRowStart: 2,
+                  gridRowEnd: 2
+                }}
+              >
+                {
+                  <CenterPanel
                     data={visibleSpeciesTimelineData}
-                    getTreeThreatLevel={getSpeciesSignThreat}
-                    imageLinks={imageLinks}
-                    dummyImageLinks={dummyImageLinks}
-                    setTimeFrame={setTimeFrame}
-                    timeFrame={timeFrame}
+                    getSpeciesThreatLevel={getSpeciesSignThreat}
+                    threatType={threatType}
+                    setThreatType={setThreatType}
                     colorBlind={colorBlind}
-                    tooltip={setTooltip}
-                    domainYears={domainYears}
+                    setColorBlind={setColorBlind}
+                    setCategoryFilter={setCategoryFilter}
                   />
-                </ResizeComponent>
-              )}
-            </>
-          )}
-          <FullScreenButton
-            scaleString={zoomTransform}
-            onClick={() => {
-              setZoomTransform(zoomTransform !== "" ? "" : "scale(2)");
-              setZoomOrigin(
-                zoomTransform !== "" ? "0% 0%" : "0% calc(100% - 60px)"
-              );
-            }}
-          />
-        </div>
-        <div
-          style={{
-            gridColumnStart: 2,
-            gridColumnEnd: 2,
-            gridRowStart: 3,
-            gridRowEnd: 3,
-            position: "relative"
-          }}
-        >
-          <div>
-            {selectedCountry}
-            <button
-              onClick={() => {
-                setSelectedCountry(null);
-              }}
-            >
-              X
-            </button>
-          </div>
-          {showMap && (
-            <ResizeComponent>
-              <Map
-                /* speciesCountries={Object.fromEntries(
+                }
+              </div>
+              <div
+                style={{
+                  gridColumnStart: 1,
+                  gridColumnEnd: 1,
+                  gridRowStart: 3,
+                  gridRowEnd: 3,
+                  position: "relative",
+                  height: "100%"
+                }}
+              >
+                {Object.keys(visibleSpeciesTimelineData).length > 0 && (
+                  <>
+                    {showTimeline && (
+                      <ResizeComponent>
+                        <TimelineViewNew
+                          data={visibleSpeciesTimelineData}
+                          getTreeThreatLevel={getSpeciesSignThreat}
+                          imageLinks={imageLinks}
+                          dummyImageLinks={dummyImageLinks}
+                          setTimeFrame={setTimeFrame}
+                          timeFrame={timeFrame}
+                          colorBlind={colorBlind}
+                          domainYears={domainYears}
+                        />
+                      </ResizeComponent>
+                    )}
+                  </>
+                )}
+                <FullScreenButton
+                  scaleString={zoomTransform}
+                  onClick={() => {
+                    setZoomTransform(zoomTransform !== "" ? "" : "scale(2)");
+                    setZoomOrigin(
+                      zoomTransform !== "" ? "0% 0%" : "0% calc(100% - 60px)"
+                    );
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  gridColumnStart: 2,
+                  gridColumnEnd: 2,
+                  gridRowStart: 3,
+                  gridRowEnd: 3,
+                  position: "relative"
+                }}
+              >
+                <div>
+                  {selectedCountry}
+                  <button
+                    onClick={() => {
+                      setSelectedCountry(null);
+                    }}
+                  >
+                    X
+                  </button>
+                </div>
+                {showMap && (
+                  <ResizeComponent>
+                    <Map
+                      /* speciesCountries={Object.fromEntries(
                   Object.entries(speciesCountries).filter(
                     ([key]) => key === "Paubrasilia echinata"
                   )
                 )} */
-                speciesCountries={visibleSpeciesCountries}
-                /* speciesEcos={Object.fromEntries(
+                      speciesCountries={visibleSpeciesCountries}
+                      /* speciesEcos={Object.fromEntries(
                   Object.entries(speciesEcos).filter(
                     ([key]) => key === "Paubrasilia echinata"
                   )
                 )} */
-                speciesEcos={speciesEcos}
-                /* speciesHexas={Object.fromEntries(
+                      speciesEcos={speciesEcos}
+                      /* speciesHexas={Object.fromEntries(
                   Object.entries(speciesHexas).filter(
                     ([key]) => key === "Paubrasilia echinata"
                   )
                 )} */
-                speciesHexas={speciesHexas}
-                colorBlind={colorBlind}
-                getSpeciesThreatLevel={getSpeciesSignThreat}
-                threatType={threatType}
-                setSelectedCountry={setSelectedCountry}
-              />
-            </ResizeComponent>
-          )}
-          <FullScreenButton
-            scaleString={zoomTransform}
-            onClick={() => {
-              setZoomTransform(zoomTransform !== "" ? "" : "scale(2)");
-              setZoomOrigin(
-                zoomTransform !== "" ? "0% 0%" : "100% calc(100% - 60px)"
-              );
-            }}
-          />
-        </div>
-        <div
-          style={{
-            gridColumnStart: 1,
-            gridColumnEnd: "span 2",
-            gridRowStart: 4,
-            gridRowEnd: 4
-          }}
-        >
-          Footer
-        </div>
-      </div>
+                      speciesHexas={speciesHexas}
+                      colorBlind={colorBlind}
+                      getSpeciesThreatLevel={getSpeciesSignThreat}
+                      threatType={threatType}
+                      setSelectedCountry={setSelectedCountry}
+                    />
+                  </ResizeComponent>
+                )}
+                <FullScreenButton
+                  scaleString={zoomTransform}
+                  onClick={() => {
+                    setZoomTransform(zoomTransform !== "" ? "" : "scale(2)");
+                    setZoomOrigin(
+                      zoomTransform !== "" ? "0% 0%" : "100% calc(100% - 60px)"
+                    );
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  gridColumnStart: 1,
+                  gridColumnEnd: "span 2",
+                  gridRowStart: 4,
+                  gridRowEnd: 4
+                }}
+              >
+                Footer
+              </div>
+            </div>
+          </OverlayProvider>
+        </TooltipProvider>
+      </HoverProvider>
     </>
   );
 }

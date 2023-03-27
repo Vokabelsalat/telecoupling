@@ -19,8 +19,7 @@ export default function TimelineNew(props) {
     imageLink,
     dummyImageLink,
     isAnimal,
-    timeFrame,
-    tooltip
+    timeFrame
   } = props;
 
   const leftIconColor = getTreeThreatLevel(
@@ -92,7 +91,6 @@ export default function TimelineNew(props) {
             colorBlind={colorBlind}
             populationTrend={populationTrend}
             timeFrame={timeFrame}
-            tooltip={tooltip}
           />
         )}
       </div>

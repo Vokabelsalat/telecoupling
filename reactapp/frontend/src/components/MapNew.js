@@ -199,12 +199,14 @@ export default function Map(props) {
     for (let species of Object.keys(speciesCountries)) {
       const countries = speciesCountries[species];
       for (let speciesCountry of countries) {
-        for (let country of Object.values(countriesDictionary)) {
-          if (Object.values(country).includes(speciesCountry)) {
-            if (tmpIsoToSpecies.hasOwnProperty(country.ISO3)) {
-              tmpIsoToSpecies[country.ISO3].push(species);
-            } else {
-              tmpIsoToSpecies[country.ISO3] = [species];
+        if (countriesDictionary) {
+          for (let country of Object.values(countriesDictionary)) {
+            if (Object.values(country).includes(speciesCountry)) {
+              if (tmpIsoToSpecies.hasOwnProperty(country.ISO3)) {
+                tmpIsoToSpecies[country.ISO3].push(species);
+              } else {
+                tmpIsoToSpecies[country.ISO3] = [species];
+              }
             }
           }
         }

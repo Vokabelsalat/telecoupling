@@ -12,6 +12,8 @@
     "NE": { bg: "rgb(255,255,255)", fg: "rgb(0,0,0)" }
 }; */
 
+import { filter } from "d3";
+
 const { timeHours } = require("d3-time");
 
 class ColorScheme {
@@ -97,6 +99,14 @@ class AssessmentType {
     if (this.threatLevels.hasOwnProperty(key)) {
       return this.threatLevels[key];
     } else {
+      const filtered = Object.values(this.threatLevels).filter((level) => {
+        return level.name === key;
+      });
+
+      if (filtered.length > 0) {
+        return filtered[0];
+      }
+
       return this.dataDeficient;
     }
   }

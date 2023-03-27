@@ -22,7 +22,6 @@ export default function TimelineViewNew(props) {
     timeFrame,
     setTimeFrame,
     domainYears,
-    tooltip,
     imageLinks,
     dummyImageLinks,
     colorBlind,
@@ -108,7 +107,6 @@ export default function TimelineViewNew(props) {
                   imageLink={imageLinks[e]}
                   dummyImageLink={dummyImageLinks[e]}
                   isAnimal={data[e].isAnimal}
-                  tooltip={tooltip}
                 />
               );
             })}
