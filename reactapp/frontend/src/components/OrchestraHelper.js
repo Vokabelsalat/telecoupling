@@ -33,6 +33,10 @@ class D3Orchestra {
     this.setMainPartOptions = param.setMainPartOptions;
     this.lastSpeciesSigns = param.lastSpeciesSigns;
 
+    this.instrumentGroups = param.instrumentGroups;
+    this.instruments = param.instruments;
+    this.mainParts = param.mainParts;
+
     this.pies = {};
 
     this.initWidth = param.width - 2 /*  */;
@@ -693,6 +697,7 @@ class D3Orchestra {
       fetch("/api/getInstrumentsFromGroup/" + instrumentGroup)
         .then((res) => res.json())
         .then((data) => {
+          console.log("Data", data, this.instrumentGroups[text]);
           let lowerAmount = false;
           let newstroke;
           if (data.length <= 4) {
@@ -702,7 +707,7 @@ class D3Orchestra {
             newstroke = strokewidth / (data.length + 2);
           }
 
-          this.instrumentGroups[instrumentGroup] = data;
+          //this.instrumentGroups[instrumentGroup] = data;
 
           data = data
             .map((e) => e.Instruments)

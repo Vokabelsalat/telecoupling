@@ -21,7 +21,10 @@ class Orchestra extends Component {
       speciesData: this.props.speciesData,
       finishedFetching: this.props.finishedFetching,
       mainPartOptions: [],
-      open: false
+      open: false,
+      instrumentGroups: this.props.instrumentGroups,
+      instruments: this.props.instruments,
+      mainParts: this.props.mainParts
     };
   }
 
@@ -40,7 +43,10 @@ class Orchestra extends Component {
       lastSpeciesSigns: this.props.lastSpeciesSigns,
       setMainPartOptions: this.setMainPartOptions.bind(this),
       width: this.props.width,
-      height: this.props.height
+      height: this.props.height,
+      instrumentGroups: this.props.instrumentGroups,
+      instruments: this.props.instruments,
+      mainParts: this.props.mainParts
     });
   }
 

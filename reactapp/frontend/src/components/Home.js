@@ -49,7 +49,7 @@ class Home extends Component {
     this.usePreGenerated = true;
     this.renderMap = true;
     this.renderTreeMap = true;
-    this.slice = false;
+    this.slice = true;
 
     this.tempSpeciesData = {};
     this.tempFetchedSpecies = [];
@@ -106,7 +106,10 @@ class Home extends Component {
       transformOrigin: "0% 0%",
       transform: "",
       tutorial: false,
-      tour: 0
+      tour: 0,
+      instrumentGroups: [],
+      instruments: [],
+      mainParts: []
     };
   }
 
@@ -194,6 +197,10 @@ class Home extends Component {
       .then((res) => res.json())
       .then(
         function (speciesData) {
+          let tmpInstrumentGroups = speciesData["instrumentGroups"];
+          let tmpInstruments = speciesData["instruments"];
+          let tmpMainParts = speciesData["mainParts"];
+
           speciesData = Object.fromEntries(
             Object.entries(speciesData)
               .filter(
@@ -213,7 +220,10 @@ class Home extends Component {
             speciesDataCache: speciesData,
             finishedFetching: true,
             lastSpeciesSigns: myLastSignThreats,
-            lastSpeciesThreats: myLastSpeciesThreats
+            lastSpeciesThreats: myLastSpeciesThreats,
+            instrumentGroups: tmpInstrumentGroups,
+            instruments: tmpInstruments,
+            mainParts: tmpMainParts
           });
         }.bind(this)
       )
@@ -322,12 +332,12 @@ class Home extends Component {
 
   setInstrumentGroup(instrumentGroup) {
     this.setState({ instrumentGroup, instrument: "", mainPart: "" });
-    this.fetchAndSetSpecies();
+    //this.fetchAndSetSpecies();
   }
 
   setInstrument(instrument) {
     this.setState({ instrument: instrument, mainPart: "" });
-    this.getMainParts(instrument);
+    //this.getMainParts(instrument);
   }
 
   onSelectChange(event) {
@@ -336,7 +346,7 @@ class Home extends Component {
 
   setMainPart(mainPart) {
     this.setState({ mainPart: mainPart });
-    this.fetchAndSetSpecies();
+    //this.fetchAndSetSpecies();
   }
 
   setInstrumentAndMainPart(instrument, mainPart) {
@@ -1893,6 +1903,9 @@ class Home extends Component {
                 setFilter={this.setFilter.bind(this)}
                 timeFrame={this.state.timeFrame}
                 colorBlind={this.state.colorBlind}
+                instrumentGroups={this.state.instrumentGroups}
+                instruments={this.state.instruments}
+                mainParts={this.state.mainParts}
               />
             </ResizeComponent>
             {/*  <VisInfoButton

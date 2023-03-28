@@ -92,11 +92,13 @@ class Map extends Component {
       for (let species of Object.keys(this.props.mapSpecies)) {
         if (this.props.data.hasOwnProperty(species)) {
           let countries = [];
-          if (this.props.data[species].hasOwnProperty("treeCountriesShort")) {
-            countries = this.props.data[species]["treeCountriesShort"];
+          if (this.props.data[species].hasOwnProperty("treeCountries")) {
+            countries = this.props.data[species]["treeCountries"];
           } else {
-            if (this.props.data[species].hasOwnProperty("iucnCountriesShort")) {
-              countries = this.props.data[species]["iucnCountriesShort"];
+            if (this.props.data[species].hasOwnProperty("iucnCountries")) {
+              countries = this.props.data[species]["iucnCountries"].map((e) => {
+                return e.country;
+              });
             } else {
               if (this.props.data[species].hasOwnProperty("allCountries")) {
                 countries = this.props.data[species]["allCountries"];

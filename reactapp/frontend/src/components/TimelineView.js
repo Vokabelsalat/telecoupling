@@ -132,7 +132,9 @@ class TimelineView extends Component {
           let tmpExtent = [];
 
           for (let threat of e.timeThreat) {
-            allTimeExtends.push(parseInt(threat.year));
+            if (isNaN(parseInt(threat.year)) === false) {
+              allTimeExtends.push(parseInt(threat.year));
+            }
             threat.danger = bgciAssessment
               .get(threat.threatened)
               .getAbbreviation();
@@ -140,12 +142,16 @@ class TimelineView extends Component {
 
           if (e.timeListing) {
             for (let threat of e.timeListing) {
-              allTimeExtends.push(parseInt(threat.year));
+              if (isNaN(parseInt(threat.year)) === false) {
+                allTimeExtends.push(parseInt(threat.year));
+              }
             }
           }
 
           for (let threat of e.timeIUCN) {
-            allTimeExtends.push(parseInt(threat.year));
+            if (isNaN(parseInt(threat.year)) === false) {
+              allTimeExtends.push(parseInt(threat.year));
+            }
           }
 
           //allTimeExtends.push(Math.max(...tmpExtent), Math.min(...tmpExtent));
