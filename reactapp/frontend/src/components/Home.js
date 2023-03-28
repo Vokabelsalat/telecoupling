@@ -428,7 +428,9 @@ class Home extends Component {
       if (this.state.speciesData.hasOwnProperty(species)) {
         getOrCreate(
           kingdomGroupData,
-          this.state.speciesData[species]["Kingdom"],
+          this.state.speciesData[species]["Kingdom"] === "Plantea"
+            ? "Plantae"
+            : this.state.speciesData[species]["Kingdom"],
           []
         ).push(this.state.speciesData[species]);
       }
@@ -441,6 +443,14 @@ class Home extends Component {
         let groups = species["groups"];
         let subgroups = species["instruments"];
 
+        let firstFamily;
+        for (let entry of species["origMat"]) {
+          if (entry["Family"] != null) {
+            firstFamily = entry["Family"].trim();
+            break;
+          }
+        }
+
         /*    for (let entry of species["origMat"]) {
                     entry["Family"] = entry["Family"].trim();
                     if (entry["Family"] !== "") {
@@ -451,7 +461,8 @@ class Home extends Component {
                     }
                 }   */
         for (let entry of species["origMat"]) {
-          entry["Family"] = entry["Family"].trim();
+          entry["Family"] =
+            entry["Family"] != null ? entry["Family"].trim() : firstFamily;
           if (entry["Family"] !== "") {
             entry["Genus"] = entry["Genus"].trim();
             if (entry["Genus"] !== "") {
@@ -472,7 +483,7 @@ class Home extends Component {
       kingdomGroupData[kingdom] = subgroupData;
     }
 
-    let returnImageLink = (speciesObj) => {
+    /*     let returnImageLink = (speciesObj) => {
       if (speciesObj["Foto assigment"] !== "") {
         let splitter = "|";
         if (speciesObj["Foto assigment"].includes(",")) {
@@ -484,6 +495,36 @@ class Home extends Component {
             return "fotos/" + photos[1].trim();
           }
           return "fotos/" + photos[0].replace(" ", "");
+        }
+      }
+      return null;
+    }; */
+
+    let returnImageLink = (speciesObj) => {
+      if (speciesObj["photos"] !== null) {
+        let sortedPhotos = speciesObj["photos"].sort((pA, pB) => {
+          return pA.Priority - pB.Priority;
+        });
+
+        if (sortedPhotos.length > 0) {
+          if (sortedPhotos[0].Foto !== null) {
+            return "fotos/" + sortedPhotos[0].Foto.replace(" ", "");
+          }
+        }
+      }
+      return null;
+    };
+
+    let returnDummyLink = (speciesObj) => {
+      if (speciesObj["photos"] !== null) {
+        let sortedPhotos = speciesObj["photos"].sort((pA, pB) => {
+          return pA.Priority - pB.Priority;
+        });
+
+        if (sortedPhotos.length > 0) {
+          if (sortedPhotos[0].Proxy !== null) {
+            return "fotos/" + sortedPhotos[0].Proxy.replace(" ", "");
+          }
         }
       }
       return null;
@@ -524,11 +565,13 @@ class Home extends Component {
               this.state.speciesData[value]
             );
 
-            valueObject["dummylink"] =
-              this.state.speciesData[value]["Foto dummy"].trim() !== ""
+            valueObject["dummylink"] = returnDummyLink(
+              this.state.speciesData[value]
+            );
+            /* this.state.speciesData[value]["Foto dummy"].trim() !== ""
                 ? "fotos/" +
                   this.state.speciesData[value]["Foto dummy"].replace(" ", "")
-                : null;
+                : null; */
 
             //if (valueObject["link"] !== null) {
             sum += valueObject[value];
@@ -1204,12 +1247,13 @@ class Home extends Component {
     } else if (this.state.speciesData && this.state.speciesData[species]) {
       obj = this.state.speciesData[species];
     }
+    console.log(obj);
     if (obj) {
       switch (type) {
         case "cites":
           if (!obj.hasOwnProperty("timeListing")) return null;
 
-          threats = obj.timeListing;
+          threats = obj.timeListing != null ? obj.timeListing : [];
 
           if (timeFrame[1] !== undefined) {
             threats = threats.filter((e) => parseInt(e.year) < timeFrame[1]);
@@ -1851,11 +1895,11 @@ class Home extends Component {
                 colorBlind={this.state.colorBlind}
               />
             </ResizeComponent>
-            <VisInfoButton
+            {/*  <VisInfoButton
               onClick={() => {
                 this.setState({ tutorial: "orchestraVisWrapper" });
               }}
-            />
+            /> */}
             <FullScreenButton
               scaleString={scaleString}
               onClick={() => {
@@ -1899,13 +1943,13 @@ class Home extends Component {
             ) : (
               []
             )}
-            <VisInfoButton
+            {/* <VisInfoButton
               onClick={() => {
                 this.setState({ tutorial: "treeMapVisWrapper" });
               }}
               right={32}
               top={6}
-            />
+            /> */}
             <FullScreenButton
               scaleString={scaleString}
               onClick={() => {
@@ -2239,13 +2283,13 @@ class Home extends Component {
                 lastSpeciesThreats={lastSpeciesThreats}
               />
             </ResizeComponent>
-            <VisInfoButton
+            {/* <VisInfoButton
               onClick={() => {
                 this.setState({ tutorial: "timelineVisWrapper" });
               }}
               left={30}
               top={10}
-            />
+            /> */}
             <FullScreenButton
               scaleString={scaleString}
               onClick={() => {
@@ -2311,13 +2355,13 @@ class Home extends Component {
             ) : (
               []
             )}
-            <VisInfoButton
+            {/* <VisInfoButton
               top={-30}
               right={20}
               onClick={() => {
                 this.setState({ tutorial: "mapVisWrapper" });
               }}
-            />
+            /> */}
             <FullScreenButton
               scaleString={scaleString}
               onClick={() => {

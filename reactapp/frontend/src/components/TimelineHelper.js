@@ -1642,7 +1642,7 @@ class D3Timeline {
       newListingData = newData;
 
       this.heightScaleSum = Object.values(heightMap).reduce(
-        (prev, curr) => prev + curr
+        (prev, curr) => prev + curr, 0
       );
     }
 

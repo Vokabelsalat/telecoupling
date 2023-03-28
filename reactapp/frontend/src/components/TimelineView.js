@@ -4,6 +4,7 @@ import { TimelineDatagenerator } from "../utils/TimelineDatagenerator";
 import { replaceSpecialCharacters } from "../utils/utils";
 import * as d3 from "d3";
 import { thresholdFreedmanDiaconis } from "d3";
+import { bgciAssessment } from "../utils/timelineUtils.js";
 
 class TimelineView extends Component {
   constructor(props) {
@@ -87,6 +88,8 @@ class TimelineView extends Component {
       tmpdata = this.props.data;
     }
 
+    console.log(domainYears, tmpdata);
+
     let reducer = (accumulator, currentValue) => {
       return accumulator + currentValue.length;
     };
@@ -125,14 +128,39 @@ class TimelineView extends Component {
           e.timeExtent.forEach((i) => {
             if (i !== null) allTimeExtends.push(parseInt(i));
           });
+        } else {
+          let tmpExtent = [];
+
+          for (let threat of e.timeThreat) {
+            allTimeExtends.push(parseInt(threat.year));
+            threat.danger = bgciAssessment
+              .get(threat.threatened)
+              .getAbbreviation();
+          }
+
+          if (e.timeListing) {
+            for (let threat of e.timeListing) {
+              allTimeExtends.push(parseInt(threat.year));
+            }
+          }
+
+          for (let threat of e.timeIUCN) {
+            allTimeExtends.push(parseInt(threat.year));
+          }
+
+          //allTimeExtends.push(Math.max(...tmpExtent), Math.min(...tmpExtent));
         }
       });
+
+      console.log(allTimeExtends);
 
       let maxYear = Math.max(...allTimeExtends);
       let minYear = Math.min(...allTimeExtends);
 
-      domainYears = { minYear, maxYear: 2022 };
+      domainYears = { minYear, maxYear: maxYear + 1 };
     }
+
+    console.log(domainYears, tmpdata);
 
     this.setState({
       maxPerYear: maxPerYear,

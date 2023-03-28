@@ -50,6 +50,10 @@ class ThreatLevel {
     return this.name;
   }
 
+  getAbbreviation() {
+    return this.abbreviation;
+  }
+
   getColor(colorBlind = false) {
     if (colorBlind) {
       return ColorBlindColorScheme.colors[this.numvalue][0];
@@ -97,6 +101,14 @@ class AssessmentType {
     if (this.threatLevels.hasOwnProperty(key)) {
       return this.threatLevels[key];
     } else {
+      const filtered = Object.values(this.threatLevels).filter((level) => {
+        return level.name === key;
+      });
+
+      if (filtered.length > 0) {
+        return filtered[0];
+      }
+
       return this.dataDeficient;
     }
   }
