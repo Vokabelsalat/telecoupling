@@ -106,7 +106,8 @@ class Home extends Component {
       transformOrigin: "0% 0%",
       transform: "",
       tutorial: false,
-      tour: 0
+      tour: 0,
+      overlay: null
     };
   }
 
@@ -1805,8 +1806,33 @@ class Home extends Component {
     const zoomOrigin = this.state.transformOrigin;
     const scaleString = this.state.transform;
 
+    const overlay = this.state.overlay;
+
     return (
       <>
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.9)",
+            display: overlay !== null ? "flex" : "none",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            zIndex: 9999
+          }}
+          onClick={() => {
+            const video = document.getElementById("video");
+            video.pause();
+            this.setState({ overlay: null });
+          }}
+        >
+          <video id="video" width="60%" controls>
+            <source src="MusEcologyAbstract2.mp4" type="video/mp4" />
+          </video>
+        </div>
         <div
           style={{
             display: "grid",
@@ -1851,11 +1877,11 @@ class Home extends Component {
                 colorBlind={this.state.colorBlind}
               />
             </ResizeComponent>
-            <VisInfoButton
+            {/* <VisInfoButton
               onClick={() => {
                 this.setState({ tutorial: "orchestraVisWrapper" });
               }}
-            />
+            /> */}
             <FullScreenButton
               scaleString={scaleString}
               onClick={() => {
@@ -1899,13 +1925,13 @@ class Home extends Component {
             ) : (
               []
             )}
-            <VisInfoButton
+            {/*    <VisInfoButton
               onClick={() => {
                 this.setState({ tutorial: "treeMapVisWrapper" });
               }}
               right={32}
               top={6}
-            />
+            /> */}
             <FullScreenButton
               scaleString={scaleString}
               onClick={() => {
@@ -2056,8 +2082,11 @@ class Home extends Component {
                         gridTemplateRows: "8px 28px auto"
                       }}
                       className="searchBarWrapper buttonHover"
-                      onClick={() => {
+                      /* onClick={() => {
                         this.setState({ tutorial: "centerPanel", tour: 1 });
+                      }} */
+                      onClick={() => {
+                        this.setState({ overlay: "video" });
                       }}
                     >
                       <div></div>
@@ -2239,13 +2268,13 @@ class Home extends Component {
                 lastSpeciesThreats={lastSpeciesThreats}
               />
             </ResizeComponent>
-            <VisInfoButton
+            {/*   <VisInfoButton
               onClick={() => {
                 this.setState({ tutorial: "timelineVisWrapper" });
               }}
               left={30}
               top={10}
-            />
+            /> */}
             <FullScreenButton
               scaleString={scaleString}
               onClick={() => {
@@ -2311,13 +2340,13 @@ class Home extends Component {
             ) : (
               []
             )}
-            <VisInfoButton
+            {/*  <VisInfoButton
               top={-30}
               right={20}
               onClick={() => {
                 this.setState({ tutorial: "mapVisWrapper" });
               }}
-            />
+            /> */}
             <FullScreenButton
               scaleString={scaleString}
               onClick={() => {

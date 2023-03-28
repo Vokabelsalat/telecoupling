@@ -35,7 +35,7 @@ class D3Orchestra {
 
     this.pies = {};
 
-    this.initWidth = param.width - 2 /*  */;
+    this.initWidth = param.width - 2;
     this.initHeight = param.height;
 
     this.positionX = this.initWidth / 2;

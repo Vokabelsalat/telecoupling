@@ -460,20 +460,20 @@ class MapHelper {
       /* 65536, 32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128 */
     ];
 
-    var crs = new L.Proj.CRS(
+    /*  var crs = new L.Proj.CRS(
       "EPSG:54009",
       "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs",
       {
         resolutions,
         origin: [100, 0]
       }
-    );
+    ); */
 
     this.mymap = L.map(this.id, {
       worldCopyJump: false,
       minZoom: 0,
-      maxZoom: resolutions.length,
-      crs: crs
+      maxZoom: resolutions.length
+      /* crs: crs */
     }).setView([0, 0], 0);
 
     this.mymap.on("overlayadd", this.overlayadd.bind(this));
