@@ -36,7 +36,8 @@ export default function OrchestraInstrumentSlice(props) {
     species,
     getThreatLevel,
     colorBlind,
-    setInstrument
+    setInstrument,
+    isSelected = false
   } = props;
 
   const pathString = calculatePath(position.x, position.y, arcOptions);
@@ -84,7 +85,7 @@ export default function OrchestraInstrumentSlice(props) {
       <path
         key={`instrumentArc${instrument}`}
         fill="transparent"
-        stroke={hightlight ? "purple" : "transparent"}
+        stroke={hightlight || isSelected ? "purple" : "transparent"}
         strokeWidth={"1px"}
         d={pathString}
       />

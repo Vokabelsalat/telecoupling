@@ -1,7 +1,6 @@
-import Orchestra from "./Orchestra";
+import { useCallback, useEffect, useRef, useState } from "react";
 import OrchestraGroup from "./OrchestraGroup";
-import InstrumentGroupIcon from "./InstrumentGroupIcon";
-import { useState, useRef, useEffect, useCallback } from "react";
+import OrchestraHeader from "./OrchestraHeader";
 
 const groupToPosition = {
   Keyboard: 0,
@@ -23,7 +22,11 @@ export default function OrchestraNew(props) {
     threatType,
     getThreatLevel,
     setInstrument,
-    setInstrumentGroup
+    setInstrumentGroup,
+    instrumentGroup,
+    instrument,
+    instrumentPart,
+    setInstrumentPart
   } = props;
 
   const ref = useRef(null);
@@ -96,24 +99,27 @@ export default function OrchestraNew(props) {
         position: "relative"
       }}
     >
-      <div
-        style={{
-          position: "absolute",
-          top: 5,
-          left: 5,
-          backgroundColor: "blue",
-          color: "white",
-          padding: "1px"
-        }}
-        onClick={() => {
-          setSelected(null);
-          zoomInto(null);
-          setInstrument(null);
-          setInstrumentGroup(null);
-        }}
-      >
-        Reset
-      </div>
+      {instrumentGroup && (
+        <div
+          style={{
+            position: "absolute",
+            top: 5,
+            left: 5,
+            backgroundColor: "blue",
+            color: "white",
+            padding: "1px",
+            cursor: "pointer"
+          }}
+          onClick={() => {
+            /* setSelected(null); */
+            zoomInto(null);
+            setInstrument(null);
+            setInstrumentGroup(null);
+          }}
+        >
+          Reset
+        </div>
+      )}
       <svg
         width={scaledWidth}
         height={scaledHeight}
@@ -130,9 +136,22 @@ export default function OrchestraNew(props) {
 
             const asArray = Object.entries(instrumentData);
 
-            const filtered = asArray.filter(([key, value]) =>
-              instrumentGroupData[group].includes(key)
-            );
+            const filtered = asArray
+              .filter(([key, value]) => {
+                return instrumentGroupData[group].includes(key);
+              })
+              .map(([key, value]) => {
+                return [
+                  key,
+                  [
+                    ...new Set(
+                      Object.values(value).flatMap((entry) => {
+                        return entry;
+                      })
+                    )
+                  ]
+                ];
+              });
 
             const species = Object.fromEntries(filtered);
 
@@ -145,8 +164,9 @@ export default function OrchestraNew(props) {
                   x: 510 / 2,
                   y: 255
                 }}
-                setSelected={setSelected}
-                selected={selected}
+                /* setSelected={setSelected}
+                selected={selected} */
+                selected={group === instrumentGroup}
                 setZoom={zoomInto}
                 instruments={instrumentGroupData[group]}
                 species={species}
@@ -155,11 +175,63 @@ export default function OrchestraNew(props) {
                 colorBlind={colorBlind}
                 setInstrument={setInstrument}
                 setInstrumentGroup={setInstrumentGroup}
+                instrument={instrument}
               />
             );
           })}
         </g>
       </svg>
+      {instrument && (
+        <div
+          style={{
+            position: "absolute",
+            width: "90%",
+            height: "80%",
+            backgroundColor: "white",
+            border: "1px gray solid"
+          }}
+        >
+          <OrchestraHeader
+            instrumentGroup={instrumentGroup}
+            instrument={instrument}
+            instrumentParts={instrumentData[instrument]}
+            instrumentPart={instrumentPart}
+            setInstrument={setInstrument}
+            setInstrumentPart={setInstrumentPart}
+          />
+          <div
+            style={{
+              display: "grid",
+              gridGap: "5px",
+              padding: "5px"
+            }}
+          >
+            {Object.keys(instrumentData[instrument])
+              .sort()
+              .map((instPart) => {
+                return (
+                  <div
+                    style={{
+                      cursor: "pointer",
+                      width: "fit-content",
+                      boxSizing: "border-box",
+                      padding: "2px",
+                      border:
+                        instrumentPart === instPart
+                          ? "solid 2px purple"
+                          : "none"
+                    }}
+                    onClick={() => {
+                      setInstrumentPart(instPart);
+                    }}
+                  >
+                    {instPart} ({instrumentData[instrument][instPart].length})
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -2,12 +2,10 @@ import React, { Component } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./App.css";
-import TimelineView from "./components/TimelineView";
 import Statistics from "./components/Statistics";
-import Home from "./components/Home";
 import HomeNew from "./components/HomeNew";
 
-function HomeWithParams({ match }) {
+/* function HomeWithParams({ match }) {
   let { instrumentGroup } = match.params;
   let { instrument } = match.params;
   let { mainPart } = match.params;
@@ -23,7 +21,7 @@ function HomeWithParams({ match }) {
       mainPart={mainPart}
     />
   );
-}
+} */
 
 class App extends Component {
   /* constructor(props) {

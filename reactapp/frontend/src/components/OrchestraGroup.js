@@ -24,7 +24,6 @@ export default function OrchestraGroup(props) {
     groupName,
     position,
     selected,
-    setSelected,
     setZoom,
     getThreatLevel,
     threatType,
@@ -32,7 +31,8 @@ export default function OrchestraGroup(props) {
     instruments,
     species,
     setInstrument,
-    setInstrumentGroup
+    setInstrumentGroup,
+    instrument
   } = props;
 
   const ref = useRef(null);
@@ -49,16 +49,23 @@ export default function OrchestraGroup(props) {
 
   let acrOptions = positionsToPathString[id.toString()];
 
+  useEffect(() => {
+    if (ref) {
+      if (ref.current && selected) {
+        setZoom(ref.current.getBBox());
+      }
+    }
+  }, [selected]);
+
   return (
     <>
       <g
         onClick={() => {
-          if (ref) {
+          /*  if (ref) {
             if (ref.current) {
               setZoom(ref.current.getBBox());
             }
-          }
-          setSelected(id);
+          } */
           setInstrumentGroup(groupName);
           setInstrument(null);
         }}
@@ -72,16 +79,17 @@ export default function OrchestraGroup(props) {
       >
         <path
           ref={ref}
-          fill={selected === id ? "white" : "white"}
-          stroke={highlight && selected !== id ? "purple" : "gray"}
+          fill={"white"}
+          stroke={highlight ? "purple" : "gray"}
           strokeWidth={highlight ? "1px" : "1px"}
           d={pathString}
         ></path>
-        {selected === id ? (
+        {selected ? (
           <OrchestraInstruments
             {...props}
             acrOptions={acrOptions}
-            isSelected={selected === id}
+            isSelected={selected}
+            selectedInstrument={instrument}
           />
         ) : (
           <OrchestraGroupContent {...props} acrOptions={acrOptions} />

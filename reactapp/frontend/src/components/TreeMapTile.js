@@ -1,3 +1,6 @@
+import { minIndex } from "d3";
+import { useState } from "react";
+
 export default function TreeMapTile(props) {
   const { node, parentTop = 0, parentLeft = 0 } = props;
 
@@ -13,6 +16,90 @@ export default function TreeMapTile(props) {
   };
 
   const max = node.children ? getMaxChild(node.children) : node;
+  /* const speciesLevel =
+    node.parent == null && node.children == null ? true : false; */
+  const speciesLevel =
+    node.data.mediaUrls != null && node.parent == null ? true : false;
+
+  let content = <></>;
+
+  const [visibleIndex, setVisibleIndex] = useState(0);
+
+  if (speciesLevel === false) {
+    content = (
+      <img
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover"
+        }}
+        src={max.data.image}
+      />
+    );
+  } else {
+    content = (
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "100%",
+          justifyContent: "center",
+          alignItems: "center",
+          display: "flex"
+        }}
+      >
+        {node.data.mediaUrls.map((entry, index) => {
+          return (
+            <img
+              style={{
+                display:
+                  visibleIndex % node.data.mediaUrls.length === index
+                    ? "block"
+                    : "none",
+                width: "auto",
+                height: "100%"
+              }}
+              src={entry}
+            />
+          );
+        })}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            height: "100%",
+            backgroundColor: "white",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+          onClick={() => {
+            setVisibleIndex(visibleIndex - 1);
+          }}
+        >
+          {"<"}
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            height: "100%",
+            backgroundColor: "white",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+          onClick={() => {
+            setVisibleIndex(visibleIndex + 1);
+          }}
+        >
+          {">"}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -26,14 +113,7 @@ export default function TreeMapTile(props) {
         border: "solid 1px black"
       }}
     >
-      <img
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover"
-        }}
-        src={max.data.image}
-      />
+      {content}
     </div>
   );
 }

@@ -29,7 +29,7 @@ export default function InstrumentThreatPieChart(props) {
       tmpData[spec] = {};
     }
     setProcessedSpecies(tmpData);
-  }, []);
+  }, [species]);
 
   useEffect(() => {
     let x = position.x;

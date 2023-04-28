@@ -30,7 +30,8 @@ export default function /*  */ OrchestraInstruments(props) {
     species,
     acrOptions,
     setInstrument,
-    isSelected = false
+    isSelected = false,
+    selectedInstrument = null
   } = props;
 
   const [hightlight, setHighlight] = useState(false);
@@ -65,7 +66,7 @@ export default function /*  */ OrchestraInstruments(props) {
         id={`pathForInstrumentGroupHeadingWrapper${groupName}`}
         fill="none"
         strokeWidth="1px"
-        stroke={isSelected ? "purple" : "white"}
+        stroke={isSelected && selectedInstrument === null ? "purple" : "gray"}
         d={pathString}
       ></path>
       <path
@@ -110,6 +111,7 @@ export default function /*  */ OrchestraInstruments(props) {
             width={tmpWidth}
             groupName={groupName}
             instrument={instrument}
+            isSelected={instrument === selectedInstrument}
             angle={angle}
             instruments={instruments}
             species={species}

@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import FullScreenButton from "./FullScreenButton";
 import Tooltip from "./Tooltip";
-import TimelineView from "./TimelineView";
 import TimelineViewNew from "./TimelineViewNew";
 import ResizeComponent from "./ResizeComponent";
 import CenterPanel from "./CenterPanel";
@@ -15,7 +14,6 @@ import {
   citesAssessment,
   iucnAssessment
 } from "../utils/timelineUtils";
-import Orchestra from "./Orchestra";
 import Overlay from "./Overlay";
 
 import "leaflet/dist/leaflet.css";
@@ -24,6 +22,7 @@ import "react-leaflet-markercluster/dist/styles.min.css";
 import { HoverProvider } from "./HoverProvider";
 import { TooltipProvider } from "./TooltipProvider";
 import { OverlayProvider } from "./OverlayProvider";
+import { filter, tree } from "d3";
 
 export default function HomeNew(props) {
   const showMap = true;
@@ -34,14 +33,12 @@ export default function HomeNew(props) {
   const [zoomOrigin, setZoomOrigin] = useState("0% 0%");
   const [zoomTransform, setZoomTransform] = useState("");
 
-  const [tooltipText, setTooltipText] = useState("");
-  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-
   const [imageLinks, setImageLinks] = useState({});
   const [dummyImageLinks, setDummyImageLinks] = useState({});
 
   const [instrument, setInstrument] = useState();
   const [instrumentGroup, setInstrumentGroup] = useState();
+  const [instrumentPart, setInstrumentPart] = useState();
 
   const [species, setSpecies] = useState({});
 
@@ -56,6 +53,7 @@ export default function HomeNew(props) {
   const [speciesEcos, setSpeciesEcos] = useState({});
   const [speciesHexas, setSpeciesHexas] = useState({});
   const [timelineData, setTimelineData] = useState({});
+  const [speciesLabels, setSpeciesLabels] = useState({});
 
   const [filteredSpecies, setFilteredSpecies] = useState([]);
 
@@ -79,11 +77,6 @@ export default function HomeNew(props) {
 
   const slice = false;
 
-  const setTooltip = (text, position) => {
-    setTooltipText(text);
-    setTooltipPosition(position);
-  };
-
   /* const returnDummyLink = (speciesObj) => {
     return speciesObj["Foto dummy"].trim() !== ""
       ? "fotos/" + speciesObj["Foto dummy"].replace(" ", "")
@@ -103,6 +96,27 @@ export default function HomeNew(props) {
       }
     }
     return null;
+  };
+
+  let getSpeciesFromTreeMap = (treeMapData) => {
+    return treeMapData.flatMap((el) => {
+      if (el.children) {
+        return getSpeciesFromTreeMap(el.children);
+      } else {
+        return el.name;
+      }
+    });
+  };
+
+  const filterTreeMap = (node, keys, filterLevel) => {
+    return node.filter((el) => {
+      if (el.filterDepth === filterLevel) {
+        return keys.includes(el.name);
+      } else {
+        el.children = filterTreeMap(el.children, keys, filterLevel);
+        return el.children.length > 0;
+      }
+    });
   };
 
   let returnDummyLink = (speciesObj) => {
@@ -191,6 +205,7 @@ export default function HomeNew(props) {
         let tmpSpeciesCountries = {};
         let tmpSpeciesEcos = {};
         let tmpSpeciesHexas = {};
+        let tmpSpeciesLabels = {};
         /* let tmpTreeMapData = {
           Animalia: { name: "Animalia", children:  },
           Plantae: { name: "Plantae", children: {} }
@@ -202,7 +217,6 @@ export default function HomeNew(props) {
         let speciesTreeMapData = {};
 
         for (const spec of Object.keys(speciesData)) {
-          let instrumentGroupHit = true;
           const speciesObj = speciesData[spec];
 
           if (
@@ -237,8 +251,6 @@ export default function HomeNew(props) {
           let species = speciesObj.Species.trim();
           let genusSpecies = `${genus.trim()} ${species.trim()}`;
 
-          console.log(speciesObj.Kingdom, speciesObj);
-
           kingdoms[speciesObj.Kingdom].push(family);
           if (families.hasOwnProperty(family)) {
             families[family].push(genus);
@@ -255,9 +267,12 @@ export default function HomeNew(props) {
           tmpImageLinks[spec] = returnImageLink(speciesObj);
           tmpDummyImageLinks[spec] = returnDummyLink(speciesObj);
 
-          speciesTreeMapData[genusSpecies] = tmpImageLinks[spec]
-            ? tmpImageLinks[spec]
-            : tmpDummyImageLinks[spec];
+          speciesTreeMapData[genusSpecies] = {
+            image: tmpImageLinks[spec]
+              ? tmpImageLinks[spec]
+              : tmpDummyImageLinks[spec],
+            mediaUrls: speciesObj["mediaUrls"]
+          };
 
           for (const mat of speciesObj.origMat) {
             if (
@@ -274,9 +289,19 @@ export default function HomeNew(props) {
             }
 
             if (tmpInstrumentData[mat.Instruments]) {
-              tmpInstrumentData[mat.Instruments].push(spec);
+              if (
+                tmpInstrumentData[mat.Instruments][mat["Main part"]] &&
+                !tmpInstrumentData[mat.Instruments][mat["Main part"]].includes(
+                  spec
+                )
+              ) {
+                tmpInstrumentData[mat.Instruments][mat["Main part"]].push(spec);
+              } else {
+                tmpInstrumentData[mat.Instruments][mat["Main part"]] = [spec];
+              }
             } else {
-              tmpInstrumentData[mat.Instruments] = [spec];
+              tmpInstrumentData[mat.Instruments] = {};
+              tmpInstrumentData[mat.Instruments][mat["Main part"]] = [spec];
             }
           }
 
@@ -408,6 +433,9 @@ export default function HomeNew(props) {
           tmpSpeciesCountries[genusSpecies] = tmpCountries;
           tmpSpeciesEcos[genusSpecies] = speciesObj.ecoregions;
           tmpSpeciesHexas[genusSpecies] = speciesObj.hexagons;
+
+          // Labels as Common Names from Wikipedia
+          tmpSpeciesLabels[genusSpecies] = speciesObj.fixedCommonNames;
         }
 
         for (const group of Object.keys(tmpInstrumentGroupData)) {
@@ -416,11 +444,11 @@ export default function HomeNew(props) {
           ];
         }
 
-        for (const instrument of Object.keys(tmpInstrumentData)) {
+        /* for (const instrument of Object.keys(tmpInstrumentData)) {
           tmpInstrumentData[instrument] = [
             ...new Set(tmpInstrumentData[instrument])
           ];
-        }
+        } */
 
         let tmpDomainYears = {
           maxYear: Math.max(...tmpYears) + 1,
@@ -439,6 +467,7 @@ export default function HomeNew(props) {
         setSpeciesCountries(tmpSpeciesCountries);
         setSpeciesEcos(tmpSpeciesEcos);
         setSpeciesHexas(tmpSpeciesHexas);
+        setSpeciesLabels(tmpSpeciesLabels);
 
         /* console.log(kingdoms);
         console.log(families);
@@ -473,7 +502,8 @@ export default function HomeNew(props) {
               for (let genusSpecies of [...new Set(speciesInGenus)]) {
                 speciesData.push({
                   name: genusSpecies,
-                  image: speciesTreeMapData[genusSpecies],
+                  image: speciesTreeMapData[genusSpecies]["image"],
+                  mediaUrls: speciesTreeMapData[genusSpecies]["mediaUrls"],
                   value: speciesCount[genusSpecies],
                   filterDepth: 4
                 });
@@ -521,32 +551,143 @@ export default function HomeNew(props) {
 
   //FilterSection
   let visibleSpeciesCountries = {};
-  let visibleSpeciesTimelineData = {};
-  let hit = true;
 
-  for (let speciesName of Object.keys(species)) {
-    let specCountries = speciesCountries[speciesName];
+  const {
+    filteredKingdomData,
+    visibleSpeciesTimelineData,
+    filteredInstrumentData
+  } = useMemo(() => {
+    let filteredTreeMap = kingdomData;
+    let filtSpecies = Object.keys(species);
+    let visibleSpeciesTimelineData = {};
 
-    if (selectedCountry && speciesCountries) {
-      if (!specCountries.includes(selectedCountry)) {
-        continue;
+    if (instrumentGroup) {
+      let filtInstruments = instrumentGroupData[instrumentGroup];
+      if (instrument) {
+        filtInstruments = [instrument];
       }
+
+      if (instrumentPart) {
+        filtSpecies = instrumentData[instrument][instrumentPart];
+      } else {
+        filtSpecies = filtInstruments
+          .filter((key) => key in instrumentData)
+          .reduce(
+            (obj2, key) => (
+              obj2.push(
+                ...Object.values(instrumentData[key]).flatMap((entry) => {
+                  return entry;
+                })
+              ),
+              obj2
+            ),
+            []
+          );
+      }
+
+      filtSpecies = [...new Set(filtSpecies)];
     }
 
-    visibleSpeciesCountries[speciesName] =
-      specCountries != null ? specCountries : [];
+    if (treeMapFilter.species != null) {
+      filtSpecies = getSpeciesFromTreeMap(
+        filterTreeMap(
+          structuredClone(filteredTreeMap),
+          [treeMapFilter.species],
+          4
+        )
+      );
+    } else if (treeMapFilter.genus != null) {
+      filtSpecies = getSpeciesFromTreeMap(
+        filterTreeMap(
+          structuredClone(filteredTreeMap),
+          [treeMapFilter.genus],
+          3
+        )
+      );
+    } else if (treeMapFilter.family != null) {
+      filtSpecies = getSpeciesFromTreeMap(
+        filterTreeMap(
+          structuredClone(filteredTreeMap),
+          [treeMapFilter.family],
+          2
+        )
+      );
+    } else if (treeMapFilter.kingdom != null) {
+      filtSpecies = getSpeciesFromTreeMap(
+        filterTreeMap(
+          structuredClone(filteredTreeMap),
+          [treeMapFilter.kingdom],
+          1
+        )
+      );
+    }
 
-    visibleSpeciesTimelineData[speciesName] = timelineData[speciesName];
-  }
+    let tmpFiltSpecies = [];
+    for (let speciesName of filtSpecies) {
+      let specCountries = speciesCountries[speciesName];
 
-  //visibleSpeciesTimelineData = timelineData;
+      if (selectedCountry && speciesCountries) {
+        if (!specCountries.includes(selectedCountry)) {
+          continue;
+        }
+      }
+
+      visibleSpeciesCountries[speciesName] =
+        specCountries != null ? specCountries : [];
+
+      tmpFiltSpecies.push(speciesName);
+
+      visibleSpeciesTimelineData[speciesName] = timelineData[speciesName];
+    }
+
+    filtSpecies = tmpFiltSpecies;
+
+    /*  let filteredInstrumentData = Object.fromEntries(
+      Object.entries(structuredClone(instrumentData)).map(
+        ([inst, instMainParts]) => [
+          inst,
+          Object.values(instMainParts).filter((spec) => {
+            return filtSpecies.includes(spec);
+          })
+        ]
+      )
+    ); */
+
+    let filteredInstrumentData = instrumentData;
+
+    filteredTreeMap = filterTreeMap(
+      structuredClone(kingdomData),
+      filtSpecies,
+      4
+    );
+
+    return {
+      filteredKingdomData: filteredTreeMap,
+      visibleSpeciesTimelineData: visibleSpeciesTimelineData,
+      filteredInstrumentData: filteredInstrumentData
+    };
+  }, [
+    kingdomData,
+    instrument,
+    instrumentGroup,
+    filterTreeMap,
+    instrumentData,
+    instrumentGroupData,
+    treeMapFilter,
+    selectedCountry,
+    speciesCountries,
+    timelineData,
+    visibleSpeciesCountries,
+    getSpeciesFromTreeMap,
+    species
+  ]);
 
   return (
     <>
       <HoverProvider>
         <TooltipProvider>
           <OverlayProvider>
-            {<Tooltip />}
+            {<Tooltip speciesLabels={speciesLabels} />}
             {<Overlay />}
             <div
               style={{
@@ -570,16 +711,24 @@ export default function HomeNew(props) {
                   position: "relative"
                 }}
               >
+                {/*   <iframe
+                  style={{ width: "500px", height: "500px" }}
+                  src="https://commons.wikimedia.org/wiki/Diospyros_mespiliformis#/media/File:Diospyros_mespiliformis_Kruger-NP.jpg"
+                ></iframe> */}
                 {showOrchestra && (
                   <ResizeComponent>
                     <OrchestraNew
-                      instrumentData={instrumentData}
+                      instrumentData={filteredInstrumentData}
                       instrumentGroupData={instrumentGroupData}
                       getThreatLevel={getSpeciesSignThreat}
                       threatType={threatType}
                       colorBlind={colorBlind}
                       setInstrument={setInstrument}
                       setInstrumentGroup={setInstrumentGroup}
+                      instrument={instrument}
+                      instrumentGroup={instrumentGroup}
+                      instrumentPart={instrumentPart}
+                      setInstrumentPart={setInstrumentPart}
                     />
                   </ResizeComponent>
                 )}
@@ -589,7 +738,6 @@ export default function HomeNew(props) {
                     setZoomTransform(zoomTransform !== "" ? "" : "scale(2)");
                     setZoomOrigin(zoomTransform !== "" ? "0% 0%" : "0% 0%");
                   }}
-                  setTooltip={setTooltip}
                 />
               </div>
               <div
@@ -606,7 +754,7 @@ export default function HomeNew(props) {
                     <TreeMapView
                       data={{
                         name: "Kingdom",
-                        children: kingdomData,
+                        children: filteredKingdomData,
                         filterDepth: 0
                       }}
                       /* kingdom={selectedKingdom}

@@ -31,7 +31,7 @@ export default function TimelineMarker(props) {
           </div>
         );
         setHover(true);
-        setTooltip(tooltipContent, {
+        setTooltip(tooltipContent, "text", {
           x: event.pageX + 15,
           y: event.pageY + 15
         });

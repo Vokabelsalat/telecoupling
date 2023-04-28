@@ -1,10 +1,56 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { TooltipContext } from "./TooltipProvider";
 
-export default function Tooltip(props) {
-  const { tooltipText, tooltipPosition } = useContext(TooltipContext);
+function getFlagEmoji(countryCode) {
+  const codePoints = countryCode
+    .toUpperCase()
+    .split("")
+    .map((char) => 127397 + char.charCodeAt());
+  return String.fromCodePoint(...codePoints);
+}
 
-  if (tooltipText === "") {
+const langUnicode = {
+  de: "DE",
+  en: "GB",
+  es: "ES",
+  fr: "FR"
+};
+
+export default function Tooltip(props) {
+  const { speciesLabels } = props;
+
+  const { tooltipText, tooltipMode, tooltipPosition } =
+    useContext(TooltipContext);
+
+  const tooltipContent = useMemo(() => {
+    if (tooltipMode === "text") {
+      return tooltipText;
+    } else if (tooltipMode === "species") {
+      let species = tooltipText;
+      let labels = speciesLabels[species];
+
+      return (
+        <div>
+          {<b>{species}</b>}
+          {Object.keys(labels).map((language) => {
+            if (labels[language] == null) {
+              return <></>;
+            } else {
+              return (
+                <div>
+                  {getFlagEmoji(langUnicode[language])} : {labels[language]}
+                </div>
+              );
+            }
+          })}
+        </div>
+      );
+    } else {
+      return "";
+    }
+  }, [tooltipText, tooltipMode]);
+
+  if (tooltipText === "" || tooltipText == null) {
     return <></>;
   } else {
     return (
@@ -20,7 +66,7 @@ export default function Tooltip(props) {
           zIndex: 99999
         }}
       >
-        {tooltipText}
+        {tooltipContent}
       </div>
     );
   }

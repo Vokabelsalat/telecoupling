@@ -26,7 +26,7 @@ export default function OrchestraThreatPieChart(props) {
       tmpData[spec] = {};
     }
     setProcessedSpecies(tmpData);
-  }, []);
+  }, [species]);
 
   let x = position.x;
   let y = position.y;
