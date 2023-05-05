@@ -1,16 +1,5 @@
 import * as d3 from "d3";
-import {
-  polarToCartesian,
-  describeArc,
-  getStartAndEnd,
-  getAngle
-} from "../utils/orchestraUtils";
-import {
-  getRandomInt,
-  getGroupFileAndRotationFromID,
-  replaceSpecialCharacters,
-  serializeXmlNode
-} from "../utils/utils";
+import * as d3collection from "d3-collection";
 
 class PieChartD3 {
   constructor(param) {
@@ -174,7 +163,7 @@ class PieChartD3 {
   }
 
   appendPie(group, threats) {
-    let data = d3
+    let data = d3collection
       .nest()
       .key(function (d) {
         return d.abbreviation;

@@ -55,8 +55,6 @@ export default function HomeNew(props) {
   const [timelineData, setTimelineData] = useState({});
   const [speciesLabels, setSpeciesLabels] = useState({});
 
-  const [filteredSpecies, setFilteredSpecies] = useState([]);
-
   const [instrumentGroupData, setInstrumentGroupData] = useState({});
   const [instrumentData, setInstrumentData] = useState({});
 
@@ -201,7 +199,6 @@ export default function HomeNew(props) {
         let tmpYears = new Set();
         let tmpInstrumentGroupData = {};
         let tmpInstrumentData = {};
-        let tmpFilteredSpecies = [];
         let tmpSpeciesCountries = {};
         let tmpSpeciesEcos = {};
         let tmpSpeciesHexas = {};
@@ -415,8 +412,6 @@ export default function HomeNew(props) {
             iucn: [...tmpElement["iucn"]].pop()
           };
 
-          tmpFilteredSpecies.push(spec);
-
           let tmpCountries = [];
           if (speciesObj.hasOwnProperty("treeCountries")) {
             tmpCountries = speciesObj["treeCountries"];
@@ -463,7 +458,6 @@ export default function HomeNew(props) {
         setDomainYears(tmpDomainYears);
         setInstrumentData(tmpInstrumentData);
         setInstrumentGroupData(tmpInstrumentGroupData);
-        setFilteredSpecies(tmpFilteredSpecies);
         setSpeciesCountries(tmpSpeciesCountries);
         setSpeciesEcos(tmpSpeciesEcos);
         setSpeciesHexas(tmpSpeciesHexas);
@@ -552,15 +546,8 @@ export default function HomeNew(props) {
   //FilterSection
   let visibleSpeciesCountries = {};
 
-  const {
-    filteredKingdomData,
-    visibleSpeciesTimelineData,
-    filteredInstrumentData
-  } = useMemo(() => {
-    let filteredTreeMap = kingdomData;
+  const filteredSpeciesFromOrchestra = useMemo(() => {
     let filtSpecies = Object.keys(species);
-    let visibleSpeciesTimelineData = {};
-
     if (instrumentGroup) {
       let filtInstruments = instrumentGroupData[instrumentGroup];
       if (instrument) {
@@ -587,6 +574,20 @@ export default function HomeNew(props) {
 
       filtSpecies = [...new Set(filtSpecies)];
     }
+
+    return filtSpecies;
+  }, [
+    instrument,
+    instrumentData,
+    instrumentGroup,
+    instrumentGroupData,
+    instrumentPart,
+    species
+  ]);
+
+  const filteredSpeciesFromTreeMap = useMemo(() => {
+    let filtSpecies = Object.keys(species);
+    let filteredTreeMap = kingdomData;
 
     if (treeMapFilter.species != null) {
       filtSpecies = getSpeciesFromTreeMap(
@@ -622,6 +623,42 @@ export default function HomeNew(props) {
       );
     }
 
+    return filtSpecies;
+  }, [
+    treeMapFilter,
+    filterTreeMap,
+    getSpeciesFromTreeMap,
+    kingdomData,
+    species
+  ]);
+
+  const filteredSpeciesFromMap = useMemo(() => {
+    let filtSpecies = [];
+
+    for (let speciesName of Object.keys(species)) {
+      let specCountries = speciesCountries[speciesName];
+
+      if (selectedCountry && speciesCountries) {
+        if (!specCountries.includes(selectedCountry)) {
+          continue;
+        }
+      }
+
+      filtSpecies.push(speciesName);
+    }
+  }, [species, speciesCountries, selectedCountry]);
+
+  /* const filteredSpeciesFromTimeline = us */
+
+  const {
+    filteredKingdomData,
+    visibleSpeciesTimelineData,
+    filteredInstrumentData
+  } = useMemo(() => {
+    let filteredTreeMap = kingdomData;
+    let filtSpecies = Object.keys(species);
+    let visibleSpeciesTimelineData = {};
+
     let tmpFiltSpecies = [];
     for (let speciesName of filtSpecies) {
       let specCountries = speciesCountries[speciesName];
@@ -632,8 +669,8 @@ export default function HomeNew(props) {
         }
       }
 
-      visibleSpeciesCountries[speciesName] =
-        specCountries != null ? specCountries : [];
+      /* visibleSpeciesCountries[speciesName] =
+        specCountries != null ? specCountries : []; */
 
       tmpFiltSpecies.push(speciesName);
 
@@ -641,17 +678,6 @@ export default function HomeNew(props) {
     }
 
     filtSpecies = tmpFiltSpecies;
-
-    /*  let filteredInstrumentData = Object.fromEntries(
-      Object.entries(structuredClone(instrumentData)).map(
-        ([inst, instMainParts]) => [
-          inst,
-          Object.values(instMainParts).filter((spec) => {
-            return filtSpecies.includes(spec);
-          })
-        ]
-      )
-    ); */
 
     let filteredInstrumentData = instrumentData;
 
@@ -668,17 +694,12 @@ export default function HomeNew(props) {
     };
   }, [
     kingdomData,
-    instrument,
-    instrumentGroup,
     filterTreeMap,
     instrumentData,
-    instrumentGroupData,
-    treeMapFilter,
     selectedCountry,
     speciesCountries,
     timelineData,
     visibleSpeciesCountries,
-    getSpeciesFromTreeMap,
     species
   ]);
 

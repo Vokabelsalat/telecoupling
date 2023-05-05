@@ -19,7 +19,7 @@ const positioning = {
   Keyboard: { textOffset: "30%", threatOffset: 0.2, textAlign: "start" }
 };
 
-export default function /*  */ OrchestraInstruments(props) {
+export default function OrchestraInstruments(props) {
   const {
     id,
     groupName,
