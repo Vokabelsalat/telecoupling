@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import * as d3Collection from "d3-collection";
 import {
   polarToCartesian,
   describeArc,
@@ -82,7 +83,7 @@ class D3Orchestra {
     /* $("#instrumentsSelect").val(value).change(); */
 
     //setInstrument(value.trim());
-    d3.event.stopPropagation();
+    //d3.event.stopPropagation();
 
     d3.select("#selectChartSVG")
       .selectAll(".subarc")
@@ -390,7 +391,7 @@ class D3Orchestra {
     width = null,
     parentGroup = null
   ) {
-    let data = d3
+    let data = d3Collection
       .nest()
       .key(function (d) {
         return d.abbreviation;
@@ -869,26 +870,26 @@ class D3Orchestra {
       group.classed("subarc", true);
 
       group.on("mouseenter", (e) => {
-        let sel = d3.select(d3.event.target);
+        let sel = d3.select(e.target);
         if (!sel.classed("selected")) {
           sel
             .select("path")
             .style("stroke", "var(--highlightpurple)")
             .style("stroke-width", "1px");
         }
-        this.tooltip(text, d3.event, true);
-        d3.event.stopPropagation();
+        this.tooltip(text, e, true);
+        e.stopPropagation();
       });
       group.on("mouseleave", (e) => {
-        let sel = d3.select(d3.event.target);
+        let sel = d3.select(e.target);
         if (!sel.classed("selected")) {
           sel
             .select("path")
             .style("stroke", "initial")
             .style("stroke-width", "initial");
         }
-        this.tooltip(text, d3.event, false);
-        d3.event.stopPropagation();
+        this.tooltip(text, e, false);
+        e.stopPropagation();
       });
 
       group.on("click", (d) => this.clickSubArc(text, group, classStr));
@@ -1123,26 +1124,26 @@ class D3Orchestra {
       );
 
       group.on("mouseenter", (e) => {
-        let sel = d3.select(d3.event.target);
+        let sel = d3.select(e.target);
         if (!sel.classed("selectedMain")) {
           sel
             .select("path")
             .style("stroke", "var(--highlightpurple)")
             .style("stroke-width", "3px");
         }
-        this.tooltip(id, d3.event, true);
+        this.tooltip(id, e, true);
       });
       group.on("mouseleave", (e) => {
-        let sel = d3.select(d3.event.target);
+        let sel = d3.select(e.target);
         if (!sel.classed("selectedMain")) {
           sel
             .select("path")
             .style("stroke", "rgb(95, 77, 73)")
             .style("stroke-width", "1px");
         }
-        this.tooltip(id, d3.event, false);
+        this.tooltip(id, e, false);
       });
-      group.on("mousemove", (e) => this.tooltipMove(d3.event));
+      group.on("mousemove", (e) => this.tooltipMove(e));
 
       group.moveToFront();
     }

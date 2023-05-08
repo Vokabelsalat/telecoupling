@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import * as d3Collection from "d3-collection";
 import {
   polarToCartesian,
   describeArc,
@@ -174,7 +175,7 @@ class PieChartD3 {
   }
 
   appendPie(group, threats) {
-    let data = d3
+    let data = d3Collection
       .nest()
       .key(function (d) {
         return d.abbreviation;
