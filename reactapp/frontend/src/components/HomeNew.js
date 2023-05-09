@@ -669,20 +669,39 @@ export default function HomeNew(props) {
     return filtSpecies;
   }, [species, speciesCountries, selectedCountry]);
 
-  /* const filteredSpeciesFromTimeline = us */
+  const filteredSpeciesFromTimeline = useMemo(() => {
+    if (categoryFilter === null) {
+      return Object.keys(species);
+    }
+
+    let filtSpecies = [];
+    const catType =
+      categoryFilter.type === "cites" ? "economically" : "ecological";
+
+    for (let speciesName of Object.keys(species)) {
+      const signThreat = getSpeciesSignThreat(speciesName, catType);
+      if (
+        signThreat.abbreviation === categoryFilter.value &&
+        signThreat.assessmentType === categoryFilter.type.toUpperCase()
+      ) {
+        filtSpecies.push(speciesName);
+      }
+    }
+
+    return filtSpecies;
+  }, [categoryFilter, species, getSpeciesSignThreat]);
 
   const intersectedSpecies = filteredSpeciesFromMap.filter(
     (value) =>
       filteredSpeciesFromTreeMap.includes(value) &&
-      filteredSpeciesFromOrchestra.includes(value)
+      filteredSpeciesFromOrchestra.includes(value) &&
+      filteredSpeciesFromTimeline.includes(value)
   );
 
   /* console.log("filteredSpeciesFromOrchestra", filteredSpeciesFromOrchestra);
   console.log("filteredSpeciesFromTreeMap", filteredSpeciesFromTreeMap);
   console.log("filteredSpeciesFromMap", filteredSpeciesFromMap);
   console.log("intersectedSpecies", intersectedSpecies); */
-
-  let miss;
 
   const {
     filteredKingdomData,
