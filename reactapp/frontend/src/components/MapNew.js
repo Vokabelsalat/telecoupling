@@ -228,7 +228,6 @@ export default function Map(props) {
   const [ecosToSpecies, setEcosToSpecies] = useState(null);
 
   useEffect(() => {
-    console.log("speciesEcos", speciesEcos, ecoRegionsGeoJson);
     const tmpEcoToSpecies = {};
     for (let species of Object.keys(speciesEcos)) {
       const ecos = speciesEcos[species];
@@ -271,8 +270,6 @@ export default function Map(props) {
     setEcoregionHeatMap(tmpEcoregionHeatMap);
     setEcosToMyIDs(tmpEcosToMyIDs);
   }, [speciesEcos, ecoRegionsGeoJson]);
-
-  console.log("ecosToSpecies", ecosToSpecies);
 
   useEffect(() => {
     const tmpHexasToSpecies = {};

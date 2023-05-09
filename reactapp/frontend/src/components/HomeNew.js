@@ -651,8 +651,6 @@ export default function HomeNew(props) {
     species
   ]);
 
-  console.log("speciesCountries", speciesCountries);
-
   const filteredSpeciesFromMap = useMemo(() => {
     let filtSpecies = [];
 
@@ -738,8 +736,6 @@ export default function HomeNew(props) {
     species,
     intersectedSpecies
   ]);
-
-  console.log("visibleSpeciesCountries", visibleSpeciesCountries);
 
   return (
     <>
