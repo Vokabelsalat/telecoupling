@@ -302,21 +302,21 @@ class D3Timeline {
 
       destination
         .style("cursor", "default")
-        .on("mouseenter", (d) =>
+        .on("mouseenter", (e) =>
           this.tooltipTrend(
             { speciesName: this.speciesName, type: populationTrend },
-            d3.event,
+            e,
             true
           )
         )
-        .on("mouseleave", (d) =>
+        .on("mouseleave", (e) =>
           this.tooltipTrend(
             { speciesName: this.speciesName, type: populationTrend },
-            d3.event,
+            e,
             false
           )
         )
-        .on("mousemove", () => this.tooltipMove(d3.event));
+        .on("mousemove", (e) => this.tooltipMove(e));
     }
   }
 
@@ -360,9 +360,9 @@ class D3Timeline {
           species: [this.speciesName]
         });
       })
-      .on("mouseenter", () => this.tooltip(this.speciesName, d3.event, true))
-      .on("mouseleave", () => this.tooltip(this.speciesName, d3.event, false))
-      .on("mousemove", () => this.tooltipMove(d3.event));
+      .on("mouseenter", (e) => this.tooltip(this.speciesName, e, true))
+      .on("mouseleave", (e) => this.tooltip(this.speciesName, e, false))
+      .on("mousemove", (e) => this.tooltipMove(e));
     /* .style("display", "table-cell"); */
 
     this.wrapper = content.append("div").attr("id", this.id + "wrapper");
@@ -501,13 +501,9 @@ class D3Timeline {
                 species: [this.speciesName]
               });
             })
-            .on("mouseenter", () =>
-              this.tooltip(this.speciesName, d3.event, true)
-            )
-            .on("mouseleave", () =>
-              this.tooltip(this.speciesName, d3.event, false)
-            )
-            .on("mousemove", () => this.tooltipMove(d3.event));
+            .on("mouseenter", (e) => this.tooltip(this.speciesName, e, true))
+            .on("mouseleave", (e) => this.tooltip(this.speciesName, e, false))
+            .on("mousemove", (e) => this.tooltipMove(e));
         } else if (dummyLink) {
           let imageWidth = (2 * this.margin.left) / 3;
           this.wrapper
@@ -528,13 +524,9 @@ class D3Timeline {
                 species: [this.speciesName]
               });
             })
-            .on("mouseenter", () =>
-              this.tooltip(this.speciesName, d3.event, true)
-            )
-            .on("mouseleave", () =>
-              this.tooltip(this.speciesName, d3.event, false)
-            )
-            .on("mousemove", () => this.tooltipMove(d3.event))
+            .on("mouseenter", (e) => this.tooltip(this.speciesName, e, true))
+            .on("mouseleave", (e) => this.tooltip(this.speciesName, e, false))
+            .on("mousemove", (e) => this.tooltipMove(e))
             .append("div")
             .attr("class", "dummyDiv")
             .style("height", "100%")
@@ -2308,8 +2300,8 @@ class D3Timeline {
       .html(htmlText)
       /* .style("left", leftAdd + d3.mouse(this)[0] + 85 + "px")
             .style("top", parentOffset.top + d3.mouse(this)[1] + 10 + topAdd + "px"); */
-      .style("left", d3.event.pageX + 25 + "px")
-      .style("top", d3.event.pageY + topAdd + "px");
+      .style("left", d.pageX + 25 + "px")
+      .style("top", d.pageY + topAdd + "px");
   }
 
   mouseleave(d) {

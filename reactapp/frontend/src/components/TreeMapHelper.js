@@ -565,7 +565,7 @@ class D3BarChart {
       .join("g")
       .attr("class", "treeGroup")
       .on("mouseenter", (e) => {
-        let sel = d3.select(d3.event.target);
+        let sel = d3.select(e.target);
 
         if (!sel.classed("selected")) {
           sel
@@ -573,18 +573,18 @@ class D3BarChart {
             .style("border", "3px solid var(--highlightpurple)");
         }
 
-        this.tooltip(e, d3.event, true);
+        this.tooltip(e, e, true);
       })
       .on("mouseleave", (e) => {
-        let sel = d3.select(d3.event.target);
+        let sel = d3.select(e.target);
 
         if (!sel.classed("selected")) {
           sel.select(".treeGroupBorder").style("border", "none");
         }
 
-        this.tooltip(e, d3.event, false);
+        this.tooltip(e, e, false);
       })
-      .on("mousemove", (e) => this.tooltipMove(d3.event));
+      .on("mousemove", (e) => this.tooltipMove(e));
 
     let boundZoomOut = this.zoomout.bind(this);
     let boundZoomIn = this.zoomin.bind(this);

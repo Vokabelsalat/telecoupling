@@ -24,6 +24,27 @@ import { TooltipProvider } from "./TooltipProvider";
 import { OverlayProvider } from "./OverlayProvider";
 import { filter, tree } from "d3";
 
+export const returnDummyLink = (speciesObj) => {
+  return speciesObj["Foto dummy"].trim() !== ""
+    ? "fotos/" + speciesObj["Foto dummy"].replace(" ", "")
+    : null;
+};
+
+export const returnImageLink = (speciesObj) => {
+  if (speciesObj["photos"] !== null) {
+    let sortedPhotos = speciesObj["photos"].sort((pA, pB) => {
+      return pA.Priority - pB.Priority;
+    });
+
+    if (sortedPhotos.length > 0) {
+      if (sortedPhotos[0].Foto !== null) {
+        return "fotos/" + sortedPhotos[0].Foto.replace(" ", "");
+      }
+    }
+  }
+  return null;
+};
+
 export default function HomeNew(props) {
   const showMap = true;
   const showTimeline = true;
@@ -81,7 +102,7 @@ export default function HomeNew(props) {
       : null;
   }; */
 
-  let returnImageLink = (speciesObj) => {
+  /*   let returnImageLink = (speciesObj) => {
     if (speciesObj["photos"] !== null) {
       let sortedPhotos = speciesObj["photos"].sort((pA, pB) => {
         return pA.Priority - pB.Priority;
@@ -94,7 +115,7 @@ export default function HomeNew(props) {
       }
     }
     return null;
-  };
+  }; */
 
   let getSpeciesFromTreeMap = (treeMapData) => {
     return treeMapData.flatMap((el) => {
@@ -180,16 +201,14 @@ export default function HomeNew(props) {
   };
 
   useEffect(() => {
-    fetch("/generatedOutput/allSpecies.json")
+    fetch("./generatedOutput/allSpecies.json")
       .then((res) => res.json())
       .then(function (speciesData) {
         speciesData = Object.fromEntries(
-          Object.entries(speciesData)
-            .filter(
-              (t) => (t[1].Kingdom ? t[1].Kingdom.trim() !== "" : false)
-              //t[0] === "Dalbergia nigra" || t[0] === "Paubrasilia echinata"
-            )
-            .slice(0, slice ? 70 : Object.keys(speciesData).length)
+          Object.entries(speciesData["species"]).slice(
+            0,
+            slice ? 70 : Object.keys(speciesData["species"]).length
+          )
         );
 
         let tmpImageLinks = {};
@@ -426,8 +445,8 @@ export default function HomeNew(props) {
           }
 
           tmpSpeciesCountries[genusSpecies] = tmpCountries;
-          tmpSpeciesEcos[genusSpecies] = speciesObj.ecoregions;
-          tmpSpeciesHexas[genusSpecies] = speciesObj.hexagons;
+          tmpSpeciesEcos[genusSpecies] = speciesObj.ecos;
+          tmpSpeciesHexas[genusSpecies] = speciesObj.hexas;
 
           // Labels as Common Names from Wikipedia
           tmpSpeciesLabels[genusSpecies] = speciesObj.fixedCommonNames;
@@ -632,6 +651,8 @@ export default function HomeNew(props) {
     species
   ]);
 
+  console.log("speciesCountries", speciesCountries);
+
   const filteredSpeciesFromMap = useMemo(() => {
     let filtSpecies = [];
 
@@ -646,9 +667,24 @@ export default function HomeNew(props) {
 
       filtSpecies.push(speciesName);
     }
+
+    return filtSpecies;
   }, [species, speciesCountries, selectedCountry]);
 
   /* const filteredSpeciesFromTimeline = us */
+
+  const intersectedSpecies = filteredSpeciesFromMap.filter(
+    (value) =>
+      filteredSpeciesFromTreeMap.includes(value) &&
+      filteredSpeciesFromOrchestra.includes(value)
+  );
+
+  /* console.log("filteredSpeciesFromOrchestra", filteredSpeciesFromOrchestra);
+  console.log("filteredSpeciesFromTreeMap", filteredSpeciesFromTreeMap);
+  console.log("filteredSpeciesFromMap", filteredSpeciesFromMap);
+  console.log("intersectedSpecies", intersectedSpecies); */
+
+  let miss;
 
   const {
     filteredKingdomData,
@@ -656,7 +692,7 @@ export default function HomeNew(props) {
     filteredInstrumentData
   } = useMemo(() => {
     let filteredTreeMap = kingdomData;
-    let filtSpecies = Object.keys(species);
+    let filtSpecies = intersectedSpecies;
     let visibleSpeciesTimelineData = {};
 
     let tmpFiltSpecies = [];
@@ -669,8 +705,8 @@ export default function HomeNew(props) {
         }
       }
 
-      /* visibleSpeciesCountries[speciesName] =
-        specCountries != null ? specCountries : []; */
+      visibleSpeciesCountries[speciesName] =
+        specCountries != null ? specCountries : [];
 
       tmpFiltSpecies.push(speciesName);
 
@@ -699,9 +735,11 @@ export default function HomeNew(props) {
     selectedCountry,
     speciesCountries,
     timelineData,
-    visibleSpeciesCountries,
-    species
+    species,
+    intersectedSpecies
   ]);
+
+  console.log("visibleSpeciesCountries", visibleSpeciesCountries);
 
   return (
     <>

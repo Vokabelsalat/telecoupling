@@ -115,6 +115,7 @@ export default function OrchestraNew(props) {
             zoomInto(null);
             setInstrument(null);
             setInstrumentGroup(null);
+            setInstrumentPart(null);
           }}
         >
           Reset
@@ -175,6 +176,7 @@ export default function OrchestraNew(props) {
                 colorBlind={colorBlind}
                 setInstrument={setInstrument}
                 setInstrumentGroup={setInstrumentGroup}
+                setInstrumentPart={setInstrumentPart}
                 instrument={instrument}
               />
             );

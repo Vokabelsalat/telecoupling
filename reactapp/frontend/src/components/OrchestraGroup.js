@@ -32,6 +32,7 @@ export default function OrchestraGroup(props) {
     species,
     setInstrument,
     setInstrumentGroup,
+    setInstrumentPart,
     instrument
   } = props;
 
@@ -68,6 +69,7 @@ export default function OrchestraGroup(props) {
           } */
           setInstrumentGroup(groupName);
           setInstrument(null);
+          setInstrumentPart(null);
         }}
         onMouseEnter={() => {
           setHighlight(true);

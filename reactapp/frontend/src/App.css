@@ -1,3 +1,9 @@
+@import url("https://fonts.googleapis.com/css?family=Great+Vibes");
+@import url("https://fonts.googleapis.com/css?family=Montserrat");
+
+@import url("https://fonts.googleapis.com/css?family=Libre+Baskerville");
+@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro");
+
 :root {
   --main: rgba(45, 188, 233, 1);
   --highlight: rgba(251, 176, 59, 1);
@@ -5,10 +11,15 @@
   --gray: rgba(191, 192, 192, 1);
   --lightgray: rgba(255, 255, 255, 1);
   --highlightpurple: rgb(115, 1, 136);
+  --app-height: 100%;
+}
+
+#root {
+  height: 100%;
 }
 
 .App {
-  height: 100vh;
+  height: 100%;
 }
 
 .App-logo {
@@ -33,9 +44,9 @@
   color: white;
 }
 
-.App-link {
+/* .App-link {
   color: #61dafb;
-}
+} */
 
 @keyframes App-logo-spin {
   from {
@@ -70,8 +81,7 @@ body {
   box-sizing: border-box;
   font-size: 16px;
   font-family: Arial, Helvetica, sans-serif;
-  height: 100vh;
-  padding: 10px;
+  height: var(--app-height);
   position: fixed;
   top: 0;
   left: 0;
@@ -133,10 +143,6 @@ thead > tr > td {
 .tableHead {
   height: 1em;
   width: 25%;
-}
-
-img {
-  width: 300px;
 }
 
 .leaflet-control-container {
@@ -345,6 +351,10 @@ img {
 
 svg {
   vertical-align: top;
+}
+
+img {
+  width: auto;
 }
 
 .timelineHeader {
@@ -736,4 +746,192 @@ path.handle:focus {
   border: 2px solid var(--highlightpurple);
   box-sizing: border-box;
   line-height: 11px;
+}
+
+.copyrightQuote > * > a:-webkit-any-link,
+a:any-link {
+  color: gray !important;
+}
+
+.contentWrapper:after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 1px;
+  width: 25%;
+  border-bottom: 1px solid #c4c4c4;
+}
+
+.contentPanel.black {
+  color: #fdfdfd;
+  background-color: #1f1f1f;
+  transition: color 0.5s, background-color 0.5s;
+}
+
+.contentPanel {
+  color: #1c0f13;
+  background-color: #fdfdfd;
+  transition: color 0.5s, background-color 0.5s;
+}
+
+.checkMarkContainer {
+  display: block;
+  position: relative;
+  padding-right: 35px;
+  margin: 10px 0;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  line-height: 25px;
+}
+
+/* Hide the browser's default checkbox */
+.checkMarkContainer input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #ab6318;
+  opacity: 0.7;
+  border-radius: 5px;
+}
+
+/* On mouse-over, add a grey background color */
+.checkMarkContainer:hover input ~ .checkmark {
+  opacity: 0.9;
+}
+
+/* When the checkbox is checked, add a blue background */
+.checkMarkContainer input:checked ~ .checkmark {
+  background-color: #ab6318;
+  opacity: 1;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.checkMarkContainer input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.checkMarkContainer .checkmark:after {
+  left: 9px;
+  top: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg); /*  */
+  transform: rotate(45deg);
+}
+
+.vignette-radial {
+  position: relative;
+}
+
+.vignette-radial:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  /* background: radial-gradient(circle, transparent 50%, black 150%); */
+  background: radial-gradient(circle, transparent 5%, #fdfdfd 94%);
+}
+
+/* ---------------------------------------------- /*
+ * Mouse animate icon
+/* ---------------------------------------------- */
+.mouse-icon {
+  /* border: 2px solid #000; */
+  border-radius: 16px;
+  height: 40px;
+  width: 24px;
+  display: block;
+  z-index: 10;
+  background-color: #ab6318;
+}
+.mouse-icon .wheel {
+  -webkit-animation-name: drop;
+  -webkit-animation-duration: 1s;
+  -webkit-animation-timing-function: linear;
+  -webkit-animation-delay: 0s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-play-state: running;
+  -webkit-animation-name: drop;
+  animation-name: drop;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-timing-function: linear;
+  animation-timing-function: linear;
+  -webkit-animation-delay: 0s;
+  animation-delay: 0s;
+  -webkit-animation-iteration-count: infinite;
+  animation-iteration-count: infinite;
+  -webkit-animation-play-state: running;
+  animation-play-state: running;
+}
+.mouse-icon .wheel {
+  position: relative;
+  border-radius: 10px;
+  background: white;
+  width: 4px;
+  height: 8px;
+  top: 4px;
+  margin-left: auto;
+  margin-right: auto;
+}
+@-webkit-keyframes drop {
+  0% {
+    top: 5px;
+    opacity: 0;
+  }
+  30% {
+    top: 10px;
+    opacity: 1;
+  }
+  100% {
+    top: 25px;
+    opacity: 0;
+  }
+}
+@keyframes drop {
+  0% {
+    top: 5px;
+    opacity: 0;
+  }
+  30% {
+    top: 10px;
+    opacity: 1;
+  }
+  100% {
+    top: 25px;
+    opacity: 0;
+  }
+}
+
+.overlay > img {
+  width: auto;
+  height: 100%;
+  cursor: zoom-out;
 }

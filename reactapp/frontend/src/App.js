@@ -1,9 +1,16 @@
+import "mapbox-gl/dist/mapbox-gl.css";
 import React, { Component } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import "mapbox-gl/dist/mapbox-gl.css";
 import "./App.css";
-import Statistics from "./components/Statistics";
+import BowStory from "./components/BowStory/BowStory";
+import ResizeComponent from "./components/ResizeComponent";
 import HomeNew from "./components/HomeNew";
+
+const appHeight = () => {
+  const doc = document.documentElement;
+  doc.style.setProperty("--app-height", `${window.innerHeight}px`);
+};
+window.addEventListener("resize", appHeight);
 
 /* function HomeWithParams({ match }) {
   let { instrumentGroup } = match.params;
@@ -28,7 +35,9 @@ class App extends Component {
     super(props);
   } */
 
-  componentDidMount() {}
+  componentDidMount() {
+    appHeight();
+  }
 
   render() {
     return (
@@ -49,6 +58,22 @@ class App extends Component {
             <Route path="/:instrumentGroup" component={HomeWithParams} /> */}
             {/* <Route exact path="/" element={<Home />} /> */}
             <Route exact path="/" element={<HomeNew />} />
+            <Route
+              exact
+              path="/bowstory"
+              element={
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%"
+                  }}
+                >
+                  <ResizeComponent>
+                    <BowStory />
+                  </ResizeComponent>
+                </div>
+              }
+            />
           </Routes>
           {/* <Route exact path="/timeline">
             <TimelineView />
