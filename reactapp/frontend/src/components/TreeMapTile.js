@@ -5,9 +5,18 @@ export default function TreeMapTile(props) {
   const { node, parentTop = 0, parentLeft = 0 } = props;
 
   const getMaxChild = (children) => {
-    const max = children.reduce(function (prev, current) {
-      return prev.value > current.value ? prev : current;
+    const sorted = children.sort((a, b) => {
+      if (a.data.image && b.data.image) {
+        return b.value - a.value;
+      } else if (a.data.image && !b.data.image) {
+        return -1;
+      } else if (b.data.image && !a.data.image) {
+        return 1;
+      } else {
+        return b.value - a.value;
+      }
     });
+    const max = sorted[0];
     if (max.children) {
       return getMaxChild(max.children);
     } else {
@@ -16,6 +25,7 @@ export default function TreeMapTile(props) {
   };
 
   const max = node.children ? getMaxChild(node.children) : node;
+
   /* const speciesLevel =
     node.parent == null && node.children == null ? true : false; */
   const speciesLevel =
@@ -109,7 +119,7 @@ export default function TreeMapTile(props) {
         top: node.y0 - parentTop,
         width: node.x1 - node.x0,
         height: node.y1 - node.y0,
-        backgroundColor: "rgba(255,0,0,0.2)",
+        backgroundColor: "gray",
         border: "solid 1px black"
       }}
     >
