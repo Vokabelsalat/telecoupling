@@ -713,7 +713,16 @@ export default function HomeNew(props) {
 
     filtSpecies = tmpFiltSpecies;
 
-    let filteredInstrumentData = instrumentData;
+    let filteredInstrumentData = {};
+
+    for (let inst of Object.keys(instrumentData)) {
+      filteredInstrumentData[inst] = Object.fromEntries(
+        Object.keys(instrumentData[inst]).map((e) => [
+          e,
+          instrumentData[inst][e].filter((value) => filtSpecies.includes(value))
+        ])
+      );
+    }
 
     filteredTreeMap = filterTreeMap(
       structuredClone(kingdomData),
