@@ -71,6 +71,32 @@ export default function TreeMapView(props) {
 
   if (rootNode) {
     tmpData = filterData(data, rootNode);
+  } else {
+    let level = 0;
+    let name = "";
+    if (species) {
+      level = 4;
+      name = species;
+    } else if (genus) {
+      level = 3;
+      name = genus;
+    } else if (family) {
+      level = 2;
+      name = family;
+    } else if (kingdom) {
+      level = 1;
+      name = kingdom;
+    } else {
+      level = 0;
+    }
+
+    let test = filterData(data, {
+      data: { name: name, filterDepth: level }
+    });
+
+    if (test) {
+      tmpData = test;
+    }
   }
 
   return (

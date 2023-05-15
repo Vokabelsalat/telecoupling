@@ -1,7 +1,7 @@
 import PieChartNew from "./PieChartNew";
 import Switch from "@mui/material/Switch";
-import ResizeComponent from "./ResizeComponent";
 import Legend from "./LegendNew";
+import SearchBar from "./SearchBarNew";
 
 export default function CenterPanel(props) {
   const {
@@ -12,7 +12,9 @@ export default function CenterPanel(props) {
     colorBlind,
     setColorBlind,
     setCategoryFilter,
-    categoryFilter
+    categoryFilter,
+    speciesData,
+    setTreeMapFilter
   } = props;
 
   return (
@@ -32,10 +34,22 @@ export default function CenterPanel(props) {
           width: "100%",
           height: "100%",
           gridTemplateRows: "auto",
-          gridTemplateColumns: "auto auto auto auto",
+          gridTemplateColumns: "auto auto auto auto auto",
           gap: "3px"
         }}
       >
+        <div
+          style={{
+            margin: 0,
+            padding: 0
+          }}
+          className="searchBarWrapper"
+        >
+          <SearchBar
+            speciesData={speciesData}
+            setTreeMapFilter={setTreeMapFilter}
+          />
+        </div>
         <div
           style={{
             margin: 0,

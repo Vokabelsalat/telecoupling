@@ -1,38 +1,12 @@
 import TextField from "@mui/material/TextField";
 import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
 import { useEffect, useState } from "react";
+import { getFlagEmoji, langUnicode } from "./Tooltip";
 
 export default function SearchBar(props) {
-  const { id, data, kingdom, familia, species, genus, setFilter } = props;
-
-  const filter = createFilterOptions();
+  const { id, setFilter, setTreeMapFilter, speciesData: data } = props;
 
   const [value, setValue] = useState(null);
-
-  useEffect(() => {
-    let tmpValue = null;
-    if (species) {
-      tmpValue = {
-        title: species,
-        type: "species",
-        kingdom: kingdom,
-        family: familia,
-        genus: genus,
-        species: species
-      };
-    } else if (genus) {
-      tmpValue = {
-        title: genus,
-        type: "genus",
-        kingdom: kingdom,
-        family: familia,
-        genus: genus,
-        species: null
-      };
-    } else {
-      tmpValue = null;
-    }
-  }, []);
 
   const select = (val) => {
     setFilter({
@@ -48,11 +22,11 @@ export default function SearchBar(props) {
   let options = [];
 
   if (data) {
-    let genus = [];
-    for (let key of Object.keys(data)) {
+    let genus = {};
+    for (let key of Object.keys(data).sort()) {
       let keyGenus = data[key].Genus.trim();
-      if (!genus.includes(keyGenus)) {
-        genus.push(keyGenus);
+      if (!Object.keys(genus).includes(keyGenus)) {
+        genus[keyGenus] = [key];
         options.push({
           title: keyGenus,
           type: "genus",
@@ -61,32 +35,97 @@ export default function SearchBar(props) {
           genus: data[key].Genus.trim(),
           species: null
         });
+      } else {
+        genus[keyGenus].push(key);
       }
+
       options.push({
         title: key,
         type: "species",
         kingdom: data[key].Kingdom.trim(),
         family: data[key].Family.trim(),
         genus: data[key].Genus.trim(),
-        species: key
+        species: key,
+        en: data[key]["fixedCommonNames"]["en"],
+        de: data[key]["fixedCommonNames"]["de"],
+        es: data[key]["fixedCommonNames"]["es"],
+        fr: data[key]["fixedCommonNames"]["fr"],
+        all: Object.values(data[key]["fixedCommonNames"]).join(" ")
       });
     }
+
+    options = options.filter((opt) => {
+      if (opt["type"] === "genus" && genus[opt["genus"]].length === 1) {
+        return false;
+      }
+      return true;
+    });
   }
 
   return (
     <Autocomplete
       value={value}
       onChange={(event, newValue) => {
-        setValue(newValue);
+        setTreeMapFilter({
+          genus: newValue["genus"],
+          species: newValue["species"],
+          family: newValue["family"],
+          kingdom: newValue["kingdom"]
+        });
       }}
       filterOptions={(options, params) => {
-        const filtered = filter(options, params);
-
         const { inputValue } = params;
+        /* const filtered = filter(options, params); */
+        /* console.log(filtered, options, params); */
+
+        const filtered = options.filter((entry) => {
+          if (entry.title.toLowerCase().includes(inputValue.toLowerCase())) {
+            entry.found = null;
+            return true;
+          } else if (
+            entry.all != null &&
+            entry.all.toLowerCase().includes(inputValue.toLowerCase())
+          ) {
+            entry.found = [];
+            if (
+              entry.en != null &&
+              entry.en.toLowerCase().includes(inputValue.toLowerCase())
+            ) {
+              entry.found.push("en");
+            }
+
+            if (
+              entry.fr != null &&
+              entry.fr.toLowerCase().includes(inputValue.toLowerCase())
+            ) {
+              entry.found.push("fr");
+            }
+
+            if (
+              entry.es != null &&
+              entry.es.toLowerCase().includes(inputValue.toLowerCase())
+            ) {
+              entry.found.push("es");
+            }
+
+            if (
+              entry.de != null &&
+              entry.de.toLowerCase().includes(inputValue.toLowerCase())
+            ) {
+              entry.found.push("de");
+            }
+            return true;
+          } else {
+            entry.found = null;
+            return false;
+          }
+        });
+
+        /* const { inputValue } = params;
         // Suggest the creation of a new value
         const isExisting = options.some(
           (option) => inputValue === option.title
-        );
+        ); */
         /*  if (inputValue !== "" && !isExisting) {
         filtered.push({
           inputValue,
@@ -110,20 +149,45 @@ export default function SearchBar(props) {
         if (option.inputValue) {
           return option.inputValue;
         }
+
         // Regular option
         return option.title;
       }}
-      renderOption={(props, option) => (
-        <li {...props}>
-          {option.type === "genus" ? (
-            <span>
-              <b>{option.title}</b> (Genus)
-            </span>
-          ) : (
-            option.title
-          )}
-        </li>
-      )}
+      renderOption={(props, option) => {
+        return (
+          <li {...props}>
+            {option.type === "genus" ? (
+              <span>
+                <b>
+                  <i>{option.title}</i>
+                </b>{" "}
+                (Genus)
+              </span>
+            ) : (
+              <div>
+                <i>{option.title}</i>
+                {option.found && (
+                  <div style={{ fontSize: "smaller" }}>
+                    {option.found.map((language) => {
+                      if (option[language] == null) {
+                        return <></>;
+                      } else {
+                        let str = option[language];
+                        return (
+                          <div>
+                            {getFlagEmoji(langUnicode[language])} :{" "}
+                            {str.charAt(0).toUpperCase() + str.slice(1)}
+                          </div>
+                        );
+                      }
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </li>
+        );
+      }}
       sx={{ width: 300 }}
       freeSolo
       renderInput={(params) => (

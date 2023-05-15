@@ -875,6 +875,8 @@ export default function HomeNew(props) {
                     setColorBlind={setColorBlind}
                     setCategoryFilter={setCategoryFilter}
                     categoryFilter={categoryFilter}
+                    speciesData={species}
+                    setTreeMapFilter={setTreeMapFilter}
                   />
                 }
               </div>

@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
 import { TooltipContext } from "./TooltipProvider";
 
-function getFlagEmoji(countryCode) {
+export function getFlagEmoji(countryCode) {
   const codePoints = countryCode
     .toUpperCase()
     .split("")
@@ -9,7 +9,7 @@ function getFlagEmoji(countryCode) {
   return String.fromCodePoint(...codePoints);
 }
 
-const langUnicode = {
+export const langUnicode = {
   de: "DE",
   en: "GB",
   es: "ES",
@@ -31,7 +31,11 @@ export default function Tooltip(props) {
 
       return (
         <div>
-          {<b>{species}</b>}
+          {
+            <b>
+              <i>{species}</i>
+            </b>
+          }
           {Object.keys(labels).map((language) => {
             if (labels[language] == null) {
               return <></>;

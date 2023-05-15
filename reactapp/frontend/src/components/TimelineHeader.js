@@ -36,7 +36,8 @@ export default function TimelineHeader(props) {
       <div
         style={{
           display: "flex",
-          alignItems: "center"
+          alignItems: "center",
+          fontStyle: "italic"
         }}
       >
         <span
