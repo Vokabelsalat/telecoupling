@@ -5,8 +5,14 @@ import {
 } from "../utils/timelineUtils";
 
 export default function Legend(props) {
-  const { threatType, type, colorBlind, setThreatType, setCategoryFilter } =
-    props;
+  const {
+    threatType,
+    type,
+    colorBlind,
+    setThreatType,
+    setCategoryFilter,
+    categoryFilter
+  } = props;
 
   if (type === "economically") {
     return (
@@ -63,10 +69,24 @@ export default function Legend(props) {
                 data-key={e}
                 className={`legendEntry ${
                   threatType === type ? "clickable" : ""
+                } ${
+                  categoryFilter &&
+                  categoryFilter.type === "cites" &&
+                  categoryFilter.value === e
+                    ? "highlight-border"
+                    : ""
                 }`}
                 onClick={(event) => {
                   if (threatType === type) {
-                    setCategoryFilter({ type: "cites", value: e });
+                    if (
+                      categoryFilter &&
+                      categoryFilter.value === e &&
+                      categoryFilter.type === "cites"
+                    ) {
+                      setCategoryFilter(null);
+                    } else {
+                      setCategoryFilter({ type: "cites", value: e });
+                    }
                   }
                 }}
                 /*  onMouseEnter={(e) => this.tooltip(e, true)}
@@ -190,7 +210,15 @@ export default function Legend(props) {
                   data-key={e}
                   onClick={(event) => {
                     if (threatType === type) {
-                      setCategoryFilter({ type: "iucn", value: e });
+                      if (
+                        categoryFilter &&
+                        categoryFilter.value === e &&
+                        categoryFilter.type === "iucn"
+                      ) {
+                        setCategoryFilter(null);
+                      } else {
+                        setCategoryFilter({ type: "iucn", value: e });
+                      }
                     }
                   }}
                   /* onMouseEnter={(e) => this.tooltip(e, true)}
@@ -247,7 +275,15 @@ export default function Legend(props) {
                 }`}
                 onClick={(event) => {
                   if (threatType === type) {
-                    setCategoryFilter({ type: "bgci", value: e });
+                    if (
+                      categoryFilter &&
+                      categoryFilter.value === e &&
+                      categoryFilter.type === "bgci"
+                    ) {
+                      setCategoryFilter(null);
+                    } else {
+                      setCategoryFilter({ type: "bgci", value: e });
+                    }
                   }
                 }}
                 /* onMouseEnter={(e) => this.tooltip(e, true)}

@@ -874,6 +874,7 @@ export default function HomeNew(props) {
                     colorBlind={colorBlind}
                     setColorBlind={setColorBlind}
                     setCategoryFilter={setCategoryFilter}
+                    categoryFilter={categoryFilter}
                   />
                 }
               </div>

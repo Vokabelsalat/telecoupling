@@ -744,8 +744,8 @@ path.handle:focus {
 
 .clickable:hover {
   border: 2px solid var(--highlightpurple);
-  box-sizing: border-box;
-  line-height: 11px;
+  /* box-sizing: border-box;
+  line-height: 11px; */
 }
 
 .copyrightQuote > * > a:-webkit-any-link,
@@ -934,4 +934,8 @@ a:any-link {
   width: auto;
   height: 100%;
   cursor: zoom-out;
+}
+
+.highlight-border {
+  border: 2px solid var(--highlightpurple);
 }

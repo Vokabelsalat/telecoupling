@@ -11,7 +11,8 @@ export default function CenterPanel(props) {
     setThreatType,
     colorBlind,
     setColorBlind,
-    setCategoryFilter
+    setCategoryFilter,
+    categoryFilter
   } = props;
 
   return (
@@ -60,6 +61,7 @@ export default function CenterPanel(props) {
           colorBlind={colorBlind}
           setThreatType={setThreatType}
           setCategoryFilter={setCategoryFilter}
+          categoryFilter={categoryFilter}
         />
       </div>
       <PieChartNew
@@ -74,6 +76,7 @@ export default function CenterPanel(props) {
         colorBlind={colorBlind}
         setThreatType={setThreatType}
         setCategoryFilter={setCategoryFilter}
+        categoryFilter={categoryFilter}
       />
       <div></div>
       <div></div>
