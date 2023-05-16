@@ -167,7 +167,8 @@ export const iucnAssessment = new AssessmentType("IUCN", {
 export const citesAssessment = new AssessmentType("CITES", {
   I: new ThreatLevel("Appendix I", "I", "CITES", 0, 0),
   II: new ThreatLevel("Appendix II", "II", "CITES", 1, 1),
-  III: new ThreatLevel("Appendix III", "III", "CITES", 2, 2)
+  III: new ThreatLevel("Appendix III", "III", "CITES", 2, 2),
+  DD: new ThreatLevel("Data Deficient", "DD", "CITES", 4, 8)
 });
 
 export const iucnColors = {

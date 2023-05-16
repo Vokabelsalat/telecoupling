@@ -36,6 +36,7 @@ export default function TreeMapTile(props) {
   const [visibleIndex, setVisibleIndex] = useState(0);
 
   if (speciesLevel === false) {
+    /* console.log(max.data, max.data.image); */
     content = (
       <img
         style={{

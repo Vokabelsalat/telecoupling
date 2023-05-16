@@ -3,7 +3,8 @@ import ContentWrapper from "./ContentWrapper";
 import { Content } from "./Content";
 import ResizeComponent from "../ResizeComponent";
 import StoryMap from "../StoryMapCleanUp";
-import contents from "./StoryContents";
+import bowContents from "./bow";
+import concertContents from "./concert";
 import { useRefDimensions } from "./useRefDimensions";
 import {
   bgciAssessment,
@@ -20,8 +21,12 @@ import { active } from "d3";
 import { padding } from "@mui/system";
 import Overlay from "../Overlay/Overlay";
 
-export default function BowStory(props) {
-  const { width, height } = props;
+const storyScripts = { bow: bowContents, concert: concertContents };
+
+export default function Story(props) {
+  const { width, height, storyName } = props;
+
+  const contents = storyScripts[storyName];
 
   const ref = useRef(null);
 
@@ -143,13 +148,13 @@ export default function BowStory(props) {
         /* const tmpTest = [...activeFigure];
         tmpTest[idx] = entry.intersectionRatio; */
         if (typeof window.history.pushState == "function") {
-          setTimeout(() => {
+          /* setTimeout(() => {
             window.history.pushState(
               null,
               `bowstory#${idx}`,
               `bowstory#${idx}`
             );
-          }, 500);
+          }, 500); */
         } else {
           setTimeout(() => {
             window.location.hash = idx;
@@ -189,12 +194,17 @@ export default function BowStory(props) {
       }
     }
 
-    if (activeFigure !== null && contents[activeFigure] != null) {
+    if (
+      activeFigure != null &&
+      contents != null &&
+      contents[activeFigure] != null
+    ) {
       setActiveMapLayer(contents[activeFigure].mapLayer ?? null);
     }
 
     if (
-      activeFigure !== null &&
+      activeFigure != null &&
+      contents != null &&
       contents[activeFigure] != null &&
       contents[activeFigure].showCountries != null
     ) {
@@ -203,6 +213,7 @@ export default function BowStory(props) {
 
     if (
       activeFigure != null &&
+      contents != null &&
       contents[activeFigure] != null &&
       contents[activeFigure].effect != null
     ) {
@@ -214,6 +225,7 @@ export default function BowStory(props) {
 
     if (
       activeFigure != null &&
+      contents != null &&
       contents[activeFigure] != null &&
       contents[activeFigure].speciesFilter != null
     ) {
@@ -224,6 +236,7 @@ export default function BowStory(props) {
 
     if (
       activeFigure != null &&
+      contents != null &&
       contents[activeFigure] != null &&
       contents[activeFigure].countriesFilter != null
     ) {
@@ -234,6 +247,7 @@ export default function BowStory(props) {
 
     if (
       activeFigure != null &&
+      contents != null &&
       contents[activeFigure] &&
       contents[activeFigure].flyTo != null
     ) {
@@ -695,6 +709,8 @@ export default function BowStory(props) {
     );
   }, [speciesHexas, speciesFilter]); */
 
+  console.log("contents", contents);
+
   return (
     <>
       <div
@@ -773,7 +789,7 @@ export default function BowStory(props) {
                   marginBottom: "15px" */
                   }}
                 >
-                  <h3>Welcome to the Story of Stringed Instrument Bows!</h3>
+                  <h3>Welcome to the Story!</h3>
                 </div>
                 <div style={{ gridColumn: "span 2" }}>
                   For the full immersive experience please enable:
@@ -801,23 +817,24 @@ export default function BowStory(props) {
         </div>
         <div style={{ width: "100%", height: "100%", position: "relative" }}>
           <ContentPanel className={`contentPanel ${effect}`} ref={ref}>
-            {contents.map((content, index) => {
-              return (
-                <ContentWrapper
-                  id={index}
-                  key={`content${index}`}
-                  style={{
-                    opacity: activeFigure === index ? 1.0 : 0.3,
-                    height: ["storyTitle", "fullSizeQuote", "end"].includes(
-                      content.type
-                    )
-                      ? mobile
-                        ? "45vh"
-                        : "100vh"
-                      : null
-                  }}
-                >
-                  {/* <div
+            {contents != null &&
+              contents.map((content, index) => {
+                return (
+                  <ContentWrapper
+                    id={index}
+                    key={`content${index}`}
+                    style={{
+                      opacity: activeFigure === index ? 1.0 : 0.3,
+                      height: ["storyTitle", "fullSizeQuote", "end"].includes(
+                        content.type
+                      )
+                        ? mobile
+                          ? "45vh"
+                          : "100vh"
+                        : null
+                    }}
+                  >
+                    {/* <div
                 style={{
                   height: "600px",
                   width: "100%",
@@ -827,36 +844,36 @@ export default function BowStory(props) {
               >
                 {index}
               </div> */}
-                  <Content
-                    {...content}
-                    alignment={alignment}
-                    playAudio={enableAutoPlay && activeFigure === index}
-                    mobile={mobile}
-                    setOverlayContent={setOverlayContent}
-                    visualization={
-                      content.visualization != null
-                        ? {
-                            ...content.visualization,
-                            instrumentData: instrumentData,
-                            instrumentGroupData: instrumentGroupData,
-                            getThreatLevel: getSpeciesSignThreat,
-                            threatType: threatType,
-                            colorBlind: colorBlind,
-                            setInstrument: setInstrument,
-                            setInstrumentGroup: setInstrumentGroup,
-                            speciesTimelineData: filteredSpeciesTimelineData,
-                            imageLinks: imageLinks,
-                            dummyImageLinks: dummyImageLinks,
-                            setTimeFrame: setTimeFrame,
-                            timeFrame: timeFrame,
-                            domainYears: domainYears
-                          }
-                        : null
-                    }
-                  />
-                </ContentWrapper>
-              );
-            })}
+                    <Content
+                      {...content}
+                      alignment={alignment}
+                      playAudio={enableAutoPlay && activeFigure === index}
+                      mobile={mobile}
+                      setOverlayContent={setOverlayContent}
+                      visualization={
+                        content.visualization != null
+                          ? {
+                              ...content.visualization,
+                              instrumentData: instrumentData,
+                              instrumentGroupData: instrumentGroupData,
+                              getThreatLevel: getSpeciesSignThreat,
+                              threatType: threatType,
+                              colorBlind: colorBlind,
+                              setInstrument: setInstrument,
+                              setInstrumentGroup: setInstrumentGroup,
+                              speciesTimelineData: filteredSpeciesTimelineData,
+                              imageLinks: imageLinks,
+                              dummyImageLinks: dummyImageLinks,
+                              setTimeFrame: setTimeFrame,
+                              timeFrame: timeFrame,
+                              domainYears: domainYears
+                            }
+                          : null
+                      }
+                    />
+                  </ContentWrapper>
+                );
+              })}
             <ContentWrapper>
               <Content type={"restart"} height={"25vh"} alignment={alignment} />
             </ContentWrapper>

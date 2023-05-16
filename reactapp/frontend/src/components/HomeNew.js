@@ -207,7 +207,7 @@ export default function HomeNew(props) {
         speciesData = Object.fromEntries(
           Object.entries(speciesData["species"]).slice(
             0,
-            slice ? 70 : Object.keys(speciesData["species"]).length
+            slice ? 140 : Object.keys(speciesData["species"]).length
           )
         );
 
@@ -304,20 +304,18 @@ export default function HomeNew(props) {
               ];
             }
 
+            const mP = mat["Main part"];
             if (tmpInstrumentData[mat.Instruments]) {
-              if (
-                tmpInstrumentData[mat.Instruments][mat["Main part"]] &&
-                !tmpInstrumentData[mat.Instruments][mat["Main part"]].includes(
-                  spec
-                )
-              ) {
-                tmpInstrumentData[mat.Instruments][mat["Main part"]].push(spec);
+              if (tmpInstrumentData[mat.Instruments][mP]) {
+                if (!tmpInstrumentData[mat.Instruments][mP].includes(spec)) {
+                  tmpInstrumentData[mat.Instruments][mP].push(spec);
+                }
               } else {
-                tmpInstrumentData[mat.Instruments][mat["Main part"]] = [spec];
+                tmpInstrumentData[mat.Instruments][mP] = [spec];
               }
             } else {
               tmpInstrumentData[mat.Instruments] = {};
-              tmpInstrumentData[mat.Instruments][mat["Main part"]] = [spec];
+              tmpInstrumentData[mat.Instruments][mP] = [spec];
             }
           }
 
@@ -398,7 +396,8 @@ export default function HomeNew(props) {
           if (speciesObj.timeListing.length > 0) {
             let assessmentPerYear = {};
             for (let element of speciesObj.timeListing) {
-              let year = element.year.toString();
+              let year = element.effectiveYear.toString();
+              element.year = element.effectiveYear;
               tmpYears.add(parseInt(element.year));
               let assessment = citesAssessment.get(element.appendix);
 
@@ -555,16 +554,7 @@ export default function HomeNew(props) {
       });
   }, [slice]);
 
-  const filteredSpeciesData = species;
-
-  //const filteredSpeciesData = Object.fromEntries(filtered);
-  const mapSpecies = Object.fromEntries(
-    Object.keys(filteredSpeciesData).map((e) => [e, 1])
-  );
-
   //FilterSection
-  let visibleSpeciesCountries = {};
-
   const filteredSpeciesFromOrchestra = useMemo(() => {
     let filtSpecies = Object.keys(species);
     if (instrumentGroup) {
@@ -603,6 +593,9 @@ export default function HomeNew(props) {
     instrumentPart,
     species
   ]);
+
+  /* console.log("instrumentData", instrumentData);
+  console.log("filteredSpeciesFromOrchestra", filteredSpeciesFromOrchestra); */
 
   const filteredSpeciesFromTreeMap = useMemo(() => {
     let filtSpecies = Object.keys(species);
@@ -651,14 +644,16 @@ export default function HomeNew(props) {
     species
   ]);
 
+  /* console.log("filteredSpeciesFromTreeMap", filteredSpeciesFromTreeMap); */
+
   const filteredSpeciesFromMap = useMemo(() => {
     let filtSpecies = [];
 
     for (let speciesName of Object.keys(species)) {
       let specCountries = speciesCountries[speciesName];
 
-      if (selectedCountry && speciesCountries) {
-        if (!specCountries.includes(selectedCountry)) {
+      if (selectedCountry && speciesCountries != null) {
+        if (specCountries != null && !specCountries.includes(selectedCountry)) {
           continue;
         }
       }
@@ -706,24 +701,24 @@ export default function HomeNew(props) {
   const {
     filteredKingdomData,
     visibleSpeciesTimelineData,
-    filteredInstrumentData
+    filteredInstrumentData,
+    visibleSpeciesCountries,
+    visibleSpeciesEcos
   } = useMemo(() => {
     let filteredTreeMap = kingdomData;
     let filtSpecies = intersectedSpecies;
     let visibleSpeciesTimelineData = {};
+    let tmpVisibleSpeciesCountries = {};
+    let tmpVisibleSpeciesEcos = {};
 
     let tmpFiltSpecies = [];
     for (let speciesName of filtSpecies) {
       let specCountries = speciesCountries[speciesName];
-
-      if (selectedCountry && speciesCountries) {
-        if (!specCountries.includes(selectedCountry)) {
-          continue;
-        }
-      }
-
-      visibleSpeciesCountries[speciesName] =
+      tmpVisibleSpeciesCountries[speciesName] =
         specCountries != null ? specCountries : [];
+
+      let specEcos = speciesEcos[speciesName];
+      tmpVisibleSpeciesEcos[speciesName] = specEcos != null ? specEcos : [];
 
       tmpFiltSpecies.push(speciesName);
 
@@ -751,18 +746,19 @@ export default function HomeNew(props) {
 
     return {
       filteredKingdomData: filteredTreeMap,
+      filteredInstrumentData: filteredInstrumentData,
       visibleSpeciesTimelineData: visibleSpeciesTimelineData,
-      filteredInstrumentData: filteredInstrumentData
+      visibleSpeciesCountries: tmpVisibleSpeciesCountries,
+      visibleSpeciesEcos: tmpVisibleSpeciesEcos
     };
   }, [
     kingdomData,
     filterTreeMap,
     instrumentData,
-    selectedCountry,
     speciesCountries,
     timelineData,
-    species,
-    intersectedSpecies
+    intersectedSpecies,
+    speciesEcos
   ]);
 
   return (
@@ -951,7 +947,7 @@ export default function HomeNew(props) {
                     ([key]) => key === "Paubrasilia echinata"
                   )
                 )} */
-                      speciesEcos={speciesEcos}
+                      speciesEcos={visibleSpeciesEcos}
                       /* speciesHexas={Object.fromEntries(
                   Object.entries(speciesHexas).filter(
                     ([key]) => key === "Paubrasilia echinata"

@@ -26,8 +26,7 @@ export default function TimelineMarker(props) {
           <div>
             {year} - {assessmentAndElement.assessment.name}
             <br />
-            {assessmentAndElement.assessment.assessmentType} -{" "}
-            {assessmentAndElement.element.bgciScope}
+            {assessmentAndElement.assessment.assessmentType}
           </div>
         );
         setHover(true);

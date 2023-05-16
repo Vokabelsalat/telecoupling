@@ -2,7 +2,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import React, { Component } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
-import BowStory from "./components/BowStory/BowStory";
+import Story from "./components/Story/Story";
 import ResizeComponent from "./components/ResizeComponent";
 import HomeNew from "./components/HomeNew";
 
@@ -69,7 +69,23 @@ class App extends Component {
                   }}
                 >
                   <ResizeComponent>
-                    <BowStory />
+                    <Story storyName="bow" />
+                  </ResizeComponent>
+                </div>
+              }
+            />
+            <Route
+              exact
+              path="/concertstory"
+              element={
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%"
+                  }}
+                >
+                  <ResizeComponent>
+                    <Story storyName="concert" />
                   </ResizeComponent>
                 </div>
               }
