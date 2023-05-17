@@ -27,6 +27,8 @@ const StoryMap = forwardRef((props, ref) => {
     speciesEcos = {},
     speciesHexas = {},
     colorBlind = false,
+    showThreatDonuts = true,
+    showThreatStatusInCluster = true,
     getSpeciesThreatLevel = () => {
       return "DD";
     },
@@ -104,6 +106,11 @@ const StoryMap = forwardRef((props, ref) => {
             break;
           case "satellite":
             mapStyle = "mapbox://styles/mapbox/satellite-v9?optimize=true";
+            break;
+          case "outdoors":
+            mapStyle = "mapbox://styles/mapbox/outdoors-v12";
+          case "streets":
+            mapStyle = "mapbox://styles/mapbox/streets-v12";
             break;
           default:
             break;
@@ -283,22 +290,24 @@ const StoryMap = forwardRef((props, ref) => {
       for (let country of countriesGeoJson.features) {
         country.properties.myID = country.id.toString() + "COUNTRY";
 
-        if (tmpIsoToSpecies[country.properties["ISO3CD"]] != null) {
-          country.properties.speciesCount =
-            tmpIsoToSpecies[country.properties["ISO3CD"]].length;
-          tmpFilteredCountriesGeoJSON.features.push(country);
-          /* country.properties.speciesCount =
+        //if (tmpIsoToSpecies[country.properties["ISO3CD"]] != null) {
+        country.properties.speciesCount =
+          tmpIsoToSpecies[country.properties["ISO3CD"]] != null
+            ? tmpIsoToSpecies[country.properties["ISO3CD"]].length
+            : 0;
+        tmpFilteredCountriesGeoJSON.features.push(country);
+        /* country.properties.speciesCount =
           tmpIsoToSpecies[country.properties["ISO3CD"]] != null
           ? tmpIsoToSpecies[country.properties["ISO3CD"]].length
             : 0; */
 
-          tmpIsoToCountryID[country.properties["ISO3CD"]] =
-            country.properties.myID;
+        tmpIsoToCountryID[country.properties["ISO3CD"]] =
+          country.properties.myID;
 
-          if (country.properties.speciesCount > tmpCountriesHeatMapMax) {
-            tmpCountriesHeatMapMax = country.properties.speciesCount;
-          }
+        if (country.properties.speciesCount > tmpCountriesHeatMapMax) {
+          tmpCountriesHeatMapMax = country.properties.speciesCount;
         }
+        //}
       }
     }
 
@@ -611,12 +620,19 @@ const StoryMap = forwardRef((props, ref) => {
               offsets[index] / total,
               (offsets[index] + grouped[item].length) / total,
               r - 1,
-              r0 - 1,
-              grouped[item][0].getColor(colorBlind)
+              showThreatStatusInCluster ? r0 - 1 : r - 3,
+              showThreatStatusInCluster
+                ? grouped[item][0].getColor(colorBlind)
+                : "gray"
             );
           })}
         </g>
-        <text dominantBaseline="central" transform={`translate(${r}, ${r})`}>
+        )
+        <text
+          style={{ fontSize: showThreatStatusInCluster ? "unset" : "large" }}
+          dominantBaseline="central"
+          transform={`translate(${r}, ${r})`}
+        >
           {total.toLocaleString()}
         </text>
       </svg>
@@ -743,7 +759,6 @@ const StoryMap = forwardRef((props, ref) => {
 
   const onPolygonHover = useCallback(
     (event) => {
-      console.log(event);
       if (event.features.length > 0) {
         const feat = event.features && event.features[0];
 
@@ -867,6 +882,13 @@ const StoryMap = forwardRef((props, ref) => {
         //   }
         // }}
         onMouseMove={onPolygonHover}
+        onMouseDown={(e) => {
+          if (e.originalEvent.altKey && e.originalEvent.which === 1) {
+            alert(
+              `Mouse and Alt was pressed. Here is your location: [${e.lngLat.lng}, ${e.lngLat.lat}]`
+            );
+          }
+        }}
       >
         <NavigationControl />
         <ScaleControl />
@@ -883,19 +905,38 @@ const StoryMap = forwardRef((props, ref) => {
                 id: "countriesSpecies",
                 type: "fill",
                 source: "countriesSource",
-                paint: {
+                /* paint: {
                   "fill-color": [
                     "interpolate",
                     ["linear"],
                     ["get", "speciesCount"],
                     0,
                     "rgba(0,0,0,0)",
+                    1,
+                    "rgba(255,255,255,1)",
                     countriesHeatMapMax,
                     "rgba(0,0,255,1)"
                   ]
+                }, */
+                paint: {
+                  "fill-color": [
+                    "interpolate",
+                    ["linear"],
+                    ["get", "speciesCount"],
+                    0,
+                    "rgba(255,255,255,1)",
+                    1,
+                    "rgba(230,230,255,1)",
+                    countriesHeatMapMax,
+                    polygonFill === true ? "rgba(0,0,255,1)" : "rgba(0,0,0,0)"
+                  ]
+                  /* "fill-outline-color": "rgba(0,0,255,1)" */
                 },
                 layout: {
-                  visibility: mapMode === "countries" ? "visible" : "none"
+                  visibility:
+                    showCountries && mapMode === "countries"
+                      ? "visible"
+                      : "none"
                 }
               }}
             />
@@ -1164,6 +1205,7 @@ const StoryMap = forwardRef((props, ref) => {
         )}
 
         {capitalThreatMarkers &&
+          showThreatDonuts &&
           mapMode === "countries" &&
           capitalThreatMarkers.map((element, index) => {
             return (
@@ -1190,6 +1232,7 @@ const StoryMap = forwardRef((props, ref) => {
           })}
 
         {ecoThreatMarkers &&
+          showThreatDonuts &&
           ["hexagons", "ecoregions", "protection"].includes(mapMode) &&
           ecoThreatMarkers.map((element, index) => {
             return (

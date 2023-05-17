@@ -9,6 +9,7 @@ import { useRefDimensions } from "./useRefDimensions";
 import { useTreeMapFilter } from "../Hooks/useTreeMapFilter";
 import { useParseSpeciesJSON } from "../Hooks/useParseSpeciesJSON";
 import { useFilterSpecies } from "../Hooks/useFilterSpecies";
+import { useMapFilter } from "../Hooks/useMapFilter";
 import {
   bgciAssessment,
   citesAssessment,
@@ -41,6 +42,9 @@ export default function Story(props) {
   const [activeFigure, setActiveFigure] = useState();
   const [activeMapLayer, setActiveMapLayer] = useState();
   const [speciesData, setSpeciesData] = useState({});
+  const [showThreatDonuts, setShowThreatDonuts] = useState(true);
+  const [showThreatStatusInCluster, setShowThreatStatusInCluster] =
+    useState(true);
 
   const [trigger, setTrigger] = useState(true);
   const [isIntro, setIsIntro] = useState(true);
@@ -52,6 +56,7 @@ export default function Story(props) {
   const [effect, setEffect] = useState("");
   const [mapMode, setMapMode] = useState("light");
   const [showCountries, setShowCountries] = useState(true);
+  const [mapFilter, setMapFilter] = useState({});
 
   const mapRef = useRef(null);
   const wrapperRef = useRef(null);
@@ -224,6 +229,25 @@ export default function Story(props) {
       activeFigure != null &&
       contents != null &&
       contents[activeFigure] != null &&
+      contents[activeFigure].showThreatDonuts != null
+    ) {
+      setShowThreatDonuts(contents[activeFigure].showThreatDonuts);
+    }
+    if (
+      activeFigure != null &&
+      contents != null &&
+      contents[activeFigure] != null &&
+      contents[activeFigure].showThreatStatusInCluster != null
+    ) {
+      setShowThreatStatusInCluster(
+        contents[activeFigure].showThreatStatusInCluster
+      );
+    }
+
+    if (
+      activeFigure != null &&
+      contents != null &&
+      contents[activeFigure] != null &&
       contents[activeFigure].effect != null
     ) {
       applyContentEffect(contents[activeFigure].effect);
@@ -256,6 +280,19 @@ export default function Story(props) {
         genus: null,
         kingdom: null,
         family: null
+      });
+    }
+
+    if (
+      activeFigure != null &&
+      contents != null &&
+      contents[activeFigure] != null &&
+      contents[activeFigure].mapFilter != null
+    ) {
+      setMapFilter(contents[activeFigure].mapFilter);
+    } else {
+      setMapFilter({
+        country: null
       });
     }
 
@@ -460,13 +497,21 @@ export default function Story(props) {
     species
   );
 
+  const filteredSpeciesFromMap = useMapFilter(
+    species,
+    speciesCountries,
+    mapFilter.country
+  );
+
   /* const intersectedSpecies = filteredSpeciesFromMap.filter(
     (value) =>
       filteredSpeciesFromTreeMap.includes(value) &&
       filteredSpeciesFromOrchestra.includes(value) &&
       filteredSpeciesFromTimeline.includes(value)
   ); */
-  const intersectedSpecies = filteredSpeciesFromTreeMap;
+  const intersectedSpecies = filteredSpeciesFromMap.filter((value) =>
+    filteredSpeciesFromTreeMap.includes(value)
+  );
 
   const {
     filteredKingdomData,
@@ -486,7 +531,12 @@ export default function Story(props) {
     speciesHexas
   );
 
-  console.log("intersectedSpecies", intersectedSpecies, visibleSpeciesHexas);
+  console.log(
+    "intersectedSpecies",
+    intersectedSpecies,
+    visibleSpeciesHexas,
+    visibleSpeciesCountries
+  );
 
   return (
     <>
@@ -508,7 +558,7 @@ export default function Story(props) {
                     ([key]) => key === "Paubrasilia echinata"
                   )
                 )} */
-              speciesCountries={filteredSpeciesCountries}
+              speciesCountries={visibleSpeciesCountries}
               /* speciesEcos={Object.fromEntries(
                   Object.entries(speciesEcos).filter(
                     ([key]) => key === "Paubrasilia echinata"
@@ -529,6 +579,8 @@ export default function Story(props) {
               mode={mapMode}
               activeMapLayer={activeMapLayer}
               showCountries={showCountries}
+              showThreatDonuts={showThreatDonuts}
+              showThreatStatusInCluster={showThreatStatusInCluster}
             />
           </ResizeComponent>
           <div

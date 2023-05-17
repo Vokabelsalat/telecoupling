@@ -7,7 +7,7 @@ export function useMapFilter(species, speciesCountries, selectedCountry) {
     for (let speciesName of Object.keys(species)) {
       let specCountries = speciesCountries[speciesName];
 
-      if (selectedCountry && speciesCountries != null) {
+      if (selectedCountry != null && speciesCountries != null) {
         if (specCountries != null && !specCountries.includes(selectedCountry)) {
           continue;
         }

@@ -77,7 +77,8 @@ const concertContents = [
       speed: 0.5
     },
     mapLayer: {
-      type: "countries"
+      type: "countries",
+      mapStyle: "satellite"
     }
   },
   {
@@ -167,6 +168,176 @@ const concertContents = [
       kingdom: "Plantae",
       family: "Fabaceae"
     }
+  },
+  {
+    type: "text",
+    title: "Madagascar",
+    text: "Madagascar, officially the Republic of Madagascar, is an island country lying off the southeastern coast of Africa. It is the world's fourth largest island, the second-largest island country and the 46th largest country in the world. Its capital and largest city is Antananarivo.",
+    image: {
+      url: "https://upload.wikimedia.org/wikipedia/commons/6/62/Iss059e046155_lrg_South_Side_of_Madagascar_from_ISS.jpg",
+      width: "60%"
+    },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [46.96217728373126, -19.40460294184492],
+      zoom: 5,
+      speed: 0.4
+    },
+    mapLayer: {
+      type: "countries",
+      mapStyle: "satellite"
+    }
+  },
+  /* {
+    type: "text",
+    title: "Picea abies",
+    image: {
+      url: "https://upload.wikimedia.org/wikipedia/commons/9/9d/Kuusk_Keila-Paldiski_rdt_%C3%A4%C3%A4res.jpg",
+      width: "30%"
+    },
+    mapLayer: {
+      type: "hexagons",
+      mapStyle: "satellite",
+      polygonFill: false
+    },
+    treeMapFilter: {
+      genus: "Picea",
+      species: "Picea abies",
+      kingdom: "Plantae",
+      family: "Pinaceae"
+    },
+    showCountries: false,
+    showThreatDonuts: false
+  }, */
+  {
+    type: "text",
+    title: "The Alps",
+    text: "The Alps are the highest and most extensive mountain range that is entirely in Europe, stretching approximately 1,200 km (750 mi) across seven Alpine countries (from west to east): France, Switzerland, Italy, Liechtenstein, Austria, Germany, and Slovenia.",
+    image: {
+      url: "https://upload.wikimedia.org/wikipedia/commons/b/be/Saslong_udu_da_Sacun_ora.jpg",
+      width: "70%"
+    },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [9.316667, 46.5],
+      zoom: 6,
+      speed: 0.4
+    },
+    mapLayer: {
+      type: "hexagons",
+      mapStyle: "satellite",
+      polygonFill: false
+    },
+    treeMapFilter: {
+      genus: "Picea",
+      species: "Picea abies",
+      kingdom: "Plantae",
+      family: "Pinaceae"
+    },
+    showCountries: false,
+    showThreatDonuts: false
+  },
+  {
+    type: "text",
+    title: "Dalbergia",
+    text: "Dalbergia is a large genus of small to medium-size trees, shrubs and lianas in the pea family, Fabaceae, subfamily Faboideae. It was recently assigned to the informal monophyletic Dalbergia clade (or tribe): the Dalbergieae. The genus has a wide distribution, native to the tropical regions of Central and South America, Africa, Madagascar and southern Asia.",
+    image: {
+      url: "https://upload.wikimedia.org/wikipedia/commons/8/8f/Dalbe_latif_081228-4907_H_ipb.jpg",
+      width: "30%"
+    },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [0, 0],
+      zoom: 1,
+      speed: 0.4
+    },
+    mapLayer: {
+      type: "countries",
+      mapStyle: "outdoors"
+    },
+    treeMapFilter: {
+      genus: "Dalbergia",
+      species: null,
+      kingdom: "Plantae",
+      family: "Fabaceae"
+    },
+    showCountries: true,
+    showThreatDonuts: true,
+    showThreatStatusInCluster: false
+  },
+  {
+    type: "text",
+    title: "Nürnberg",
+    text: (
+      <>
+        Lorem Ipsum is simply dummy text of the printing and typesetting
+        industry. Lorem Ipsum has been the industry's standard dummy text ever
+        since the 1500s, when an unknown printer took a galley of type and
+        scrambled it to make a type specimen book. It has survived not only five
+        centuries, but also the leap into electronic typesetting, remaining
+        essentially unchanged. It was popularised in the 1960s with the release
+        of Letraset sheets containing Lorem Ipsum passages, and more recently
+        with desktop publishing software like Aldus PageMaker including versions
+        of Lorem Ipsum.
+      </>
+    ),
+    image: {
+      url: "https://images.ctfassets.net/0i0zqigm38c2/3exNPrwEV0gT0hyEAsT5Nx/1e0403578281fff58b9e0bc16958b350/Gluck-Saal.jpg",
+      caption:
+        "Gluck-Saal im Opernhaus (Staatstheater Nürnberg/Matthias Dengler)",
+      width: "100%"
+    },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [11.075459128357894, 49.44642081594858],
+      zoom: 18,
+      speed: 1
+    },
+    mapLayer: {
+      type: "orchestras"
+    },
+    treeMapFilter: {
+      genus: "Dalbergia",
+      species: null,
+      kingdom: "Plantae",
+      family: "Fabaceae"
+    },
+    showCountries: false,
+    width: "100%"
+  },
+  {
+    type: "text",
+    title: "Dalbergia in Madagascar",
+    image: {
+      url: "https://upload.wikimedia.org/wikipedia/commons/6/62/Iss059e046155_lrg_South_Side_of_Madagascar_from_ISS.jpg",
+      width: "60%"
+    },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [46.96217728373126, -19.40460294184492],
+      zoom: 5,
+      speed: 0.4
+    },
+    mapLayer: {
+      type: "hexagons",
+      mapStyle: "light"
+    },
+    mapFilter: {
+      country: "Madagascar"
+    },
+    treeMapFilter: {
+      kingdom: "Plantae",
+      family: "Fabaceae",
+      genus: "Dalbergia",
+      species: null
+    },
+    showThreatDonuts: true,
+    showThreatStatusInCluster: true
   },
   { type: "end", title: "Le Fin" },
   {
