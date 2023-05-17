@@ -26,7 +26,8 @@ export default function TimelineViewNew(props) {
     dummyImageLinks,
     colorBlind,
     getTreeThreatLevel,
-    filteredSpecies
+    filteredSpecies,
+    setTreeMapFilter
   } = props;
 
   //const [x, setX] = useState(null);
@@ -96,7 +97,12 @@ export default function TimelineViewNew(props) {
                   id={replaceSpecialCharacters(e) + "TimelineVis"}
                   key={replaceSpecialCharacters(e) + "timeline"}
                   data={data[e]}
-                  speciesName={e}
+                  species={{
+                    kingdomName: data[e]["kingdom"],
+                    familyName: data[e]["family"],
+                    genusName: data[e]["genus"],
+                    speciesName: data[e]["species"]
+                  }}
                   domainYears={domainYears}
                   getTreeThreatLevel={getTreeThreatLevel}
                   colorBlind={colorBlind}
@@ -107,6 +113,7 @@ export default function TimelineViewNew(props) {
                   imageLink={imageLinks[e]}
                   dummyImageLink={dummyImageLinks[e]}
                   isAnimal={data[e].isAnimal}
+                  setTreeMapFilter={setTreeMapFilter}
                 />
               );
             })}

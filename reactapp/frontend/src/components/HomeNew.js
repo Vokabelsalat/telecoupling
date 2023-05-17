@@ -324,7 +324,11 @@ export default function HomeNew(props) {
             cites: [],
             bgci: [],
             populationTrend: speciesObj.populationTrend,
-            isAnimal: speciesObj.Kingdom === "Animalia" ? true : false
+            isAnimal: speciesObj.Kingdom === "Animalia" ? true : false,
+            kingdom: speciesObj.Kingdom,
+            family: speciesObj.Family,
+            genus: speciesObj.Genus,
+            species: speciesObj.Species
           };
 
           if (speciesObj.timeIUCN.length > 0) {
@@ -431,13 +435,16 @@ export default function HomeNew(props) {
           };
 
           let tmpCountries = [];
-          if (speciesObj.hasOwnProperty("treeCountries")) {
+          if (
+            speciesObj.hasOwnProperty("treeCountries") &&
+            speciesObj["treeCountries"].length > 0
+          ) {
             tmpCountries = speciesObj["treeCountries"];
           } else {
-            if (this.props.data[species].hasOwnProperty("iucnCountriesShort")) {
-              tmpCountries = speciesObj["iucnCountriesShort"];
+            if (speciesObj.hasOwnProperty("iucnCountries")) {
+              tmpCountries = speciesObj["iucnCountries"];
             } else {
-              if (this.props.data[species].hasOwnProperty("allCountries")) {
+              if (speciesObj.hasOwnProperty("allCountries")) {
                 tmpCountries = speciesObj["allCountries"];
               }
             }
@@ -703,13 +710,15 @@ export default function HomeNew(props) {
     visibleSpeciesTimelineData,
     filteredInstrumentData,
     visibleSpeciesCountries,
-    visibleSpeciesEcos
+    visibleSpeciesEcos,
+    visibleSpeciesHexas
   } = useMemo(() => {
     let filteredTreeMap = kingdomData;
     let filtSpecies = intersectedSpecies;
     let visibleSpeciesTimelineData = {};
     let tmpVisibleSpeciesCountries = {};
     let tmpVisibleSpeciesEcos = {};
+    let tmpVisibleSpeciesHexas = {};
 
     let tmpFiltSpecies = [];
     for (let speciesName of filtSpecies) {
@@ -723,6 +732,9 @@ export default function HomeNew(props) {
       tmpFiltSpecies.push(speciesName);
 
       visibleSpeciesTimelineData[speciesName] = timelineData[speciesName];
+
+      let specHexas = speciesHexas[speciesName];
+      tmpVisibleSpeciesHexas[speciesName] = specHexas != null ? specHexas : [];
     }
 
     filtSpecies = tmpFiltSpecies;
@@ -749,7 +761,8 @@ export default function HomeNew(props) {
       filteredInstrumentData: filteredInstrumentData,
       visibleSpeciesTimelineData: visibleSpeciesTimelineData,
       visibleSpeciesCountries: tmpVisibleSpeciesCountries,
-      visibleSpeciesEcos: tmpVisibleSpeciesEcos
+      visibleSpeciesEcos: tmpVisibleSpeciesEcos,
+      visibleSpeciesHexas: tmpVisibleSpeciesHexas
     };
   }, [
     kingdomData,
@@ -758,7 +771,8 @@ export default function HomeNew(props) {
     speciesCountries,
     timelineData,
     intersectedSpecies,
-    speciesEcos
+    speciesEcos,
+    speciesHexas
   ]);
 
   return (
@@ -899,6 +913,7 @@ export default function HomeNew(props) {
                           timeFrame={timeFrame}
                           colorBlind={colorBlind}
                           domainYears={domainYears}
+                          setTreeMapFilter={setTreeMapFilter}
                         />
                       </ResizeComponent>
                     )}
@@ -953,7 +968,7 @@ export default function HomeNew(props) {
                     ([key]) => key === "Paubrasilia echinata"
                   )
                 )} */
-                      speciesHexas={speciesHexas}
+                      speciesHexas={visibleSpeciesHexas}
                       colorBlind={colorBlind}
                       getSpeciesThreatLevel={getSpeciesSignThreat}
                       threatType={threatType}

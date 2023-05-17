@@ -5,7 +5,10 @@ import { useState, useContext } from "react";
 import ThreatIcon from "./ThreatIcon";
 
 export default function TimelineHeader(props) {
-  const { speciesName, leftColor, rightColor, isAnimal } = props;
+  const { species, leftColor, rightColor, isAnimal, setTreeMapFilter } = props;
+
+  const { speciesName, kingdomName, familyName, genusName } = species;
+  const sciName = `${genusName} ${speciesName}`;
 
   const [hover, setHover] = useState(false);
   const { setTooltip } = useContext(TooltipContext);
@@ -43,7 +46,7 @@ export default function TimelineHeader(props) {
         <span
           style={{ fontWeight: hover ? "bold" : "normal", cursor: "pointer" }}
           onMouseEnter={(event) => {
-            setTooltip(speciesName, "species", {
+            setTooltip(sciName, "species", {
               x: event.pageX + 15,
               y: event.pageY + 15
             });
@@ -55,8 +58,16 @@ export default function TimelineHeader(props) {
             setHover(false);
             setTooltip(null, null, null);
           }}
+          onClick={() => {
+            setTreeMapFilter({
+              kingdom: kingdomName,
+              family: familyName,
+              genus: genusName,
+              species: sciName
+            });
+          }}
         >
-          {speciesName}
+          {sciName}
         </span>
       </div>
     </div>

@@ -9,7 +9,7 @@ import TimelineRows from "./TimelineRows";
 
 export default function TimelineNew(props) {
   const {
-    speciesName,
+    species,
     data,
     x,
     width,
@@ -19,22 +19,24 @@ export default function TimelineNew(props) {
     imageLink,
     dummyImageLink,
     isAnimal,
-    timeFrame
+    timeFrame,
+    setTreeMapFilter
   } = props;
 
-  const leftIconColor = getTreeThreatLevel(
-    speciesName,
-    "economically"
-  ).getColor(colorBlind);
+  const { speciesName, genusName } = species;
+  const sciName = `${genusName} ${speciesName}`;
 
-  const rightIconColor = getTreeThreatLevel(
-    speciesName,
-    "ecologically"
-  ).getColor(colorBlind);
+  const leftIconColor = getTreeThreatLevel(sciName, "economically").getColor(
+    colorBlind
+  );
+
+  const rightIconColor = getTreeThreatLevel(sciName, "ecologically").getColor(
+    colorBlind
+  );
 
   return (
     <div
-      key={`timelineNew${speciesName}`}
+      key={`timelineNew${sciName}`}
       style={{
         display: "grid",
         width: "100%",
@@ -52,12 +54,13 @@ export default function TimelineNew(props) {
         }}
       >
         <TimelineHeader
-          speciesName={speciesName}
+          species={species}
           getTreeThreatLevel={getTreeThreatLevel}
           colorBlind={colorBlind}
           isAnimal={isAnimal}
           leftColor={leftIconColor}
           rightColor={rightIconColor}
+          setTreeMapFilter={setTreeMapFilter}
         />
       </div>
       <div
@@ -69,7 +72,7 @@ export default function TimelineNew(props) {
         }}
       >
         <TimelineFront
-          speciesName={speciesName}
+          speciesName={sciName}
           imageLink={imageLink}
           dummyLink={dummyImageLink}
         />
@@ -86,7 +89,7 @@ export default function TimelineNew(props) {
           <TimelineRows
             width={width}
             data={data}
-            speciesName={speciesName}
+            speciesName={sciName}
             x={x}
             colorBlind={colorBlind}
             populationTrend={populationTrend}

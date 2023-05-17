@@ -32,9 +32,11 @@ export default function Map(props) {
   const [countriesGeoJson, setCountriesGeoJson] = useState(null);
   const [countriesGeoJsonTest, setCountriesGeoJsonTest] = useState(null);
   const [ecoRegionsGeoJson, setEcoRegionsGeoJson] = useState(null);
+  const [ecoRegionsGeoJsonTest, setEcoRegionsGeoJsonTest] = useState(null);
   const [orchestraGeoJson, setOrchestraGeoJson] = useState(null);
   const [capitalsGeoJSON, setCapitalsGeoJSON] = useState(null);
   const [hexagonGeoJSON, setHexagonGeoJSON] = useState(null);
+  const [hexagonGeoJSONTest, setHexagonGeoJSONTest] = useState(null);
   const [capitalsToISO, setCapitalsToISO] = useState(null);
   const [countriesDictionary, setCountriesDictionary] = useState(null);
   const [orchestrasToISO3, setOrchestrasToISO3] = useState(null);
@@ -210,7 +212,10 @@ export default function Map(props) {
     const tmpCountriesGeoJson = { ...countriesGeoJson, features: [] };
     if (countriesGeoJson) {
       for (let country of countriesGeoJson.features) {
-        const tmpCountry = { ...country };
+        const tmpCountry = {
+          ...country,
+          properties: { ...country.properties }
+        };
         tmpCountry.properties.myID = tmpCountry.id.toString() + "COUNTRY";
 
         tmpCountry.properties.speciesCount =
@@ -233,13 +238,7 @@ export default function Map(props) {
     setIsoToCountryID(tmpIsoToCountryID);
     setCountriesHeatMap(tmpCountriesHeatMap);
     setCountriesHeatMapMax(tmpCountriesHeatMapMax);
-    setCountriesGeoJsonTest(tmpCountriesGeoJson);
-    if (mapRef && mapRef.current) {
-      let source = mapRef.current.getSource("countriesSource");
-      if (source) {
-        source.setData(tmpCountriesGeoJson);
-      }
-    }
+    setCountriesGeoJsonTest({ ...tmpCountriesGeoJson });
   }, [speciesCountries, countriesDictionary, countriesGeoJson, mapRef]);
 
   const [ecosToSpecies, setEcosToSpecies] = useState(null);
@@ -262,37 +261,34 @@ export default function Map(props) {
     let tmpEcoregionHeatMap = {};
     let tmpEcosToMyIDs = {};
     let tmpEcoregionHeatMapMax = 0;
+    let tmpEcoRegionsGeoJson = { type: "FeatureCollection", features: [] };
     if (ecoRegionsGeoJson) {
       for (let ecoregion of ecoRegionsGeoJson.features) {
-        ecoregion.properties.speciesCount =
-          tmpEcoToSpecies[ecoregion.properties["ECO_ID"].toString()] != null
-            ? tmpEcoToSpecies[ecoregion.properties["ECO_ID"].toString()].length
+        let tmpEco = { ...ecoregion, properties: { ...ecoregion.properties } };
+        tmpEco.properties.speciesCount =
+          tmpEcoToSpecies[tmpEco.properties["ECO_ID"].toString()] != null
+            ? tmpEcoToSpecies[tmpEco.properties["ECO_ID"].toString()].length
             : 0;
 
-        tmpEcoregionHeatMap[ecoregion.properties["ECO_ID"].toString()] =
-          ecoregion.properties.speciesCount;
+        tmpEcoregionHeatMap[tmpEco.properties["ECO_ID"].toString()] =
+          tmpEco.properties.speciesCount;
 
-        tmpEcosToMyIDs[ecoregion.properties["ECO_ID"].toString()] =
-          ecoregion.properties.myID;
+        tmpEcosToMyIDs[tmpEco.properties["ECO_ID"].toString()] =
+          tmpEco.properties.myID;
 
-        if (ecoregion.properties.speciesCount > tmpEcoregionHeatMapMax) {
-          tmpEcoregionHeatMapMax = ecoregion.properties.speciesCount;
+        if (tmpEco.properties.speciesCount > tmpEcoregionHeatMapMax) {
+          tmpEcoregionHeatMapMax = tmpEco.properties.speciesCount;
         }
+
+        tmpEcoRegionsGeoJson.features.push(tmpEco);
       }
     }
 
     setEcosToSpecies(tmpEcoToSpecies);
-    setEcoRegionsGeoJson(ecoRegionsGeoJson);
+    setEcoRegionsGeoJsonTest(tmpEcoRegionsGeoJson);
     setEcoregionHeatMapMax(tmpEcoregionHeatMapMax);
     setEcoregionHeatMap(tmpEcoregionHeatMap);
     setEcosToMyIDs(tmpEcosToMyIDs);
-
-    if (mapRef && mapRef.current) {
-      let source = mapRef.current.getSource("ecoregionsource");
-      if (source) {
-        source.setData(ecoRegionsGeoJson);
-      }
-    }
   }, [speciesEcos, ecoRegionsGeoJson]);
 
   useEffect(() => {
@@ -312,37 +308,28 @@ export default function Map(props) {
 
     let tmpHexagonHeatMap = {};
     let tmpHexagonHeatMapMax = 0;
+    let tmpHexagonGeoJSON = { type: "FeatureCollection", features: [] };
     if (hexagonGeoJSON) {
       for (let hexagon of hexagonGeoJSON.features) {
-        hexagon.properties.speciesCount =
-          tmpHexasToSpecies[hexagon.properties["HexagonID"].toString()] != null
-            ? tmpHexasToSpecies[hexagon.properties["HexagonID"].toString()]
+        let tmpHexagon = { ...hexagon, properties: { ...hexagon.properties } };
+        tmpHexagon.properties.speciesCount =
+          tmpHexasToSpecies[tmpHexagon.properties["HexagonID"].toString()] !=
+          null
+            ? tmpHexasToSpecies[tmpHexagon.properties["HexagonID"].toString()]
                 .length
             : 0;
 
-        if (hexagon.properties.speciesCount > tmpHexagonHeatMapMax) {
-          tmpHexagonHeatMapMax = hexagon.properties.speciesCount;
+        if (tmpHexagon.properties.speciesCount > tmpHexagonHeatMapMax) {
+          tmpHexagonHeatMapMax = tmpHexagon.properties.speciesCount;
         }
+        tmpHexagonGeoJSON.features.push(tmpHexagon);
       }
     }
 
-    setHexagonGeoJSON(hexagonGeoJSON);
+    setHexagonGeoJSONTest(tmpHexagonGeoJSON);
     setHexagonHeatMapMax(tmpHexagonHeatMapMax);
     setHexagonHeatMap(tmpHexagonHeatMap);
-
-    if (mapRef && mapRef.current) {
-      let source = mapRef.current.getSource("hexagonGeoJSON");
-      if (source) {
-        source.setData(hexagonGeoJSON);
-      }
-    }
   }, [hexagonGeoJSON, speciesHexas]);
-
-  const mag1 = ["<", ["get", "FID"], 50];
-  const mag2 = ["all", [">=", ["get", "FID"], 50], ["<", ["get", "FID"], 100]];
-  const mag3 = ["all", [">=", ["get", "FID"], 100], ["<", ["get", "FID"], 150]];
-  const mag4 = ["all", [">=", ["get", "FID"], 150], ["<", ["get", "FID"], 200]];
-  const mag5 = [">=", ["get", "FID"], 200];
 
   const colors = ["#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c"];
 
@@ -708,7 +695,11 @@ export default function Map(props) {
         <NavigationControl />
         <ScaleControl />
         {countriesHeatMapMax && countriesHeatMap && (
-          <Source type="geojson" id="countriesSource" data={countriesGeoJson}>
+          <Source
+            type="geojson"
+            id="countriesSource"
+            data={countriesGeoJsonTest}
+          >
             <Layer
               beforeId="state-label"
               key={`countriesFillLayer`}
@@ -723,7 +714,7 @@ export default function Map(props) {
                     ["get", "speciesCount"],
                     0,
                     "rgba(0,0,0,0)",
-                    ecoregionHeatMapMax,
+                    countriesHeatMapMax,
                     "rgba(0,0,255,1)"
                   ]
                 },
@@ -751,7 +742,11 @@ export default function Map(props) {
           </Source>
         )}
         {ecoregionHeatMap && ecoregionHeatMapMax && (
-          <Source type="geojson" id="ecoregionsource" data={ecoRegionsGeoJson}>
+          <Source
+            type="geojson"
+            id="ecoregionsource"
+            data={ecoRegionsGeoJsonTest}
+          >
             <Layer
               key={`ecoregionFillLayer`}
               {...{
@@ -845,13 +840,14 @@ export default function Map(props) {
             }}
           />
         </Source>
-        {orchestraHeatMap && orchestraHeatMapMax && (
+        {/* {orchestraHeatMap && orchestraHeatMapMax && (
           <Source
             id="countriesOrchestraSource"
             type="geojson"
             data={countriesGeoJsonTest}
           >
             <Layer
+              key="countriesOrchestrasLayer"
               {...{
                 id: "countriesOrchestras",
                 type: "fill",
@@ -944,7 +940,7 @@ export default function Map(props) {
               }}
             />
           </Source>
-        )}
+        )} */}
         {isoToCountryID && Object.keys(isoToCountryID).length > 0 && (
           <Source
             type="geojson"
@@ -1026,7 +1022,7 @@ export default function Map(props) {
             );
           })}
         {hexagonHeatMap && hexagonHeatMapMax && (
-          <Source type="geojson" id="hexagonsource" data={hexagonGeoJSON}>
+          <Source type="geojson" id="hexagonsource" data={hexagonGeoJSONTest}>
             <Layer
               {...{
                 id: "hexagons",
