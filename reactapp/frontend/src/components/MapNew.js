@@ -498,10 +498,12 @@ export default function Map(props) {
     const data = props.data;
     const grouped = groupBy(Object.values(data), "numvalue");
 
+    const sortedGroupedKeys = Object.keys(grouped).sort().reverse();
+
     let total = 0;
-    for (const groupedValue of Object.values(grouped)) {
+    for (const group of sortedGroupedKeys) {
       offsets.push(total);
-      total += groupedValue.length;
+      total += grouped[group].length;
     }
     const fontSize =
       total >= 1000 ? 22 : total >= 100 ? 20 : total >= 10 ? 18 : 16;
@@ -518,7 +520,7 @@ export default function Map(props) {
       >
         <circle cx={r} cy={r} r={r} fill="white"></circle>
         <g transform={"translate(1, 1)"}>
-          {Object.keys(grouped).map((item, index) => {
+          {sortedGroupedKeys.map((item, index) => {
             return donutSegment(
               offsets[index] / total,
               (offsets[index] + grouped[item].length) / total,
