@@ -69,7 +69,7 @@ class App extends Component {
                   }}
                 >
                   <ResizeComponent>
-                    <Story storyName="bow" />
+                    <Story storyName="bowstory" />
                   </ResizeComponent>
                 </div>
               }
@@ -85,7 +85,7 @@ class App extends Component {
                   }}
                 >
                   <ResizeComponent>
-                    <Story storyName="concert" />
+                    <Story storyName="concertstory" />
                   </ResizeComponent>
                 </div>
               }

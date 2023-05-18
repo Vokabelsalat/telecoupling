@@ -3,13 +3,15 @@ import ContentWrapper from "./ContentWrapper";
 import { Content } from "./Content";
 import ResizeComponent from "../ResizeComponent";
 import StoryMap from "../StoryMapCleanUp";
-import bowContents from "./bow";
-import concertContents from "./concert";
+import Map from "../MapNew";
+import bowContents from "./bowstory";
+import concertContents from "./concertstory";
 import { useRefDimensions } from "./useRefDimensions";
 import { useTreeMapFilter } from "../Hooks/useTreeMapFilter";
 import { useParseSpeciesJSON } from "../Hooks/useParseSpeciesJSON";
 import { useFilterSpecies } from "../Hooks/useFilterSpecies";
 import { useMapFilter } from "../Hooks/useMapFilter";
+import { useParams } from "react-router-dom";
 import {
   bgciAssessment,
   citesAssessment,
@@ -23,14 +25,14 @@ import {
   getSpeciesFromTreeMap
 } from "../HomeNew";
 
-import { useEffect, useRef, useState, useMemo, useLayoutEffect } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 
 import { useIntersection } from "./useIntersection";
 import { active } from "d3";
 import { padding } from "@mui/system";
 import Overlay from "../Overlay/Overlay";
 
-const storyScripts = { bow: bowContents, concert: concertContents };
+const storyScripts = { bowstory: bowContents, concertstory: concertContents };
 
 export default function Story(props) {
   const { width, height, storyName } = props;
@@ -39,7 +41,13 @@ export default function Story(props) {
 
   const ref = useRef(null);
 
-  const [activeFigure, setActiveFigure] = useState();
+  const { hash } = window.location;
+  const idx = parseInt(hash.replace("#", ""));
+
+  const [activeFigure, setActiveFigure] = useState(idx);
+  const activeFigureRef = useRef();
+  activeFigureRef.current = activeFigure;
+
   const [activeMapLayer, setActiveMapLayer] = useState();
   const [speciesData, setSpeciesData] = useState({});
   const [showThreatDonuts, setShowThreatDonuts] = useState(true);
@@ -50,6 +58,8 @@ export default function Story(props) {
   const [isIntro, setIsIntro] = useState(true);
   const [enableAutoPlay, setEnableAutoPlay] = useState(false);
   const offset = 0;
+
+  const [projection, setProjection] = useState("equalEarth");
 
   const fontStyle = "classic"; // "modern" | "classic"
   const alignment = "centerBlockText"; // "center" | "left" | "right" | "centerBlockText"
@@ -133,7 +143,8 @@ export default function Story(props) {
   useEffect(() => {
     const scrollToHashElement = () => {
       const { hash } = window.location;
-      const elementToScroll = document.getElementById(hash?.replace("#", ""));
+      const idx = hash?.replace("#", "");
+      const elementToScroll = document.getElementById(idx);
 
       if (!elementToScroll) return;
 
@@ -141,6 +152,7 @@ export default function Story(props) {
         top: elementToScroll.offsetTop - offset,
         behavior: "instant"
       });
+      setActiveFigure(parseInt(idx));
     };
 
     if (!trigger) return;
@@ -162,13 +174,13 @@ export default function Story(props) {
         /* const tmpTest = [...activeFigure];
         tmpTest[idx] = entry.intersectionRatio; */
         if (typeof window.history.pushState == "function") {
-          /* setTimeout(() => {
+          setTimeout(() => {
             window.history.pushState(
               null,
-              `bowstory#${idx}`,
-              `bowstory#${idx}`
+              `${storyName}#${idx}`,
+              `${storyName}#${idx}`
             );
-          }, 500); */
+          }, 500);
         } else {
           setTimeout(() => {
             window.location.hash = idx;
@@ -233,6 +245,7 @@ export default function Story(props) {
     ) {
       setShowThreatDonuts(contents[activeFigure].showThreatDonuts);
     }
+
     if (
       activeFigure != null &&
       contents != null &&
@@ -300,11 +313,29 @@ export default function Story(props) {
       activeFigure != null &&
       contents != null &&
       contents[activeFigure] != null &&
+      contents[activeFigure].threatType != null
+    ) {
+      setThreatType(contents[activeFigure].threatType);
+    }
+
+    if (
+      activeFigure != null &&
+      contents != null &&
+      contents[activeFigure] != null &&
       contents[activeFigure].countriesFilter != null
     ) {
       setCountriesFilter(contents[activeFigure].countriesFilter);
     } else {
       setCountriesFilter([]);
+    }
+
+    if (
+      activeFigure != null &&
+      contents != null &&
+      contents[activeFigure] != null &&
+      contents[activeFigure].projection != null
+    ) {
+      setProjection(contents[activeFigure].projection);
     }
 
     if (
@@ -487,8 +518,6 @@ export default function Story(props) {
     );
   }, [speciesHexas, speciesFilter]); */
 
-  console.log("contents", contents);
-
   const filteredSpeciesFromTreeMap = useTreeMapFilter(
     treeMapFilter,
     filterTreeMap,
@@ -531,12 +560,51 @@ export default function Story(props) {
     speciesHexas
   );
 
-  console.log(
-    "intersectedSpecies",
-    intersectedSpecies,
-    visibleSpeciesHexas,
-    visibleSpeciesCountries
+  const changeActiveFigure = useCallback(
+    (add) => {},
+    [activeFigureRef, contents.length, storyName]
   );
+
+  const keyDownListener = useCallback(
+    (e) => {
+      if (e.key === "ArrowLeft") {
+        //let idx = Math.max(0, activeFigure - 1);
+        /* window.history.pushState(
+          null,
+          `${storyName}#${idx}`,
+          `${storyName}#${idx}`
+        ); */
+        /* window.location.replace(`${storyName}#${idx}`);
+        setActiveFigure(idx); */
+        changeActiveFigure(-1);
+      } else if (e.key === "ArrowRight") {
+        /* let idx = Math.min(contents.length, activeFigure + 1);
+        window.location.replace(`${storyName}#${idx}`);
+        setActiveFigure(idx); */
+        changeActiveFigure(1);
+      }
+    },
+    [changeActiveFigure]
+  );
+
+  useEffect(() => {
+    window.removeEventListener("keydown", () => {});
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") {
+        let idx = Math.min(
+          contents.length,
+          Math.max(0, activeFigureRef.current - 1)
+        );
+        window.location.replace(`${storyName}#${idx}`);
+      } else if (e.key === "ArrowRight") {
+        let idx = Math.min(
+          contents.length,
+          Math.max(0, activeFigureRef.current + 1)
+        );
+        window.location.replace(`${storyName}#${idx}`);
+      }
+    });
+  }, []);
 
   return (
     <>
@@ -546,42 +614,39 @@ export default function Story(props) {
           height: "100%",
           display: "grid",
           gridTemplateRows: "repeat(auto-fit, minmax(100px, 1fr))",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))"
+          // gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))"
+          gridTemplateColumns: "auto 10px"
         }}
         ref={wrapperRef}
       >
         <div style={{ width: "100%", height: "100%", position: "relative" }}>
           <ResizeComponent>
-            <StoryMap
-              /* speciesCountries={Object.fromEntries(
-                  Object.entries(speciesCountries).filter(
-                    ([key]) => key === "Paubrasilia echinata"
-                  )
-                )} */
+            <Map
               speciesCountries={visibleSpeciesCountries}
-              /* speciesEcos={Object.fromEntries(
-                  Object.entries(speciesEcos).filter(
-                    ([key]) => key === "Paubrasilia echinata"
-                  )
-                )} */
-              speciesEcos={filteredSpeciesEcos}
-              /* speciesHexas={Object.fromEntries(
-                  Object.entries(speciesHexas).filter(
-                    ([key]) => key === "Paubrasilia echinata"
-                  )
-                )} */
+              speciesEcos={visibleSpeciesEcos}
               speciesHexas={visibleSpeciesHexas}
-              // colorBlind={colorBlind}
+              colorBlind={colorBlind}
               getSpeciesThreatLevel={getSpeciesSignThreat}
-              // threatType={threatType}
-              // setSelectedCountry={setSelectedCountry}
+              threatType={threatType}
               ref={mapRef}
               mode={mapMode}
               activeMapLayer={activeMapLayer}
               showCountries={showCountries}
               showThreatDonuts={showThreatDonuts}
               showThreatStatusInCluster={showThreatStatusInCluster}
+              projection={projection}
+              keepAspectRatio={false}
+              //setSelectedCountry={setSelectedCountry}
             />
+            {/* <StoryMap
+              speciesCountries={visibleSpeciesCountries}
+              speciesEcos={filteredSpeciesEcos}
+              speciesHexas={visibleSpeciesHexas}
+              // colorBlind={colorBlind}
+              getSpeciesThreatLevel={getSpeciesSignThreat}
+              // threatType={threatType}
+              // setSelectedCountry={setSelectedCountry}
+            /> */}
           </ResizeComponent>
           <div
             style={{
@@ -652,16 +717,20 @@ export default function Story(props) {
                   <ContentWrapper
                     id={index}
                     key={`content${index}`}
-                    style={{
-                      opacity: activeFigure === index ? 1.0 : 0.3,
-                      height: ["storyTitle", "fullSizeQuote", "end"].includes(
+                    style={
+                      {
+                        opacity: activeFigure === index ? 1.0 : 0.3,
+                        height: mobile ? "45vh" : "100vh"
+                      }
+                      /* height: ["storyTitle", "fullSizeQuote", "end"].includes(
                         content.type
                       )
                         ? mobile
                           ? "45vh"
                           : "100vh"
                         : null
-                    }}
+                    } */
+                    }
                   >
                     {/* <div
                 style={{

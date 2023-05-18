@@ -139,7 +139,7 @@ export function useParseSpeciesJSON(i_speciesData, slice) {
         species: speciesObj.Species
       };
 
-      if (speciesObj.timeIUCN.length > 0) {
+      if (speciesObj.timeIUCN != null && speciesObj.timeIUCN.length > 0) {
         let assessmentPerYear = {};
         for (let element of speciesObj.timeIUCN) {
           tmpYears.add(parseInt(element.year));
@@ -164,6 +164,8 @@ export function useParseSpeciesJSON(i_speciesData, slice) {
         tmpElement["iucn"] = Object.values(assessmentPerYear).sort((a, b) => {
           return parseInt(a.element.year) - parseInt(b.element.year);
         });
+      } else {
+        speciesObj.timeIUCN = [];
       }
 
       if (speciesObj.timeThreat.length > 0) {

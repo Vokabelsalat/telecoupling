@@ -1,5 +1,5 @@
 import * as turf from "@turf/turf";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState, forwardRef, useCallback } from "react";
 
 import ReactMapGL, {
   Layer,
@@ -11,7 +11,7 @@ import ReactMapGL, {
 
 import { bgciAssessment } from "../utils/timelineUtils";
 
-export default function Map(props) {
+const Map = forwardRef((props, ref) => {
   const {
     width,
     height,
@@ -23,12 +23,83 @@ export default function Map(props) {
       return "DD";
     },
     threatType = "economically",
-    setSelectedCountry = () => {}
+    setSelectedCountry = () => {},
+    activeMapLayer,
+    projection = "equalEarth",
+    showThreatDonuts = true,
+    showCountries = true,
+    keepAspectRatio: i_keepAspectRatio = false
   } = props;
 
-  /* console.log("speciesCountries", speciesCountries); */
-  const mapRef = useRef(null);
+  const { mapMode, interactiveLayerIds, mapStyle, polygonFill } =
+    useMemo(() => {
+      let mapStyle = "mapbox://styles/mapbox/light-v11?optimize=true";
+      let mapMode = "countries";
+      let polygonFill = true;
+      let interactiveLayerIds = ["countriesSpecies"];
+      if (activeMapLayer != null) {
+        switch (activeMapLayer.type) {
+          case "countries":
+            mapMode = "countries";
+            interactiveLayerIds = ["countriesSpecies"];
+            break;
+          case "ecoregions":
+            mapMode = "ecoregions";
+            interactiveLayerIds = ["ecoRegions"];
+            break;
+          case "hexagons":
+            mapMode = "hexagons";
+            interactiveLayerIds = ["hexagons"];
+            break;
+          case "orchestras":
+            mapMode = "orchestras";
+            interactiveLayerIds = [];
+            break;
+          default:
+        }
 
+        switch (activeMapLayer.mapStyle) {
+          case "dark":
+            mapStyle = "mapbox://styles/mapbox/dark-v11?optimize=true";
+            break;
+          case "light":
+            mapStyle = "mapbox://styles/mapbox/light-v11?optimize=true";
+            break;
+          case "satellite":
+            mapStyle = "mapbox://styles/mapbox/satellite-v9?optimize=true";
+            break;
+          case "outdoors":
+            mapStyle = "mapbox://styles/mapbox/outdoors-v12";
+            break;
+          case "streets":
+            mapStyle = "mapbox://styles/mapbox/streets-v12";
+            break;
+          default:
+            mapStyle = "mapbox://styles/mapbox/light-v11?optimize=true";
+            break;
+        }
+
+        switch (activeMapLayer.polygonFill) {
+          case false:
+            polygonFill = false;
+            break;
+          case true:
+            polygonFill = true;
+            break;
+          default:
+            break;
+        }
+      }
+
+      return {
+        mapMode: mapMode,
+        interactiveLayerIds: interactiveLayerIds,
+        mapStyle: mapStyle,
+        polygonFill: polygonFill
+      };
+    }, [activeMapLayer]);
+
+  /* console.log("speciesCountries", speciesCountries); */
   const [countriesGeoJson, setCountriesGeoJson] = useState(null);
   const [countriesGeoJsonTest, setCountriesGeoJsonTest] = useState(null);
   const [ecoRegionsGeoJson, setEcoRegionsGeoJson] = useState(null);
@@ -46,7 +117,6 @@ export default function Map(props) {
   const [ecoThreatMarkersCache, setEcoThreatMarkersCache] = useState({});
   const [capitalMarkerCache, setCapitalMarkerCache] = useState({});
   const [ecoThreatMarkers, setEcoThreatMarkers] = useState(null);
-  const [mapMode, setMapMode] = useState("countries");
   const [centroidsOfEcoregions, setCentroidsOfEcoregions] = useState(null);
   const [ecoregionHeatMap, setEcoregionHeatMap] = useState(null);
   const [ecoregionHeatMapMax, setEcoregionHeatMapMax] = useState(null);
@@ -56,6 +126,9 @@ export default function Map(props) {
   const [hexagonHeatMapMax, setHexagonHeatMapMax] = useState(null);
   const [isoToCountryID, setIsoToCountryID] = useState(null);
   const [ecosToMyIDs, setEcosToMyIDs] = useState(null);
+  const [protectedAreasPaubrasilGeoJSON, setProtectedAreasPaubrasilGeoJSON] =
+    useState(null);
+  const [keepAspectRatio] = useState(i_keepAspectRatio);
 
   const [highlightLinesGeoJSON, setHighlightLinesGeoJSON] = useState(null);
   const [ecoRegionsHighlightLinesIndex, setEcoRegionsHighlightLinesIndex] =
@@ -113,6 +186,15 @@ export default function Map(props) {
         setCentroidsOfEcoregions({
           type: "FeatureCollection",
           features: tmpCentroids
+        });
+      });
+
+    fetch("/protectedAreasPaubrasil.json")
+      .then((res) => res.json())
+      .then(function (geojson) {
+        setProtectedAreasPaubrasilGeoJSON({
+          features: geojson.features,
+          type: "FeatureCollection"
         });
       });
 
@@ -239,7 +321,7 @@ export default function Map(props) {
     setCountriesHeatMap(tmpCountriesHeatMap);
     setCountriesHeatMapMax(tmpCountriesHeatMapMax);
     setCountriesGeoJsonTest({ ...tmpCountriesGeoJson });
-  }, [speciesCountries, countriesDictionary, countriesGeoJson, mapRef]);
+  }, [speciesCountries, countriesDictionary, countriesGeoJson, ref]);
 
   const [ecosToSpecies, setEcosToSpecies] = useState(null);
 
@@ -322,7 +404,9 @@ export default function Map(props) {
         if (tmpHexagon.properties.speciesCount > tmpHexagonHeatMapMax) {
           tmpHexagonHeatMapMax = tmpHexagon.properties.speciesCount;
         }
-        tmpHexagonGeoJSON.features.push(tmpHexagon);
+        if (tmpHexagon.properties.speciesCount > 0) {
+          tmpHexagonGeoJSON.features.push(tmpHexagon);
+        }
       }
     }
 
@@ -336,9 +420,7 @@ export default function Map(props) {
   function updateEcoregions() {
     const newMarkers = [];
     const tmpEcoThreatMarkersCache = ecoThreatMarkersCache;
-    const features = mapRef.current.querySourceFeatures(
-      "ecoregionsourceCentroid"
-    );
+    const features = ref.current.querySourceFeatures("ecoregionsourceCentroid");
 
     // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
     // and add it to the map if it's not there already
@@ -421,8 +503,8 @@ export default function Map(props) {
   function updateMarkers() {
     const newMarkers = [];
     const tmpCapitalMarkerCache = capitalMarkerCache;
-    //const features = mapRef.current.querySourceFeatures("capitalssource");
-    const features = mapRef.current.querySourceFeatures("threatCapitalsSource");
+    //const features = ref.current.querySourceFeatures("capitalssource");
+    const features = ref.current.querySourceFeatures("threatCapitalsSource");
 
     // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
     // and add it to the map if it's not there already
@@ -595,11 +677,65 @@ export default function Map(props) {
     countriesHighlightLinesIndex
   ]);
 
-  /* console.log("CountriesHeatMap", countriesHeatMap, countriesHeatMapMax); */
+  const { newWidth, newHeight } = useMemo(() => {
+    let tmpWidth = width;
+    let tmpHeight = height;
+
+    if (keepAspectRatio) {
+      if (height <= width) {
+        tmpWidth = (16 / 9) * height;
+      } else {
+        tmpHeight = width / (16 / 9);
+      }
+    }
+
+    return { newWidth: tmpWidth, newHeight: tmpHeight };
+  }, [width, height]);
+
+  const onPolygonHover = useCallback(
+    (event) => {
+      if (event.features.length > 0) {
+        const feat = event.features && event.features[0];
+
+        let hoverIds = [];
+        switch (mapMode) {
+          case "countries":
+            const iso = feat.properties.ISO3CD;
+            hoverIds = [isoToCountryID[iso]];
+            break;
+          case "ecoregions":
+            const ecoID = feat.properties.ECO_ID;
+            hoverIds = [ecosToMyIDs[ecoID]];
+            break;
+          case "hexagons":
+            console.log(feat.properties);
+            break;
+          default:
+            break;
+        }
+
+        setHoveredStateIds([hoverIds]);
+      } else {
+        setHoveredStateIds([]);
+      }
+      /*  setHoverInfo({
+      longitude: event.lngLat.lng,
+      latitude: event.lngLat.lat,
+      countyName: county && county.properties.COUNTY
+    }); */
+    },
+    [mapMode, isoToCountryID, ecosToMyIDs]
+  );
 
   return (
-    <div style={{ width: "100%", height: `${height}px` }}>
-      <div>
+    <div
+      style={{
+        border: keepAspectRatio ? "1px solid black" : "",
+        width: `${newWidth}px`,
+        height: `${newHeight}px`
+      }}
+    >
+      {/* <div>
         <form
           onChange={(e) => {
             setMapMode(e.target.value);
@@ -637,10 +773,11 @@ export default function Map(props) {
           />
           <label htmlFor="javascript">Protection Potential</label>
         </form>
-      </div>
+      </div> */}
       <ReactMapGL
-        ref={mapRef}
+        ref={ref}
         /* reuseMaps={false} */
+        mapStyle={mapStyle}
         key={`thatIsMyMap`}
         //initialViewState={mapViewport}
         initialViewState={{
@@ -653,7 +790,6 @@ export default function Map(props) {
         //mapStyle="https://demotiles.maplibre.org/style.json"
         //mapStyle="mapbox://styles/mapbox/streets-v11"
         //mapStyle="mapbox://styles/jakobkusnick/clhqglu2h01we01qu8b085mkm"
-        mapStyle="mapbox://styles/mapbox/light-v11"
         onRender={() => {
           if (capitalsGeoJSON && mapMode === "countries") {
             updateMarkers();
@@ -666,21 +802,38 @@ export default function Map(props) {
             updateEcoregions();
           }
         }}
-        //projection="globe"
-        projection="equalEarth"
+        fog={{
+          range: [0.8, 8],
+          color: "rgb(48,77,106)",
+          "horizon-blend": 0.2,
+          "high-color": "#245bde",
+          "space-color": "#000000",
+          "star-intensity": 0.15
+        }}
+        projection={projection}
+        //projection="equalEarth"
         //mapLib={maplibregl}
         mapboxAccessToken="pk.eyJ1IjoiamFrb2JrdXNuaWNrIiwiYSI6ImNsYTAzYjQ2NjBrdnQzcWx0d2EyajFzbHQifQ.LQN-NvTn6PbHEbXHJO0CTw"
-        interactiveLayerIds={[
+        /* interactiveLayerIds={[
           "countriesSpecies",
           "ecoRegions",
           "ecoRegionsProtection"
-        ]}
-        onMouseMove={(event) => {
+        ]} */
+        interactiveLayerIds={interactiveLayerIds}
+        /* onMouseMove={(event) => {
           if (event.features.length > 0) {
             let id = event.features[0].properties.myID;
             if (hoveredStateIds != null && !hoveredStateIds.includes(id)) {
               setHoveredStateIds([id]);
             }
+          }
+        }} */
+        onMouseMove={onPolygonHover}
+        onMouseDown={(e) => {
+          if (e.originalEvent.altKey && e.originalEvent.which === 1) {
+            alert(
+              `Mouse and Alt was pressed. Here is your location: [${e.lngLat.lng}, ${e.lngLat.lat}]`
+            );
           }
         }}
         onMouseLeave={(event) => {
@@ -696,14 +849,14 @@ export default function Map(props) {
       >
         <NavigationControl />
         <ScaleControl />
-        {countriesHeatMapMax && countriesHeatMap && (
+        {countriesHeatMapMax && countriesHeatMap && showCountries && (
           <Source
             type="geojson"
             id="countriesSource"
             data={countriesGeoJsonTest}
           >
             <Layer
-              beforeId="state-label"
+              //beforeId="state-label"
               key={`countriesFillLayer`}
               {...{
                 id: "countriesSpecies",
@@ -975,6 +1128,7 @@ export default function Map(props) {
         )}
         {capitalThreatMarkers &&
           mapMode === "countries" &&
+          showThreatDonuts &&
           capitalThreatMarkers.map((element, index) => {
             return (
               <Marker
@@ -999,6 +1153,7 @@ export default function Map(props) {
             );
           })}
         {ecoThreatMarkers &&
+          showThreatDonuts &&
           ["hexagons", "ecoregions", "protection"].includes(mapMode) &&
           ecoThreatMarkers.map((element, index) => {
             return (
@@ -1023,6 +1178,26 @@ export default function Map(props) {
               </Marker>
             );
           })}
+        {protectedAreasPaubrasilGeoJSON && (
+          <Source
+            type="geojson"
+            data={protectedAreasPaubrasilGeoJSON}
+            id="protectedAreaSource"
+          >
+            <Layer
+              //beforeId="state-label"
+              key={`protectedAreaFillLayer`}
+              {...{
+                id: "protectedAreas",
+                type: "fill",
+                source: "protectedAreaSource",
+                paint: {
+                  "fill-color": "rgba(246,249,146,1)"
+                }
+              }}
+            />
+          </Source>
+        )}
         {hexagonHeatMap && hexagonHeatMapMax && (
           <Source type="geojson" id="hexagonsource" data={hexagonGeoJSONTest}>
             <Layer
@@ -1036,12 +1211,14 @@ export default function Map(props) {
                     ["linear"],
                     ["get", "speciesCount"],
                     0,
-                    "rgba(0,0,0,0)",
+                    activeMapLayer != null &&
+                    activeMapLayer.mapStyle === "satellite"
+                      ? "rgba(255,255,255,0.8)"
+                      : "rgba(0,0,0,0)",
                     hexagonHeatMapMax,
-                    "rgba(0,0,255,1)"
-                  ]
-                  /* "fill-color": "rgba(0,0,255,0.5)",
-                  "fill-outline-color": "rgba(0,0,255,1)" */
+                    polygonFill === true ? "rgba(0,0,255,0.8)" : "rgba(0,0,0,0)"
+                  ],
+                  "fill-outline-color": "rgba(240,240,240,1)"
                 },
                 layout: {
                   visibility: mapMode === "hexagons" ? "visible" : "none"
@@ -1071,4 +1248,6 @@ export default function Map(props) {
       </ReactMapGL>
     </div>
   );
-}
+});
+
+export default Map;

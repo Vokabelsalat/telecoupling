@@ -22,9 +22,12 @@ const concertContents = [
       speed: 1.0
     },
     mapLayer: {
-      type: "orchestras"
+      type: "countries",
+      mapStyle: "satellite"
     },
-    showCountries: true
+    projection: "globe",
+    showCountries: false,
+    showThreatDonuts: false
   },
   {
     type: "text",
@@ -56,9 +59,12 @@ const concertContents = [
       speed: 0.2
     },
     mapLayer: {
-      type: "orchestras"
+      type: "countries",
+      mapStyle: "satellite"
     },
+    projection: "globe",
     showCountries: false,
+    showThreatDonuts: false,
     width: "100%"
   },
   {
@@ -72,14 +78,18 @@ const concertContents = [
     flyTo: {
       // bearing: 90,
       // pitch: 40
-      center: [-47.882778, -15.793889],
+      center: [-57.78726375397518, -13.98656101384816],
       zoom: 3,
       speed: 0.5
     },
     mapLayer: {
       type: "countries",
       mapStyle: "satellite"
-    }
+    },
+    projection: "globe",
+    showCountries: false,
+    showThreatDonuts: false,
+    mapFilter: { country: "Brazil" }
   },
   {
     type: "text",
@@ -114,6 +124,8 @@ const concertContents = [
       mapStyle: "satellite",
       polygonFill: false
     },
+    projection: "globe",
+    showThreatDonuts: false,
     treeMapFilter: {
       genus: "Paubrasilia",
       species: "Paubrasilia echinata",
@@ -153,7 +165,7 @@ const concertContents = [
     flyTo: {
       // bearing: 90,
       // pitch: 40
-      center: [-44.15647211862972, -24.502996210127023],
+      center: [-43.32547696037534, -23.093653119001388],
       zoom: 8,
       speed: 0.1
     },
@@ -162,6 +174,9 @@ const concertContents = [
       mapStyle: "satellite",
       polygonFill: false
     },
+    projection: "globe",
+    showCountries: false,
+    showThreatDonuts: false,
     treeMapFilter: {
       genus: "Paubrasilia",
       species: "Paubrasilia echinata",
@@ -252,7 +267,7 @@ const concertContents = [
       // pitch: 40
       center: [0, 0],
       zoom: 1,
-      speed: 0.4
+      speed: 1
     },
     mapLayer: {
       type: "countries",
@@ -264,6 +279,7 @@ const concertContents = [
       kingdom: "Plantae",
       family: "Fabaceae"
     },
+    projection: "equalEarth",
     showCountries: true,
     showThreatDonuts: true,
     showThreatStatusInCluster: false
@@ -298,8 +314,10 @@ const concertContents = [
       speed: 1
     },
     mapLayer: {
-      type: "orchestras"
+      type: "orchestras",
+      mapStyle: "satellite"
     },
+    projection: "globe",
     treeMapFilter: {
       genus: "Dalbergia",
       species: null,
@@ -320,13 +338,16 @@ const concertContents = [
       // bearing: 90,
       // pitch: 40
       center: [46.96217728373126, -19.40460294184492],
-      zoom: 5,
+      zoom: 5.7,
       speed: 0.4
     },
     mapLayer: {
-      type: "hexagons",
-      mapStyle: "light"
+      type: "countries",
+      mapStyle: "satellite"
     },
+    projection: "globe",
+    showCountries: false,
+    showThreatDonuts: false,
     mapFilter: {
       country: "Madagascar"
     },
@@ -335,9 +356,126 @@ const concertContents = [
       family: "Fabaceae",
       genus: "Dalbergia",
       species: null
+    }
+  },
+  {
+    type: "text",
+    title: "Dalbergia in Madagascar",
+    image: {
+      url: "https://upload.wikimedia.org/wikipedia/commons/6/62/Iss059e046155_lrg_South_Side_of_Madagascar_from_ISS.jpg",
+      width: "60%"
     },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [46.96217728373126, -19.40460294184492],
+      zoom: 5.7,
+      speed: 0.4
+    },
+    mapLayer: {
+      type: "hexagons",
+      mapStyle: "satellite"
+    },
+    mapFilter: {
+      country: "Madagascar"
+    },
+    projection: "globe",
+    treeMapFilter: {
+      kingdom: "Plantae",
+      family: "Fabaceae",
+      genus: "Dalbergia",
+      species: null
+    },
+    threatType: "ecologically",
     showThreatDonuts: true,
     showThreatStatusInCluster: true
+  },
+  {
+    type: "text",
+    title: "Caparthians",
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [22.392448555989517, 47.2356781136759],
+      zoom: 6.5,
+      speed: 0.4
+    },
+    mapLayer: {
+      type: "countries",
+      mapStyle: "satellite"
+    },
+    treeMapFilter: {
+      kingdom: "Plantae",
+      family: "Sapindaceae",
+      genus: "Acer",
+      species: "Acer pseudoplatanus"
+    },
+    projection: "globe",
+    showThreatDonuts: false,
+    showThreatStatusInCluster: false
+  },
+  {
+    type: "text",
+    title: "Tanzania",
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [39.41062597102422, -7.464119782844293],
+      zoom: 7,
+      speed: 0.1,
+      minZoom: 3
+    },
+    mapLayer: {
+      type: "hexagons",
+      mapStyle: "satellite",
+      polygonFill: false
+    },
+    treeMapFilter: {
+      genus: "Dalbergia",
+      species: "Dalbergia melanoxylon",
+      kingdom: "Plantae",
+      family: "Fabaceae"
+    },
+    showCountries: false,
+    showThreatDonuts: false
+  },
+  {
+    type: "text",
+    title: "Nürnberg",
+    text: (
+      <>
+        Lorem Ipsum is simply dummy text of the printing and typesetting
+        industry. Lorem Ipsum has been the industry's standard dummy text ever
+        since the 1500s, when an unknown printer took a galley of type and
+        scrambled it to make a type specimen book. It has survived not only five
+        centuries, but also the leap into electronic typesetting, remaining
+        essentially unchanged. It was popularised in the 1960s with the release
+        of Letraset sheets containing Lorem Ipsum passages, and more recently
+        with desktop publishing software like Aldus PageMaker including versions
+        of Lorem Ipsum.
+      </>
+    ),
+    image: {
+      url: "https://images.ctfassets.net/0i0zqigm38c2/3exNPrwEV0gT0hyEAsT5Nx/1e0403578281fff58b9e0bc16958b350/Gluck-Saal.jpg",
+      caption:
+        "Gluck-Saal im Opernhaus (Staatstheater Nürnberg/Matthias Dengler)",
+      width: "100%"
+    },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [11.075459128357894, 49.44642081594858],
+      zoom: 18,
+      speed: 0.2
+    },
+    mapLayer: {
+      type: "countries",
+      mapStyle: "satellite"
+    },
+    projection: "globe",
+    showCountries: false,
+    showThreatDonuts: false,
+    width: "100%"
   },
   { type: "end", title: "Le Fin" },
   {

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import FullScreenButton from "./FullScreenButton";
 import Tooltip from "./Tooltip";
 import TimelineViewNew from "./TimelineViewNew";
@@ -97,6 +97,7 @@ export default function HomeNew(props) {
   const [treeMapFilter, setTreeMapFilter] = useState({});
 
   const [categoryFilter, setCategoryFilter] = useState(null);
+  const mapRef = useRef(null);
 
   const slice = false;
 
@@ -481,28 +482,14 @@ export default function HomeNew(props) {
                 {showMap && (
                   <ResizeComponent>
                     <Map
-                      /* speciesCountries={Object.fromEntries(
-                  Object.entries(speciesCountries).filter(
-                    ([key]) => key === "Paubrasilia echinata"
-                  )
-                )} */
                       speciesCountries={visibleSpeciesCountries}
-                      /* speciesEcos={Object.fromEntries(
-                  Object.entries(speciesEcos).filter(
-                    ([key]) => key === "Paubrasilia echinata"
-                  )
-                )} */
                       speciesEcos={visibleSpeciesEcos}
-                      /* speciesHexas={Object.fromEntries(
-                  Object.entries(speciesHexas).filter(
-                    ([key]) => key === "Paubrasilia echinata"
-                  )
-                )} */
                       speciesHexas={visibleSpeciesHexas}
                       colorBlind={colorBlind}
                       getSpeciesThreatLevel={getSpeciesSignThreat}
                       threatType={threatType}
                       setSelectedCountry={setSelectedCountry}
+                      ref={mapRef}
                     />
                   </ResizeComponent>
                 )}
