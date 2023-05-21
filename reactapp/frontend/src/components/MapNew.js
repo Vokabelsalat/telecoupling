@@ -13,8 +13,8 @@ import { bgciAssessment } from "../utils/timelineUtils";
 
 const Map = forwardRef((props, ref) => {
   const {
-    width,
-    height,
+    width: newWidth,
+    height: newHeight,
     speciesCountries = {},
     speciesEcos = {},
     speciesHexas = {},
@@ -28,8 +28,11 @@ const Map = forwardRef((props, ref) => {
     projection = "equalEarth",
     showThreatDonuts = true,
     showCountries = true,
+    extraPolygon = null,
     keepAspectRatio: i_keepAspectRatio = false
   } = props;
+
+  const [formMapMode, setFormMapMode] = useState("countries");
 
   const { mapMode, interactiveLayerIds, mapStyle, polygonFill } =
     useMemo(() => {
@@ -41,7 +44,7 @@ const Map = forwardRef((props, ref) => {
         switch (activeMapLayer.type) {
           case "countries":
             mapMode = "countries";
-            interactiveLayerIds = ["countriesSpecies"];
+            interactiveLayerIds = ["countriesSpecies", "extraPolygonLineLayer"];
             break;
           case "ecoregions":
             mapMode = "ecoregions";
@@ -89,6 +92,8 @@ const Map = forwardRef((props, ref) => {
           default:
             break;
         }
+      } else {
+        mapMode = formMapMode;
       }
 
       return {
@@ -97,7 +102,7 @@ const Map = forwardRef((props, ref) => {
         mapStyle: mapStyle,
         polygonFill: polygonFill
       };
-    }, [activeMapLayer]);
+    }, [activeMapLayer, formMapMode]);
 
   /* console.log("speciesCountries", speciesCountries); */
   const [countriesGeoJson, setCountriesGeoJson] = useState(null);
@@ -126,8 +131,7 @@ const Map = forwardRef((props, ref) => {
   const [hexagonHeatMapMax, setHexagonHeatMapMax] = useState(null);
   const [isoToCountryID, setIsoToCountryID] = useState(null);
   const [ecosToMyIDs, setEcosToMyIDs] = useState(null);
-  const [protectedAreasPaubrasilGeoJSON, setProtectedAreasPaubrasilGeoJSON] =
-    useState(null);
+  const [extraPolygonGeoJSON, setExtraPolygonGeoJSON] = useState(null);
   const [keepAspectRatio] = useState(i_keepAspectRatio);
 
   const [highlightLinesGeoJSON, setHighlightLinesGeoJSON] = useState(null);
@@ -186,15 +190,6 @@ const Map = forwardRef((props, ref) => {
         setCentroidsOfEcoregions({
           type: "FeatureCollection",
           features: tmpCentroids
-        });
-      });
-
-    fetch("/protectedAreasPaubrasil.json")
-      .then((res) => res.json())
-      .then(function (geojson) {
-        setProtectedAreasPaubrasilGeoJSON({
-          features: geojson.features,
-          type: "FeatureCollection"
         });
       });
 
@@ -265,6 +260,44 @@ const Map = forwardRef((props, ref) => {
   }, [orchestraGeoJson, orchestrasToISO3, countriesGeoJson]); */
 
   const [countriesToSpecies, setCountriesToSpecies] = useState(null);
+
+  const [extraPolygonPaint, setExtraPolygonPaint] = useState(null);
+
+  useEffect(() => {
+    let tmpExtraPolygonPaint = null;
+
+    if (extraPolygon) {
+      fetch("/" + extraPolygon.name + ".json")
+        .then((res) => res.json())
+        .then(function (geojson) {
+          let tmpExtraPolygon = [];
+
+          for (let feat of geojson.features) {
+            tmpExtraPolygon.push(structuredClone(feat));
+          }
+
+          if (extraPolygon.fill) {
+            tmpExtraPolygonPaint = {
+              "fill-color": extraPolygon.fill
+            };
+          } else {
+            tmpExtraPolygonPaint = {
+              "line-color": "rgba(246,249,146,1)",
+              "line-width": 2
+            };
+          }
+
+          setExtraPolygonGeoJSON({
+            features: [...tmpExtraPolygon],
+            type: "FeatureCollection"
+          });
+
+          setExtraPolygonPaint(tmpExtraPolygonPaint);
+        });
+    }
+
+    /* return { extraPolygonPaint: tmpExtraPolygonPaint }; */
+  }, [extraPolygon]);
 
   useEffect(() => {
     const tmpIsoToSpecies = {};
@@ -420,7 +453,10 @@ const Map = forwardRef((props, ref) => {
   function updateEcoregions() {
     const newMarkers = [];
     const tmpEcoThreatMarkersCache = ecoThreatMarkersCache;
-    const features = ref.current.querySourceFeatures("ecoregionsourceCentroid");
+    const features =
+      ref.current != null
+        ? ref.current.querySourceFeatures("ecoregionsourceCentroid")
+        : [];
 
     // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
     // and add it to the map if it's not there already
@@ -504,7 +540,10 @@ const Map = forwardRef((props, ref) => {
     const newMarkers = [];
     const tmpCapitalMarkerCache = capitalMarkerCache;
     //const features = ref.current.querySourceFeatures("capitalssource");
-    const features = ref.current.querySourceFeatures("threatCapitalsSource");
+    const features =
+      ref.current != null
+        ? ref.current.querySourceFeatures("threatCapitalsSource")
+        : [];
 
     // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
     // and add it to the map if it's not there already
@@ -644,10 +683,6 @@ const Map = forwardRef((props, ref) => {
   }
 
   const [hoveredStateIds, setHoveredStateIds] = useState([]);
-  /*   const tester = useMemo(
-    () => ["in", ["get", "myID"], ["literal", hoveredStateIds]],
-    [hoveredStateIds]
-  ); */
 
   useEffect(() => {
     let tmpHighlightLines = hoveredStateIds
@@ -674,23 +709,28 @@ const Map = forwardRef((props, ref) => {
   }, [
     hoveredStateIds,
     ecoRegionsHighlightLinesIndex,
-    countriesHighlightLinesIndex
+    countriesHighlightLinesIndex,
+    ref
   ]);
 
-  const { newWidth, newHeight } = useMemo(() => {
+  /* const { newWidth, newHeight } = useMemo(() => {
     let tmpWidth = width;
     let tmpHeight = height;
 
     if (keepAspectRatio) {
       if (height <= width) {
-        tmpWidth = (16 / 9) * height;
-      } else {
         tmpHeight = width / (16 / 9);
+      } else {
+        tmpWidth = (16 / 9) * height;
       }
     }
 
+    if (activeMapLayer == null) {
+      tmpHeight = tmpHeight - 40;
+    }
+
     return { newWidth: tmpWidth, newHeight: tmpHeight };
-  }, [width, height]);
+  }, [width, height, activeMapLayer, keepAspectRatio]); */
 
   const onPolygonHover = useCallback(
     (event) => {
@@ -706,6 +746,7 @@ const Map = forwardRef((props, ref) => {
           case "ecoregions":
             const ecoID = feat.properties.ECO_ID;
             hoverIds = [ecosToMyIDs[ecoID]];
+            console.log(feat.properties);
             break;
           case "hexagons":
             console.log(feat.properties);
@@ -727,6 +768,41 @@ const Map = forwardRef((props, ref) => {
     [mapMode, isoToCountryID, ecosToMyIDs]
   );
 
+  /*  if (ref.current && ref.current.getStyle().layers.includes("state-label")) {
+      return "state-label";
+    } else {
+      return null;
+    } */
+
+  const hexagonPaint = useMemo(() => {
+    if (polygonFill) {
+      return {
+        paint: {
+          "fill-color": [
+            "interpolate",
+            ["linear"],
+            ["get", "speciesCount"],
+            0,
+            activeMapLayer != null && activeMapLayer.mapStyle === "satellite"
+              ? "rgba(255,255,255,0.8)"
+              : "rgba(0,0,0,0)",
+            hexagonHeatMapMax,
+            "rgba(0,0,255,0.8)"
+          ]
+        },
+        type: "fill"
+      };
+    } else {
+      return {
+        paint: {
+          "line-color": "rgba(249,249,249,1)",
+          "line-width": 2
+        },
+        type: "line"
+      };
+    }
+  }, [hexagonHeatMapMax, polygonFill, activeMapLayer]);
+
   return (
     <div
       style={{
@@ -735,45 +811,52 @@ const Map = forwardRef((props, ref) => {
         height: `${newHeight}px`
       }}
     >
-      {/* <div>
-        <form
-          onChange={(e) => {
-            setMapMode(e.target.value);
-          }}
-        >
-          <input
-            type="radio"
-            id="countries"
-            name="map_mode"
-            value="countries"
-            defaultChecked={mapMode === "countries"}
-          />
-          <label htmlFor="html">Countries</label>
-          <input
-            type="radio"
-            id="ecoregions"
-            name="map_mode"
-            value="ecoregions"
-          />
-          <label htmlFor="css">Ecoregions</label>
-          <input type="radio" id="hexagons" name="map_mode" value="hexagons" />
-          <label htmlFor="javascript">Hexagons</label>
-          <input
-            type="radio"
-            id="orchestras"
-            name="map_mode"
-            value="orchestras"
-          />
-          <label htmlFor="javascript">Orchestras</label>
-          <input
-            type="radio"
-            id="protection"
-            name="map_mode"
-            value="protection"
-          />
-          <label htmlFor="javascript">Protection Potential</label>
-        </form>
-      </div> */}
+      {activeMapLayer == null && (
+        <div style={{ height: "20px" }}>
+          <form
+            onChange={(e) => {
+              setFormMapMode(e.target.value);
+            }}
+          >
+            <input
+              type="radio"
+              id="countries"
+              name="map_mode"
+              value="countries"
+              defaultChecked={mapMode === "countries"}
+            />
+            <label htmlFor="html">Countries</label>
+            <input
+              type="radio"
+              id="ecoregions"
+              name="map_mode"
+              value="ecoregions"
+            />
+            <label htmlFor="css">Ecoregions</label>
+            <input
+              type="radio"
+              id="hexagons"
+              name="map_mode"
+              value="hexagons"
+            />
+            <label htmlFor="javascript">Hexagons</label>
+            <input
+              type="radio"
+              id="orchestras"
+              name="map_mode"
+              value="orchestras"
+            />
+            <label htmlFor="javascript">Orchestras</label>
+            <input
+              type="radio"
+              id="protection"
+              name="map_mode"
+              value="protection"
+            />
+            <label htmlFor="javascript">Protection Potential</label>
+          </form>
+        </div>
+      )}
       <ReactMapGL
         ref={ref}
         /* reuseMaps={false} */
@@ -831,6 +914,7 @@ const Map = forwardRef((props, ref) => {
         onMouseMove={onPolygonHover}
         onMouseDown={(e) => {
           if (e.originalEvent.altKey && e.originalEvent.which === 1) {
+            console.log(e, e.features);
             alert(
               `Mouse and Alt was pressed. Here is your location: [${e.lngLat.lng}, ${e.lngLat.lat}]`
             );
@@ -847,8 +931,12 @@ const Map = forwardRef((props, ref) => {
           }
         }}
       >
-        <NavigationControl />
-        <ScaleControl />
+        {keepAspectRatio !== true && (
+          <>
+            <NavigationControl />
+            <ScaleControl />
+          </>
+        )}
         {countriesHeatMapMax && countriesHeatMap && showCountries && (
           <Source
             type="geojson"
@@ -856,8 +944,8 @@ const Map = forwardRef((props, ref) => {
             data={countriesGeoJsonTest}
           >
             <Layer
-              //beforeId="state-label"
               key={`countriesFillLayer`}
+              beforeId={mapStyle.includes("light") ? "state-label" : null}
               {...{
                 id: "countriesSpecies",
                 type: "fill",
@@ -1178,48 +1266,57 @@ const Map = forwardRef((props, ref) => {
               </Marker>
             );
           })}
-        {protectedAreasPaubrasilGeoJSON && (
+        {extraPolygonGeoJSON && extraPolygon && (
           <Source
             type="geojson"
-            data={protectedAreasPaubrasilGeoJSON}
-            id="protectedAreaSource"
+            data={extraPolygonGeoJSON}
+            id="extraPolygonSource"
           >
+            {extraPolygon.fill === null && (
+              <Layer
+                key={`extraPolygonLineLayer`}
+                {...{
+                  id: "extraPolygonLine",
+                  source: "extraPolygonSource",
+                  type: "line",
+                  paint: { ...extraPolygonPaint }
+                }}
+              />
+            )}
+            {extraPolygon.fill && (
+              <Layer
+                key={`extraPolygonFillLayer`}
+                {...{
+                  id: "extraPolygonFill",
+                  source: "extraPolygonSource",
+                  type: "fill",
+                  paint: { ...extraPolygonPaint }
+                }}
+              />
+            )}
+          </Source>
+        )}
+        {hexagonHeatMap && hexagonHeatMapMax && polygonFill && (
+          <Source type="geojson" id="hexagonsource" data={hexagonGeoJSONTest}>
             <Layer
-              //beforeId="state-label"
-              key={`protectedAreaFillLayer`}
               {...{
-                id: "protectedAreas",
-                type: "fill",
-                source: "protectedAreaSource",
-                paint: {
-                  "fill-color": "rgba(246,249,146,1)"
+                id: "hexagons",
+                source: "hexagonsource",
+                ...hexagonPaint,
+                layout: {
+                  visibility: mapMode === "hexagons" ? "visible" : "none"
                 }
               }}
             />
           </Source>
         )}
-        {hexagonHeatMap && hexagonHeatMapMax && (
+        {hexagonHeatMap && hexagonHeatMapMax && !polygonFill && (
           <Source type="geojson" id="hexagonsource" data={hexagonGeoJSONTest}>
             <Layer
               {...{
                 id: "hexagons",
-                type: "fill",
                 source: "hexagonsource",
-                paint: {
-                  "fill-color": [
-                    "interpolate",
-                    ["linear"],
-                    ["get", "speciesCount"],
-                    0,
-                    activeMapLayer != null &&
-                    activeMapLayer.mapStyle === "satellite"
-                      ? "rgba(255,255,255,0.8)"
-                      : "rgba(0,0,0,0)",
-                    hexagonHeatMapMax,
-                    polygonFill === true ? "rgba(0,0,255,0.8)" : "rgba(0,0,0,0)"
-                  ],
-                  "fill-outline-color": "rgba(240,240,240,1)"
-                },
+                ...hexagonPaint,
                 layout: {
                   visibility: mapMode === "hexagons" ? "visible" : "none"
                 }

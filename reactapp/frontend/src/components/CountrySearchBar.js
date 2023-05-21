@@ -3,7 +3,7 @@ import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
 import { useEffect, useState, useMemo } from "react";
 import { getFlagEmoji, langUnicode } from "./Tooltip";
 
-export default function SearchBar(props) {
+export default function CountrySearchBar(props) {
   const {
     id,
     setFilter,
@@ -224,7 +224,7 @@ export default function SearchBar(props) {
         <TextField
           {...params}
           className={value ? "filterUsed" : ""}
-          label="Species Search"
+          label="Country Search"
           size="small"
         />
       )}

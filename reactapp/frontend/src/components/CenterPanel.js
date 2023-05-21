@@ -2,6 +2,7 @@ import PieChartNew from "./PieChartNew";
 import Switch from "@mui/material/Switch";
 import Legend from "./LegendNew";
 import SearchBar from "./SearchBarNew";
+import CountrySearchBar from "./CountrySearchBar";
 
 export default function CenterPanel(props) {
   const {
@@ -14,6 +15,7 @@ export default function CenterPanel(props) {
     setCategoryFilter,
     categoryFilter,
     speciesData,
+    treeMapFilter,
     setTreeMapFilter
   } = props;
 
@@ -48,12 +50,14 @@ export default function CenterPanel(props) {
           <SearchBar
             speciesData={speciesData}
             setTreeMapFilter={setTreeMapFilter}
+            treeMapFilter={treeMapFilter}
           />
         </div>
         <div
           style={{
             margin: 0,
-            padding: 0
+            padding: 0,
+            flexFlow: "column"
           }}
           className="searchBarWrapper"
         >
@@ -78,20 +82,46 @@ export default function CenterPanel(props) {
           categoryFilter={categoryFilter}
         />
       </div>
-      <PieChartNew
-        data={data}
-        getThreatLevel={getSpeciesThreatLevel}
-        threatType={threatType}
-        colorBlind={colorBlind}
-      />
-      <Legend
-        type={"ecologically"}
-        threatType={threatType}
-        colorBlind={colorBlind}
-        setThreatType={setThreatType}
-        setCategoryFilter={setCategoryFilter}
-        categoryFilter={categoryFilter}
-      />
+      <div className="searchBarWrapper">
+        <PieChartNew
+          data={data}
+          getThreatLevel={getSpeciesThreatLevel}
+          threatType={threatType}
+          colorBlind={colorBlind}
+        />
+      </div>
+      <div
+        style={{
+          display: "grid",
+          width: "100%",
+          height: "100%",
+          gridTemplateRows: "auto",
+          gridTemplateColumns: "auto auto",
+          gap: "3px"
+        }}
+      >
+        <Legend
+          type={"ecologically"}
+          threatType={threatType}
+          colorBlind={colorBlind}
+          setThreatType={setThreatType}
+          setCategoryFilter={setCategoryFilter}
+          categoryFilter={categoryFilter}
+        />
+        {/* <div
+          style={{
+            margin: 0,
+            padding: 0
+          }}
+          className="searchBarWrapper"
+        >
+          <CountrySearchBar
+            speciesData={speciesData}
+            setTreeMapFilter={setTreeMapFilter}
+            treeMapFilter={treeMapFilter}
+          />
+        </div> */}
+      </div>
       <div></div>
       <div></div>
 

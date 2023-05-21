@@ -111,6 +111,7 @@ export default function Legend(props) {
           <button
             onClick={() => {
               setThreatType(type);
+              setCategoryFilter(null);
             }}
             className={`threatTypeButton ${
               threatType === type ? "active" : ""
@@ -148,6 +149,7 @@ export default function Legend(props) {
           <button
             onClick={() => {
               setThreatType(type);
+              setCategoryFilter(null);
             }}
             className={`threatTypeButton ${
               threatType === type ? "active" : ""
@@ -206,6 +208,12 @@ export default function Legend(props) {
                   data-info="IUCN"
                   className={`legendEntry ${
                     threatType === type ? "clickable" : ""
+                  } ${
+                    categoryFilter &&
+                    categoryFilter.type === "iucn" &&
+                    categoryFilter.value === e
+                      ? "highlight-border"
+                      : ""
                   }`}
                   data-key={e}
                   onClick={(event) => {
@@ -243,11 +251,9 @@ export default function Legend(props) {
           {bgciAssessment.getSortedLevels().map((e) => {
             let width;
             if (["EX"].includes(e)) {
-              width = "105px";
+              width = "70px";
             } else if (["TH"].includes(e)) {
-              width = "175px";
-            } else if (["PT"].includes(e)) {
-              width = "85px";
+              width = "105px";
             } else {
               width = "35px";
             }
@@ -272,6 +278,12 @@ export default function Legend(props) {
                 data-key={e}
                 className={`legendEntry ${
                   threatType === type ? "clickable" : ""
+                } ${
+                  categoryFilter &&
+                  categoryFilter.type === "bgci" &&
+                  categoryFilter.value === e
+                    ? "highlight-border"
+                    : ""
                 }`}
                 onClick={(event) => {
                   if (threatType === type) {

@@ -89,7 +89,57 @@ const concertContents = [
     projection: "globe",
     showCountries: false,
     showThreatDonuts: false,
-    mapFilter: { country: "Brazil" }
+    mapFilter: { country: "Brazil" },
+    extraPolygon: {
+      name: "mataAtlantica",
+      fill: null
+    }
+  },
+  {
+    type: "text",
+    title: "Mata Atlântica – Area of the Superlatives",
+    text: "Long before the Europeans invaded Brazil the tree had already developed the same preference as human beings, the Brazilian Coast. Today 2/3 of Brazilians populations lives along its coast. The Mata Atlântica is one of the worldwide biodiversity hotspots with an extraordinary species richness and at the same time one of the most threatened and degradaded biomes in the world. It consists of 15 different ecoregions with their characteristic, geographically distinct assemblages of natural communities and species.",
+    image: {
+      url: "https://upload.wikimedia.org/wikipedia/commons/8/85/Ba%C3%ADa_de_Antonina_vista_da_Serra_do_Mar2.JPG",
+      caption: "Antonina Bay as viewed from the Serra do Mar Paranaense.",
+      width: "60%",
+      copyright: (
+        <>
+          <a href="https://commons.wikimedia.org/wiki/File:Ba%C3%ADa_de_Antonina_vista_da_Serra_do_Mar2.JPG">
+            Deyvid Setti e Eloy Olindo Setti
+          </a>
+          ,{" "}
+          <a href="https://creativecommons.org/licenses/by-sa/3.0">
+            CC BY-SA 3.0
+          </a>
+          , via Wikimedia Commons
+        </>
+      )
+    },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [-41.817144351268325, -19.675475442674127],
+      zoom: 4,
+      speed: 0.4
+    },
+    mapLayer: {
+      type: "hexagons",
+      mapStyle: "satellite",
+      polygonFill: false
+    },
+    projection: "globe",
+    showThreatDonuts: false,
+    treeMapFilter: {
+      genus: "Paubrasilia",
+      species: "Paubrasilia echinata",
+      kingdom: "Plantae",
+      family: "Fabaceae"
+    },
+    extraPolygon: {
+      name: "mataAtlantica",
+      fill: null
+    }
   },
   {
     type: "text",
@@ -131,6 +181,10 @@ const concertContents = [
       species: "Paubrasilia echinata",
       kingdom: "Plantae",
       family: "Fabaceae"
+    },
+    extraPolygon: {
+      name: "protectedAreasPaubrasil",
+      fill: "rgba(246,249,146,1)"
     }
   },
   {
@@ -182,6 +236,10 @@ const concertContents = [
       species: "Paubrasilia echinata",
       kingdom: "Plantae",
       family: "Fabaceae"
+    },
+    extraPolygon: {
+      name: "protectedAreasPaubrasil",
+      fill: "rgba(246,249,146,1)"
     }
   },
   {
@@ -252,9 +310,10 @@ const concertContents = [
       family: "Pinaceae"
     },
     showCountries: false,
-    showThreatDonuts: false
+    showThreatDonuts: false,
+    extraPolygon: { name: "alps", fill: null }
   },
-  {
+  /* {
     type: "text",
     title: "Dalbergia",
     text: "Dalbergia is a large genus of small to medium-size trees, shrubs and lianas in the pea family, Fabaceae, subfamily Faboideae. It was recently assigned to the informal monophyletic Dalbergia clade (or tribe): the Dalbergieae. The genus has a wide distribution, native to the tropical regions of Central and South America, Africa, Madagascar and southern Asia.",
@@ -283,7 +342,7 @@ const concertContents = [
     showCountries: true,
     showThreatDonuts: true,
     showThreatStatusInCluster: false
-  },
+  }, */
   {
     type: "text",
     title: "Nürnberg",
@@ -338,7 +397,7 @@ const concertContents = [
       // bearing: 90,
       // pitch: 40
       center: [46.96217728373126, -19.40460294184492],
-      zoom: 5.7,
+      zoom: 5,
       speed: 0.4
     },
     mapLayer: {
@@ -369,7 +428,7 @@ const concertContents = [
       // bearing: 90,
       // pitch: 40
       center: [46.96217728373126, -19.40460294184492],
-      zoom: 5.7,
+      zoom: 5,
       speed: 0.4
     },
     mapLayer: {
@@ -390,6 +449,38 @@ const concertContents = [
     showThreatDonuts: true,
     showThreatStatusInCluster: true
   },
+  /*  {
+    type: "text",
+    title: "Diospyros in Madagascar",
+    image: {
+      url: "https://upload.wikimedia.org/wikipedia/commons/6/62/Iss059e046155_lrg_South_Side_of_Madagascar_from_ISS.jpg",
+      width: "60%"
+    },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [46.96217728373126, -19.40460294184492],
+      zoom: 5,
+      speed: 0.4
+    },
+    mapLayer: {
+      type: "hexagons",
+      mapStyle: "satellite"
+    },
+    mapFilter: {
+      country: "Madagascar"
+    },
+    projection: "globe",
+    treeMapFilter: {
+      kingdom: "Plantae",
+      family: "Ebenaceae",
+      genus: "Diospyros",
+      species: null
+    },
+    threatType: "ecologically",
+    showThreatDonuts: true,
+    showThreatStatusInCluster: true
+  }, */
   {
     type: "text",
     title: "Caparthians",
@@ -397,12 +488,13 @@ const concertContents = [
       // bearing: 90,
       // pitch: 40
       center: [22.392448555989517, 47.2356781136759],
-      zoom: 6.5,
+      zoom: 6,
       speed: 0.4
     },
     mapLayer: {
-      type: "countries",
-      mapStyle: "satellite"
+      type: "hexagons",
+      mapStyle: "satellite",
+      polygonFill: false
     },
     treeMapFilter: {
       kingdom: "Plantae",
@@ -412,7 +504,8 @@ const concertContents = [
     },
     projection: "globe",
     showThreatDonuts: false,
-    showThreatStatusInCluster: false
+    showThreatStatusInCluster: false,
+    extraPolygon: { name: "carphartians", fill: null }
   },
   {
     type: "text",

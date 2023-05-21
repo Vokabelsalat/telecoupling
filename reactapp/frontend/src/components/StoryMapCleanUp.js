@@ -71,7 +71,6 @@ const StoryMap = forwardRef((props, ref) => {
 
   const { mapMode, interactiveLayerIds, mapStyle, polygonFill } =
     useMemo(() => {
-      console.log("activeMapLayer", activeMapLayer);
       let mapStyle = "mapbox://styles/mapbox/light-v11?optimize=true";
       let mapMode = "countries";
       let polygonFill = true;

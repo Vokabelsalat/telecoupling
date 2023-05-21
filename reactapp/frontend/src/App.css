@@ -939,3 +939,14 @@ a:any-link {
 .highlight-border {
   border: 2px solid var(--highlightpurple);
 }
+
+.searchBarWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mapboxgl-ctrl,
+.mapboxgl-ctrl-bottom-left {
+  display: none;
+}

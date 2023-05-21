@@ -59,12 +59,12 @@ export default function TreeMapTile(props) {
           display: "flex"
         }}
       >
-        {node.data.mediaUrls.map((entry, index) => {
+        {[node.data.image, ...node.data.mediaUrls].map((entry, index) => {
           return (
             <img
               style={{
                 display:
-                  visibleIndex % node.data.mediaUrls.length === index
+                  visibleIndex % (node.data.mediaUrls.length + 1) === index
                     ? "block"
                     : "none",
                 width: "auto",

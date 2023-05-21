@@ -417,6 +417,7 @@ export default function HomeNew(props) {
                     setCategoryFilter={setCategoryFilter}
                     categoryFilter={categoryFilter}
                     speciesData={species}
+                    treeMapFilter={treeMapFilter}
                     setTreeMapFilter={setTreeMapFilter}
                   />
                 }

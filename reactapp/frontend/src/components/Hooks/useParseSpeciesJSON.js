@@ -147,7 +147,7 @@ export function useParseSpeciesJSON(i_speciesData, slice) {
           let assessment = iucnAssessment.get(element.code);
 
           if (assessmentPerYear.hasOwnProperty(year)) {
-            if (assessment.sort > assessmentPerYear[year].assessment.sort) {
+            if (assessment.sort < assessmentPerYear[year].assessment.sort) {
               assessmentPerYear[year] = {
                 assessment: assessment,
                 element: element
@@ -171,10 +171,7 @@ export function useParseSpeciesJSON(i_speciesData, slice) {
       if (speciesObj.timeThreat.length > 0) {
         let assessmentPerYear = {};
         for (let element of speciesObj.timeThreat) {
-          if (
-            element.assessmentYear === null ||
-            element.bgciScope !== "Global"
-          ) {
+          if (element.assessmentYear === null) {
             continue;
           }
           let year = element.assessmentYear.toString();
@@ -184,7 +181,7 @@ export function useParseSpeciesJSON(i_speciesData, slice) {
           let assessment = bgciAssessment.get(element.threatened);
 
           if (assessmentPerYear.hasOwnProperty(year)) {
-            if (assessment.sort > assessmentPerYear[year].assessment.sort) {
+            if (assessment.sort < assessmentPerYear[year].assessment.sort) {
               assessmentPerYear[year] = {
                 assessment: assessment,
                 element: element
@@ -212,7 +209,7 @@ export function useParseSpeciesJSON(i_speciesData, slice) {
           let assessment = citesAssessment.get(element.appendix);
 
           if (assessmentPerYear.hasOwnProperty(year)) {
-            if (assessment.sort > assessmentPerYear[year].assessment.sort) {
+            if (assessment.sort < assessmentPerYear[year].assessment.sort) {
               assessmentPerYear[year] = {
                 assessment: assessment,
                 element: element

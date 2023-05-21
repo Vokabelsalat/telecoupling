@@ -33,6 +33,7 @@
     "react-map-gl": "^7.0.21",
     "react-router-dom": "^6.9.0",
     "react-scripts": "^5.0.1",
+    "react-serialize": "^0.2.1",
     "react-tabs": "^6.0.0",
     "reproject": "^1.2.7",
     "use-resize-observer": "^9.1.0"

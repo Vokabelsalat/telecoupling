@@ -51,6 +51,7 @@ export default function Story(props) {
   const [activeMapLayer, setActiveMapLayer] = useState();
   const [speciesData, setSpeciesData] = useState({});
   const [showThreatDonuts, setShowThreatDonuts] = useState(true);
+  const [extraPolygon, setExtraPolygon] = useState(null);
   const [showThreatStatusInCluster, setShowThreatStatusInCluster] =
     useState(true);
 
@@ -226,6 +227,17 @@ export default function Story(props) {
       contents[activeFigure] != null
     ) {
       setActiveMapLayer(contents[activeFigure].mapLayer ?? null);
+    }
+
+    if (
+      activeFigure != null &&
+      contents != null &&
+      contents[activeFigure] != null &&
+      contents[activeFigure].extraPolygon != null
+    ) {
+      setExtraPolygon(contents[activeFigure].extraPolygon);
+    } else {
+      setExtraPolygon(null);
     }
 
     if (
@@ -615,13 +627,19 @@ export default function Story(props) {
           display: "grid",
           gridTemplateRows: "repeat(auto-fit, minmax(100px, 1fr))",
           // gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))"
-          gridTemplateColumns: "auto 10px"
+          gridTemplateColumns: "99% 1%"
         }}
         ref={wrapperRef}
       >
-        <div style={{ width: "100%", height: "100%", position: "relative" }}>
+        <div
+          style={{
+            width: "100%",
+            position: "relative" /* aspectRatio: "16 / 9" */
+          }}
+        >
           <ResizeComponent>
             <Map
+              keepAspectRatio={false}
               speciesCountries={visibleSpeciesCountries}
               speciesEcos={visibleSpeciesEcos}
               speciesHexas={visibleSpeciesHexas}
@@ -635,7 +653,7 @@ export default function Story(props) {
               showThreatDonuts={showThreatDonuts}
               showThreatStatusInCluster={showThreatStatusInCluster}
               projection={projection}
-              keepAspectRatio={false}
+              extraPolygon={extraPolygon}
               //setSelectedCountry={setSelectedCountry}
             />
             {/* <StoryMap
