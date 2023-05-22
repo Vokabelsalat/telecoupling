@@ -17,6 +17,8 @@
     "d3-color-legend": "^1.4.1",
     "d3-scale": "^4.0.2",
     "d3-simple-slider": "^1.10.4",
+    "fs": "^0.0.1-security",
+    "html-to-react": "^1.5.1",
     "leaflet": "^1.9.3",
     "leaflet-groupedlayercontrol": "git+https://github.com/AcrossTheCloud/leaflet-groupedlayercontrol.git",
     "leaflet.markercluster": "^1.5.3",

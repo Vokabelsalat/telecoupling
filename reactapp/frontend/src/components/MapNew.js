@@ -29,7 +29,8 @@ const Map = forwardRef((props, ref) => {
     showThreatDonuts = true,
     showCountries = true,
     extraPolygon = null,
-    keepAspectRatio: i_keepAspectRatio = false
+    keepAspectRatio: i_keepAspectRatio = false,
+    getPopulationTrend
   } = props;
 
   const [formMapMode, setFormMapMode] = useState("countries");
@@ -450,6 +451,72 @@ const Map = forwardRef((props, ref) => {
 
   const colors = ["#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c"];
 
+  async function calcEcoStatistics() {
+    const ecoStatistics = [];
+    const ecoStats = {};
+
+    const features =
+      ref.current != null
+        ? ref.current.querySourceFeatures("ecoregionsource")
+        : [];
+
+    // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
+    // and add it to the map if it's not there already
+    for (const feature of features) {
+      const trends = [];
+      if (ecosToSpecies[feature.properties.ECO_ID.toString()] === undefined) {
+        continue;
+      }
+      let data = Object.fromEntries(
+        ecosToSpecies[feature.properties.ECO_ID.toString()].map((spec) => {
+          trends.push({ name: spec, trend: getPopulationTrend(spec) });
+          return [spec, getSpeciesThreatLevel(spec, threatType)];
+        })
+      );
+
+      const grouped = groupBy(Object.values(data), "numvalue");
+      const groupedTrends = groupBy(trends, "trend");
+      const translated = {};
+      const translatedTrends = {};
+      for (let key of Object.keys(grouped)) {
+        translated[grouped[key][0].abbreviation] =
+          grouped[key.toString()].length;
+      }
+      for (let key of Object.keys(groupedTrends)) {
+        translatedTrends["TREND_" + key] = groupedTrends[key].length;
+      }
+
+      ecoStats[feature.properties.ECO_ID.toString()] = {
+        ECO_ID: feature.properties.ECO_ID,
+        ECO_NAME: feature.properties.ECO_NAME,
+        SPECIES_COUNT: Object.keys(data).length,
+        ...translatedTrends,
+        ...translated
+      };
+    }
+
+    let file = new Blob([JSON.stringify(Object.values(ecoStats), null, 4)], {
+      type: "application/json"
+    });
+    let filename = "ecoregionStatistics.json";
+    if (window.navigator.msSaveOrOpenBlob)
+      // IE10+
+      window.navigator.msSaveOrOpenBlob(file, filename);
+    else {
+      // Others
+      let a = document.createElement("a"),
+        url = URL.createObjectURL(file);
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, 0);
+    }
+  }
+
   function updateEcoregions() {
     const newMarkers = [];
     const tmpEcoThreatMarkersCache = ecoThreatMarkersCache;
@@ -626,6 +693,7 @@ const Map = forwardRef((props, ref) => {
       offsets.push(total);
       total += grouped[group].length;
     }
+
     const fontSize =
       total >= 1000 ? 22 : total >= 100 ? 20 : total >= 10 ? 18 : 16;
     const r = total >= 1000 ? 50 : total >= 100 ? 32 : total >= 10 ? 24 : 18;
@@ -812,7 +880,7 @@ const Map = forwardRef((props, ref) => {
       }}
     >
       {activeMapLayer == null && (
-        <div style={{ height: "20px" }}>
+        <div style={{ height: "20px", display: "flex" }}>
           <form
             onChange={(e) => {
               setFormMapMode(e.target.value);
@@ -855,6 +923,9 @@ const Map = forwardRef((props, ref) => {
             />
             <label htmlFor="javascript">Protection Potential</label>
           </form>
+          {mapMode === "ecoregions" && (
+            <button onClick={calcEcoStatistics}>Stats</button>
+          )}
         </div>
       )}
       <ReactMapGL

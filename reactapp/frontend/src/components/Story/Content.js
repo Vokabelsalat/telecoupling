@@ -6,6 +6,7 @@ import ResizeComponent from "../ResizeComponent";
 import OrchestraNew from "../OrchestraNew";
 import TimelineViewNew from "../TimelineViewNew";
 import OverlayLink from "../Overlay/OverlayLink";
+import { Parser } from "html-to-react";
 // import { useOnParent } from "./useOnParent";
 
 export const Content = (props) => {
@@ -30,6 +31,7 @@ export const Content = (props) => {
   } = props;
 
   const audioRef = useRef(null);
+  const htmlParser = new Parser();
 
   const getVisualization = (vis) => {
     switch (vis.type) {
@@ -126,16 +128,16 @@ export const Content = (props) => {
                 //marginTop: "-50%"
               }}
             >
-              {title}
+              {htmlParser.parse(title)}
             </div>
             {subtitle !== undefined && (
               <div style={{ fontFamily: titleSecondary, fontSize: "larger" }}>
-                {subtitle}
+                {htmlParser.parse(subtitle)}
               </div>
             )}
             {authors !== undefined && (
               <div style={{ fontFamily: titleSecondary, fontSize: "larger" }}>
-                {authors}
+                {htmlParser.parse(authors)}
               </div>
             )}
             <div
@@ -214,7 +216,7 @@ export const Content = (props) => {
                   fontFamily: titlePrimary
                 }}
               >
-                {quote.text}
+                {htmlParser.parse(quote.text)}
               </div>
               <div
                 style={{
@@ -223,7 +225,7 @@ export const Content = (props) => {
                   fontFamily: titleSecondary
                 }}
               >
-                "{quote.translation}"
+                "{htmlParser.parse(quote.translation)}"
               </div>
               <div
                 style={{
@@ -233,7 +235,7 @@ export const Content = (props) => {
                   fontSize: "large"
                 }}
               >
-                {quote.author}
+                {htmlParser.parse(quote.author)}
               </div>
             </div>
             {audio !== undefined && (
@@ -262,7 +264,7 @@ export const Content = (props) => {
                   className="copyrightQuote"
                   style={{ width: "100%", color: "gray" }}
                 >
-                  {audio.copyright}
+                  {htmlParser.parse(audio.copyright)}
                 </div>
               </div>
             )}
@@ -288,7 +290,7 @@ export const Content = (props) => {
                 marginBottom: "5px"
               }}
             >
-              {title}
+              {htmlParser.parse(title)}
             </div>
             <div
               style={{
@@ -297,7 +299,7 @@ export const Content = (props) => {
                 textAlign: blockText ? "justify" : "center"
               }}
             >
-              {text}
+              {htmlParser.parse(text)}
             </div>
             {image !== undefined && (
               <div
@@ -315,13 +317,13 @@ export const Content = (props) => {
                   <img style={{ width: "100%" }} src={image.url}></img>
                 </OverlayLink>
                 <div style={{ width: "100%", fontSize: "large" }}>
-                  {image.caption}
+                  {htmlParser.parse(image.caption)}
                 </div>
                 <div
                   className="copyrightQuote"
                   style={{ width: "100%", color: "gray" }}
                 >
-                  {image.copyright}
+                  {htmlParser.parse(image.copyright)}
                 </div>
               </div>
             )}
@@ -364,7 +366,7 @@ export const Content = (props) => {
                           fontSize: "large"
                         }}
                       >
-                        {image.caption}
+                        {htmlParser.parse(image.caption)}
                       </div>
                       <div
                         className="copyrightQuote"
@@ -375,7 +377,7 @@ export const Content = (props) => {
                           gridRow: 3
                         }}
                       >
-                        {image.copyright}
+                        {htmlParser.parse(image.copyright)}
                       </div>
                     </>
                   );
@@ -401,13 +403,13 @@ export const Content = (props) => {
                   preload="auto"
                 />
                 <div style={{ width: "100%", fontSize: "large" }}>
-                  {audio.caption}
+                  {htmlParser.parse(audio.caption)}
                 </div>
                 <div
                   className="copyrightQuote"
                   style={{ width: "100%", color: "gray" }}
                 >
-                  {audio.copyright}
+                  {htmlParser.parse(audio.copyright)}
                 </div>
               </div>
             )}

@@ -306,6 +306,14 @@ export default function HomeNew(props) {
     speciesHexas
   );
 
+  const getPopulationTrend = (speciesName) => {
+    if (visibleSpeciesTimelineData.hasOwnProperty(speciesName)) {
+      return visibleSpeciesTimelineData[speciesName].populationTrend;
+    } else {
+      return null;
+    }
+  };
+
   return (
     <>
       <HoverProvider>
@@ -491,6 +499,7 @@ export default function HomeNew(props) {
                       threatType={threatType}
                       setSelectedCountry={setSelectedCountry}
                       ref={mapRef}
+                      getPopulationTrend={getPopulationTrend}
                     />
                   </ResizeComponent>
                 )}

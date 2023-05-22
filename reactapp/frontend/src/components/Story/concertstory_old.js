@@ -1,10 +1,22 @@
 const concertContents = [
   {
     type: "storyTitle",
-    title: "<div>Waldkonzert</div>",
-    authors: "S. Lichtenberg & J.Kusnick",
-    subtitle: "Sonntag, 21.05.2023<br />11.00 - 13.00 Uhr",
+    title: (
+      <>
+        <div>Waldkonzert</div>
+      </>
+    ),
+    authors: <>S. Lichtenberg & J.Kusnick</>,
+    subtitle: (
+      <>
+        Sonntag, 21.05.2023
+        <br />
+        11.00 - 13.00 Uhr
+      </>
+    ),
     flyTo: {
+      // bearing: 90,
+      // pitch: 40
       center: [0.0, 0.0],
       zoom: 1,
       speed: 1.0
@@ -20,7 +32,19 @@ const concertContents = [
   {
     type: "text",
     title: "Nürnberg",
-    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+    text: (
+      <>
+        Lorem Ipsum is simply dummy text of the printing and typesetting
+        industry. Lorem Ipsum has been the industry's standard dummy text ever
+        since the 1500s, when an unknown printer took a galley of type and
+        scrambled it to make a type specimen book. It has survived not only five
+        centuries, but also the leap into electronic typesetting, remaining
+        essentially unchanged. It was popularised in the 1960s with the release
+        of Letraset sheets containing Lorem Ipsum passages, and more recently
+        with desktop publishing software like Aldus PageMaker including versions
+        of Lorem Ipsum.
+      </>
+    ),
     image: {
       url: "https://images.ctfassets.net/0i0zqigm38c2/3exNPrwEV0gT0hyEAsT5Nx/1e0403578281fff58b9e0bc16958b350/Gluck-Saal.jpg",
       caption:
@@ -28,6 +52,8 @@ const concertContents = [
       width: "100%"
     },
     flyTo: {
+      // bearing: 90,
+      // pitch: 40
       center: [11.075459128357894, 49.44642081594858],
       zoom: 18,
       speed: 0.2
@@ -50,6 +76,8 @@ const concertContents = [
       width: "50%"
     },
     flyTo: {
+      // bearing: 90,
+      // pitch: 40
       center: [-57.78726375397518, -13.98656101384816],
       zoom: 3,
       speed: 0.5
@@ -75,10 +103,22 @@ const concertContents = [
       url: "https://upload.wikimedia.org/wikipedia/commons/8/85/Ba%C3%ADa_de_Antonina_vista_da_Serra_do_Mar2.JPG",
       caption: "Antonina Bay as viewed from the Serra do Mar Paranaense.",
       width: "60%",
-      copyright:
-        '<a href="https://commons.wikimedia.org/wiki/File:Ba%C3%ADa_de_Antonina_vista_da_Serra_do_Mar2.JPG">  Deyvid Setti e Eloy Olindo Setti</a>,{" "}<a href="https://creativecommons.org/licenses/by-sa/3.0">  CC BY-SA 3.0</a>, via Wikimedia Commons'
+      copyright: (
+        <>
+          <a href="https://commons.wikimedia.org/wiki/File:Ba%C3%ADa_de_Antonina_vista_da_Serra_do_Mar2.JPG">
+            Deyvid Setti e Eloy Olindo Setti
+          </a>
+          ,{" "}
+          <a href="https://creativecommons.org/licenses/by-sa/3.0">
+            CC BY-SA 3.0
+          </a>
+          , via Wikimedia Commons
+        </>
+      )
     },
     flyTo: {
+      // bearing: 90,
+      // pitch: 40
       center: [-41.817144351268325, -19.675475442674127],
       zoom: 4,
       speed: 0.4
@@ -109,10 +149,22 @@ const concertContents = [
       url: "https://upload.wikimedia.org/wikipedia/commons/8/85/Ba%C3%ADa_de_Antonina_vista_da_Serra_do_Mar2.JPG",
       caption: "Antonina Bay as viewed from the Serra do Mar Paranaense.",
       width: "60%",
-      copyright:
-        ' <a href="https://commons.wikimedia.org/wiki/File:Ba%C3%ADa_de_Antonina_vista_da_Serra_do_Mar2.JPG"> Deyvid Setti e Eloy Olindo Setti </a> ,{" "} <a href="https://creativecommons.org/licenses/by-sa/3.0"> CC BY-SA 3.0 </a> , via Wikimedia Commons '
+      copyright: (
+        <>
+          <a href="https://commons.wikimedia.org/wiki/File:Ba%C3%ADa_de_Antonina_vista_da_Serra_do_Mar2.JPG">
+            Deyvid Setti e Eloy Olindo Setti
+          </a>
+          ,{" "}
+          <a href="https://creativecommons.org/licenses/by-sa/3.0">
+            CC BY-SA 3.0
+          </a>
+          , via Wikimedia Commons
+        </>
+      )
     },
     flyTo: {
+      // bearing: 90,
+      // pitch: 40
       center: [-34.38824229932922, -6.515708961589885],
       zoom: 8,
       speed: 0.4
@@ -137,8 +189,18 @@ const concertContents = [
   },
   {
     type: "text",
-    title: "Where can this unique tree potentially be found?",
-    text: "Pau-brasil is even more picky and grows naturally only between Rio Grande do Norte and Rio de Janeiro, which means it is endemic to the Mata Atlântica biome. The emblematic and culturally important pau-brasil tree tells a bundle of stories - on one hand a story of social and cultural exploitation and on the other of music and culture. The beauty of its flowers with their sweet smell attracts bees and fascinates people.",
+    title: <>Where can this unique tree potentially be found?</>,
+    text: (
+      <>
+        Pau-brasil is even more picky and grows naturally only between Rio
+        Grande do Norte and Rio de Janeiro, which means it is endemic to the
+        Mata Atlântica biome. The emblematic and culturally important pau-brasil
+        tree tells a bundle of stories - on one hand a story of social and
+        cultural exploitation and on the other of music and culture. The beauty
+        of its flowers with their sweet smell attracts bees and fascinates
+        people.
+      </>
+    ),
     width: "70%",
     imageArray: [
       {
@@ -155,6 +217,8 @@ const concertContents = [
       }
     ],
     flyTo: {
+      // bearing: 90,
+      // pitch: 40
       center: [-43.32547696037534, -23.093653119001388],
       zoom: 8,
       speed: 0.1
@@ -187,6 +251,8 @@ const concertContents = [
       width: "60%"
     },
     flyTo: {
+      // bearing: 90,
+      // pitch: 40
       center: [46.96217728373126, -19.40460294184492],
       zoom: 5,
       speed: 0.4
@@ -196,6 +262,27 @@ const concertContents = [
       mapStyle: "satellite"
     }
   },
+  /* {
+    type: "text",
+    title: "Picea abies",
+    image: {
+      url: "https://upload.wikimedia.org/wikipedia/commons/9/9d/Kuusk_Keila-Paldiski_rdt_%C3%A4%C3%A4res.jpg",
+      width: "30%"
+    },
+    mapLayer: {
+      type: "hexagons",
+      mapStyle: "satellite",
+      polygonFill: false
+    },
+    treeMapFilter: {
+      genus: "Picea",
+      species: "Picea abies",
+      kingdom: "Plantae",
+      family: "Pinaceae"
+    },
+    showCountries: false,
+    showThreatDonuts: false
+  }, */
   {
     type: "text",
     title: "The Alps",
@@ -205,6 +292,8 @@ const concertContents = [
       width: "70%"
     },
     flyTo: {
+      // bearing: 90,
+      // pitch: 40
       center: [9.316667, 46.5],
       zoom: 6,
       speed: 0.4
@@ -224,10 +313,52 @@ const concertContents = [
     showThreatDonuts: false,
     extraPolygon: { name: "alps", fill: null }
   },
+  /* {
+    type: "text",
+    title: "Dalbergia",
+    text: "Dalbergia is a large genus of small to medium-size trees, shrubs and lianas in the pea family, Fabaceae, subfamily Faboideae. It was recently assigned to the informal monophyletic Dalbergia clade (or tribe): the Dalbergieae. The genus has a wide distribution, native to the tropical regions of Central and South America, Africa, Madagascar and southern Asia.",
+    image: {
+      url: "https://upload.wikimedia.org/wikipedia/commons/8/8f/Dalbe_latif_081228-4907_H_ipb.jpg",
+      width: "30%"
+    },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [0, 0],
+      zoom: 1,
+      speed: 1
+    },
+    mapLayer: {
+      type: "countries",
+      mapStyle: "outdoors"
+    },
+    treeMapFilter: {
+      genus: "Dalbergia",
+      species: null,
+      kingdom: "Plantae",
+      family: "Fabaceae"
+    },
+    projection: "equalEarth",
+    showCountries: true,
+    showThreatDonuts: true,
+    showThreatStatusInCluster: false
+  }, */
   {
     type: "text",
     title: "Nürnberg",
-    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+    text: (
+      <>
+        Lorem Ipsum is simply dummy text of the printing and typesetting
+        industry. Lorem Ipsum has been the industry's standard dummy text ever
+        since the 1500s, when an unknown printer took a galley of type and
+        scrambled it to make a type specimen book. It has survived not only five
+        centuries, but also the leap into electronic typesetting, remaining
+        essentially unchanged. It was popularised in the 1960s with the release
+        of Letraset sheets containing Lorem Ipsum passages, and more recently
+        with desktop publishing software like Aldus PageMaker including versions
+        of Lorem Ipsum.
+      </>
+    ),
     image: {
       url: "https://images.ctfassets.net/0i0zqigm38c2/3exNPrwEV0gT0hyEAsT5Nx/1e0403578281fff58b9e0bc16958b350/Gluck-Saal.jpg",
       caption:
@@ -235,6 +366,8 @@ const concertContents = [
       width: "100%"
     },
     flyTo: {
+      // bearing: 90,
+      // pitch: 40
       center: [11.075459128357894, 49.44642081594858],
       zoom: 18,
       speed: 1
@@ -261,6 +394,8 @@ const concertContents = [
       width: "60%"
     },
     flyTo: {
+      // bearing: 90,
+      // pitch: 40
       center: [46.96217728373126, -19.40460294184492],
       zoom: 5,
       speed: 0.4
@@ -290,6 +425,8 @@ const concertContents = [
       width: "60%"
     },
     flyTo: {
+      // bearing: 90,
+      // pitch: 40
       center: [46.96217728373126, -19.40460294184492],
       zoom: 5,
       speed: 0.4
@@ -312,10 +449,44 @@ const concertContents = [
     showThreatDonuts: true,
     showThreatStatusInCluster: true
   },
+  /*  {
+    type: "text",
+    title: "Diospyros in Madagascar",
+    image: {
+      url: "https://upload.wikimedia.org/wikipedia/commons/6/62/Iss059e046155_lrg_South_Side_of_Madagascar_from_ISS.jpg",
+      width: "60%"
+    },
+    flyTo: {
+      // bearing: 90,
+      // pitch: 40
+      center: [46.96217728373126, -19.40460294184492],
+      zoom: 5,
+      speed: 0.4
+    },
+    mapLayer: {
+      type: "hexagons",
+      mapStyle: "satellite"
+    },
+    mapFilter: {
+      country: "Madagascar"
+    },
+    projection: "globe",
+    treeMapFilter: {
+      kingdom: "Plantae",
+      family: "Ebenaceae",
+      genus: "Diospyros",
+      species: null
+    },
+    threatType: "ecologically",
+    showThreatDonuts: true,
+    showThreatStatusInCluster: true
+  }, */
   {
     type: "text",
     title: "Caparthians",
     flyTo: {
+      // bearing: 90,
+      // pitch: 40
       center: [22.392448555989517, 47.2356781136759],
       zoom: 6,
       speed: 0.4
@@ -340,6 +511,8 @@ const concertContents = [
     type: "text",
     title: "Tanzania",
     flyTo: {
+      // bearing: 90,
+      // pitch: 40
       center: [39.41062597102422, -7.464119782844293],
       zoom: 7,
       speed: 0.1,
@@ -362,7 +535,19 @@ const concertContents = [
   {
     type: "text",
     title: "Nürnberg",
-    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+    text: (
+      <>
+        Lorem Ipsum is simply dummy text of the printing and typesetting
+        industry. Lorem Ipsum has been the industry's standard dummy text ever
+        since the 1500s, when an unknown printer took a galley of type and
+        scrambled it to make a type specimen book. It has survived not only five
+        centuries, but also the leap into electronic typesetting, remaining
+        essentially unchanged. It was popularised in the 1960s with the release
+        of Letraset sheets containing Lorem Ipsum passages, and more recently
+        with desktop publishing software like Aldus PageMaker including versions
+        of Lorem Ipsum.
+      </>
+    ),
     image: {
       url: "https://images.ctfassets.net/0i0zqigm38c2/3exNPrwEV0gT0hyEAsT5Nx/1e0403578281fff58b9e0bc16958b350/Gluck-Saal.jpg",
       caption:
@@ -370,6 +555,8 @@ const concertContents = [
       width: "100%"
     },
     flyTo: {
+      // bearing: 90,
+      // pitch: 40
       center: [11.075459128357894, 49.44642081594858],
       zoom: 18,
       speed: 0.2
@@ -388,37 +575,67 @@ const concertContents = [
     type: "text",
     title: "Violine",
     height: "50vh",
-    text: "Moritz König<br />Tae Koseki"
+    text: (
+      <>
+        Moritz König
+        <br />
+        Tae Koseki
+      </>
+    )
   },
   {
     type: "text",
     title: "Viola",
     height: "50vh",
-    text: "Lisa Klotz"
+    text: <>Lisa Klotz</>
   },
   {
     type: "text",
     title: "Cello",
     height: "50vh",
-    text: "Arita Kwon<br />Veronika Zucker"
+    text: (
+      <>
+        Arita Kwon
+        <br />
+        Veronika Zucker
+      </>
+    )
   },
   {
     type: "text",
     title: "Fagott",
     height: "50vh",
-    text: "Anna Koch<br />Paulina Strebel"
+    text: (
+      <>
+        Anna Koch
+        <br />
+        Paulina Strebel
+      </>
+    )
   },
   {
     type: "text",
     title: "Klarinette",
     height: "50vh",
-    text: "Martin Möhler"
+    text: <>Martin Möhler</>
   },
   {
     type: "text",
     title: "Schlagzeug",
     height: "50vh",
-    text: "Christian Stier<br />Sebastian Hausl<br />Christian Wissel<br />Pascal Klaiber<br />Paul Donat"
+    text: (
+      <>
+        Christian Stier
+        <br />
+        Sebastian Hausl
+        <br />
+        Christian Wissel
+        <br />
+        Pascal Klaiber
+        <br />
+        Paul Donat
+      </>
+    )
   }
 ];
 

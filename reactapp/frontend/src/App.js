@@ -5,6 +5,7 @@ import "./App.css";
 import Story from "./components/Story/Story";
 import ResizeComponent from "./components/ResizeComponent";
 import HomeNew from "./components/HomeNew";
+import StoryEditor from "./components/StoryEditor";
 
 const appHeight = () => {
   const doc = document.documentElement;
@@ -86,6 +87,22 @@ class App extends Component {
                 >
                   <ResizeComponent>
                     <Story storyName="concertstory" />
+                  </ResizeComponent>
+                </div>
+              }
+            />
+            <Route
+              exact
+              path="/storyeditor"
+              element={
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%"
+                  }}
+                >
+                  <ResizeComponent>
+                    <StoryEditor />
                   </ResizeComponent>
                 </div>
               }

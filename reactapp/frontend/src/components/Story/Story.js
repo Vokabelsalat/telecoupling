@@ -11,7 +11,7 @@ import { useTreeMapFilter } from "../Hooks/useTreeMapFilter";
 import { useParseSpeciesJSON } from "../Hooks/useParseSpeciesJSON";
 import { useFilterSpecies } from "../Hooks/useFilterSpecies";
 import { useMapFilter } from "../Hooks/useMapFilter";
-import { useParams } from "react-router-dom";
+
 import {
   bgciAssessment,
   citesAssessment,
@@ -35,9 +35,9 @@ import Overlay from "../Overlay/Overlay";
 const storyScripts = { bowstory: bowContents, concertstory: concertContents };
 
 export default function Story(props) {
-  const { width, height, storyName } = props;
+  const { width, height, storyName, contents: i_contents = null } = props;
 
-  const contents = storyScripts[storyName];
+  const contents = i_contents ? i_contents : storyScripts[storyName];
 
   const ref = useRef(null);
 
@@ -174,18 +174,20 @@ export default function Story(props) {
       if (entry.isIntersecting === true) {
         /* const tmpTest = [...activeFigure];
         tmpTest[idx] = entry.intersectionRatio; */
-        if (typeof window.history.pushState == "function") {
-          setTimeout(() => {
-            window.history.pushState(
-              null,
-              `${storyName}#${idx}`,
-              `${storyName}#${idx}`
-            );
-          }, 500);
-        } else {
-          setTimeout(() => {
-            window.location.hash = idx;
-          }, 500);
+        if (storyName !== "test") {
+          if (typeof window.history.pushState == "function") {
+            setTimeout(() => {
+              window.history.pushState(
+                null,
+                `${storyName}#${idx}`,
+                `${storyName}#${idx}`
+              );
+            }, 500);
+          } else {
+            setTimeout(() => {
+              window.location.hash = idx;
+            }, 500);
+          }
         }
         setActiveFigure(idx);
       }
@@ -626,8 +628,8 @@ export default function Story(props) {
           height: "100%",
           display: "grid",
           gridTemplateRows: "repeat(auto-fit, minmax(100px, 1fr))",
-          // gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))"
-          gridTemplateColumns: "99% 1%"
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))"
+          // gridTemplateColumns: "99% 1%"
         }}
         ref={wrapperRef}
       >
