@@ -29,7 +29,6 @@ export default function SearchBar(props) {
     /* var stringed = JSON.stringify(obj);
       console.log(stringed); */
     var jsoned = JSON.parse(textareaValue);
-    console.log(jsoned);
     setJsoned(jsoned);
   }, []);
 

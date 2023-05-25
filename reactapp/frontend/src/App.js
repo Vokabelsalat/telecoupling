@@ -6,6 +6,7 @@ import Story from "./components/Story/Story";
 import ResizeComponent from "./components/ResizeComponent";
 import HomeNew from "./components/HomeNew";
 import StoryEditor from "./components/StoryEditor";
+import StoryWrapper from "./components/StoryWrapper";
 
 const appHeight = () => {
   const doc = document.documentElement;
@@ -31,91 +32,74 @@ window.addEventListener("resize", appHeight);
   );
 } */
 
-class App extends Component {
-  /* constructor(props) {
-    super(props);
-  } */
-
-  componentDidMount() {
-    appHeight();
-  }
-
-  render() {
-    return (
-      <div className="App">
-        <Router>
-          <Routes>
-            {/*  <Route exact path="/statistics">
-              <Statistics />
-            </Route> */}
-            {/*  <Route
-              path="/:instrumentGroup/:instrument/:mainPart"
-              component={HomeWithParams}
-            />
-            <Route
-              path="/:instrumentGroup/:instrument"
-              component={HomeWithParams}
-            />
-            <Route path="/:instrumentGroup" component={HomeWithParams} /> */}
-            {/* <Route exact path="/" element={<Home />} /> */}
-            <Route exact path="/" element={<HomeNew />} />
-            <Route
-              exact
-              path="/bowstory"
-              element={
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%"
-                  }}
-                >
-                  <ResizeComponent>
-                    <Story storyName="bowstory" />
-                  </ResizeComponent>
-                </div>
-              }
-            />
-            <Route
-              exact
-              path="/concertstory"
-              element={
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%"
-                  }}
-                >
-                  <ResizeComponent>
-                    <Story storyName="concertstory" />
-                  </ResizeComponent>
-                </div>
-              }
-            />
-            <Route
-              exact
-              path="/storyeditor"
-              element={
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%"
-                  }}
-                >
-                  <ResizeComponent>
-                    <StoryEditor />
-                  </ResizeComponent>
-                </div>
-              }
-            />
-          </Routes>
-          {/* <Route exact path="/timeline">
+function App() {
+  return (
+    <div className="App">
+      <Router>
+        <Routes>
+          <Route exact path="/" element={<HomeNew />} />
+          <Route
+            exact
+            path="/bowstory"
+            element={
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%"
+                }}
+              >
+                <ResizeComponent>
+                  <Story storyName="bowstory" />
+                </ResizeComponent>
+              </div>
+            }
+          />
+          <Route
+            exact
+            path="/concertstory"
+            element={
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%"
+                }}
+              >
+                <ResizeComponent>
+                  <Story storyName="concertstory" />
+                </ResizeComponent>
+              </div>
+            }
+          />
+          <Route
+            exact
+            path="/storyeditor"
+            element={
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%"
+                }}
+              >
+                <ResizeComponent>
+                  <StoryEditor />
+                </ResizeComponent>
+              </div>
+            }
+          />
+          <Route
+            exact
+            path="/sciebo/:storyId"
+            element={<StoryWrapper sciebo={true} />}
+          />
+          <Route exact path="/:storyId" element={<StoryWrapper />} />
+        </Routes>
+        {/* <Route exact path="/timeline">
             <TimelineView />
             <div key="tooltip" id="tooltip" className="tooltip"></div>
           </Route> */}
-        </Router>
-      </div>
-    );
-  }
+      </Router>
+    </div>
+  );
 }
 
 export default App;
