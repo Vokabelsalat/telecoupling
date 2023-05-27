@@ -7,10 +7,13 @@ import OrchestraNew from "../OrchestraNew";
 import TimelineViewNew from "../TimelineViewNew";
 import OverlayLink from "../Overlay/OverlayLink";
 import { Parser } from "html-to-react";
+import TreeMapView from "../TreeMapViewNew";
+import { serialize, deserialize } from "react-serialize";
 // import { useOnParent } from "./useOnParent";
 
 export const Content = (props) => {
   const {
+    id,
     title,
     subtitle,
     authors,
@@ -45,6 +48,11 @@ export const Content = (props) => {
             colorBlind={vis.colorBlind}
             setInstrument={vis.setInstrument}
             setInstrumentGroup={vis.setInstrumentGroup}
+            instrument={vis.instrument}
+            instrumentGroup={vis.instrumentGroup}
+            instrumentPart={vis.instrumentPart}
+            setInstrumentPart={vis.setInstrumentPart}
+            showThreatDonuts={vis.showThreatDonuts}
           />
         );
       case "timeline":
@@ -58,6 +66,19 @@ export const Content = (props) => {
             timeFrame={vis.timeFrame}
             colorBlind={vis.colorBlind}
             domainYears={vis.domainYears}
+            setTreeMapFilter={vis.setTreeMapFilter}
+          />
+        );
+      case "treeMap":
+        return (
+          <TreeMapView
+            data={{
+              name: "Kingdom",
+              children: vis.kingdomData,
+              filterDepth: 0
+            }}
+            treeMapFilter={vis.treeMapFilter}
+            setTreeMapFilter={vis.setTreeMapFilter}
           />
         );
       default:
@@ -112,7 +133,7 @@ export const Content = (props) => {
               textAlign: "center",
               verticalAlign: "middle",
               padding: "10px",
-              height: "100%",
+              height: "100vh",
               display: "grid",
               alignItems: "center",
               justifyContent: "center",
@@ -157,8 +178,8 @@ export const Content = (props) => {
               >
                 Scroll to experience the story.
               </div>
-              <div class="mouse-icon">
-                <div class="wheel"></div>
+              <div className="mouse-icon">
+                <div className="wheel"></div>
               </div>
             </div>
           </div>
@@ -280,6 +301,8 @@ export const Content = (props) => {
               gridTemplateRows: "auto auto auto",
               gap: "10px",
               padding: "10px",
+              width: "100%",
+              height: "100%",
               textAlign: textAlign
             }}
           >
@@ -346,8 +369,12 @@ export const Content = (props) => {
                 {imageArray.map((image, index) => {
                   return (
                     <>
-                      <OverlayLink setOverlayContent={setOverlayContent}>
+                      <OverlayLink
+                        key={`link${JSON.stringify(image)}${index}`}
+                        setOverlayContent={setOverlayContent}
+                      >
                         <img
+                          key={`img${JSON.stringify(image)}${index}`}
                           style={{
                             gridColumn: index + 1,
                             gridRow: 1,
@@ -359,6 +386,7 @@ export const Content = (props) => {
                         ></img>
                       </OverlayLink>
                       <div
+                        key={`caption${JSON.stringify(image)}${index}`}
                         style={{
                           gridColumn: index + 1,
                           gridRow: 2,
@@ -369,6 +397,7 @@ export const Content = (props) => {
                         {htmlParser.parse(image.caption)}
                       </div>
                       <div
+                        key={`copyright${JSON.stringify(image)}${index}`}
                         className="copyrightQuote"
                         style={{
                           width: "100%",
@@ -417,13 +446,15 @@ export const Content = (props) => {
               <div
                 style={{
                   marginTop: "15px",
-                  width: visualization.width ? visualization.width : "50%",
-                  height: "300px"
-                  /* display: "grid",
+                  width: visualization.width ? visualization.width : "100%",
+                  minWidth: visualization.width ? visualization.width : "100%",
+                  maxWidth: visualization.width ? visualization.width : "100%",
+                  minHeight: "40px",
+                  maxHeight: "100%",
+                  height: "30%",
+                  display: "grid",
                   gridTemplateColumns: "auto",
-                  gridTemplateRows: "auto auto auto",
-                  gap: "10px",
-                  justifySelf: textAlign */
+                  gridTemplateRows: "auto"
                 }}
               >
                 <ResizeComponent>
@@ -447,6 +478,8 @@ export const Content = (props) => {
     }
   });
 
+  /* console.log(serialize(html)); */
+
   return (
     <div
       className={`content`}
@@ -455,8 +488,8 @@ export const Content = (props) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        height: height ?? "100%",
-        width: width ?? "unset"
+        height: height ?? "unset",
+        width: width ?? "100%"
       }}
     >
       {html}

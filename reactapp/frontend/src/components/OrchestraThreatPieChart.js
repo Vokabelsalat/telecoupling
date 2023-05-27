@@ -12,7 +12,8 @@ export default function OrchestraThreatPieChart(props) {
     species,
     colorBlind,
     threatType,
-    getThreatLevel
+    getThreatLevel,
+    showThreatDonuts = true
   } = props;
 
   const width = 75;
@@ -62,6 +63,7 @@ export default function OrchestraThreatPieChart(props) {
             threatType={threatType}
             colorBlind={colorBlind}
             size={45}
+            showThreatDonuts={showThreatDonuts}
           />
         }
       </div>

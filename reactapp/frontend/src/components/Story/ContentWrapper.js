@@ -20,7 +20,8 @@ const ContentWrapper = forwardRef((props, ref) => {
         paddingRight: "10px",
         display: "flex",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+        height: "100%"
       }}
     >
       {children}

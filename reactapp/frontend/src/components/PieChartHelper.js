@@ -10,6 +10,7 @@ class PieChartD3 {
     this.getTreeThreatLevel = param.getTreeThreatLevel;
     this.width = param.width;
     this.height = param.height;
+    this.showThreatDonuts = param.showThreatDonuts;
 
     this.strokeWidth = 2;
 
@@ -135,8 +136,9 @@ class PieChartD3 {
       .append("circle")
       .attr("cx", origo)
       .attr("cy", origo)
-      .attr("r", rInner - 1)
+      .attr("r", rInner + 2)
       .attr("fill", "white")
+      .attr("stroke", this.showThreatDonuts === "white" ? "gray" : "none")
       .style("fill-opacity", "50%");
 
     vis2
@@ -177,8 +179,12 @@ class PieChartD3 {
       outerRadius: this.width / 2 - this.strokeWidth,
       innerRadius: this.width / 4,
       instrument: false,
-      color: function (d) {
-        return d.data.values[0].getColor(colorBlind);
+      color: (d) => {
+        if (this.showThreatDonuts === "white") {
+          return "white";
+        } else {
+          return d.data.values[0].getColor(colorBlind);
+        }
       },
       pieClass: "clusterPie",
       pieLabelClass: "marker-cluster-pie-label",

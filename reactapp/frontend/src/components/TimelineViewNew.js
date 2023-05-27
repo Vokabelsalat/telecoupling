@@ -49,9 +49,7 @@ export default function TimelineViewNew(props) {
     x = d3.scaleBand().domain(xDomain).rangeRound([0, timescaleWidth]);
   }
 
-  const sortedKeys = Object.keys(data)
-    //.filter((e) => filteredSpecies.includes(e))
-    .sort();
+  const sortedKeys = data != null ? Object.keys(data).sort() : [];
 
   return (
     <div

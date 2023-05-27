@@ -28,6 +28,7 @@ import { useMapFilter } from "./Hooks/useMapFilter";
 import { useTimelineFilter } from "./Hooks/useTimelineFilter";
 import { useFilterSpecies } from "./Hooks/useFilterSpecies";
 import { useParseSpeciesJSON } from "./Hooks/useParseSpeciesJSON";
+import { useOrchestraFilter } from "./Hooks/useOrchestraFilter";
 
 export const returnDummyLink = (speciesObj) => {
   return speciesObj["Foto dummy"] != null &&
@@ -84,6 +85,8 @@ export default function HomeNew(props) {
   const [instrument, setInstrument] = useState();
   const [instrumentGroup, setInstrumentGroup] = useState();
   const [instrumentPart, setInstrumentPart] = useState();
+
+  console.log(instrumentGroup, instrument);
 
   const [timeFrame, setTimeFrame] = useState([]);
   const [speciesData, setSpeciesData] = useState({});
@@ -212,7 +215,7 @@ export default function HomeNew(props) {
   } = useParseSpeciesJSON(speciesData, slice);
 
   //FilterSection
-  const filteredSpeciesFromOrchestra = useMemo(() => {
+  /*  const filteredSpeciesFromOrchestra = useMemo(() => {
     let filtSpecies = Object.keys(species);
     if (instrumentGroup) {
       let filtInstruments = instrumentGroupData[instrumentGroup];
@@ -249,10 +252,19 @@ export default function HomeNew(props) {
     instrumentGroupData,
     instrumentPart,
     species
-  ]);
+  ]); */
 
   /* console.log("instrumentData", instrumentData);
   console.log("filteredSpeciesFromOrchestra", filteredSpeciesFromOrchestra); */
+
+  const filteredSpeciesFromOrchestra = useOrchestraFilter(
+    species,
+    instrument,
+    instrumentData,
+    instrumentGroup,
+    instrumentGroupData,
+    instrumentPart
+  );
 
   const filteredSpeciesFromTreeMap = useTreeMapFilter(
     treeMapFilter,

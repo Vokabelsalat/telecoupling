@@ -12,7 +12,8 @@ export default function InstrumentThreatPieChart(props) {
     colorBlind,
     threatType,
     getThreatLevel,
-    position
+    position,
+    showThreatDonuts = true
   } = props;
 
   const width = 12;
@@ -70,6 +71,7 @@ export default function InstrumentThreatPieChart(props) {
               threatType={threatType}
               colorBlind={colorBlind}
               size={width}
+              showThreatDonuts={showThreatDonuts}
             />
           }
         </div>

@@ -37,7 +37,8 @@ export default function OrchestraInstrumentSlice(props) {
     getThreatLevel,
     colorBlind,
     setInstrument,
-    isSelected = false
+    isSelected = false,
+    showThreatDonuts = true
   } = props;
 
   const pathString = calculatePath(position.x, position.y, arcOptions);
@@ -138,6 +139,7 @@ export default function OrchestraInstrumentSlice(props) {
         colorBlind={colorBlind}
         style={{ pointerEvents: "none" }}
         position={pointForThreatPie}
+        showThreatDonuts={showThreatDonuts}
       />
     </g>
   );

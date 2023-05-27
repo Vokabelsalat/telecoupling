@@ -8,7 +8,8 @@ export default function PieChartNew(props) {
     getThreatLevel,
     threatType,
     colorBlind,
-    size = 70
+    size = 70,
+    showThreatDonuts = true
   } = props;
 
   useEffect(() => {
@@ -19,7 +20,8 @@ export default function PieChartNew(props) {
       treeThreatType: threatType,
       colorBlind: colorBlind,
       width: size,
-      height: size
+      height: size,
+      showThreatDonuts: showThreatDonuts
     });
   });
 

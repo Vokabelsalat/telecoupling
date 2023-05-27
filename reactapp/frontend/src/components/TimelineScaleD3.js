@@ -128,7 +128,12 @@ class TimelineScaleD3 extends Component {
         }}
       >
         <div></div>
-        <svg id={this.state.id} width={this.props.width} height={"50px"}>
+        <svg
+          style={{ overflow: "visible" }}
+          id={this.state.id}
+          width={this.props.width}
+          height={"50px"}
+        >
           <g
             id={`${this.props.id}SliderGroup`}
             transform={`translate(${this.props.x(

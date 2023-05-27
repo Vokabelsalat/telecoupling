@@ -30,7 +30,8 @@ const Map = forwardRef((props, ref) => {
     showCountries = true,
     extraPolygon = null,
     keepAspectRatio: i_keepAspectRatio = false,
-    getPopulationTrend
+    getPopulationTrend,
+    timeFrame
   } = props;
 
   const [formMapMode, setFormMapMode] = useState("countries");
@@ -517,6 +518,12 @@ const Map = forwardRef((props, ref) => {
     }
   }
 
+  useEffect(() => {
+    console.log("CHANGED", timeFrame);
+    updateMarkers();
+    updateEcoregions();
+  }, [timeFrame]);
+
   function updateEcoregions() {
     const newMarkers = [];
     const tmpEcoThreatMarkersCache = ecoThreatMarkersCache;
@@ -567,7 +574,9 @@ const Map = forwardRef((props, ref) => {
 
       const markerKey = `${threatNumvalues
         .sort()
-        .join()}${threatType}${colorBlind}EcoMarker`;
+        .join()}${threatType}${colorBlind}EcoMarker${timeFrame[0]}${
+        timeFrame[1]
+      }`;
 
       let markerElement = ecoThreatMarkersCache[markerKey];
       if (!markerElement) {
@@ -654,7 +663,7 @@ const Map = forwardRef((props, ref) => {
       });
       const markerKey = `${threatNumvalues
         .sort()
-        .join()}${threatType}${colorBlind}`;
+        .join()}${threatType}${colorBlind}${timeFrame[0]}${timeFrame[1]}`;
 
       let markerElement = tmpCapitalMarkerCache[markerKey];
       if (!markerElement) {
@@ -707,18 +716,26 @@ const Map = forwardRef((props, ref) => {
         viewBox={`0 0 ${w} ${w}`}
         textAnchor="middle"
       >
-        <circle cx={r} cy={r} r={r} fill="white"></circle>
-        <g transform={"translate(1, 1)"}>
-          {sortedGroupedKeys.map((item, index) => {
-            return donutSegment(
-              offsets[index] / total,
-              (offsets[index] + grouped[item].length) / total,
-              r - 1,
-              r0 - 1,
-              grouped[item][0].getColor(colorBlind)
-            );
-          })}
-        </g>
+        <circle
+          cx={r}
+          cy={r}
+          r={r}
+          fill="white"
+          stroke={showThreatDonuts === "white" ? "gray" : "none"}
+        ></circle>
+        {showThreatDonuts && showThreatDonuts !== "white" && (
+          <g transform={"translate(1, 1)"}>
+            {sortedGroupedKeys.map((item, index) => {
+              return donutSegment(
+                offsets[index] / total,
+                (offsets[index] + grouped[item].length) / total,
+                r - 1,
+                r0 - 1,
+                grouped[item][0].getColor(colorBlind)
+              );
+            })}
+          </g>
+        )}
         <text dominantBaseline="central" transform={`translate(${r}, ${r})`}>
           {total.toLocaleString()}
         </text>
@@ -1027,9 +1044,9 @@ const Map = forwardRef((props, ref) => {
                     ["linear"],
                     ["get", "speciesCount"],
                     0,
-                    "rgba(0,0,0,0)",
+                    "rgba(255,255,255,0.8)",
                     countriesHeatMapMax,
-                    "rgba(0,0,255,1)"
+                    "rgba(0,0,255,0.8)"
                   ]
                 },
                 layout: {

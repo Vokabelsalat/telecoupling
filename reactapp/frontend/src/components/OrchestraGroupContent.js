@@ -13,7 +13,8 @@ export default function OrchestraGroupContent(props) {
     colorBlind,
     instruments,
     species,
-    acrOptions
+    acrOptions,
+    showThreatDonuts = true
   } = props;
 
   const angle =
@@ -77,19 +78,23 @@ export default function OrchestraGroupContent(props) {
         position={pointForIcon}
         angle={angle}
       />
-      <OrchestraThreatPieChart
-        key={`OrchestraGroupThreatPie${id}`}
-        id={id}
-        group={groupName}
-        position={pointForThreatIcon}
-        angle={angle}
-        instruments={instruments}
-        species={species}
-        getThreatLevel={getThreatLevel}
-        threatType={threatType}
-        colorBlind={colorBlind}
-        style={{ pointerEvents: "none" }}
-      />
+
+      {showThreatDonuts && (
+        <OrchestraThreatPieChart
+          key={`OrchestraGroupThreatPie${id}`}
+          id={id}
+          group={groupName}
+          position={pointForThreatIcon}
+          angle={angle}
+          instruments={instruments}
+          species={species}
+          getThreatLevel={getThreatLevel}
+          threatType={threatType}
+          colorBlind={colorBlind}
+          style={{ pointerEvents: "none" }}
+          showThreatDonuts={showThreatDonuts}
+        />
+      )}
     </>
   );
 }

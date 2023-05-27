@@ -26,7 +26,8 @@ export default function OrchestraNew(props) {
     instrumentGroup,
     instrument,
     instrumentPart,
-    setInstrumentPart
+    setInstrumentPart,
+    showThreatDonuts = true
   } = props;
 
   const ref = useRef(null);
@@ -178,6 +179,7 @@ export default function OrchestraNew(props) {
                 setInstrumentGroup={setInstrumentGroup}
                 setInstrumentPart={setInstrumentPart}
                 instrument={instrument}
+                showThreatDonuts={showThreatDonuts}
               />
             );
           })}
@@ -208,29 +210,30 @@ export default function OrchestraNew(props) {
               padding: "5px"
             }}
           >
-            {Object.keys(instrumentData[instrument])
-              .sort()
-              .map((instPart) => {
-                return (
-                  <div
-                    style={{
-                      cursor: "pointer",
-                      width: "fit-content",
-                      boxSizing: "border-box",
-                      padding: "2px",
-                      border:
-                        instrumentPart === instPart
-                          ? "solid 2px purple"
-                          : "none"
-                    }}
-                    onClick={() => {
-                      setInstrumentPart(instPart);
-                    }}
-                  >
-                    {instPart} ({instrumentData[instrument][instPart].length})
-                  </div>
-                );
-              })}
+            {instrumentData.hasOwnProperty(instrument) &&
+              Object.keys(instrumentData[instrument])
+                .sort()
+                .map((instPart) => {
+                  return (
+                    <div
+                      style={{
+                        cursor: "pointer",
+                        width: "fit-content",
+                        boxSizing: "border-box",
+                        padding: "2px",
+                        border:
+                          instrumentPart === instPart
+                            ? "solid 2px purple"
+                            : "none"
+                      }}
+                      onClick={() => {
+                        setInstrumentPart(instPart);
+                      }}
+                    >
+                      {instPart} ({instrumentData[instrument][instPart].length})
+                    </div>
+                  );
+                })}
           </div>
         </div>
       )}

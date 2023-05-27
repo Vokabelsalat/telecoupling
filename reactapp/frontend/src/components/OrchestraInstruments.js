@@ -31,7 +31,8 @@ export default function OrchestraInstruments(props) {
     acrOptions,
     setInstrument,
     isSelected = false,
-    selectedInstrument = null
+    selectedInstrument = null,
+    showThreatDonuts = true
   } = props;
 
   const [hightlight, setHighlight] = useState(false);
@@ -118,6 +119,7 @@ export default function OrchestraInstruments(props) {
             getThreatLevel={getThreatLevel}
             colorBlind={colorBlind}
             setInstrument={setInstrument}
+            showThreatDonuts={showThreatDonuts}
           />
         );
       })}
