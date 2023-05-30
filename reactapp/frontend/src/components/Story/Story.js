@@ -12,6 +12,7 @@ import { useParseSpeciesJSON } from "../Hooks/useParseSpeciesJSON";
 import { useFilterSpecies } from "../Hooks/useFilterSpecies";
 import { useMapFilter } from "../Hooks/useMapFilter";
 import { useOrchestraFilter } from "../Hooks/useOrchestraFilter";
+import { useTimelineFilter } from "../Hooks/useTimelineFilter";
 import { HoverProvider } from "../HoverProvider";
 import { TooltipProvider } from "../TooltipProvider";
 import { OverlayProvider } from "../OverlayProvider";
@@ -58,6 +59,7 @@ export default function Story(props) {
   const [extraPolygon, setExtraPolygon] = useState(null);
   const [showThreatStatusInCluster, setShowThreatStatusInCluster] =
     useState(true);
+  const [categoryFilter, setCategoryFilter] = useState(null);
 
   const [trigger, setTrigger] = useState(true);
   const [isIntro, setIsIntro] = useState(true);
@@ -253,6 +255,17 @@ export default function Story(props) {
       contents[activeFigure].showCountries != null
     ) {
       setShowCountries(contents[activeFigure].showCountries);
+    }
+
+    if (
+      activeFigure != null &&
+      contents != null &&
+      contents[activeFigure] != null &&
+      contents[activeFigure].categoryFilter != null
+    ) {
+      setCategoryFilter(contents[activeFigure].categoryFilter);
+    } else {
+      setCategoryFilter(null);
     }
 
     if (
@@ -507,10 +520,17 @@ export default function Story(props) {
     instrumentPart
   );
 
+  const filteredSpeciesFromTimeline = useTimelineFilter(
+    categoryFilter,
+    species,
+    getSpeciesSignThreat
+  );
+
   const intersectedSpecies = filteredSpeciesFromMap.filter(
     (value) =>
       filteredSpeciesFromTreeMap.includes(value) &&
-      filteredSpeciesFromOrchestra.includes(value)
+      filteredSpeciesFromOrchestra.includes(value) &&
+      filteredSpeciesFromTimeline.includes(value)
   );
 
   const {
@@ -773,7 +793,9 @@ export default function Story(props) {
                                         : showThreatDonuts,
                                     kingdomData: filteredKingdomData,
                                     treeMapFilter: treeMapFilter,
-                                    setTreeMapFilter: setTreeMapFilter
+                                    setTreeMapFilter: setTreeMapFilter,
+                                    setCategoryFilter: setCategoryFilter,
+                                    categoryFilter: categoryFilter
                                   }
                                 : null
                             }

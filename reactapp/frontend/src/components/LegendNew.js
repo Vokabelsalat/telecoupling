@@ -110,7 +110,9 @@ export default function Legend(props) {
         >
           <button
             onClick={() => {
-              setThreatType(type);
+              if (setThreatType) {
+                setThreatType(type);
+              }
               setCategoryFilter(null);
             }}
             className={`threatTypeButton ${
@@ -148,7 +150,9 @@ export default function Legend(props) {
         >
           <button
             onClick={() => {
-              setThreatType(type);
+              if (setThreatType) {
+                setThreatType(type);
+              }
               setCategoryFilter(null);
             }}
             className={`threatTypeButton ${

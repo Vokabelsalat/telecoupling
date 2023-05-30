@@ -9,6 +9,7 @@ import OverlayLink from "../Overlay/OverlayLink";
 import { Parser } from "html-to-react";
 import TreeMapView from "../TreeMapViewNew";
 import { serialize, deserialize } from "react-serialize";
+import Legend from "../LegendNew";
 // import { useOnParent } from "./useOnParent";
 
 export const Content = (props) => {
@@ -81,20 +82,22 @@ export const Content = (props) => {
             setTreeMapFilter={vis.setTreeMapFilter}
           />
         );
+      case "legend":
+        return (
+          <Legend
+            type={vis.threatType}
+            threatType={vis.threatType}
+            colorBlind={vis.colorBlind}
+            setCategoryFilter={vis.setCategoryFilter}
+            categoryFilter={vis.categoryFilter}
+          />
+        );
       default:
         return <></>;
     }
   };
 
-  useEffect(() => {
-    if (audioRef.current != null) {
-      if (playAudio) {
-        audioRef.current.audioEl.current.play();
-      } else {
-        audioRef.current.audioEl.current.pause();
-      }
-    }
-  }, [playAudio]);
+  useEffect(() => {}, [playAudio]);
 
   const { titlePrimary, titleSecondary, textPrimary, textSecondary } =
     useMemo(() => {
@@ -451,8 +454,11 @@ export const Content = (props) => {
                   minWidth: visualization.width ? visualization.width : "100%",
                   maxWidth: visualization.width ? visualization.width : "100%",
                   minHeight: "50px",
-                  aspectRatio:
-                    visualization.type !== "timeline" ? "16 / 9" : "unset"
+                  aspectRatio: ["timeline", "legend"].includes(
+                    visualization.type
+                  )
+                    ? "unset"
+                    : "16 / 9"
                 }}
               >
                 <ResizeComponent>
@@ -475,8 +481,6 @@ export const Content = (props) => {
         return <div>Nothin to see here...</div>;
     }
   });
-
-  /* console.log(serialize(html)); */
 
   return (
     <div
