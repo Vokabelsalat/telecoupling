@@ -362,7 +362,6 @@ class TimelineView extends Component {
           ></div> */}
           {
             <TimelineScaleD3
-              id={"scaleTop2"}
               initWidth={this.props.initWidth}
               key={"scaleToptimeline"}
               data={null}
@@ -471,7 +470,6 @@ class TimelineView extends Component {
           }
           {
             <TimelineScaleD3
-              id={"scaleBottom2"}
               initWidth={this.props.initWidth}
               key={"scaleBottomtimeline"}
               data={null}

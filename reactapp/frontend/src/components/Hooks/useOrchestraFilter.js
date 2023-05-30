@@ -16,7 +16,7 @@ export function useOrchestraFilter(
         filtInstruments = [instrument];
       }
 
-      if (instrumentPart) {
+      if (instrumentPart && instrumentData.hasOwnProperty(instrument)) {
         filtSpecies = instrumentData[instrument][instrumentPart];
       } else {
         filtSpecies = filtInstruments

@@ -713,8 +713,9 @@ export default function Story(props) {
                           style={
                             {
                               opacity: activeFigure === index ? 1.0 : 0.3,
-                              height: mobile ? "45vh" : "100vh",
+                              height: mobile ? "45vh" : "unset",
                               minHeight: mobile ? "auto" : "100vh"
+                              /* "scroll-snap-align": "start" */
                             }
                             /* height: ["storyTitle", "fullSizeQuote", "end"].includes(
                         content.type

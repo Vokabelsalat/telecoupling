@@ -13,6 +13,7 @@ const ContentPanel = forwardRef((props, ref) => {
         height: `100%`,
         overflow: "hidden",
         overflowY: "scroll"
+        /* scrollSnapType: "y proximity" */
       }}
     >
       {children}

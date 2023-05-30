@@ -50,6 +50,7 @@ export default function TimelineViewNew(props) {
   }
 
   const sortedKeys = data != null ? Object.keys(data).sort() : [];
+  const id = replaceSpecialCharacters(sortedKeys.join(""));
 
   return (
     <div
@@ -64,7 +65,7 @@ export default function TimelineViewNew(props) {
     >
       {
         <TimelineScaleD3
-          id={"scaleTop2"}
+          id={`${id}scaleTop`}
           key={`scaleToptimeline${JSON.stringify(domainYears)}`}
           data={null}
           speciesName={"scaleTop"}
@@ -134,7 +135,7 @@ export default function TimelineViewNew(props) {
       }
       {
         <TimelineScaleD3
-          id={"scaleBottom2"}
+          id={`${id}scaleBottom`}
           key={`scaleBottomtimeline${JSON.stringify(domainYears)}`}
           data={null}
           domainYears={domainYears}

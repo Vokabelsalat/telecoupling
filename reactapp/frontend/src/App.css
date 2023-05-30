@@ -622,15 +622,19 @@ path.handle:focus {
   opacity: 0.3 !important;
 }
 
-#scaleBottom2 .track {
+.scaleBottom .track {
   display: none !important;
 }
 
-#scaleBottom2 .track-inset {
+.scaleBottom .track {
   display: none !important;
 }
 
-#scaleBottom2 .parameter-value > path.handle {
+.scaleBottom .track-inset {
+  display: none !important;
+}
+
+.scaleBottom > g > g.slider > g.parameter-value {
   display: none !important;
 }
 
@@ -751,6 +755,11 @@ path.handle:focus {
 .copyrightQuote > * > a:-webkit-any-link,
 a:any-link {
   color: gray !important;
+}
+
+.contentWrapper {
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .contentWrapper:after {

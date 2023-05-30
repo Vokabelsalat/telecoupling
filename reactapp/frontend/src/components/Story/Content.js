@@ -166,7 +166,8 @@ export const Content = (props) => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                flexFlow: "column"
+                flexFlow: "column",
+                gap: "10px"
               }}
             >
               <div
@@ -449,12 +450,9 @@ export const Content = (props) => {
                   width: visualization.width ? visualization.width : "100%",
                   minWidth: visualization.width ? visualization.width : "100%",
                   maxWidth: visualization.width ? visualization.width : "100%",
-                  minHeight: "40px",
-                  maxHeight: "100%",
-                  height: "30%",
-                  display: "grid",
-                  gridTemplateColumns: "auto",
-                  gridTemplateRows: "auto"
+                  minHeight: "50px",
+                  aspectRatio:
+                    visualization.type !== "timeline" ? "16 / 9" : "unset"
                 }}
               >
                 <ResizeComponent>

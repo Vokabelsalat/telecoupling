@@ -21,7 +21,7 @@ const ContentWrapper = forwardRef((props, ref) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        height: "100%"
+        overflow: "hidden"
       }}
     >
       {children}
