@@ -136,7 +136,7 @@ class PieChartD3 {
       .append("circle")
       .attr("cx", origo)
       .attr("cy", origo)
-      .attr("r", rInner + 2)
+      .attr("r", rInner - 1)
       .attr("fill", "white")
       .attr("stroke", this.showThreatDonuts === "white" ? "gray" : "none")
       .style("fill-opacity", "50%");

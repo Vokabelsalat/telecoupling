@@ -230,7 +230,7 @@ const Map = forwardRef((props, ref) => {
       });
   }, []);
 
-  /* useEffect(() => {
+  useEffect(() => {
     if (orchestraGeoJson && orchestrasToISO3 && countriesGeoJson) {
       let tmpOrchestraHeatMap = {};
       let tmpOrchestraHeatMapMax = 0;
@@ -259,7 +259,7 @@ const Map = forwardRef((props, ref) => {
       setOrchestraHeatMapMax(tmpOrchestraHeatMapMax);
       setCountriesGeoJson(countriesGeoJson);
     }
-  }, [orchestraGeoJson, orchestrasToISO3, countriesGeoJson]); */
+  }, [orchestraGeoJson, orchestrasToISO3, countriesGeoJson]);
 
   const [countriesToSpecies, setCountriesToSpecies] = useState(null);
 
@@ -574,9 +574,9 @@ const Map = forwardRef((props, ref) => {
 
       const markerKey = `${threatNumvalues
         .sort()
-        .join()}${threatType}${colorBlind}EcoMarker${timeFrame[0]}${
-        timeFrame[1]
-      }`;
+        .join()}${threatType}${colorBlind}EcoMarker${JSON.stringify(
+        timeFrame
+      )}`;
 
       let markerElement = ecoThreatMarkersCache[markerKey];
       if (!markerElement) {
@@ -663,7 +663,7 @@ const Map = forwardRef((props, ref) => {
       });
       const markerKey = `${threatNumvalues
         .sort()
-        .join()}${threatType}${colorBlind}${timeFrame[0]}${timeFrame[1]}`;
+        .join()}${threatType}${colorBlind}${JSON.stringify(timeFrame)}`;
 
       let markerElement = tmpCapitalMarkerCache[markerKey];
       if (!markerElement) {
@@ -1171,7 +1171,7 @@ const Map = forwardRef((props, ref) => {
             }}
           />
         </Source>
-        {/* {orchestraHeatMap && orchestraHeatMapMax && (
+        {orchestraHeatMap && orchestraHeatMapMax && (
           <Source
             id="countriesOrchestraSource"
             type="geojson"
@@ -1271,7 +1271,7 @@ const Map = forwardRef((props, ref) => {
               }}
             />
           </Source>
-        )} */}
+        )}
         {isoToCountryID && Object.keys(isoToCountryID).length > 0 && (
           <Source
             type="geojson"

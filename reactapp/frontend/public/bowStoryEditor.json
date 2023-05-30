@@ -19,8 +19,8 @@
   },
   {
     "type": "text",
-    "title": "Vienna Philharmonic",
-    "text": "The Vienna Philharmonic (VPO; \"German\": Wiener Philharmoniker) is anorchestra that was founded in 1842 and is considered to be one of thefinest in the world. <br />The Vienna Philharmonic is based at the Musikverein in Vienna, Austria.Its members are selected from the orchestra of the Vienna State Opera.Selection involves a lengthy process, with each musician demonstratingtheir capability for a minimum of three years' performance for the operaand ballet. After this probationary period, the musician may request anapplication for a position in the orchestra from the ViennaPhilharmonic's board.",
+    "title": "The Vienna Philharmonic Orchestra",
+    "text": "The Vienna Philharmonic (VPO; \"German\": Wiener Philharmoniker) is an orchestra that was founded in 1842 and is considered to be one of thefinest in the world. <br />The Vienna Philharmonic is based at the Musikverein in Vienna, Austria. Its members are selected from the orchestra of the Vienna State Opera. Selection involves a lengthy process, with each musician demonstratingtheir capability for a minimum of three years' performance for the operaand ballet. After this probationary period, the musician may request an application for a position in the orchestra from the Vienna Philharmonic's board. One of the most famous orchestras worldwide -> travelling a lot around the globe.",
     "image": {
       "url": "https://upload.wikimedia.org/wikipedia/commons/5/59/Musikverein_Goldener_Saal.jpg",
       "caption": "Goldener Saal [Golden Hall] of the \"Musikverein\" in Vienna. Note that its precise name is Großer Konzerthaussaal [Big Hall], \"golden\" just being a later added common attribute (guess why ;).",
@@ -43,12 +43,12 @@
   },
   {
     "type": "text",
-    "title": "The Orchestra",
+    "title": "Concert in New York's famous Carnegie hall",
     "text": "Lights go out and the concert hall becomes quiet, violinists start to stroke the strings of their instruments with horse hair strung wooden bows so that they vibrate in harmony. The oscillations pass on to the resonator body of the violins and the produced sound waves progress over the air into the ears and bodies of the audience.",
     "image": {
       "url": "https://upload.wikimedia.org/wikipedia/commons/f/ff/Vienna_Philharmonic_Orchestra%2C_Carnegie_Hall%2C_conducted_by_Michael_Tilson_Thomas_%2847311081031%29.jpg",
       "caption": "Vienna Philharmonic Orchestra – Mahler's 'Ninth Symphony' – conducted by Michael Tilson Thomas<br />March 6, 2019 Carnegie Hall",
-      "width": "50%",
+      "width": "80%",
       "copyright": "<a href='https://commons.wikimedia.org/wiki/File:Vienna_Philharmonic_Orchestra,_Carnegie_Hall,_conducted_by_Michael_Tilson_Thomas_(47311081031).jpg'>Steven Pisano</a>, <a href='https://creativecommons.org/licenses/by/2.0'>CC BY 2.0</a>,via Wikimedia Commons"
     },
     "audio": {
@@ -73,28 +73,28 @@
   },
   {
     "type": "text",
-    "title": "The Orchestra Ecosystem",
-    "text": "Worldwide there are around 1698 professional orchestras distributed to xx different countries. Similar to an ecosystem an orchestra consists of many different elements where every single one has a certain purpose. Only in its unique and particular combination, when harmoniously coordinated, this results in the harmonious sound experience that we have in mind when thinking about an orchestra. It contains different instrument groups, each musical instrument group with all its musical instruments and instrument parts is made of a potential number of different species specifically indicated in the pie charts that also show how many of them are to which extent trade regulated through CITES. But more than that an orchestra is an ecosystem as it is also connected to huge diversity of ecosystems all around the world as every single instrument part of each musical instrument made from natural materials is connected to the provenance, where these materials come from. Originating from species around the world that themselves form part of different unique ecosystems. <br /> <br /><br />Feel invited to explore the orchestra by selecting and diving into the different musical instrument groups to discover the musical instruments belonging to the group.",
+    "title": "The Orchestra Ecosystem ...",
+    "text": "Worldwide there are around 1698 professional orchestras distributed to 70 different countries<sup>1</sup>. Similar to an ecosystem an orchestra consists of many different elements where every single one has a certain purpose. Only in its unique and particular combination, when harmoniously coordinated, this results in the harmonious sound experience that we have in mind when thinking about an orchestra. It contains different instrument groups, each musical instrument group with all its musical instruments and instrument parts. <br /> <br />Feel invited to explore the orchestra by selecting and diving into the different musical instrument groups to discover the musical instruments belonging to the group.",
     "flyTo": {
       "center": [0, 0],
       "zoom": 1,
       "speed": 0.8
     },
     "mapLayer": {
-      "type": "countries"
+      "type": "orchestras",
+      "mapStyle": "light"
     },
     "projection": "equalEarth",
-    "showCountries": true,
-    "showThreatDonuts": false,
     "visualization": {
-      "type": "legend",
-      "width": "100%"
+      "type": "orchestra",
+      "width": "100%",
+      "showThreatDonuts": false
     }
   },
   {
     "type": "text",
-    "title": "The Orchestra Ecosystem",
-    "text": "Worldwide there are around 1698 professional orchestras distributed to xx different countries. Similar to an ecosystem an orchestra consists of many different elements where every single one has a certain purpose. Only in its unique and particular combination, when harmoniously coordinated, this results in the harmonious sound experience that we have in mind when thinking about an orchestra. It contains different instrument groups, each musical instrument group with all its musical instruments and instrument parts is made of a potential number of different species specifically indicated in the pie charts that also show how many of them are to which extent trade regulated through CITES. But more than that an orchestra is an ecosystem as it is also connected to huge diversity of ecosystems all around the world as every single instrument part of each musical instrument made from natural materials is connected to the provenance, where these materials come from. Originating from species around the world that themselves form part of different unique ecosystems. <br /> <br /><br />Feel invited to explore the orchestra by selecting and diving into the different musical instrument groups to discover the musical instruments belonging to the group.",
+    "title": "... is interconnected to global ecosystems ...",
+    "text": "All the parts of an instrument within an orchestra are made of a potential number of different species. Therefore, an orchestra is an ecosystem as it is also connected to huge diversity of ecosystems all around the world as every single instrument part of each musical instrument made from natural materials is connected to the provenance, where these materials come from. Originating from species around the world that themselves form part of different unique ecosystems<sup>2</sup>. <br /><br />Feel invited to explore the orchestra by selecting and diving into the different musical instrument groups to discover the musical instruments belonging to the group.",
     "flyTo": {
       "center": [0, 0],
       "zoom": 1,
@@ -105,7 +105,6 @@
     },
     "projection": "equalEarth",
     "showCountries": true,
-    "threatType": "ecologically",
     "showThreatDonuts": false,
     "visualization": {
       "type": "orchestra",
@@ -114,9 +113,51 @@
     }
   },
   {
+    "type": "text",
+    "title": "...and is equally threatened when species used for their materials are at risk",
+    "text": "On the level of species scientists elaborated a kind of species alarm system - the Red List of Endangerd Species (Hyperlink to IUCN red list), which indicates whether a species is threatened with extinction or of least concern or in the worst case already extinct. Taking this information to the species used for the musical instruments of an orchestra allows to indicate the ecological threat of all species that are or have been used since history until today in the countries of their origin.  <br /><br />Feel invited to explore the orchestra by selecting and diving into the different musical instrument groups to discover the musical instruments belonging to the group.",
+    "flyTo": {
+      "center": [0, 0],
+      "zoom": 1,
+      "speed": 0.8
+    },
+    "mapLayer": {
+      "type": "countries"
+    },
+    "projection": "equalEarth",
+    "threatType": "ecologically",
+    "showCountries": true,
+    "showThreatDonuts": true,
+    "legend": {
+      "width": "100%"
+    },
+    "visualization": {
+      "type": "orchestra",
+      "width": "100%"
+    }
+  },
+  {
+    "type": "text",
+    "title": "The String Instruments",
+    "text": "The string instruments always stand out in an orchestra being the largest instrument group and the heart of any orchestra. In addition, they are also part of many musical cultures and instrument-making traditions around the world. Internationally, more than 60 cultural traditions are listed in the UNESCO Intangible Cultural Heritage List that are associated with bowed string instruments.",
+    "legend": {
+      "width": "100%"
+    },
+    "visualization": {
+      "type": "orchestra",
+      "width": "100%"
+    },
+    "showCountries": true,
+    "threatType": "ecologically",
+    "showThreatDonuts": true,
+    "instrument": null,
+    "instrumentGroup": "Strings",
+    "instrumentPart": null
+  },
+  {
     "type": "fullSizeQuote",
     "quote": {
-      "text": "<div><div style=\"margin-left:-50%;white-space:nowrap;\">'Le violon</div><div style=\"margin-right:-50%;white-space:nowrap\">c'est l'archet'</div></div>",
+      "text": "<div> <div style={{ 'marginLeft': '-50%', 'whiteSpace': 'nowrap' }} > 'Le violon </div> <div style={{ 'marginRight': '-50%', 'whiteSpace': 'nowrap' }} > c'est l'archet' </div></div>",
       "author": "Giovanni Battista Viotti (violanist)",
       "translation": "The violin, that's the bow."
     },
@@ -127,7 +168,7 @@
   {
     "type": "text",
     "title": "String Instrument Bows",
-    "text": "The bow of string instruments changed over time. Around 1800 F.X. Tourte invented the modern string instrument bow. In comparison to the until then typical baroque bow, the stick was not anymore concave it rather changed to a stick with a convex curve. The material of up to xx species from xxx countries have been used over history. The key part of a string instrument bow that is most important for the quality of a bow and for its characteristics while playing as well as for its sound characteristics is the bow stick.<br />",
+    "text": "Violins, violas, cellos and double basses all are played with a stringed instrument bow. Nevertheless, the bow is often misjudged in its importance and changed considerably over time, adapting to the developments and changes in music, compsitions and concert environment. Such as to the changes from commonly small chamber music in front of small audiences to bigger symphony orchestras in large concert halls. F.X. Tourte was experimenting with new models and a variety of materials to adapt to the new requirements F.X. Tourte invented the modern string instrument bow around 1800 in Paris. He discovered the favourable wood characteristics of pau-brasil perfectly suitable and allowing the develpment of the modern bow model. In comparison to the until then typical baroque bow, the stick was not anymore concave it rather changed to a stick with a convex curve. A variety of materials of up to xx species from xxx countries have been used over history and/or are used today. The key part of a string instrument bow that is most important for the quality of a bow and for its characteristics while playing as well as for its sound characteristics is the bow stick.",
     "imageArray": [
       {
         "url": "./fotos/bowstory/CellobogenHorizontal.png",
@@ -153,7 +194,7 @@
   {
     "type": "text",
     "title": "The underestimated material's diversity",
-    "text": "Up to 80 different materials originating from xxx countries have been used to make string instrument bows over the history until today. Brazil has the highest species richness used for string instrument bows. Brazil is one of the most multicultural and ethnically diverse nations, but moreover with an extraordinary biodiversity and the home of at least ?17? potentially used species for the sticks of stringed instrument bows.<br /><br />Feel invited to explore the orchestra by selecting and diving into the different musical instrument groups to discover the musical instruments belonging to the group.",
+    "text": "Up to 63 different materials originating from xx countries have been used in the past and/or are still used today to make string instrument bows. Brazil is the hotspot home of trees, whose wood was and is used for string instrument bow sticks - the country with the highest species richness (25 tree species) for string instrument bows.",
     "flyTo": {
       "center": [0, 0],
       "zoom": 1,
@@ -162,6 +203,7 @@
     "mapLayer": {
       "type": "countries"
     },
+    "mapFilter": { "country": "Brazil" },
     "visualization": {
       "type": "treeMap",
       "width": "100%"
@@ -201,7 +243,7 @@
   {
     "type": "text",
     "title": "Mata Atlântica – Area of the Superlatives",
-    "text": "Long before the Europeans invaded Brazil the tree had already developed the same preference as human beings, the Brazilian Coast. Today 2/3 of Brazilians populations lives along its coast. The Mata Atlântica is one of the worldwide biodiversity hotspots with an extraordinary species richness and at the same time one of the most threatened and degradaded biomes in the world. It consists of 15 different ecoregions with their characteristic, geographically distinct assemblages of natural communities and species.",
+    "text": "Long before the Europeans invaded Brazil the pau-brasil tree had already developed the same preference as human beings, living and growing at the Brazilian Coast. Brazil as a multicultural and ethnically diverse nation contains a large territory comprised of different ecosystems (biomes), such as the Amazon rainforest, the Atlantic Forest and the Cerrado. The rich Brazilian wildlife reflects the variety of natural habitats. However, today &frac23; of Brazilians populations lives along its coast, a sought-after location for humans but also for other living beings. The problem is that both require space for their survival. The Atlantic Forest, in Portuguese called Mata Atlântica, is exceptional with an extraordinary species richness including many species that are endemic to the Mata Atlântica, which means these species only occur within the Mata Atlântica. But at the same time it is one of the most threatened and degradaded forest ecosystems in the world. The combination of species richness and threatened ecosystem makes the Mata Atlântica a biodiversity hotspot, consisting of fifteen different ecoregions, including coastal and mountain areas.",
     "image": {
       "url": "./fotos/bowstory/Brasilien-Mata-Atlantica.JPG",
       "caption": "Atlantic forest or as Brazilian's call it – Mata Atlântica",
@@ -241,7 +283,7 @@
       },
       {
         "url": "./P1020974.JPG",
-        "caption": "The typical spiked birch of the pau-brasil tree. <br /> <br /><div style='background-color:purple'> Insert Timeline - Filter: Paubrasilia echinata </div>",
+        "caption": "The typical spiked birch of the pau-brasil tree.",
         "width": "60%",
         "copyright": "Silke Lichtenberg"
       }
@@ -264,19 +306,19 @@
       "kingdom": "Plantae",
       "family": "Fabaceae"
     },
-    "visualization": {
-      "type": "timeline",
-      "width": "100%"
-    },
     "extraPolygon": {
       "name": "mataAtlantica",
       "fill": null
+    },
+    "visualization": {
+      "type": "timeline",
+      "width": "100%"
     }
   },
   {
     "type": "text",
-    "title": "Where can this unique tree potentially be found?",
-    "text": "Pau-brasil is picky and grows naturally only between Rio Grande do Norte and Rio de Janeira and is endemic to the Mata Atlântica biome. The emblematic and culturally important pau-brasil tree tells a bundle of stories - on one hand a story of social and cultural exploitation and on the other of music and culture. The beauty of its flowers with their sweet smell attracts bees and fascinates people.",
+    "title": "The Cultural Importance of pau-brasil for Brazil",
+    "text": "",
     "width": "70%",
     "flyTo": {
       "center": [-34.38824229932922, -6.515708961589885],
@@ -303,13 +345,13 @@
   },
   {
     "type": "text",
-    "title": "The Cultural Importance of pau-brasil for Brazil",
-    "text": "",
+    "title": "In search of the last of their kind...",
+    "text": "Along the original species distribution range the areas with documented pau-brasil occurences must be searched for. Nowadays, in only 29 protected areas occurrences of pau-brasil trees are documented <sup>x</sup>. The total area of these 29 protected areas sum up to xx ha (approximately the size of xxx). For some of these protected areas it is documentented that pau-brasil is only found in parts of the area and is not distrubuted all over the protected area. However details about population composition and the size of these few pau-brasil populations remain mostly unknown.",
     "visualization": {},
     "flyTo": {
-      "center": [-34.38824229932922, -6.515708961589885],
+      "center": [-43.32547696037534, -23.093653119001388],
       "zoom": 8,
-      "speed": 0.4
+      "speed": 0.1
     },
     "mapLayer": {
       "type": "hexagons",
@@ -317,6 +359,7 @@
       "polygonFill": false
     },
     "projection": "globe",
+    "showCountries": false,
     "showThreatDonuts": false,
     "treeMapFilter": {
       "genus": "Paubrasilia",
@@ -331,8 +374,8 @@
   },
   {
     "type": "text",
-    "title": "In search of the last of their kind...",
-    "text": "Along the original species distribution range the areas with documented pau-brasil occurences must be searched for. Nowadays, in only 29 protected areas occurrences of pau-brasil trees are documented. The size of these few populations is not documented. The seizures of pau-brasil for string instrument bows were analysed and samples resulted to be originally from protected areas. This is questioning the legality of all pre-convention stocks of pau-brasil, as already before the listing in CITES harvesting trees from protected areas in Brazil was forbidden.",
+    "title": "Trade limitations - a cornerstone to preserve pau-brasil in the wild",
+    "text": "When few is left, already little trade can threaten species. This was and is the case for pau-brasil. In consequence since 2007, pau-brasil is listed in Appendix II of the Convention on International Trade in Endangered Species of Wild Fauna and Flora (CITES). CITES is one of the most important international levers in general as it is the only convention that is legally binding and allows to internationally control species-threatening trade. Species already threatened by trade or that may be threatened in future by trade can be listed in three different categories (Appendix III - less strict category (yellow), Appendix II - moderate category (orange), Appendix I - strictest category (red)) with gradually increasingly strict trade controls and restrictions. Of the 63 species used over history for sticks of string instrument bows, 13 are listed in Appendix II (for eight species of the genus Handroanthus and Dipteryx this listing will come into force at the 25.11.2024",
     "visualization": {},
     "flyTo": {
       "center": [-43.32547696037534, -23.093653119001388],
@@ -361,11 +404,12 @@
   {
     "type": "text",
     "title": "Illegal Trade & Seizures",
-    "text": "In 2021 and 2022 pau-brasil wood and bows got confiscated by the Brazilian federal police. In a scientific analysis it was proofen that at least parts of the confiscated stocks originated from a protected area in Bahia",
+    "text": "In 2021 and 2022 pau-brasil wood and bows got confiscated by the Brazilian federal police. The seizures of pau-brasil for string instrument bows were analysed and samples resulted to be originally from protected areas. This is questioning the legality of all pre-convention stocks of pau-brasil, as already before the listing in CITES harvesting trees from protected areas in Brazil was forbidden. In a scientific analysis it was proofen that at least parts of the confiscated stocks originated from the 'Parque National do Pau-brasil' a protected area in Bahia",
     "image": {
       "url": "https://www.gov.br/pf/pt-br/assuntos/noticias/2022/11/policia-federal-e-ibama-deflagram-a-operacao-ibirapitanga-ii/86b5fa84-e347-4816-9984-0ee30894c3dc.jpeg/@@images/4237c502-5305-4f35-905e-9abb1b88fdba.jpeg",
       "caption": "Seizures of Bow Stick Slugs",
-      "copyright": "Polícia Federal e IBAMA deflagram a Operação Ibirapitanga II<br /><a href='https://www.gov.br/pf/pt-br/assuntos/noticias/2022/11/policia-federal-e-ibama-deflagram-a-operacao-ibirapitanga-ii'>www.gov.br</a>"
+      "copyright": "Polícia Federal e IBAMA deflagram a Operação Ibirapitanga II<br /><a href='https://www.gov.br/pf/pt-br/assuntos/noticias/2022/11/policia-federal-e-ibama-deflagram-a-operacao-ibirapitanga-ii'>www.gov.br</a>",
+      "width": "100%"
     },
     "flyTo": {
       "center": [-39.257179407131325, -16.50148646718112],
@@ -393,39 +437,6 @@
   },
   {
     "type": "text",
-    "title": "CITES CoP19 Panama, Proposal of Listing Pau-brasil in Appendix I",
-    "text": "<iframe width='800' height='600' src='https://www.youtube.com/embed/TBIJ0zGiryk?controls=0&amp;start=3727' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen ></iframe>",
-    "flyTo": {
-      "center": [-79.548204, 8.937899],
-      "zoom": 18,
-      "speed": 0.2
-    },
-    "mapLayer": {
-      "type": "countries",
-      "mapStyle": "satellite"
-    },
-    "projection": "globe",
-    "showCountries": false,
-    "showThreatDonuts": false
-  },
-  {
-    "type": "text",
-    "title": "The Cultural Importance of pau-brasil for Brazil",
-    "text": "",
-    "visualization": {},
-    "audio": {
-      "url": "./hochemotionale_debatte_silke_lichtenberg_ueber_den_umgang_dlf_20221114_2012_5ed5f0a8.mp3",
-      "caption": "Wenn Umweltschutz das Weltkulturerbe gefährdet<br />Geigenbauer fürchten Handelsverbot mit Fernambuk-Holz",
-      "copyright": "Vratz, Christoph; Lichtenberg, Silke | 14. November 2022<br /><a href='https://www.deutschlandfunk.de/hochemotionale-debatte-silke-lichtenberg-ueber-den-umgang-mit-fernambuk-holz-dlf-5ed5f0a8-100.html'>Deutschlandfunk</a>"
-    },
-    "flyTo": {
-      "center": [-73.97992337336923, 40.76512993427731],
-      "zoom": 19,
-      "speed": 0.4
-    }
-  },
-  {
-    "type": "text",
     "title": "International Trade",
     "text": "",
     "image": {
@@ -442,23 +453,56 @@
   },
   {
     "type": "text",
+    "title": "CITES CoP19 Panama, Proposal of Listing Pau-brasil in Appendix I",
+    "text": "<iframe width='800' height='600' src='https://www.youtube.com/embed/TBIJ0zGiryk?controls=0&amp;start=3727' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen ></iframe> <br /> <br /><div style='background-color:purple'> Minute 54:13 bis 01:01:39",
+    "flyTo": {
+      "center": [-79.548204, 8.937899],
+      "zoom": 18,
+      "speed": 0.2
+    },
+    "mapLayer": {
+      "type": "countries",
+      "mapStyle": "satellite"
+    },
+    "projection": "globe",
+    "showCountries": false,
+    "showThreatDonuts": false
+  },
+  {
+    "type": "text",
+    "title": "CITES listed species for bows",
+    "text": "CITES Pie charts",
+    "flyTo": {
+      "center": [-79.548204, 8.937899],
+      "zoom": 18,
+      "speed": 0.2
+    },
+    "mapLayer": {
+      "type": "countries",
+      "mapStyle": "satellite"
+    },
+    "projection": "globe",
+    "showCountries": false,
+    "showThreatDonuts": false
+  },
+  {
+    "type": "text",
+    "title": "What can be done?",
+    "text": "Plantations, Pests, Conservation",
+    "image": {
+      "url": "",
+      "copyright": "",
+      "width": "80%"
+    }
+  },
+  {
+    "type": "text",
     "title": "Process and Importance during the Manufacturing",
     "text": "",
     "image": {
       "url": "https://upload.wikimedia.org/wikipedia/commons/6/65/Pracownia_lutnicza_Mardu%C5%82%C3%B3w_w_Zakopanem%2C_fot._K._Schubert_MIK_2019_%2849140662183%29.jpg",
       "caption": "Pracownia lutnicza Mardułów w Zakopanem, fot. K. Schubert MIK 2019",
       "copyright": "<a href='https://commons.wikimedia.org/wiki/File:Pracownia_lutnicza_Mardu%C5%82%C3%B3w_w_Zakopanem,_fot._K._Schubert_MIK_2019_(49140662183).jpg'>mik Krakow</a>,&nbsp;<a href='https://creativecommons.org/licenses/by-sa/2.0'>CC BY-SA 2.0</a>, via Wikimedia Commons",
-      "width": "80%"
-    }
-  },
-  {
-    "type": "text",
-    "title": "Musicians",
-    "text": "",
-    "image": {
-      "url": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Talented_Violin_Player_Brisbane_Mall-3_%2816482748510%29.jpg",
-      "caption": "Talented Violin Player Brisbane Mall",
-      "copyright": "<a href='https://commons.wikimedia.org/wiki/File:Talented_Violin_Player_Brisbane_Mall-3_(16482748510).jpg'>Sheba_Also 43,000 photos</a>,&nbsp;<a href='https://creativecommons.org/licenses/by-sa/2.0'>CC BY-SA 2.0</a>, via Wikimedia Commons",
       "width": "80%"
     }
   },
@@ -471,38 +515,8 @@
   },
   {
     "type": "text",
-    "title": "Brazil",
-    "text": "Brazil officially the Federative Republic of Brazil (Portuguese: República Federativa do Brasil), is the largest country in South America and in Latin America. At 8.5 million square kilometers (3,300,000 sq mi) and with over 217 million people, Brazil is the world's fifth-largest country by area and the seventh most populous. Its capital is Brasília, and its most populous city is São Paulo. The federation is composed of the union of the 26 states and the Federal District. It is the only country in the Americas to have Portuguese as an official language. It is one of the most multicultural and ethnically diverse nations, due to over a century of mass immigration from around the world, and the most populous Roman Catholic-majority country.",
-    "image": {
-      "url": "./P1020999.JPG",
-      "width": "50%"
-    },
-    "flyTo": {
-      "center": [-47.882778, -15.793889],
-      "zoom": 3,
-      "speed": 0.8
-    },
-    "mapLayer": {
-      "type": "countries"
-    }
-  },
-  {
-    "type": "text",
-    "title": "Brazil's Ecoregions",
-    "text": "Brazil's large territory comprises different ecosystems, such as the Amazon rainforest, recognized as having the greatest biological diversity in the world, with the Atlantic Forest and the Cerrado, sustaining the greatest biodiversity. In the south, the Araucaria moist forests grow under temperate conditions. The rich wildlife of Brazil reflects the variety of natural habitats. Scientists estimate that the total number of plant and animal species in Brazil could approach four million, mostly invertebrates. Larger mammals include carnivores pumas, jaguars, ocelots, rare bush dogs, and foxes, and herbivores peccaries, tapirs, anteaters, sloths, opossums, and armadillos. Deer are plentiful in the south, and many species of New World monkeys are found in the northern rain forests.",
-    "image": {
-      "url": "https://upload.wikimedia.org/wikipedia/commons/1/18/Amazon_CIAT_%285%29.jpg",
-      "copyright": "<a href='https://commons.wikimedia.org/wiki/File:Amazon_CIAT_(5).jpg'>Neil Palmer/CIAT</a>,&nbsp;<a href='https://creativecommons.org/licenses/by-sa/2.0'>CC BY-SA 2.0</a>, via Wikimedia Commons",
-      "caption": "Aerial view of the Amazon Rainforest, near Manaus, the capital of the Brazilian state of Amazonas.",
-      "width": "60%"
-    },
-    "mapLayer": {
-      "type": "ecoregions"
-    },
-    "flyTo": {
-      "center": [-58.84912385114777, -2.7138735491136114],
-      "zoom": 8,
-      "speed": 0.8
-    }
+    "title": "Literature cited",
+    "height": "25vh",
+    "text": "<sup>1</sup>xldffalkdjfaldsjf <br /> <br <sup>2</sup>sdlfajdsklfajdl"
   }
 ]

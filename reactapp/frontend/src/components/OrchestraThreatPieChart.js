@@ -5,6 +5,7 @@ import { replaceSpecialCharacters } from "../utils/utils";
 
 export default function OrchestraThreatPieChart(props) {
   const {
+    id,
     group,
     position,
     angle,
@@ -15,6 +16,8 @@ export default function OrchestraThreatPieChart(props) {
     getThreatLevel,
     showThreatDonuts = true
   } = props;
+
+  console.log("PiechartID", id);
 
   const width = 75;
   const height = 75;
@@ -57,7 +60,7 @@ export default function OrchestraThreatPieChart(props) {
       >
         {
           <PieChartNew
-            id={`${replaceSpecialCharacters(group)}ThreatPie`}
+            id={`${replaceSpecialCharacters(id)}ThreatPie`}
             data={processedSpecies}
             getThreatLevel={getThreatLevel}
             threatType={threatType}

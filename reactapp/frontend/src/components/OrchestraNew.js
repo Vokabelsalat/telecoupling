@@ -13,6 +13,7 @@ const groupToPosition = {
 
 export default function OrchestraNew(props) {
   const {
+    id,
     data,
     width,
     height,
@@ -159,13 +160,14 @@ export default function OrchestraNew(props) {
 
             return (
               <OrchestraGroup
-                key={`OrchestraGroup${i}`}
+                key={`OrchestraGroup${id}${i}`}
+                id={`OrchestraGroup${id}${i}`}
                 groupName={group}
-                id={i}
                 position={{
                   x: 510 / 2,
                   y: 255
                 }}
+                positionID={i}
                 /* setSelected={setSelected}
                 selected={selected} */
                 selected={group === instrumentGroup}

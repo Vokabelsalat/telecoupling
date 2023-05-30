@@ -33,8 +33,11 @@ export default function OrchestraGroup(props) {
     setInstrument,
     setInstrumentGroup,
     setInstrumentPart,
+    positionID,
     instrument
   } = props;
+
+  console.log("TEST", id);
 
   const ref = useRef(null);
   const iconTextRef = useRef(null);
@@ -45,10 +48,10 @@ export default function OrchestraGroup(props) {
   const pathString = calculatePath(
     position.x,
     position.y,
-    positionsToPathString[id.toString()]
+    positionsToPathString[positionID.toString()]
   );
 
-  let acrOptions = positionsToPathString[id.toString()];
+  let acrOptions = positionsToPathString[positionID.toString()];
 
   useEffect(() => {
     if (ref) {
@@ -86,16 +89,21 @@ export default function OrchestraGroup(props) {
           strokeWidth={highlight ? "1px" : "1px"}
           d={pathString}
         ></path>
-        {selected ? (
+        {/* {selected ? (
           <OrchestraInstruments
             {...props}
             acrOptions={acrOptions}
             isSelected={selected}
             selectedInstrument={instrument}
+            id={`${id}OrchestraInstruments`}
           />
-        ) : (
-          <OrchestraGroupContent {...props} acrOptions={acrOptions} />
-        )}
+        ) : ( */}
+        <OrchestraGroupContent
+          {...props}
+          id={`${id}GroupContent`}
+          acrOptions={acrOptions}
+        />
+        {/* )} */}
       </g>
     </>
   );

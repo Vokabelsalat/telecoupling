@@ -31,6 +31,7 @@ export const Content = (props) => {
     playAudio = false,
     mobile = false,
     visualization,
+    legend,
     setOverlayContent
   } = props;
 
@@ -40,8 +41,11 @@ export const Content = (props) => {
   const getVisualization = (vis) => {
     switch (vis.type) {
       case "orchestra":
+        console.log("orch", `orchestra${id}`);
         return (
           <OrchestraNew
+            key={`orchestra${id}`}
+            id={`orchestra${id}`}
             instrumentData={vis.instrumentData}
             instrumentGroupData={vis.instrumentGroupData}
             getThreatLevel={vis.getThreatLevel}
@@ -80,16 +84,6 @@ export const Content = (props) => {
             }}
             treeMapFilter={vis.treeMapFilter}
             setTreeMapFilter={vis.setTreeMapFilter}
-          />
-        );
-      case "legend":
-        return (
-          <Legend
-            type={vis.threatType}
-            threatType={vis.threatType}
-            colorBlind={vis.colorBlind}
-            setCategoryFilter={vis.setCategoryFilter}
-            categoryFilter={vis.categoryFilter}
           />
         );
       default:
@@ -445,6 +439,15 @@ export const Content = (props) => {
                   {htmlParser.parse(audio.copyright)}
                 </div>
               </div>
+            )}
+            {legend != null && (
+              <Legend
+                type={legend.threatType}
+                threatType={legend.threatType}
+                colorBlind={legend.colorBlind}
+                setCategoryFilter={legend.setCategoryFilter}
+                categoryFilter={legend.categoryFilter}
+              />
             )}
             {visualization != null && (
               <div

@@ -716,6 +716,26 @@ export default function Story(props) {
                           className="checkmark"
                         ></span>
                       </label>
+                      <label
+                        style={{ gridColumn: "span 2" }}
+                        className="checkMarkContainer"
+                      >
+                        <div style={{ gridColumn: "1" }}>
+                          Color Blind Friendly
+                        </div>
+                        <input
+                          style={{ gridColumn: "2" }}
+                          type="checkbox"
+                          checked={colorBlind ? "checked" : ""}
+                          onChange={(event) => {
+                            setColorBlind(event.target.checked);
+                          }}
+                        />
+                        <span
+                          style={{ gridColumn: "2" }}
+                          className="checkmark"
+                        ></span>
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -758,12 +778,24 @@ export default function Story(props) {
                 {index}
               </div> */}
                           <Content
+                            id={`content${index}`}
                             key={`content${index}`}
                             {...content}
                             alignment={alignment}
                             playAudio={enableAutoPlay && activeFigure === index}
                             mobile={mobile}
                             setOverlayContent={setOverlayContent}
+                            legend={
+                              content.legend != null
+                                ? {
+                                    ...content.legend,
+                                    setCategoryFilter: setCategoryFilter,
+                                    categoryFilter: categoryFilter,
+                                    threatType: threatType,
+                                    colorBlind: colorBlind
+                                  }
+                                : null
+                            }
                             visualization={
                               content.visualization != null
                                 ? {
@@ -793,9 +825,7 @@ export default function Story(props) {
                                         : showThreatDonuts,
                                     kingdomData: filteredKingdomData,
                                     treeMapFilter: treeMapFilter,
-                                    setTreeMapFilter: setTreeMapFilter,
-                                    setCategoryFilter: setCategoryFilter,
-                                    categoryFilter: categoryFilter
+                                    setTreeMapFilter: setTreeMapFilter
                                   }
                                 : null
                             }

@@ -17,6 +17,8 @@ export default function OrchestraGroupContent(props) {
     showThreatDonuts = true
   } = props;
 
+  console.log("ID", id);
+
   const angle =
     (acrOptions.start + (acrOptions.end - acrOptions.start) / 2 - 360) % 180;
   const textPathString = describeArc(
@@ -73,16 +75,16 @@ export default function OrchestraGroupContent(props) {
       </text>
       <InstrumentGroupIcon
         key={`OrchestraGroupIcon${id}`}
-        id={id}
+        id={`${id}GroupIcon`}
         group={groupName}
         position={pointForIcon}
         angle={angle}
       />
-
+      p
       {showThreatDonuts && (
         <OrchestraThreatPieChart
           key={`OrchestraGroupThreatPie${id}`}
-          id={id}
+          id={`${id}OrchestraThreatPieChart`}
           group={groupName}
           position={pointForThreatIcon}
           angle={angle}

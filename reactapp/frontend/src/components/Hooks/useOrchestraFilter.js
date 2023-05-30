@@ -18,7 +18,7 @@ export function useOrchestraFilter(
 
       if (instrumentPart && instrumentData.hasOwnProperty(instrument)) {
         filtSpecies = instrumentData[instrument][instrumentPart];
-      } else {
+      } else if (filtInstruments != null) {
         filtSpecies = filtInstruments
           .filter((key) => key in instrumentData)
           .reduce(
