@@ -129,19 +129,23 @@ export default function OrchestraInstrumentSlice(props) {
         </textPath>
       </text>
 
-      <InstrumentThreatPieChart
-        key={`instrumentThreatPie${id}${replaceSpecialCharacters(instrument)}`}
-        id={`instrumentThreatPie${id}${replaceSpecialCharacters(instrument)}`}
-        instrument={instrument}
-        angle={angle}
-        instruments={instruments}
-        species={species}
-        getThreatLevel={getThreatLevel}
-        colorBlind={colorBlind}
-        style={{ pointerEvents: "none" }}
-        position={pointForThreatPie}
-        showThreatDonuts={showThreatDonuts}
-      />
+      {showThreatDonuts && (
+        <InstrumentThreatPieChart
+          key={`instrumentThreatPie${id}${replaceSpecialCharacters(
+            instrument
+          )}`}
+          id={`instrumentThreatPie${id}${replaceSpecialCharacters(instrument)}`}
+          instrument={instrument}
+          angle={angle}
+          instruments={instruments}
+          species={species}
+          getThreatLevel={getThreatLevel}
+          colorBlind={colorBlind}
+          style={{ pointerEvents: "none" }}
+          position={pointForThreatPie}
+          showThreatDonuts={showThreatDonuts}
+        />
+      )}
     </g>
   );
 }

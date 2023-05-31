@@ -1,3 +1,21 @@
+export function stringifyWithFunctions(object) {
+  return JSON.stringify(object, (key, val) => {
+    if (typeof val === "function") {
+      return `(${val})`; // make it a string, surround it by parenthesis to ensure we can revive it as an anonymous function
+    }
+    return val;
+  });
+}
+
+export function parseWithFunctions(obj) {
+  return JSON.parse(obj, (k, v) => {
+    if (typeof v === "string" && v.indexOf("function") >= 0) {
+      return eval(v);
+    }
+    return v;
+  });
+}
+
 export const colorBrewerScheme8 = [
   "rgb(166,206,227)",
   "rgb(31,120,180)",

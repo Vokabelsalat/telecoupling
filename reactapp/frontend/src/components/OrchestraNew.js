@@ -52,11 +52,11 @@ export default function OrchestraNew(props) {
         actHeight = actHeight > 0 ? actHeight : 0.5;
 
         let tmpScale = scale;
-        if (width < height) {
-          tmpScale = width / actWidth;
+        if (width >= height) {
+          tmpScale = width / (actWidth + 1);
         }
-        if (height < width) {
-          tmpScale = height / actHeight;
+        if (height > width) {
+          tmpScale = height / (actHeight + 1);
         }
 
         setScaledWidth(actWidth * scale);
@@ -103,14 +103,11 @@ export default function OrchestraNew(props) {
     >
       {instrumentGroup && (
         <div
+          className="resetButton"
           style={{
             position: "absolute",
             top: 5,
-            left: 5,
-            backgroundColor: "blue",
-            color: "white",
-            padding: "1px",
-            cursor: "pointer"
+            left: 5
           }}
           onClick={() => {
             /* setSelected(null); */
@@ -194,7 +191,9 @@ export default function OrchestraNew(props) {
             width: "90%",
             height: "80%",
             backgroundColor: "white",
-            border: "1px gray solid"
+            border: "1px gray solid",
+            overflow: "hidden",
+            overflowY: "scroll"
           }}
         >
           <OrchestraHeader

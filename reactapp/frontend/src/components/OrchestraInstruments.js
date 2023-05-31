@@ -106,8 +106,12 @@ export default function OrchestraInstruments(props) {
 
         return (
           <OrchestraInstrumentSlice
-            id={`orchestraInstrumentSlice${id}${instrument}`}
-            key={`orchestraInstrumentSlice${id}${instrument}`}
+            id={replaceSpecialCharacters(
+              `orchestraInstrumentSlice${id}${instrument}`
+            )}
+            key={replaceSpecialCharacters(
+              `orchestraInstrumentSlice${id}${instrument}`
+            )}
             position={position}
             arcOptions={tmpOptions}
             width={tmpWidth}

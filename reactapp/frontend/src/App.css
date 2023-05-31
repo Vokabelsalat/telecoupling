@@ -1009,3 +1009,16 @@ a:any-link {
   transition-property: transform;
   transition-duration: 0;
 }
+
+.resetButton {
+  padding: 5px;
+  border-radius: 10px;
+  background-color: rgb(63, 63, 252);
+  color: white;
+  cursor: pointer;
+}
+
+.resetButton:hover {
+  background-color: blue;
+  box-shadow: 0 0 20px #d3d3d3;
+}

@@ -11,23 +11,21 @@ export default function TreeMapHeader(props) {
         height: "100%",
         backgroundColor: "white",
         display: "grid",
-        gridTemplateColumns: "auto auto auto auto auto",
+        gridTemplateColumns: "min-content auto auto auto auto",
         gridTemplateRows: "auto"
       }}
     >
       {kingdom && (
         <>
-          <div
-            style={{
-              backgroundColor: "blue",
-              color: "white",
-              cursor: "pointer"
-            }}
-            onClick={() => {
-              filterTreeMap(null);
-            }}
-          >
-            Reset
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <div
+              className="resetButton"
+              onClick={() => {
+                filterTreeMap(null);
+              }}
+            >
+              Reset
+            </div>
           </div>
           <div
             style={{

@@ -8,14 +8,7 @@ export default function TimelineMarker(props) {
 
   const [hover, setHover] = useState(false);
 
-  const assessment = JSON.parse(
-    assessmentAndElement.assessment,
-    function (key, value) {
-      return key === "" && value.hasOwnProperty("__type")
-        ? ThreatLevel.revive(value)
-        : this[key];
-    }
-  );
+  const assessment = ThreatLevel.revive(assessmentAndElement.assessment);
 
   let year = assessmentAndElement.element.year;
 

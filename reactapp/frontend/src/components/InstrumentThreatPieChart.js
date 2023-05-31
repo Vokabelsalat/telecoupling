@@ -55,6 +55,8 @@ export default function InstrumentThreatPieChart(props) {
     setTransformString(tmpTransformString);
   }, [threatTextRef]);
 
+  console.log(id, showThreatDonuts);
+
   return (
     <>
       <foreignObject transform={transformString} width={width} height={height}>
@@ -64,18 +66,20 @@ export default function InstrumentThreatPieChart(props) {
             height: `${height}px`
           }}
         >
-          {
-            <PieChartNew
-              id={replaceSpecialCharacters(`${instrument}${id}ThreatPie`)}
-              key={replaceSpecialCharacters(`${instrument}${id}ThreatPie`)}
-              data={processedSpecies}
-              getThreatLevel={getThreatLevel}
-              threatType={threatType}
-              colorBlind={colorBlind}
-              size={width}
-              showThreatDonuts={showThreatDonuts}
-            />
-          }
+          <PieChartNew
+            id={replaceSpecialCharacters(
+              `${instrument}${id}${showThreatDonuts}ThreatPie`
+            )}
+            key={replaceSpecialCharacters(
+              `${instrument}${id}${showThreatDonuts}ThreatPie`
+            )}
+            data={processedSpecies}
+            getThreatLevel={getThreatLevel}
+            threatType={threatType}
+            colorBlind={colorBlind}
+            size={width}
+            showThreatDonuts={showThreatDonuts}
+          />
         </div>
       </foreignObject>
     </>

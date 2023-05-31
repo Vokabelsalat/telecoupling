@@ -102,11 +102,12 @@ export default function Story(props) {
         )
         .pop();
       if (lastElement) {
-        return JSON.parse(lastElement.assessment, function (key, value) {
+        return ThreatLevel.revive(lastElement.assessment);
+        /* return JSON.parse(lastElement.assessment, function (key, value) {
           return key === "" && value.hasOwnProperty("__type")
             ? ThreatLevel.revive(value)
             : this[key];
-        });
+        }); */
       } else {
         return citesAssessment.dataDeficient;
       }
@@ -117,11 +118,12 @@ export default function Story(props) {
         )
         .pop();
       if (lastElementIUCN) {
-        return JSON.parse(lastElementIUCN.assessment, function (key, value) {
+        /* return JSON.parse(lastElementIUCN.assessment, function (key, value) {
           return key === "" && value.hasOwnProperty("__type")
             ? ThreatLevel.revive(value)
             : this[key];
-        });
+        }); */
+        return ThreatLevel.revive(lastElementIUCN.assessment);
       } else {
         let lastElementBGCI = [...speciesObj["bgci"]]
           .filter((e) =>
@@ -129,11 +131,12 @@ export default function Story(props) {
           )
           .pop();
         if (lastElementBGCI) {
-          return JSON.parse(lastElementBGCI.assessment, function (key, value) {
+          /* return JSON.parse(lastElementBGCI.assessment, function (key, value) {
             return key === "" && value.hasOwnProperty("__type")
               ? ThreatLevel.revive(value)
               : this[key];
-          });
+          }); */
+          return ThreatLevel.revive(lastElementBGCI.assessment);
         } else {
           return bgciAssessment.dataDeficient;
         }
@@ -389,8 +392,7 @@ export default function Story(props) {
       contents[activeFigure].instrument !== undefined
     ) {
       setInstrument(contents[activeFigure].instrument);
-    }
-    else {
+    } else {
       setInstrument(null);
     }
 
@@ -401,8 +403,7 @@ export default function Story(props) {
       contents[activeFigure].instrumentGroup !== undefined
     ) {
       setInstrumentGroup(contents[activeFigure].instrumentGroup);
-    }
-    else {
+    } else {
       setInstrumentGroup(null);
     }
 
@@ -413,8 +414,7 @@ export default function Story(props) {
       contents[activeFigure].instrumentPart !== undefined
     ) {
       setInstrumentPart(contents[activeFigure].instrumentPart);
-    }
-    else {
+    } else {
       setInstrumentPart(null);
     }
 
