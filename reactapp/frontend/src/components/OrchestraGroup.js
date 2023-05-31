@@ -37,8 +37,6 @@ export default function OrchestraGroup(props) {
     instrument
   } = props;
 
-  console.log("TEST", id);
-
   const ref = useRef(null);
   const iconTextRef = useRef(null);
   const threatTextRef = useRef(null);
@@ -89,7 +87,7 @@ export default function OrchestraGroup(props) {
           strokeWidth={highlight ? "1px" : "1px"}
           d={pathString}
         ></path>
-        {/* {selected ? (
+        {selected ? (
           <OrchestraInstruments
             {...props}
             acrOptions={acrOptions}
@@ -97,13 +95,13 @@ export default function OrchestraGroup(props) {
             selectedInstrument={instrument}
             id={`${id}OrchestraInstruments`}
           />
-        ) : ( */}
-        <OrchestraGroupContent
-          {...props}
-          id={`${id}GroupContent`}
-          acrOptions={acrOptions}
-        />
-        {/* )} */}
+        ) : (
+          <OrchestraGroupContent
+            {...props}
+            id={`${id}GroupContent`}
+            acrOptions={acrOptions}
+          />
+        )}
       </g>
     </>
   );

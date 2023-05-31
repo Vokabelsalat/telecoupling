@@ -90,7 +90,7 @@ class Legend extends Component {
         <div
           style={{
             width: "100%",
-            height: "auto",
+            height: "fit-content",
             display: "grid",
             gridTemplateColumns: "auto auto auto",
             gridTemplateRows: "auto auto",

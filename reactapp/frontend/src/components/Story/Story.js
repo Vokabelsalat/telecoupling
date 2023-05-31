@@ -36,6 +36,7 @@ import { useIntersection } from "./useIntersection";
 import { active } from "d3";
 import { padding } from "@mui/system";
 import Overlay from "../Overlay/Overlay";
+import { ThreatLevel } from "../../utils/timelineUtils";
 
 const storyScripts = { bowstory: bowContents, concertstory: concertContents };
 
@@ -101,7 +102,11 @@ export default function Story(props) {
         )
         .pop();
       if (lastElement) {
-        return lastElement.assessment;
+        return JSON.parse(lastElement.assessment, function (key, value) {
+          return key === "" && value.hasOwnProperty("__type")
+            ? ThreatLevel.revive(value)
+            : this[key];
+        });
       } else {
         return citesAssessment.dataDeficient;
       }
@@ -112,7 +117,11 @@ export default function Story(props) {
         )
         .pop();
       if (lastElementIUCN) {
-        return lastElementIUCN.assessment;
+        return JSON.parse(lastElementIUCN.assessment, function (key, value) {
+          return key === "" && value.hasOwnProperty("__type")
+            ? ThreatLevel.revive(value)
+            : this[key];
+        });
       } else {
         let lastElementBGCI = [...speciesObj["bgci"]]
           .filter((e) =>
@@ -120,7 +129,11 @@ export default function Story(props) {
           )
           .pop();
         if (lastElementBGCI) {
-          return lastElementBGCI.assessment;
+          return JSON.parse(lastElementBGCI.assessment, function (key, value) {
+            return key === "" && value.hasOwnProperty("__type")
+              ? ThreatLevel.revive(value)
+              : this[key];
+          });
         } else {
           return bgciAssessment.dataDeficient;
         }
@@ -377,6 +390,9 @@ export default function Story(props) {
     ) {
       setInstrument(contents[activeFigure].instrument);
     }
+    else {
+      setInstrument(null);
+    }
 
     if (
       activeFigure != null &&
@@ -386,6 +402,9 @@ export default function Story(props) {
     ) {
       setInstrumentGroup(contents[activeFigure].instrumentGroup);
     }
+    else {
+      setInstrumentGroup(null);
+    }
 
     if (
       activeFigure != null &&
@@ -394,6 +413,9 @@ export default function Story(props) {
       contents[activeFigure].instrumentPart !== undefined
     ) {
       setInstrumentPart(contents[activeFigure].instrumentPart);
+    }
+    else {
+      setInstrumentPart(null);
     }
 
     if (
@@ -541,41 +563,14 @@ export default function Story(props) {
     visibleSpeciesEcos,
     visibleSpeciesHexas
   } = useFilterSpecies(
-    kingdomData,
+    JSON.stringify(kingdomData),
     filterTreeMap,
-    instrumentData,
-    speciesCountries,
-    timelineData,
-    intersectedSpecies,
-    speciesEcos,
-    speciesHexas
-  );
-
-  const changeActiveFigure = useCallback(
-    (add) => {},
-    [activeFigureRef, contents.length, storyName]
-  );
-
-  const keyDownListener = useCallback(
-    (e) => {
-      if (e.key === "ArrowLeft") {
-        //let idx = Math.max(0, activeFigure - 1);
-        /* window.history.pushState(
-          null,
-          `${storyName}#${idx}`,
-          `${storyName}#${idx}`
-        ); */
-        /* window.location.replace(`${storyName}#${idx}`);
-        setActiveFigure(idx); */
-        changeActiveFigure(-1);
-      } else if (e.key === "ArrowRight") {
-        /* let idx = Math.min(contents.length, activeFigure + 1);
-        window.location.replace(`${storyName}#${idx}`);
-        setActiveFigure(idx); */
-        changeActiveFigure(1);
-      }
-    },
-    [changeActiveFigure]
+    JSON.stringify(instrumentData),
+    JSON.stringify(speciesCountries),
+    JSON.stringify(timelineData),
+    JSON.stringify(intersectedSpecies),
+    JSON.stringify(speciesEcos),
+    JSON.stringify(speciesHexas)
   );
 
   useEffect(() => {
@@ -623,7 +618,8 @@ export default function Story(props) {
               <div
                 style={{
                   width: "100%",
-                  position: "relative" /* aspectRatio: "16 / 9" */
+                  position: "relative"
+                  /* aspectRatio: "16 / 9" */
                 }}
               >
                 <ResizeComponent>
@@ -644,7 +640,6 @@ export default function Story(props) {
                     projection={projection}
                     extraPolygon={extraPolygon}
                     timeFrame={timeFrame}
-                    //setSelectedCountry={setSelectedCountry}
                   />
                   {/* <StoryMap
               speciesCountries={visibleSpeciesCountries}
@@ -825,7 +820,8 @@ export default function Story(props) {
                                         : showThreatDonuts,
                                     kingdomData: filteredKingdomData,
                                     treeMapFilter: treeMapFilter,
-                                    setTreeMapFilter: setTreeMapFilter
+                                    setTreeMapFilter: setTreeMapFilter,
+                                    caption: content.visualization.caption
                                   }
                                 : null
                             }

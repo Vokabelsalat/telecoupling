@@ -26,6 +26,7 @@ const positioning = {
 
 export default function OrchestraInstrumentSlice(props) {
   const {
+    id,
     position,
     arcOptions,
     width,
@@ -91,26 +92,26 @@ export default function OrchestraInstrumentSlice(props) {
         d={pathString}
       />
       <path
-        id={`pathForInstrumentText${instrument}`}
-        key={`pathForInstrumentText${instrument}`}
+        id={`pathForInstrumentText${id}${instrument}`}
+        key={`pathForInstrumentText${id}${instrument}`}
         fill="none"
         d={textPathString}
       ></path>
       <text
         width={arcOptions.width}
-        id={`${instrument}text`}
-        key={`${instrument}text`}
+        id={`${id}${instrument}text`}
+        key={`${id}${instrument}text`}
         className="text"
         style={{ opacity: 1 }}
       >
         <textPath
           className="textonpath noselect"
-          href={`#pathForInstrumentText${instrument}`}
+          href={`#pathForInstrumentText${id}${instrument}`}
           fontSize="7"
           textAnchor={positioning[groupName].textAlign}
           startOffset={positioning[groupName].textOffset}
-          id={`textPath${instrument}`}
-          key={`textPath${instrument}`}
+          id={`textPath${id}${instrument}`}
+          key={`textPath${id}${instrument}`}
           style={{ dominantBaseline: "central" }}
         >
           {instrument === "Horn, trumpet, trombone, bass tuba" ? (
@@ -129,8 +130,8 @@ export default function OrchestraInstrumentSlice(props) {
       </text>
 
       <InstrumentThreatPieChart
-        key={`instrumentThreatPie${replaceSpecialCharacters(instrument)}`}
-        id={`instrumentThreatPie${replaceSpecialCharacters(instrument)}`}
+        key={`instrumentThreatPie${id}${replaceSpecialCharacters(instrument)}`}
+        id={`instrumentThreatPie${id}${replaceSpecialCharacters(instrument)}`}
         instrument={instrument}
         angle={angle}
         instruments={instruments}

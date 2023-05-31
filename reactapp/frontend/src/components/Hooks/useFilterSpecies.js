@@ -11,8 +11,14 @@ export function useFilterSpecies(
   speciesHexas
 ) {
   return useMemo(() => {
-    let filteredTreeMap = kingdomData;
-    let filtSpecies = intersectedSpecies;
+    let tmpKingdomData = JSON.parse(kingdomData);
+    let filteredTreeMap = tmpKingdomData;
+    let filtSpecies = JSON.parse(intersectedSpecies);
+    let tmpSpeciesEcos = JSON.parse(speciesEcos);
+    let tmpSpeciesHexas = JSON.parse(speciesHexas);
+    let tmpTimelineData = JSON.parse(timelineData);
+    let tmpInstrumentData = JSON.parse(instrumentData);
+    let tmpSpeciesCountries = JSON.parse(speciesCountries);
     let visibleSpeciesTimelineData = {};
     let tmpVisibleSpeciesCountries = {};
     let tmpVisibleSpeciesEcos = {};
@@ -20,18 +26,18 @@ export function useFilterSpecies(
 
     let tmpFiltSpecies = [];
     for (let speciesName of filtSpecies) {
-      let specCountries = speciesCountries[speciesName];
+      let specCountries = tmpSpeciesCountries[speciesName];
       tmpVisibleSpeciesCountries[speciesName] =
         specCountries != null ? specCountries : [];
 
-      let specEcos = speciesEcos[speciesName];
+      let specEcos = tmpSpeciesEcos[speciesName];
       tmpVisibleSpeciesEcos[speciesName] = specEcos != null ? specEcos : [];
 
       tmpFiltSpecies.push(speciesName);
 
-      visibleSpeciesTimelineData[speciesName] = timelineData[speciesName];
+      visibleSpeciesTimelineData[speciesName] = tmpTimelineData[speciesName];
 
-      let specHexas = speciesHexas[speciesName];
+      let specHexas = tmpSpeciesHexas[speciesName];
       tmpVisibleSpeciesHexas[speciesName] = specHexas != null ? specHexas : [];
     }
 
@@ -39,17 +45,19 @@ export function useFilterSpecies(
 
     let filteredInstrumentData = {};
 
-    for (let inst of Object.keys(instrumentData)) {
+    for (let inst of Object.keys(tmpInstrumentData)) {
       filteredInstrumentData[inst] = Object.fromEntries(
-        Object.keys(instrumentData[inst]).map((e) => [
+        Object.keys(tmpInstrumentData[inst]).map((e) => [
           e,
-          instrumentData[inst][e].filter((value) => filtSpecies.includes(value))
+          tmpInstrumentData[inst][e].filter((value) =>
+            filtSpecies.includes(value)
+          )
         ])
       );
     }
 
     filteredTreeMap = filterTreeMap(
-      structuredClone(kingdomData),
+      structuredClone(tmpKingdomData),
       filtSpecies,
       4
     );

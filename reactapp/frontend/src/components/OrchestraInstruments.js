@@ -64,14 +64,14 @@ export default function OrchestraInstruments(props) {
   return (
     <>
       <path
-        id={`pathForInstrumentGroupHeadingWrapper${groupName}`}
+        id={`pathForInstrumentGroupHeadingWrapper${id}${groupName}`}
         fill="none"
         strokeWidth="1px"
         stroke={isSelected && selectedInstrument === null ? "purple" : "gray"}
         d={pathString}
       ></path>
       <path
-        id={`pathForInstrumentGroupHeading${groupName}`}
+        id={`pathForInstrumentGroupHeading${id}${groupName}`}
         fill="none"
         strokeWidth="1px"
         d={textPathForHeading}
@@ -84,11 +84,11 @@ export default function OrchestraInstruments(props) {
       >
         <textPath
           className="textonpath noselect"
-          href={`#pathForInstrumentGroupHeading${groupName}`}
+          href={`#pathForInstrumentGroupHeading${id}${groupName}`}
           fontSize="10"
           textAnchor="middle"
           startOffset="50%"
-          id={`textPathHeading${groupName}`}
+          id={`textPathHeading${id}${groupName}`}
           style={{ dominantBaseline: "central" }}
         >
           {groupName}
@@ -106,7 +106,8 @@ export default function OrchestraInstruments(props) {
 
         return (
           <OrchestraInstrumentSlice
-            key={`orchestraInstrumentSlice${instrument}`}
+            id={`orchestraInstrumentSlice${id}${instrument}`}
+            key={`orchestraInstrumentSlice${id}${instrument}`}
             position={position}
             arcOptions={tmpOptions}
             width={tmpWidth}

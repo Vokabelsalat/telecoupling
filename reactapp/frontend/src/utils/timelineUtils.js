@@ -39,7 +39,7 @@ let IUCNColorScheme = new ColorScheme("IUCN", [
   ["rgb(209, 209, 198)", "rgb(0, 0, 0)"]
 ]);
 
-class ThreatLevel {
+export class ThreatLevel {
   constructor(name, abbreviation, assessmentType, numvalue, sort) {
     this.name = name;
     this.abbreviation = abbreviation;
@@ -72,6 +72,32 @@ class ThreatLevel {
     return this.abbreviation + this.assessmentType + this.sort;
   }
 }
+
+ThreatLevel.prototype.toJSON = function () {
+  return {
+    __type: "ThreatLevel",
+    getName: this.getName,
+    getForegroundColor: this.getForegroundColor,
+    getHashCode: this.getHashCode,
+    getColor: this.getColor,
+    name: this.name,
+    abbreviation: this.abbreviation,
+    assessmentType: this.assessmentType,
+    numvalue: this.numvalue,
+    sort: this.sort
+  };
+};
+
+ThreatLevel.revive = function (data) {
+  // TODO: do basic validation
+  return new ThreatLevel(
+    data.name,
+    data.abbreviation,
+    data.assessmentType,
+    data.numvalue,
+    data.sort
+  );
+};
 
 class AssessmentType {
   constructor(name, threatLevels) {

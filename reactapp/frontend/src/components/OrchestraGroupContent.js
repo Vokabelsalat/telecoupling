@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { describeArc, calcMidPointOfArc } from "../utils/orchestraUtils";
+import { calcMidPointOfArc, describeArc } from "../utils/orchestraUtils";
 import InstrumentGroupIcon from "./InstrumentGroupIcon";
 import OrchestraThreatPieChart from "./OrchestraThreatPieChart";
 
@@ -16,8 +15,6 @@ export default function OrchestraGroupContent(props) {
     acrOptions,
     showThreatDonuts = true
   } = props;
-
-  console.log("ID", id);
 
   const angle =
     (acrOptions.start + (acrOptions.end - acrOptions.start) / 2 - 360) % 180;
@@ -80,7 +77,6 @@ export default function OrchestraGroupContent(props) {
         position={pointForIcon}
         angle={angle}
       />
-      p
       {showThreatDonuts && (
         <OrchestraThreatPieChart
           key={`OrchestraGroupThreatPie${id}`}

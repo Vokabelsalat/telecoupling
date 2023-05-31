@@ -41,7 +41,6 @@ export const Content = (props) => {
   const getVisualization = (vis) => {
     switch (vis.type) {
       case "orchestra":
-        console.log("orch", `orchestra${id}`);
         return (
           <OrchestraNew
             key={`orchestra${id}`}

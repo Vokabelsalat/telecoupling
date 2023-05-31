@@ -957,7 +957,55 @@ a:any-link {
   align-items: center;
 }
 
-.mapboxgl-ctrl,
+/* .mapboxgl-ctrl,
 .mapboxgl-ctrl-bottom-left {
   display: none;
+} */
+
+.mapLegendHoverHandle {
+  position: absolute;
+  text-align: center;
+  z-index: 10;
+  background-color: #f4f2f299;
+  padding: 2px;
+  transform: translateY(0);
+}
+
+.diversityScaleWrapper {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.diversityScale {
+  background-color: white;
+}
+
+.mapLegend {
+  width: 100%;
+}
+
+.mapLegendThreatWrapper {
+  background-color: white;
+}
+
+.mapLegendWrapper {
+  transform: translateY(110%);
+  z-index: 14;
+  display: grid;
+  grid-template-rows: repeat(auto-fit, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
+  width: 100%;
+}
+
+.mapLegend:hover > .mapLegendWrapper {
+  transform: translateY(0);
+  transition-property: transform;
+  transition-duration: 0.2s;
+}
+
+.mapLegend:hover > .mapLegendHoverHandle {
+  transform: translateY(110%);
+  transition-property: transform;
+  transition-duration: 0;
 }

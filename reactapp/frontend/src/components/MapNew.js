@@ -1,5 +1,9 @@
 import * as turf from "@turf/turf";
 import { useEffect, useMemo, useState, forwardRef, useCallback } from "react";
+import colorsys from "colorsys";
+import * as d3Scale from "d3-scale";
+import DiversityScale from "./DiversityScale";
+import Legend from "./LegendNew";
 
 import ReactMapGL, {
   Layer,
@@ -35,6 +39,14 @@ const Map = forwardRef((props, ref) => {
   } = props;
 
   const [formMapMode, setFormMapMode] = useState("countries");
+  const [divScale, setDivScale] = useState({ scale: [], type: "countries" });
+
+  const setDivScaleWithType = useCallback((scaleAndType) => {
+    /* console.log("set", scaleAndType); */
+    /*  const tmpDivScale = { ...divScale };
+      tmpDivScale[scaleAndType.type] = scaleAndType.scale; */
+    setDivScale({ type: scaleAndType.type, scale: scaleAndType.scale });
+  }, []);
 
   const { mapMode, interactiveLayerIds, mapStyle, polygonFill } =
     useMemo(() => {
@@ -141,6 +153,60 @@ const Map = forwardRef((props, ref) => {
     useState(null);
   const [countriesHighlightLinesIndex, setCountriesHighlightLinesIndex] =
     useState(null);
+
+  useEffect(() => {
+    let max = 0;
+
+    switch (mapMode) {
+      case "countries":
+        max = countriesHeatMapMax;
+        break;
+      case "ecoregions":
+        max = ecoregionHeatMapMax;
+        break;
+      case "hexagons":
+        max = hexagonHeatMapMax;
+        break;
+      case "orchestras":
+        max = orchestraHeatMapMax;
+        break;
+      default:
+        max = 0;
+        break;
+    }
+
+    let scale = [];
+    const test = d3Scale
+      .scaleLinear()
+      .domain([0, max])
+      .ticks(Math.min(15, max));
+
+    scale.push({
+      scaleColor: colorsys.stringify({
+        ...colorsys.hsvToRgb(240, 0, 100),
+        a: 0.8
+      }),
+      scaleValue: 0
+    });
+
+    for (let val of test.slice(1, test.length)) {
+      let scaleOpacity = val / max;
+      let scaleColor = colorsys.stringify({
+        ...colorsys.hsvToRgb(240, scaleOpacity * 100, 100),
+        a: 0.8
+      });
+
+      scale.push({ scaleColor, scaleValue: val });
+    }
+
+    setDivScaleWithType({ scale, type: mapMode });
+  }, [
+    mapMode,
+    orchestraHeatMapMax,
+    hexagonHeatMapMax,
+    ecoregionHeatMapMax,
+    countriesHeatMapMax
+  ]);
 
   useEffect(() => {
     fetch("/UN_Worldmap-2.json")
@@ -255,6 +321,24 @@ const Map = forwardRef((props, ref) => {
             : 0;
       }
 
+      /*  let scale = [];
+      const test = d3Scale
+        .scaleLinear()
+        .domain([0, tmpOrchestraHeatMapMax])
+        .ticks(Math.min(15, tmpOrchestraHeatMapMax));
+
+      let scaleColor = colorsys.hsvToHex(210, 100, 100);
+      scale.push({ scaleColor, scaleValue: 0 });
+
+      for (let val of test.slice(1, test.length)) {
+        let scaleOpacity = 1 - val / tmpOrchestraHeatMapMax;
+        let scaleColor = colorsys.hsvToHex(210, scaleOpacity * 100, 100);
+
+        scale.push({ scaleColor, scaleValue: val });
+      }
+
+      setDivScaleWithType({ scale, type: "orchestras" }); */
+
       setOrchestraHeatMap(tmpOrchestraHeatMap);
       setOrchestraHeatMapMax(tmpOrchestraHeatMapMax);
       setCountriesGeoJson(countriesGeoJson);
@@ -351,12 +435,46 @@ const Map = forwardRef((props, ref) => {
       }
     }
 
+    /*   let scale = [];
+    let test = d3Scale
+      .scaleLinear()
+      .domain([0, tmpCountriesHeatMapMax])
+      .ticks(Math.min(15, tmpCountriesHeatMapMax));
+
+    let scaleColor = colorsys.hsvToHex(210, 100, 100);
+    scale.push({ scaleColor, scaleValue: 0 });
+
+    for (let val of test.slice(1, test.length)) {
+      let scaleOpacity = 1 - val / tmpCountriesHeatMapMax;
+      let scaleColor = colorsys.hsvToHex(210, scaleOpacity * 100, 100);
+
+      scale.push({ scaleColor, scaleValue: val });
+    }
+
+    setDivScaleWithType({ scale, type: "countries" }); */
+
     setCountriesToSpecies(tmpIsoToSpecies);
     setIsoToCountryID(tmpIsoToCountryID);
     setCountriesHeatMap(tmpCountriesHeatMap);
     setCountriesHeatMapMax(tmpCountriesHeatMapMax);
     setCountriesGeoJsonTest({ ...tmpCountriesGeoJson });
-  }, [speciesCountries, countriesDictionary, countriesGeoJson, ref]);
+  }, [speciesCountries, countriesDictionary, countriesGeoJson]);
+
+  /* useEffect(() => {
+    console.log(
+      "speciesCountries has changed",
+      JSON.stringify(speciesCountries)
+    );
+  }, [speciesCountries]);
+  useEffect(() => {
+    console.log("countriesDictionary has changed", countriesDictionary);
+  }, [countriesDictionary]);
+  useEffect(() => {
+    console.log("countriesGeoJson has changed", countriesGeoJson);
+  }, [countriesGeoJson]);
+  useEffect(() => {
+    console.log("setDivScale has changed", setDivScale);
+  }, [setDivScale]); */
 
   const [ecosToSpecies, setEcosToSpecies] = useState(null);
 
@@ -400,6 +518,24 @@ const Map = forwardRef((props, ref) => {
         tmpEcoRegionsGeoJson.features.push(tmpEco);
       }
     }
+
+    /*   let scale = [];
+    let test = d3Scale
+      .scaleLinear()
+      .domain([0, tmpEcoregionHeatMapMax])
+      .ticks(Math.min(15, tmpEcoregionHeatMapMax));
+
+    let scaleColor = colorsys.hsvToHex(210, 100, 100);
+    scale.push({ scaleColor, scaleValue: 0 });
+
+    for (let val of test.slice(1, test.length)) {
+      let scaleOpacity = 1 - val / tmpEcoregionHeatMapMax;
+      let scaleColor = colorsys.hsvToHex(210, scaleOpacity * 100, 100);
+
+      scale.push({ scaleColor, scaleValue: val });
+    }
+
+    setDivScaleWithType({ scale, type: "ecoregions" }); */
 
     setEcosToSpecies(tmpEcoToSpecies);
     setEcoRegionsGeoJsonTest(tmpEcoRegionsGeoJson);
@@ -445,12 +581,36 @@ const Map = forwardRef((props, ref) => {
       }
     }
 
+    /*   let scale = [];
+    let test = d3Scale
+      .scaleLinear()
+      .domain([0, tmpHexagonHeatMapMax])
+      .ticks(Math.min(15, tmpHexagonHeatMapMax));
+
+    let scaleColor = colorsys.hsvToHex(210, 100, 100);
+    scale.push({ scaleColor, scaleValue: 0 });
+
+    for (let val of test.slice(1, test.length)) {
+      let scaleOpacity = 1 - val / tmpHexagonHeatMapMax;
+      let scaleColor = colorsys.hsvToHex(210, scaleOpacity * 100, 100);
+
+      scale.push({ scaleColor, scaleValue: val });
+    }
+
+    setDivScaleWithType({ scale, type: "hexagons" }); */
+
     setHexagonGeoJSONTest(tmpHexagonGeoJSON);
     setHexagonHeatMapMax(tmpHexagonHeatMapMax);
     setHexagonHeatMap(tmpHexagonHeatMap);
   }, [hexagonGeoJSON, speciesHexas]);
 
   const colors = ["#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c"];
+
+  const scaleColors = useMemo(() => {
+    return divScale.scale.flatMap((e) => {
+      return [e.scaleValue, e.scaleColor];
+    });
+  }, [divScale.scale]);
 
   async function calcEcoStatistics() {
     const ecoStatistics = [];
@@ -867,12 +1027,7 @@ const Map = forwardRef((props, ref) => {
             "interpolate",
             ["linear"],
             ["get", "speciesCount"],
-            0,
-            activeMapLayer != null && activeMapLayer.mapStyle === "satellite"
-              ? "rgba(255,255,255,0.8)"
-              : "rgba(0,0,0,0)",
-            hexagonHeatMapMax,
-            "rgba(0,0,255,0.8)"
+            ...scaleColors
           ]
         },
         type: "fill"
@@ -886,7 +1041,7 @@ const Map = forwardRef((props, ref) => {
         type: "line"
       };
     }
-  }, [hexagonHeatMapMax, polygonFill, activeMapLayer]);
+  }, [polygonFill, scaleColors]);
 
   return (
     <div
@@ -1002,7 +1157,6 @@ const Map = forwardRef((props, ref) => {
         onMouseMove={onPolygonHover}
         onMouseDown={(e) => {
           if (e.originalEvent.altKey && e.originalEvent.which === 1) {
-            console.log(e, e.features);
             alert(
               `Mouse and Alt was pressed. Here is your location: [${e.lngLat.lng}, ${e.lngLat.lat}]`
             );
@@ -1043,10 +1197,7 @@ const Map = forwardRef((props, ref) => {
                     "interpolate",
                     ["linear"],
                     ["get", "speciesCount"],
-                    0,
-                    "rgba(255,255,255,0.8)",
-                    countriesHeatMapMax,
-                    "rgba(0,0,255,0.8)"
+                    ...scaleColors
                   ]
                 },
                 layout: {
@@ -1089,10 +1240,7 @@ const Map = forwardRef((props, ref) => {
                     "interpolate",
                     ["linear"],
                     ["get", "speciesCount"],
-                    0,
-                    "rgba(0,0,0,0)",
-                    ecoregionHeatMapMax,
-                    "rgba(0,0,255,1)"
+                    ...scaleColors
                   ]
                   /*  "fill-outline-color": [
                     "case",
@@ -1188,10 +1336,7 @@ const Map = forwardRef((props, ref) => {
                     "interpolate",
                     ["linear"],
                     ["get", "orchestraCount"],
-                    0,
-                    "rgba(0,0,0,0)",
-                    orchestraHeatMapMax,
-                    "rgba(0,0,255,1.0)"
+                    ...scaleColors
                   ]
                 },
                 layout: {
@@ -1431,6 +1576,40 @@ const Map = forwardRef((props, ref) => {
           />
         </Source>
       </ReactMapGL>
+      <div
+        className="mapLegend"
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "center"
+        }}
+      >
+        <div className="mapLegendHoverHandle">Legend</div>
+        <div className="mapLegendWrapper">
+          {showThreatDonuts && (
+            <div className="mapLegendThreatWrapper">
+              <Legend
+                type={threatType}
+                threatType={threatType}
+                colorBlind={colorBlind}
+                /* setCategoryFilter={legend.setCategoryFilter}
+            categoryFilter={legend.categoryFilter} */
+              />
+            </div>
+          )}
+          <div className="diversityScaleWrapper">
+            <DiversityScale
+              className="diversityScale"
+              scales={divScale}
+              mapMode={mapMode}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 });

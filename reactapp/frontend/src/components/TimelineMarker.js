@@ -1,15 +1,25 @@
 import { useContext, useState } from "react";
 import { OverlayContext } from "./OverlayProvider";
 import { TooltipContext } from "./TooltipProvider";
+import { ThreatLevel } from "../utils/timelineUtils";
 
 export default function TimelineMarker(props) {
   const { assessmentAndElement, colorBlind, width, height, iconWidth } = props;
 
   const [hover, setHover] = useState(false);
 
+  const assessment = JSON.parse(
+    assessmentAndElement.assessment,
+    function (key, value) {
+      return key === "" && value.hasOwnProperty("__type")
+        ? ThreatLevel.revive(value)
+        : this[key];
+    }
+  );
+
   let year = assessmentAndElement.element.year;
 
-  let color = assessmentAndElement.assessment.getColor(colorBlind);
+  let color = assessment.getColor(colorBlind);
 
   const [overlay, setOverlay] = useContext(OverlayContext);
   const { setTooltip } = useContext(TooltipContext);
@@ -24,9 +34,9 @@ export default function TimelineMarker(props) {
       onMouseEnter={(event) => {
         let tooltipContent = (
           <div>
-            {year} - {assessmentAndElement.assessment.name}
+            {year} - {assessment.name}
             <br />
-            {assessmentAndElement.assessment.assessmentType}
+            {assessment.assessmentType}
           </div>
         );
         setHover(true);

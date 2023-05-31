@@ -17,8 +17,6 @@ export default function OrchestraThreatPieChart(props) {
     showThreatDonuts = true
   } = props;
 
-  console.log("PiechartID", id);
-
   const width = 75;
   const height = 75;
 

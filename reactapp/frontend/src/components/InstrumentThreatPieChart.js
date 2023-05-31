@@ -5,6 +5,7 @@ import { replaceSpecialCharacters } from "../utils/utils";
 
 export default function InstrumentThreatPieChart(props) {
   const {
+    id,
     instrument,
     angle,
     instruments,
@@ -65,7 +66,8 @@ export default function InstrumentThreatPieChart(props) {
         >
           {
             <PieChartNew
-              id={`${replaceSpecialCharacters(instrument)}ThreatPie`}
+              id={replaceSpecialCharacters(`${instrument}${id}ThreatPie`)}
+              key={replaceSpecialCharacters(`${instrument}${id}ThreatPie`)}
               data={processedSpecies}
               getThreatLevel={getThreatLevel}
               threatType={threatType}

@@ -128,9 +128,6 @@
     "threatType": "ecologically",
     "showCountries": true,
     "showThreatDonuts": true,
-    "legend": {
-      "width": "100%"
-    },
     "visualization": {
       "type": "orchestra",
       "width": "100%"
@@ -140,9 +137,6 @@
     "type": "text",
     "title": "The String Instruments",
     "text": "The string instruments always stand out in an orchestra being the largest instrument group and the heart of any orchestra. In addition, they are also part of many musical cultures and instrument-making traditions around the world. Internationally, more than 60 cultural traditions are listed in the UNESCO Intangible Cultural Heritage List that are associated with bowed string instruments.",
-    "legend": {
-      "width": "100%"
-    },
     "visualization": {
       "type": "orchestra",
       "width": "100%"
@@ -157,7 +151,7 @@
   {
     "type": "fullSizeQuote",
     "quote": {
-      "text": "<div> <div style={{ 'marginLeft': '-50%', 'whiteSpace': 'nowrap' }} > 'Le violon </div> <div style={{ 'marginRight': '-50%', 'whiteSpace': 'nowrap' }} > c'est l'archet' </div></div>",
+      "text": "<div> <div style='margin-left:-50%;white-space:nowrap;'> 'Le violon </div> <div style='margin-right:-50%;white-space:nowrap'> c'est l'archet' </div></div>",
       "author": "Giovanni Battista Viotti (violanist)",
       "translation": "The violin, that's the bow."
     },
