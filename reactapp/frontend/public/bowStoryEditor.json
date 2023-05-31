@@ -115,7 +115,7 @@
   {
     "type": "text",
     "title": "...and is equally threatened when species used for their materials are at risk",
-    "text": "On the level of species scientists elaborated a kind of species alarm system - the Red List of Endangerd Species (Hyperlink to IUCN red list), which indicates whether a species is threatened with extinction or of least concern or in the worst case already extinct. Taking this information to the species used for the musical instruments of an orchestra allows to indicate the ecological threat of all species that are or have been used since history until today in the countries of their origin.  <br /><br />Feel invited to explore the orchestra by selecting and diving into the different musical instrument groups to discover the musical instruments belonging to the group.",
+    "text": "On the level of species scientists elaborated a kind of species alarm system - the Red List of Endangerd Species (Hyperlink to IUCN red list), which indicates whether a species is threatened with extinction (orange), near threatened (yellow), of least concern (green) or in the worst case already extinct (red). Taking this information to the species used for the musical instruments of an orchestra allows to indicate the ecological threat of all species that are or have been used since history until today in the countries of their origin.<br /><br />Feel invited to explore the orchestra by selecting and diving into the different musical instrument groups to discover the musical instruments belonging to the group.",
     "flyTo": {
       "center": [0, 0],
       "zoom": 1,
@@ -163,20 +163,12 @@
     "type": "text",
     "title": "String Instrument Bows",
     "text": "Violins, violas, cellos and double basses all are played with a stringed instrument bow. Nevertheless, the bow is often misjudged in its importance and changed considerably over time, adapting to the developments and changes in music, compsitions and concert environment. Such as to the changes from commonly small chamber music in front of small audiences to bigger symphony orchestras in large concert halls. F.X. Tourte was experimenting with new models and a variety of materials to adapt to the new requirements F.X. Tourte invented the modern string instrument bow around 1800 in Paris. He discovered the favourable wood characteristics of pau-brasil perfectly suitable and allowing the develpment of the modern bow model. In comparison to the until then typical baroque bow, the stick was not anymore concave it rather changed to a stick with a convex curve. A variety of materials of up to xx species from xxx countries have been used over history and/or are used today. The key part of a string instrument bow that is most important for the quality of a bow and for its characteristics while playing as well as for its sound characteristics is the bow stick.",
-    "imageArray": [
-      {
-        "url": "./fotos/bowstory/CellobogenHorizontal.png",
-        "caption": "cello bow",
-        "copyright": "Mathias Wohlleber",
-        "width": "80%"
-      },
-      {
-        "url": "https://upload.wikimedia.org/wikipedia/commons/f/fd/Baroque_violin_bow_holding.jpg",
-        "caption": "Baroque violin bow holding",
-        "copyright": "David Schou",
-        "width": "80%"
-      }
-    ],
+    "image": {
+      "url": "./fotos/bowstory/Barockbogen-modernerBogen.png",
+      "caption": "cello bow",
+      "copyright": "Mathias Wohlleber",
+      "width": "80%"
+    },
     "visualization": {
       "type": "treeMap",
       "width": "100%"
@@ -211,10 +203,10 @@
     "title": "The endless search for the perfect bow....",
     "text": "Since 1800 by far the most widely used material for high-quality bow sticks is the Brasilian pau-brasil (<I>Paubrasilia echinata</I>). Musicians tend to search endless to find the perfect match of their string instrument and a fitting bow in combination to their way of playing.",
     "image": {
-      "url": "./fotos/bowstory/CellobogenHorizontal.png",
-      "caption": "<br /> <br /><div style='background-color:purple'>Insert Foto of a bow workshop</div>",
+      "url": "./fotos/bowstory/Bogenauswahl.png",
+      "caption": "Selection of differnt bows that wait to be tested",
       "width": "100%",
-      "copyright": "<a href='https://commons.wikimedia.org/wiki/File:Musikverein_Goldener_Saal.jpg'>Clemens PFEIFFER, A-1190 Wien</a>,&nbsp;<a href='https://creativecommons.org/licenses/by-sa/3.0'>CC BY-SA 3.0</a>, via Wikimedia Commons"
+      "copyright": "Mathias Wohlleber"
     },
     "flyTo": {
       "center": [16.3727683154214, 48.20050021403356],
@@ -482,12 +474,7 @@
   {
     "type": "text",
     "title": "What can be done?",
-    "text": "Plantations, Pests, Conservation",
-    "image": {
-      "url": "",
-      "copyright": "",
-      "width": "80%"
-    }
+    "text": "Plantations, Pests, Conservation"
   },
   {
     "type": "text",
