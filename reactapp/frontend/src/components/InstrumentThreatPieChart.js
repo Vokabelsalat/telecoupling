@@ -55,8 +55,6 @@ export default function InstrumentThreatPieChart(props) {
     setTransformString(tmpTransformString);
   }, [threatTextRef]);
 
-  console.log(id, showThreatDonuts);
-
   return (
     <>
       <foreignObject transform={transformString} width={width} height={height}>

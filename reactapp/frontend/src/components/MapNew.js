@@ -1,5 +1,12 @@
 import * as turf from "@turf/turf";
-import { useEffect, useMemo, useState, forwardRef, useCallback } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  forwardRef,
+  useCallback,
+  useRef
+} from "react";
 import colorsys from "colorsys";
 import * as d3Scale from "d3-scale";
 import DiversityScale from "./DiversityScale";
@@ -35,11 +42,15 @@ const Map = forwardRef((props, ref) => {
     extraPolygon = null,
     keepAspectRatio: i_keepAspectRatio = false,
     getPopulationTrend,
+    categoryFilter,
+    setCategoryFilter,
     timeFrame
   } = props;
 
   const [formMapMode, setFormMapMode] = useState("countries");
   const [divScale, setDivScale] = useState({ scale: [], type: "countries" });
+  const [showLegend, setShowLegend] = useState(false);
+  const legendRef = useRef(null);
 
   const setDivScaleWithType = useCallback((scaleAndType) => {
     /* console.log("set", scaleAndType); */
@@ -679,7 +690,6 @@ const Map = forwardRef((props, ref) => {
   }
 
   useEffect(() => {
-    console.log("CHANGED", timeFrame);
     updateMarkers();
     updateEcoregions();
   }, [timeFrame]);
@@ -1042,6 +1052,10 @@ const Map = forwardRef((props, ref) => {
       };
     }
   }, [polygonFill, scaleColors]);
+
+  const setFocusOnLegend = useCallback(() => {
+    legendRef.current?.focus();
+  }, [legendRef]);
 
   return (
     <div
@@ -1588,26 +1602,45 @@ const Map = forwardRef((props, ref) => {
           justifyContent: "center"
         }}
       >
-        <div className="mapLegendHoverHandle">Legend</div>
-        <div className="mapLegendWrapper">
-          {showThreatDonuts && (
-            <div className="mapLegendThreatWrapper">
-              <Legend
-                type={threatType}
-                threatType={threatType}
-                colorBlind={colorBlind}
-                /* setCategoryFilter={legend.setCategoryFilter}
-            categoryFilter={legend.categoryFilter} */
-              />
-            </div>
+        <div
+          className="mapLegendHoverHandle"
+          onClick={() => {
+            setShowLegend(!showLegend);
+            setFocusOnLegend();
+          }}
+        >
+          Legend
+        </div>
+        <div
+          className="mapLegendWrapper"
+          ref={legendRef}
+          tabIndex={-1}
+          onBlur={(event) => {
+            setShowLegend(false);
+          }}
+        >
+          {showLegend && (
+            <>
+              {showThreatDonuts && (
+                <div className="mapLegendThreatWrapper">
+                  <Legend
+                    type={threatType}
+                    threatType={threatType}
+                    colorBlind={colorBlind}
+                    setCategoryFilter={setCategoryFilter}
+                    categoryFilter={categoryFilter}
+                  />
+                </div>
+              )}
+              <div className="diversityScaleWrapper">
+                <DiversityScale
+                  className="diversityScale"
+                  scales={divScale}
+                  mapMode={mapMode}
+                />
+              </div>
+            </>
           )}
-          <div className="diversityScaleWrapper">
-            <DiversityScale
-              className="diversityScale"
-              scales={divScale}
-              mapMode={mapMode}
-            />
-          </div>
         </div>
       </div>
     </div>

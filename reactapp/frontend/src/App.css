@@ -967,8 +967,10 @@ a:any-link {
   text-align: center;
   z-index: 10;
   background-color: #f4f2f299;
-  padding: 2px;
-  transform: translateY(0);
+  padding: 3px;
+  /* transform: translateY(0); */
+  cursor: pointer;
+  border-radius: 3px;
 }
 
 .diversityScaleWrapper {
@@ -990,7 +992,7 @@ a:any-link {
 }
 
 .mapLegendWrapper {
-  transform: translateY(110%);
+  /* transform: translateY(110%); */
   z-index: 14;
   display: grid;
   grid-template-rows: repeat(auto-fit, minmax(100px, 1fr));
@@ -998,17 +1000,21 @@ a:any-link {
   width: 100%;
 }
 
-.mapLegend:hover > .mapLegendWrapper {
+.mapLegendWrapper:focus {
+  outline: none;
+}
+
+/* .mapLegend:hover > .mapLegendWrapper {
   transform: translateY(0);
   transition-property: transform;
   transition-duration: 0.2s;
-}
+} */
 
-.mapLegend:hover > .mapLegendHoverHandle {
+/* .mapLegend:hover > .mapLegendHoverHandle {
   transform: translateY(110%);
   transition-property: transform;
   transition-duration: 0;
-}
+} */
 
 .resetButton {
   padding: 5px;
@@ -1021,4 +1027,11 @@ a:any-link {
 .resetButton:hover {
   background-color: blue;
   box-shadow: 0 0 20px #d3d3d3;
+}
+
+.storyMapWrapper {
+  box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.75);
+  -webkit-box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.75);
+  z-index: 99;
 }

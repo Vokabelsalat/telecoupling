@@ -8,8 +8,10 @@ import TimelineViewNew from "../TimelineViewNew";
 import OverlayLink from "../Overlay/OverlayLink";
 import { Parser } from "html-to-react";
 import TreeMapView from "../TreeMapViewNew";
-import { serialize, deserialize } from "react-serialize";
 import Legend from "../LegendNew";
+import { iucnAssessment } from "../../utils/timelineUtils";
+import ThreatCode from "../ThreatCode";
+import { serialize, deserialize } from "react-serialize";
 // import { useOnParent } from "./useOnParent";
 
 export const Content = (props) => {
@@ -32,11 +34,31 @@ export const Content = (props) => {
     mobile = false,
     visualization,
     legend,
+    colorBlind,
     setOverlayContent
   } = props;
 
   const audioRef = useRef(null);
   const htmlParser = new Parser();
+
+  const replaceThreatCodes = (elementArray) => {
+    const newElements = [];
+    try {
+      for (let element of elementArray) {
+        if (element.type === "threatcode") {
+          newElements.push(
+            <ThreatCode {...element.props} colorBlind={colorBlind} />
+          );
+        } else {
+          newElements.push(element);
+        }
+      }
+    } catch (error) {
+      newElements.push(elementArray);
+    }
+
+    return newElements;
+  };
 
   const getVisualization = (vis) => {
     switch (vis.type) {
@@ -49,7 +71,7 @@ export const Content = (props) => {
             instrumentGroupData={vis.instrumentGroupData}
             getThreatLevel={vis.getThreatLevel}
             threatType={vis.threatType}
-            colorBlind={vis.colorBlind}
+            colorBlind={colorBlind}
             setInstrument={vis.setInstrument}
             setInstrumentGroup={vis.setInstrumentGroup}
             instrument={vis.instrument}
@@ -68,7 +90,7 @@ export const Content = (props) => {
             dummyImageLinks={vis.dummyImageLinks}
             setTimeFrame={vis.setTimeFrame}
             timeFrame={vis.timeFrame}
-            colorBlind={vis.colorBlind}
+            colorBlind={colorBlind}
             domainYears={vis.domainYears}
             setTreeMapFilter={vis.setTreeMapFilter}
           />
@@ -90,7 +112,15 @@ export const Content = (props) => {
     }
   };
 
-  useEffect(() => {}, [playAudio]);
+  useEffect(() => {
+    if (audioRef.current != null) {
+      if (playAudio) {
+        audioRef.current.audioEl.current.play();
+      } else {
+        audioRef.current.audioEl.current.pause();
+      }
+    }
+  }, [playAudio]);
 
   const { titlePrimary, titleSecondary, textPrimary, textSecondary } =
     useMemo(() => {
@@ -319,7 +349,7 @@ export const Content = (props) => {
                 textAlign: blockText ? "justify" : "center"
               }}
             >
-              {htmlParser.parse(text)}
+              {replaceThreatCodes(htmlParser.parse(text))}
             </div>
             {image !== undefined && (
               <div

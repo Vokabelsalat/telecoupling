@@ -616,6 +616,7 @@ export default function Story(props) {
               ref={wrapperRef}
             >
               <div
+                className="storyMapWrapper"
                 style={{
                   width: "100%",
                   position: "relative"
@@ -640,6 +641,8 @@ export default function Story(props) {
                     projection={projection}
                     extraPolygon={extraPolygon}
                     timeFrame={timeFrame}
+                    categoryFilter={categoryFilter}
+                    setCategoryFilter={setCategoryFilter}
                   />
                   {/* <StoryMap
               speciesCountries={visibleSpeciesCountries}
@@ -780,6 +783,7 @@ export default function Story(props) {
                             playAudio={enableAutoPlay && activeFigure === index}
                             mobile={mobile}
                             setOverlayContent={setOverlayContent}
+                            colorBlind={colorBlind}
                             legend={
                               content.legend != null
                                 ? {
@@ -805,7 +809,6 @@ export default function Story(props) {
                                     imageLinks: imageLinks,
                                     dummyImageLinks: dummyImageLinks,
                                     threatType: threatType,
-                                    colorBlind: colorBlind,
                                     setInstrument: setInstrument,
                                     setInstrumentGroup: setInstrumentGroup,
                                     speciesTimelineData:

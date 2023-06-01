@@ -24,7 +24,7 @@ export default function OrchestraNew(props) {
     getThreatLevel,
     setInstrument,
     setInstrumentGroup,
-    instrumentGroup,
+    instrumentGroup = null,
     instrument,
     instrumentPart,
     setInstrumentPart,
@@ -33,8 +33,6 @@ export default function OrchestraNew(props) {
 
   const ref = useRef(null);
 
-  const [selected, setSelected] = useState(null);
-  const [zoom, setZoom] = useState(null);
   const [scaleString, setScaleString] = useState(null);
 
   const [scaledWidth, setScaledWidth] = useState(width);
@@ -89,6 +87,12 @@ export default function OrchestraNew(props) {
     },
     [scaledWidth, scaledHeight]
   );
+
+  useEffect(() => {
+    if (instrumentGroup === null) {
+      zoomInto(null);
+    }
+  }, [instrumentGroup, zoomInto]);
 
   return (
     <div

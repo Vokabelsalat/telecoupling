@@ -20,7 +20,7 @@
   {
     "type": "text",
     "title": "The Vienna Philharmonic Orchestra",
-    "text": "The Vienna Philharmonic (VPO; \"German\": Wiener Philharmoniker) is an orchestra that was founded in 1842 and is considered to be one of thefinest in the world. <br />The Vienna Philharmonic is based at the Musikverein in Vienna, Austria. Its members are selected from the orchestra of the Vienna State Opera. Selection involves a lengthy process, with each musician demonstratingtheir capability for a minimum of three years' performance for the operaand ballet. After this probationary period, the musician may request an application for a position in the orchestra from the Vienna Philharmonic's board. One of the most famous orchestras worldwide -> travelling a lot around the globe.",
+    "text": "The Vienna Philharmonic Orchestra was founded in 1842 and is considered to be one of the best orchestras in the world based at the Musikverein in Vienna, Austria. Therefore, the orchestra is invited all around the world to give concerts. In 2009 one of these travels included a concert in New York.",
     "image": {
       "url": "https://upload.wikimedia.org/wikipedia/commons/5/59/Musikverein_Goldener_Saal.jpg",
       "caption": "Goldener Saal [Golden Hall] of the \"Musikverein\" in Vienna. Note that its precise name is Großer Konzerthaussaal [Big Hall], \"golden\" just being a later added common attribute (guess why ;).",
@@ -74,7 +74,7 @@
   {
     "type": "text",
     "title": "The Orchestra Ecosystem ...",
-    "text": "Worldwide there are around 1698 professional orchestras distributed to 70 different countries<sup>1</sup>. Similar to an ecosystem an orchestra consists of many different elements where every single one has a certain purpose. Only in its unique and particular combination, when harmoniously coordinated, this results in the harmonious sound experience that we have in mind when thinking about an orchestra. It contains different instrument groups, each musical instrument group with all its musical instruments and instrument parts. <br /> <br />Feel invited to explore the orchestra by selecting and diving into the different musical instrument groups to discover the musical instruments belonging to the group.",
+    "text": "Worldwide there are at least 1698 professional orchestras distributed in 70 different countries<sup>1</sup>. Similar to an ecosystem an orchestra consists of many different elements where every single one has a certain purpose. Only in its unique and particular combination, when harmoniously coordinated, this results in the harmonious sound experience that we have in mind when thinking about an orchestra. It contains different instrument groups, each musical instrument group with all its musical instruments and instrument parts. <br /> <br />Feel invited to explore the orchestra by selecting and diving into the different musical instrument groups to discover the musical instruments belonging to the group.",
     "flyTo": {
       "center": [0, 0],
       "zoom": 1,
@@ -115,7 +115,7 @@
   {
     "type": "text",
     "title": "...and is equally threatened when species used for their materials are at risk",
-    "text": "On the level of species scientists elaborated a kind of species alarm system - the Red List of Endangerd Species (Hyperlink to IUCN red list), which indicates whether a species is threatened with extinction (orange), near threatened (yellow), of least concern (green) or in the worst case already extinct (red). Taking this information to the species used for the musical instruments of an orchestra allows to indicate the ecological threat of all species that are or have been used since history until today in the countries of their origin.<br /><br />Feel invited to explore the orchestra by selecting and diving into the different musical instrument groups to discover the musical instruments belonging to the group.",
+    "text": "On the level of species, such as animals and plants, scientists elaborated a kind of species alarm system - the Red List of Endangerd Species (Hyperlink to IUCN red list), which indicates whether a species is threatened with extinction (<ThreatCode type='iucn' code='CR'></ThreatCode>, <ThreatCode type='iucn' code='EN'></ThreatCode>, <ThreatCode type='iucn' code='VU'></ThreatCode>, <ThreatCode type='bgci' code='TH'></ThreatCode>), near threatened (<ThreatCode type='iucn' code='NT'></ThreatCode>, <ThreatCode type='bgci' code='PT'></ThreatCode>), of least concern (<ThreatCode type='iucn' code='LC'></ThreatCode>, <ThreatCode type='bgci' code='nT'></ThreatCode>) or in the worst case already extinct (<ThreatCode type='iucn' code='EX'></ThreatCode>, <ThreatCode type='iucn' code='EW'></ThreatCode>). Taking this information and coming back to the species used for each material and part of a musical instruments of an orchestra allows to indicate the ecological threat of species used for musical instruments in history until today. The circles in the map and the orchestra sum up the status of all species that are occuring in the same region in the map and in the orchestra the circle shows in sum the threat of the materials used for a musical instrument group or the musical instrument itself and even for the instrument part.<br /><br />Feel invited to explore the orchestra by selecting and diving into the different musical instrument groups to discover the musical instruments belonging to the group.",
     "flyTo": {
       "center": [0, 0],
       "zoom": 1,
@@ -162,7 +162,7 @@
   {
     "type": "text",
     "title": "String Instrument Bows",
-    "text": "Violins, violas, cellos and double basses all are played with a stringed instrument bow. Nevertheless, the bow is often misjudged in its importance and changed considerably over time, adapting to the developments and changes in music, compsitions and concert environment. Such as to the changes from commonly small chamber music in front of small audiences to bigger symphony orchestras in large concert halls. F.X. Tourte was experimenting with new models and a variety of materials to adapt to the new requirements F.X. Tourte invented the modern string instrument bow around 1800 in Paris. He discovered the favourable wood characteristics of pau-brasil perfectly suitable and allowing the develpment of the modern bow model. In comparison to the until then typical baroque bow, the stick was not anymore concave it rather changed to a stick with a convex curve. A variety of materials of up to xx species from xxx countries have been used over history and/or are used today. The key part of a string instrument bow that is most important for the quality of a bow and for its characteristics while playing as well as for its sound characteristics is the bow stick.",
+    "text": "Violins, violas, cellos and double basses all are played with a stringed instrument bow. Nevertheless, the bow is often misjudged in its importance and changed considerably over time, adapting to the developments and changes in music, compsitions and concert environment. Such as to the changes from commonly small chamber music in front of small audiences to bigger symphony orchestras in large concert halls. F.X. Tourte was experimenting with new models and a variety of materials to adapt to the new requirements F.X. Tourte invented the modern string instrument bow around 1800 in Paris. He discovered the favourable wood characteristics of pau-brasil perfectly suitable and allowing the develpment of the modern bow model. In comparison to the until then typical baroque bow, the stick was not anymore concave it rather changed to a stick with a convex curve. A variety of materials of up to 240 species from xxx countries have been used over history and/or are used today. The key part of a string instrument bow that is most important for the quality of a bow and for its characteristics while playing as well as for its sound characteristics is the bow stick.",
     "image": {
       "url": "./fotos/bowstory/Barockbogen-modernerBogen.png",
       "caption": "cello bow",
@@ -201,7 +201,7 @@
   {
     "type": "text",
     "title": "The endless search for the perfect bow....",
-    "text": "Since 1800 by far the most widely used material for high-quality bow sticks is the Brasilian pau-brasil (<I>Paubrasilia echinata</I>). Musicians tend to search endless to find the perfect match of their string instrument and a fitting bow in combination to their way of playing.",
+    "text": "Since 1800 by far the most widely used material for high-quality bow sticks is the Brasilian pau-brasil (<I>Paubrasilia echinata</I>). Musicians tend to search endlessly to find the perfect combination of their string instrument and the right bow for their playing style.",
     "image": {
       "url": "./fotos/bowstory/Bogenauswahl.png",
       "caption": "Selection of differnt bows that wait to be tested",
@@ -303,9 +303,23 @@
   },
   {
     "type": "text",
-    "title": "The Cultural Importance of pau-brasil for Brazil",
-    "text": "",
+    "title": "The Cultural Importance of pau-brasil for Brazil and the music",
+    "text": "With the discovery of Brazil in 1500 the pau-brasil tree was suddenly in the center of European attention. The red heartwood of the tree became his downfall, as in pulverized form it was used as a red-dye and in the beginning the only but most sought economic product exported from Brazil to Europe. It was the trees economic, cultural and emblematic importance that gave the country its name and this importance is also the reason for pau-brasil being national tree of the country. The demand of pau-brasil for its red dye was high and led to a century long exploitation until the discovery of chemical colors and was coupled with increasing agriculture and settlements along the Brazilian coast. Around 1800 F.X.Tourt, the Stradivarius of bow making, started using pau-brasil for its newly invented modern bow model.",
     "width": "70%",
+    "imageArray": [
+      {
+        "url": "./fotos/bowstory/Gemaelde-Faerbeprozess.png",
+        "caption": "The dying process of red cloths based on the pouder gained from pau-brasil heartwood.",
+        "width": "40%",
+        "copyright": ""
+      },
+      {
+        "url": "./fotos/bowstory/Gemaelde-Ausbeutung-Fernambuk.png",
+        "caption": "Painting of Giácomo Gastaldi (1550) showing the pau-brasil exploitation.",
+        "width": "60%",
+        "copyright": ""
+      }
+    ],
     "flyTo": {
       "center": [-34.38824229932922, -6.515708961589885],
       "zoom": 8,
