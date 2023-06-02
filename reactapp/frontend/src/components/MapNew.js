@@ -1065,7 +1065,7 @@ const Map = forwardRef((props, ref) => {
         height: `${newHeight}px`
       }}
     >
-      {activeMapLayer == null && (
+      {/* {activeMapLayer == null && (
         <div style={{ height: "20px", display: "flex" }}>
           <form
             onChange={(e) => {
@@ -1113,7 +1113,7 @@ const Map = forwardRef((props, ref) => {
             <button onClick={calcEcoStatistics}>Stats</button>
           )}
         </div>
-      )}
+      )} */}
       <ReactMapGL
         ref={ref}
         /* reuseMaps={false} */
@@ -1340,6 +1340,7 @@ const Map = forwardRef((props, ref) => {
             data={countriesGeoJsonTest}
           >
             <Layer
+              beforeId={mapStyle.includes("light") ? "state-label" : null}
               key="countriesOrchestrasLayer"
               {...{
                 id: "countriesOrchestras",
@@ -1367,7 +1368,7 @@ const Map = forwardRef((props, ref) => {
             data={orchestraGeoJson}
             cluster={true}
             clusterMaxZoom={14}
-            clusterRadius={50}
+            clusterRadius={70}
           >
             <Layer
               {...{
@@ -1377,10 +1378,12 @@ const Map = forwardRef((props, ref) => {
                 filter: ["has", "point_count"],
                 paint: {
                   "circle-color": "purple",
+                  "circle-stroke-width": 1,
+                  "circle-stroke-color": "#FFF",
                   "circle-radius": [
                     "step",
                     ["get", "point_count"],
-                    5,
+                    10,
                     25,
                     20,
                     100,

@@ -103,43 +103,88 @@ export default function DiversityScale(props) {
   }, [scale, mapMode]);
 
   return (
-    <div
-      className={className}
-      style={{
-        width: "100%",
-        height: "auto",
-        display: "grid",
-        gridTemplateColumns: Array.from(Array(col).keys())
-          .map((e) => "auto")
-          .join(" "),
-        gridTemplateRows: "30px",
-        paddingTop: "6px"
-      }}
-    >
-      {scaleElements}
+    <>
       <div
         style={{
-          /* whiteSpace: "break-spaces", */
-          textAlign: "center",
-          height: "100%",
-          alignSelf: "center",
-          width: "min-content",
           display: "grid",
-          gridTemplateColumns: "auto",
-          gridTemplateRows: "auto auto",
-          fontSize: "smaller",
-          marginTop: "-9px",
-          marginLeft: "5px"
+          height: "auto",
+          width: "fit-content",
+          gridTemplateColumns: "auto auto auto auto",
+          gridTemplateRows: "auto",
+          gridGap: "8px",
+          alignItems: "center"
         }}
       >
-        <div>{typeText}</div>
+        {mapMode === "orchestras" && (
+          <>
+            <div
+              style={{
+                width: "15px",
+                height: "15px",
+                backgroundColor: "purple",
+                borderRadius: "50%"
+              }}
+            ></div>
+            Orchestra
+          </>
+        )}
+        {mapMode === "hexagons" && (
+          <>
+            <div
+              style={{
+                width: "15px",
+                height: "15px",
+                backgroundColor: "blue",
+                "-webkit-clip-path":
+                  "polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)",
+                clipPath:
+                  "polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)"
+              }}
+            ></div>
+            Distribution
+          </>
+        )}
+      </div>
+      <div
+        className={className}
+        style={{
+          width: "100%",
+          height: "auto",
+          display: "grid",
+          gridTemplateColumns: Array.from(Array(col).keys())
+            .map((e) => "auto")
+            .join(" "),
+          gridTemplateRows: "30px",
+          paddingTop: "6px"
+        }}
+      >
+        {scaleElements}
         <div
-          style={{ borderTop: mapMode === "rescure" ? "" : "1px solid black" }}
+          style={{
+            /* whiteSpace: "break-spaces", */
+            textAlign: "center",
+            height: "100%",
+            alignSelf: "center",
+            width: "min-content",
+            display: "grid",
+            gridTemplateColumns: "auto",
+            gridTemplateRows: "auto auto",
+            fontSize: "smaller",
+            marginTop: "-9px",
+            marginLeft: "5px"
+          }}
         >
-          {typeTextSecond}
+          <div>{typeText}</div>
+          <div
+            style={{
+              borderTop: mapMode === "rescure" ? "" : "1px solid black"
+            }}
+          >
+            {typeTextSecond}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 
   //return <div style={{  }}></div>;

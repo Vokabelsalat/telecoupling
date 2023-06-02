@@ -975,8 +975,9 @@ a:any-link {
 
 .diversityScaleWrapper {
   display: flex;
-  align-items: flex-end;
   width: 100%;
+  flex-flow: column;
+  align-self: end;
 }
 
 .diversityScale {
@@ -996,7 +997,7 @@ a:any-link {
   z-index: 14;
   display: grid;
   grid-template-rows: repeat(auto-fit, minmax(100px, 1fr));
-  grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
+  grid-template-columns: repeat(auto-fit, min(100%, 550px));
   width: 100%;
 }
 

@@ -12,6 +12,7 @@ import Legend from "../LegendNew";
 import { iucnAssessment } from "../../utils/timelineUtils";
 import ThreatCode from "../ThreatCode";
 import { serialize, deserialize } from "react-serialize";
+import { replaceSpecialCharacters } from "../../utils/utils";
 // import { useOnParent } from "./useOnParent";
 
 export const Content = (props) => {
@@ -47,7 +48,11 @@ export const Content = (props) => {
       for (let element of elementArray) {
         if (element.type === "threatcode") {
           newElements.push(
-            <ThreatCode {...element.props} colorBlind={colorBlind} />
+            <ThreatCode
+              key={replaceSpecialCharacters(JSON.stringify(element.props))}
+              {...element.props}
+              colorBlind={colorBlind}
+            />
           );
         } else {
           newElements.push(element);
@@ -159,7 +164,7 @@ export const Content = (props) => {
               textAlign: "center",
               verticalAlign: "middle",
               padding: "10px",
-              height: "100vh",
+              height: mobile ? "45vh" : "100vh",
               display: "grid",
               alignItems: "center",
               justifyContent: "center",
@@ -170,7 +175,7 @@ export const Content = (props) => {
           >
             <div
               style={{
-                fontSize: "-webkit-xxx-large",
+                fontSize: mobile ? "larger" : "-webkit-xxx-large",
                 fontFamily: titlePrimary
                 //marginTop: "-50%"
               }}
@@ -178,12 +183,22 @@ export const Content = (props) => {
               {htmlParser.parse(title)}
             </div>
             {subtitle !== undefined && (
-              <div style={{ fontFamily: titleSecondary, fontSize: "larger" }}>
+              <div
+                style={{
+                  fontFamily: titleSecondary,
+                  fontSize: mobile ? "initial" : "larger"
+                }}
+              >
                 {htmlParser.parse(subtitle)}
               </div>
             )}
             {authors !== undefined && (
-              <div style={{ fontFamily: titleSecondary, fontSize: "larger" }}>
+              <div
+                style={{
+                  fontFamily: titleSecondary,
+                  fontSize: mobile ? "initial" : "larger"
+                }}
+              >
                 {htmlParser.parse(authors)}
               </div>
             )}
@@ -233,89 +248,69 @@ export const Content = (props) => {
         return (
           <div
             style={{
-              //verticalAlign: "middle",
-              display: "grid",
-              gridTemplateColumns: "auto",
-              gridTemplateRows: "1fr 1fr auto",
-              // gap: "10px",
-              padding: "10px",
-              textAlign: textAlign,
-              height: "100%",
+              height: mobile ? "45vh" : "100vh",
+              display: "flex",
+              justifyContent: "center",
               alignItems: "center"
             }}
           >
-            {image !== undefined && (
-              <div
-                className="vignette-radial"
-                /* style={{
+            <div
+              style={{
+                //verticalAlign: "middle",
+                display: "grid",
+                gridTemplateColumns: "auto",
+                gridTemplateRows: "minmax(100px, 1fr) minmax(100px, 1fr)",
+                // gap: "10px",
+                padding: "10px",
+                textAlign: textAlign,
+                height: "100%",
+                alignItems: "center"
+              }}
+            >
+              {image !== undefined && (
+                <div
+                  className="vignette-radial"
+                  style={{ height: "45%" }}
+                  /* style={{
                   display: "flex",
                   flexDirection: "column",
                   height: "100%",
                   alignItems: "center"
                 }} */
-              >
-                <img style={{ height: "45vh" }} src={`${image.url}`} />
-              </div>
-            )}
-            <div>
-              <div
-                style={{
-                  fontSize: "-webkit-xxx-large",
-                  fontFamily: titlePrimary
-                }}
-              >
-                {htmlParser.parse(quote.text)}
-              </div>
-              <div
-                style={{
-                  marginTop: "1em",
-                  fontSize: "x-large",
-                  fontFamily: titleSecondary
-                }}
-              >
-                "{htmlParser.parse(quote.translation)}"
-              </div>
-              <div
-                style={{
-                  fontFamily: titleSecondary,
-                  color: "gray",
-                  marginTop: "1em",
-                  fontSize: "large"
-                }}
-              >
-                {htmlParser.parse(quote.author)}
-              </div>
-            </div>
-            {audio !== undefined && (
-              <div
-                style={{
-                  marginTop: "15px",
-                  width: audio.width ? audio.width : "50%",
-                  display: "grid",
-                  gridTemplateColumns: "auto",
-                  gridTemplateRows: "auto auto auto",
-                  gap: "10px",
-                  justifySelf: textAlign,
-                  justifyItems: textAlign
-                }}
-              >
-                <ReactAudioPlayer
-                  ref={audioRef}
-                  src={audio.url}
-                  controls
-                  preload="auto"
-                />
-                <div style={{ width: "100%", fontSize: "large" }}>
-                  {audio.caption}
+                >
+                  <img style={{ height: "100%" }} src={`${image.url}`} />
+                </div>
+              )}
+              <div>
+                <div
+                  style={{
+                    fontSize: "-webkit-xxx-large",
+                    fontFamily: titlePrimary
+                  }}
+                >
+                  {htmlParser.parse(quote.text)}
                 </div>
                 <div
-                  className="copyrightQuote"
-                  style={{ width: "100%", color: "gray" }}
+                  style={{
+                    marginTop: "1em",
+                    fontSize: "x-large",
+                    fontFamily: titleSecondary
+                  }}
                 >
-                  {htmlParser.parse(audio.copyright)}
+                  "{htmlParser.parse(quote.translation)}"
+                </div>
+                <div
+                  style={{
+                    fontFamily: titleSecondary,
+                    color: "gray",
+                    marginTop: "1em",
+                    fontSize: "large"
+                  }}
+                >
+                  {htmlParser.parse(quote.author)}
                 </div>
               </div>
-            )}
+            </div>
           </div>
         );
       case "text":
@@ -522,7 +517,7 @@ export const Content = (props) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        height: height ?? "unset",
+        height: height ?? "auto",
         width: width ?? "100%"
       }}
     >

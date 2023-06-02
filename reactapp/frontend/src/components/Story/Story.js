@@ -751,7 +751,7 @@ export default function Story(props) {
                           style={
                             {
                               opacity: activeFigure === index ? 1.0 : 0.3,
-                              height: mobile ? "45vh" : "unset",
+                              height: "auto",
                               minHeight: mobile ? "auto" : "100vh"
                               /* "scroll-snap-align": "start" */
                             }
