@@ -112,6 +112,7 @@ export default function DiversityScale(props) {
           gridTemplateColumns: "auto auto auto auto",
           gridTemplateRows: "auto",
           gridGap: "8px",
+          padding: "5px",
           alignItems: "center"
         }}
       >

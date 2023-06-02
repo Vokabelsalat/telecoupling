@@ -1618,9 +1618,9 @@ const Map = forwardRef((props, ref) => {
           className="mapLegendWrapper"
           ref={legendRef}
           tabIndex={-1}
-          onBlur={(event) => {
+          /* onBlur={(event) => {
             setShowLegend(false);
-          }}
+          }} */
         >
           {showLegend && (
             <>

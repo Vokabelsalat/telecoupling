@@ -978,9 +978,6 @@ a:any-link {
   width: 100%;
   flex-flow: column;
   align-self: end;
-}
-
-.diversityScale {
   background-color: white;
 }
 
