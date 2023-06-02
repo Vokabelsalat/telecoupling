@@ -45,11 +45,14 @@ export const Content = (props) => {
   const replaceThreatCodes = (elementArray) => {
     const newElements = [];
     try {
+      let idx = 0;
       for (let element of elementArray) {
         if (element.type === "threatcode") {
           newElements.push(
             <ThreatCode
-              key={replaceSpecialCharacters(JSON.stringify(element.props))}
+              key={
+                replaceSpecialCharacters(JSON.stringify(element.props)) + idx
+              }
               {...element.props}
               colorBlind={colorBlind}
             />
@@ -57,6 +60,7 @@ export const Content = (props) => {
         } else {
           newElements.push(element);
         }
+        idx = idx + 1;
       }
     } catch (error) {
       newElements.push(elementArray);

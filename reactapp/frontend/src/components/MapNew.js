@@ -1057,6 +1057,14 @@ const Map = forwardRef((props, ref) => {
     legendRef.current?.focus();
   }, [legendRef]);
 
+  const layers = useMemo(() => {
+    if (ref && ref.current) {
+      return ref.current.getStyle().layers.map((e) => e.id);
+    } else {
+      return [];
+    }
+  }, [ref]);
+
   return (
     <div
       style={{
@@ -1201,7 +1209,9 @@ const Map = forwardRef((props, ref) => {
           >
             <Layer
               key={`countriesFillLayer`}
-              beforeId={mapStyle.includes("light") ? "state-label" : null}
+              beforeId={
+                layers.includes("state-label") != null ? "state-label" : null
+              }
               {...{
                 id: "countriesSpecies",
                 type: "fill",
@@ -1340,7 +1350,7 @@ const Map = forwardRef((props, ref) => {
             data={countriesGeoJsonTest}
           >
             <Layer
-              beforeId={mapStyle.includes("light") ? "state-label" : null}
+              beforeId={layers.includes("state-label") ? "state-label" : null}
               key="countriesOrchestrasLayer"
               {...{
                 id: "countriesOrchestras",
@@ -1618,9 +1628,9 @@ const Map = forwardRef((props, ref) => {
           className="mapLegendWrapper"
           ref={legendRef}
           tabIndex={-1}
-          /* onBlur={(event) => {
+          onBlur={(event) => {
             setShowLegend(false);
-          }} */
+          }}
         >
           {showLegend && (
             <>
