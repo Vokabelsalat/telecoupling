@@ -1210,7 +1210,10 @@ const Map = forwardRef((props, ref) => {
             <Layer
               key={`countriesFillLayer`}
               beforeId={
-                layers.includes("state-label") != null ? "state-label" : null
+                mapStyle.includes("light") ||
+                layers.includes("state-label") != null
+                  ? "state-label"
+                  : null
               }
               {...{
                 id: "countriesSpecies",
@@ -1350,7 +1353,7 @@ const Map = forwardRef((props, ref) => {
             data={countriesGeoJsonTest}
           >
             <Layer
-              beforeId={layers.includes("state-label") ? "state-label" : null}
+              beforeId={mapStyle.includes("light") ||layers.includes("state-label") ? "state-label" : null}
               key="countriesOrchestrasLayer"
               {...{
                 id: "countriesOrchestras",

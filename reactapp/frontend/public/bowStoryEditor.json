@@ -157,7 +157,13 @@
     },
     "image": {
       "url": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Giovanni_Battista_Viotti_by_Ducarme.jpg"
-    }
+    },
+    "showCountries": true,
+    "threatType": "ecologically",
+    "showThreatDonuts": true,
+    "instrument": null,
+    "instrumentGroup": "Strings",
+    "instrumentPart": null
   },
   {
     "type": "text",
@@ -180,7 +186,7 @@
   {
     "type": "text",
     "title": "The underestimated material's diversity",
-    "text": "Up to 63 different materials (see timeline) have been used in the past and/or are still used today to make string instrument bows. Brazil is the hotspot home of trees, whose wood was and is used for string instrument bow sticks - the country with the highest species richness (25 tree species) for string instrument bows.",
+    "text": "Up to 63 different materials have been used in the past and/or are still used today to make string instrument bows. Brazil is the hotspot home of trees, whose wood was and is used for string instrument bow sticks - the country with the highest species richness (25 tree species) for string instrument bows.",
     "flyTo": {
       "center": [0, 0],
       "zoom": 1,
@@ -209,8 +215,8 @@
       "copyright": "Mathias Wohlleber"
     },
     "flyTo": {
-      "center": [0, 0],
-      "zoom": 0,
+      "center": [4.129790608581004, 47.07191652676002],
+      "zoom": 3,
       "speed": 0.8
     },
     "mapLayer": {
@@ -240,7 +246,7 @@
     "flyTo": {
       "center": [-57.78726375397518, -13.98656101384816],
       "zoom": 3,
-      "speed": 0.5
+      "speed": 0.3
     },
     "mapLayer": {
       "type": "countries",
@@ -352,7 +358,7 @@
     "flyTo": {
       "center": [-43.32547696037534, -23.093653119001388],
       "zoom": 8,
-      "speed": 0.1
+      "speed": 0.15
     },
     "mapLayer": {
       "type": "hexagons",
@@ -376,7 +382,7 @@
   {
     "type": "text",
     "title": "Trade limitations - a cornerstone to preserve pau-brasil in the wild",
-    "text": "When few is left, already little trade can threaten species. This was and is the case for the endangered pau-brasil. Since 1998 the IUCN Red List, you remember the Species Alarm System, is already indicating that pau-brasil is threatened with extinction. In consequence since 2007, pau-brasil is listed in Appendix <ThreatCode type='cites' code='II'></ThreatCode> of the Convention on International Trade in Endangered Species of Wild Fauna and Flora (CITES). CITES is one of the most important international levers in general as it is the only convention that is legally binding and allows to internationally control species-threatening trade. Species already threatened by trade or that may be threatened in future by trade can be listed in three different categories (Appendix <ThreatCode type='cites' code='III'></ThreatCode> - less strict category, Appendix <ThreatCode type='cites' code='II'></ThreatCode> - moderate category, Appendix <ThreatCode type='cites' code='I'></ThreatCode> - strictest category) with gradually increasingly strict trade controls and restrictions. Of the 63 species used over history for sticks of string instrument bows, 13 are listed in Appendix <ThreatCode type='cites' code='III'></ThreatCode>, pau-brasil being one of them (for eight species of the genus Handroanthus and Dipteryx this listing will come into force at the 25.11.2024",
+    "text": "When few is left, already little trade can threaten species. This was and is the case for the endangered pau-brasil. Since 1998 the IUCN Red List, you remember the Species Alarm System, is already indicating that pau-brasil is threatened with extinction. In consequence since 2007, pau-brasil is listed in Appendix <ThreatCode type='cites' code='II'></ThreatCode> of the Convention on International Trade in Endangered Species of Wild Fauna and Flora (CITES). CITES is one of the most important international levers in general as it is the only convention that is legally binding and allows to internationally control species-threatening trade. Species already threatened by trade or that may be threatened in future by trade can be listed in three different categories (Appendix <ThreatCode type='cites' code='III'></ThreatCode> - less strict category, Appendix <ThreatCode type='cites' code='II'></ThreatCode> - moderate category, Appendix <ThreatCode type='cites' code='I'></ThreatCode> - strictest category) with gradually increasingly strict trade controls and restrictions. Of the 63 species used over history for sticks of string instrument bows (see timeline), 13 are listed in Appendix <ThreatCode type='cites' code='II'></ThreatCode>, pau-brasil being one of them (for eight species of the genus Handroanthus and Dipteryx this listing will come into force at the 25.11.2024",
     "visualization": {
       "type": "timeline",
       "width": "100%"
@@ -400,7 +406,7 @@
   {
     "type": "text",
     "title": "Illegal Trade & Seizures",
-    "text": "In 2021 and 2022 pau-brasil wood and bows got confiscated by the Brazilian federal police. The seizures of pau-brasil for string instrument bows were analysed and samples resulted to be originally from protected areas. This is questioning the legality of all pre-convention stocks of pau-brasil, as already before the listing in CITES harvesting trees from protected areas in Brazil was forbidden. In a scientific analysis it was proofen that at least parts of the confiscated stocks originated from the 'Parque National do Pau-brasil' a protected area in Bahia",
+    "text": "In 2021 and 2022 pau-brasil wood and bows got confiscated by the Brazilian federal police. The seizures of pau-brasil for string instrument bows were analysed and samples resulted to be originally from protected areas. This is questioning the legality of all pre-convention stocks of pau-brasil, as already before the listing in CITES harvesting trees from protected areas in Brazil was forbidden. In a scientific analysis it was proofen that at least parts of the confiscated stocks originated from the 'Parque National do Pau-brasil' a protected area in Bahia.",
     "image": {
       "url": "https://www.gov.br/pf/pt-br/assuntos/noticias/2022/11/policia-federal-e-ibama-deflagram-a-operacao-ibirapitanga-ii/86b5fa84-e347-4816-9984-0ee30894c3dc.jpeg/@@images/4237c502-5305-4f35-905e-9abb1b88fdba.jpeg",
       "caption": "Seizures of Bow Stick Slugs",
@@ -410,7 +416,7 @@
     "flyTo": {
       "center": [-39.257179407131325, -16.50148646718112],
       "zoom": 8,
-      "speed": 0.1
+      "speed": 0.3
     },
     "mapLayer": {
       "type": "hexagons",
@@ -442,10 +448,17 @@
       "width": "100%"
     },
     "flyTo": {
-      "center": [-73.97992337336923, 40.76512993427731],
-      "zoom": 19,
-      "speed": 0.4
-    }
+      "center": [-79.548204, 8.937899],
+      "zoom": 3,
+      "speed": 0.5
+    },
+    "mapLayer": {
+      "type": "countries",
+      "mapStyle": "satellite"
+    },
+    "projection": "globe",
+    "showCountries": false,
+    "showThreatDonuts": false
   },
   {
     "type": "text",
@@ -455,7 +468,7 @@
     "flyTo": {
       "center": [-79.548204, 8.937899],
       "zoom": 18,
-      "speed": 0.2
+      "speed": 0.3
     },
     "mapLayer": {
       "type": "countries",
@@ -470,9 +483,9 @@
     "title": "CITES - threat or a blessing for musicians, violin and bow makers?",
     "text": "<div style='display: grid;margin-top: 15px;grid-gap: 40px;text-align: left;'><div>Is CITES threatening music, musicians, violin and bow makers?</div><div>Or is the task of CITES a blessing as music and instrument makers provit in the longterm if species loss due to trade is avoided?</div><div>What is the right balance and what are the direct consequences in the workshop and on stage?</div><div>",
     "flyTo": {
-      "center": [-79.548204, 8.937899],
-      "zoom": 18,
-      "speed": 0.2
+      "center": [4.129790608581004, 47.07191652676002],
+      "zoom": 1,
+      "speed": 0.4
     },
     "width": "80%",
     "mapLayer": {
@@ -497,18 +510,54 @@
       "url": "./hobelSound.wav#t=00:00:16",
       "copyright": "Silke Lichtenberg",
       "caption": "Sound of wood planing during the manufacturing of a violin."
-    }
+    },
+    "flyTo": {
+      "center": [16.3727683154214, 48.20050021403356],
+      "zoom": 17,
+      "speed": 0.5
+    },
+    "mapLayer": {
+      "type": "countries",
+      "mapStyle": "satellite"
+    },
+    "projection": "globe",
+    "showCountries": false,
+    "showThreatDonuts": false
   },
   {
     "type": "text",
     "title": "Authors",
     "height": "25vh",
-    "text": "<div style='display:flex;flex-flow:column;gap:30px;align-items:center;justify-content:center;'><div>Silke Lichtenberg</div><div>Jakob Kusnick</div><div>"
+    "text": "<div style='display:flex;flex-flow:column;gap:30px;align-items:center;justify-content:center;'><div>Silke Lichtenberg</div><div>Jakob Kusnick</div><div>",
+    "flyTo": {
+      "center": [16.3727683154214, 48.20050021403356],
+      "zoom": 17,
+      "speed": 0.5
+    },
+    "mapLayer": {
+      "type": "countries",
+      "mapStyle": "satellite"
+    },
+    "projection": "globe",
+    "showCountries": false,
+    "showThreatDonuts": false
   },
   {
     "type": "text",
     "title": "Literature cited",
     "height": "25vh",
-    "text": "<sup>1</sup> <br /> <br <sup>2</sup>"
+    "text": "<sup>1</sup> <br /> <br <sup>2</sup>",
+    "flyTo": {
+      "center": [16.3727683154214, 48.20050021403356],
+      "zoom": 17,
+      "speed": 0.5
+    },
+    "mapLayer": {
+      "type": "countries",
+      "mapStyle": "satellite"
+    },
+    "projection": "globe",
+    "showCountries": false,
+    "showThreatDonuts": false
   }
 ]
