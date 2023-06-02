@@ -758,8 +758,8 @@ a:any-link {
 }
 
 .contentWrapper {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  /* margin-top: 20px;
+  margin-bottom: 20px; */
 }
 
 .contentWrapper:after {

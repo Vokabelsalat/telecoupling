@@ -481,9 +481,7 @@ export const Content = (props) => {
                   minWidth: visualization.width ? visualization.width : "100%",
                   maxWidth: visualization.width ? visualization.width : "100%",
                   minHeight: "50px",
-                  aspectRatio: ["timeline", "legend"].includes(
-                    visualization.type
-                  )
+                  aspectRatio: ["legend"].includes(visualization.type)
                     ? "unset"
                     : "16 / 9"
                 }}

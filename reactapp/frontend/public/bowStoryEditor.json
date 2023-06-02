@@ -295,10 +295,6 @@
     "extraPolygon": {
       "name": "mataAtlantica",
       "fill": null
-    },
-    "visualization": {
-      "type": "timeline",
-      "width": "100%"
     }
   },
   {
@@ -347,7 +343,12 @@
     "type": "text",
     "title": "In search of the last of their kind...",
     "text": "Along the original species distribution range the areas with documented pau-brasil occurences must be searched for. Nowadays, in only 29 protected areas occurrences of pau-brasil trees are documented <sup>x</sup>. The total area of these 29 protected areas sum up to xx ha (approximately the size of xxx). For some of these protected areas it is documentented that pau-brasil is only found in parts of the area and is not distrubuted all over the protected area. However details about population composition and the size of these few pau-brasil populations remain mostly unknown.",
-    "visualization": {},
+    "image": {
+      "url": "./fotos/bowstory/Fernambuk-Baumkrone.jpg",
+      "caption": "The fascinating view into the crown of a pernambuco tree in a pristine forest",
+      "copyright": "Silke Lichtenberg",
+      "width": "80%"
+    },
     "flyTo": {
       "center": [-43.32547696037534, -23.093653119001388],
       "zoom": 8,
@@ -375,31 +376,26 @@
   {
     "type": "text",
     "title": "Trade limitations - a cornerstone to preserve pau-brasil in the wild",
-    "text": "When few is left, already little trade can threaten species. This was and is the case for pau-brasil. In consequence since 2007, pau-brasil is listed in Appendix <ThreatCode type='cites' code='II'></ThreatCode> of the Convention on International Trade in Endangered Species of Wild Fauna and Flora (CITES). CITES is one of the most important international levers in general as it is the only convention that is legally binding and allows to internationally control species-threatening trade. Species already threatened by trade or that may be threatened in future by trade can be listed in three different categories (Appendix <ThreatCode type='cites' code='III'></ThreatCode> - less strict category, Appendix <ThreatCode type='cites' code='II'></ThreatCode> - moderate category, Appendix <ThreatCode type='cites' code='III'></ThreatCode> - strictest category) with gradually increasingly strict trade controls and restrictions. Of the 63 species used over history for sticks of string instrument bows, 13 are listed in Appendix <ThreatCode type='cites' code='II'></ThreatCode> (for eight species of the genus Handroanthus and Dipteryx this listing will come into force at the 25.11.2024",
-    "visualization": {},
+    "text": "When few is left, already little trade can threaten species. This was and is the case for the endangered pau-brasil. Since 1998 the IUCN Red List, you remember the Species Alarm System, is already indicating that pau-brasil is threatened with extinction. In consequence since 2007, pau-brasil is listed in Appendix <ThreatCode type='cites' code='II'></ThreatCode> of the Convention on International Trade in Endangered Species of Wild Fauna and Flora (CITES). CITES is one of the most important international levers in general as it is the only convention that is legally binding and allows to internationally control species-threatening trade. Species already threatened by trade or that may be threatened in future by trade can be listed in three different categories (Appendix <ThreatCode type='cites' code='III'></ThreatCode> - less strict category, Appendix <ThreatCode type='cites' code='II'></ThreatCode> - moderate category, Appendix <ThreatCode type='cites' code='I'></ThreatCode> - strictest category) with gradually increasingly strict trade controls and restrictions. Of the 63 species used over history for sticks of string instrument bows, 13 are listed in Appendix <ThreatCode type='cites' code='III'></ThreatCode>, pau-brasil being one of them (for eight species of the genus Handroanthus and Dipteryx this listing will come into force at the 25.11.2024",
+    "visualization": {
+      "type": "timeline",
+      "width": "100%"
+    },
     "flyTo": {
-      "center": [-43.32547696037534, -23.093653119001388],
-      "zoom": 8,
-      "speed": 0.1
+      "center": [0, 0],
+      "zoom": 1,
+      "speed": 1.0
     },
     "mapLayer": {
-      "type": "hexagons",
-      "mapStyle": "satellite",
-      "polygonFill": false
+      "type": "countries",
+      "mapStyle": "light"
     },
-    "projection": "globe",
-    "showCountries": false,
-    "showThreatDonuts": false,
-    "treeMapFilter": {
-      "genus": "Paubrasilia",
-      "species": "Paubrasilia echinata",
-      "kingdom": "Plantae",
-      "family": "Fabaceae"
-    },
-    "extraPolygon": {
-      "name": "protectedAreasPaubrasil",
-      "fill": "rgba(246,249,146,1)"
-    }
+    "projection": "equalEarth",
+    "showCountries": true,
+    "showThreatDonuts": true,
+    "instrument": "Violin bow, Viola bow, Cello bow, Double bass bow",
+    "instrumentGroup": "Strings",
+    "instrumentPart": "Stick"
   },
   {
     "type": "text",
@@ -438,7 +434,7 @@
   {
     "type": "text",
     "title": "International Trade",
-    "text": "",
+    "text": "The legal trade with pre-convention material clearly indicates on a global level the countries most involved to pau-brasil trade. The fact that pau-brasil is an endangered species, whose natural distribution nowadays is limited to very few protected areas combined with the continued international demand for pau-brasil wood and string instrument bows made of pau-brasil coupled with the confiscations in the recent past urged Brazil to propose in 2022 an upgradig auf the pau-brasil listing to CITES Appendix <ThreatCode type='cites' code='I'></ThreatCode>, which was controversially discussed during the CITES CoP19 in Panama City.",
     "image": {
       "url": "./johannesTool.png",
       "caption": "International Import / Export of Paubrasilia echinata from and to Brazil",
@@ -454,7 +450,8 @@
   {
     "type": "text",
     "title": "CITES CoP19 Panama, Proposal of Listing Pau-brasil in Appendix I",
-    "text": "<iframe width='800' height='600' src='https://www.youtube.com/embed/TBIJ0zGiryk?controls=0&amp;start=3727' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen ></iframe> <br /> <br /><div style='background-color:purple'> Minute 54:13 bis 01:01:39",
+
+    "text": "The negotiations and discussions in the pau-brasil working group resulted in NOT listing pau-brasil in Appendix <ThreatCode type='cites' code='I'></ThreatCode> and rather maintaining its listing in Appendix <ThreatCode type='cites' code='II'></ThreatCode> but adapting the Annotation #10 that until 2023 excluded finished bows from the regulation and from 2023 onwards aks for an CITES export permission for finished bows leaving the country of pau-brasils origin - that means Brazil.<br/><br/><iframe width='100%' height='300' src='https://www.youtube.com/embed/TBIJ0zGiryk?start=3250' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen ></iframe>",
     "flyTo": {
       "center": [-79.548204, 8.937899],
       "zoom": 18,
@@ -470,8 +467,8 @@
   },
   {
     "type": "text",
-    "title": "CITES listed species for bows",
-    "text": "CITES Pie charts",
+    "title": "CITES - threat or a blessing for musicians, violin and bow makers?",
+    "text": "<div style='display: grid;grid-gap: 30px;text-align: left;'><div>Is CITES threatening music, musicians, violin and bow makers?</div><div>Or is the task of CITES a blessing as music and instrument makers provit in the longterm if species loss due to trade is avoided?</div><div>What is the right balance and what are the direct consequences in the workshop and on stage?</div><div>",
     "flyTo": {
       "center": [-79.548204, 8.937899],
       "zoom": 18,
@@ -487,13 +484,8 @@
   },
   {
     "type": "text",
-    "title": "What can be done?",
-    "text": "Plantations, Pests, Conservation"
-  },
-  {
-    "type": "text",
-    "title": "Process and Importance during the Manufacturing",
-    "text": "",
+    "title": "The bow making craftsmanship - a century old tradition",
+    "text": "There are century old string instrument bows of high value that are often preferred to new bows. However, high-quality string instrument bows are until nowadays often made in the same way and with similar tools as more than 200 years ago.In old craftsmanship, such as bow making, time seems to stay still. However, global change with its threatening effects on ecosystems and species directly threaten such traditions. This is most evident in resulting resource scarcities. The only way foreward is preserving the last natural populations, restauring ecosystems to increase the natural populations, by discovering possibilites for plantations to cover the demand without harming the last natural populations. Treaceability and transparency of the supply chain are important key levers and last but not least in the long-term there might be a need for obligatory and unified musical instrument 'passports' to enable travels with musical instruments that are legally registered. This is an increasingly high challenge for music",
     "image": {
       "url": "https://upload.wikimedia.org/wikipedia/commons/6/65/Pracownia_lutnicza_Mardu%C5%82%C3%B3w_w_Zakopanem%2C_fot._K._Schubert_MIK_2019_%2849140662183%29.jpg",
       "caption": "Pracownia lutnicza Mardułów w Zakopanem, fot. K. Schubert MIK 2019",
@@ -501,17 +493,16 @@
       "width": "80%"
     }
   },
-  { "type": "end", "title": "Le Fin" },
   {
     "type": "text",
     "title": "Authors",
     "height": "25vh",
-    "text": "Silke Lichtenberg<br />Jakob Kusnick"
+    "text": "<div style='display:flex;flex-flow:column;gap:30px;align-items:center;justify-content:center;'><div>Silke Lichtenberg</div><div>Jakob Kusnick</div><div>"
   },
   {
     "type": "text",
     "title": "Literature cited",
     "height": "25vh",
-    "text": "<sup>1</sup>xldffalkdjfaldsjf <br /> <br <sup>2</sup>sdlfajdsklfajdl"
+    "text": "<sup>1</sup> <br /> <br <sup>2</sup>"
   }
 ]
