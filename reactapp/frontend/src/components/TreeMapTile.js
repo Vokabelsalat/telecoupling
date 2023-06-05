@@ -1,5 +1,5 @@
 import { minIndex } from "d3";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 export default function TreeMapTile(props) {
   const { node, parentTop = 0, parentLeft = 0 } = props;
@@ -26,6 +26,43 @@ export default function TreeMapTile(props) {
 
   const max = node.children ? getMaxChild(node.children) : node;
 
+  const getCoverPhoto = useCallback(() => {
+    if (max.data.image != null) {
+      return (
+        <img
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover"
+          }}
+          src={max.data.image}
+        />
+      );
+    } else {
+      return null;
+    }
+  }, []);
+
+  const getProxyPhoto = useCallback(() => {
+    if (max.data.proxy != null) {
+      return (
+        <div style={{ width: "100%", height: "100%", position: "relative" }}>
+          <img
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover"
+            }}
+            src={max.data.proxy}
+          />
+          <div className="proxyText">PROXY</div>
+        </div>
+      );
+    } else {
+      return null;
+    }
+  }, [max]);
+
   /* const speciesLevel =
     node.parent == null && node.children == null ? true : false; */
   const speciesLevel =
@@ -35,82 +72,81 @@ export default function TreeMapTile(props) {
 
   const [visibleIndex, setVisibleIndex] = useState(0);
 
+  const photos = useMemo(() => {
+    const ph = [];
+
+    if (max.data.image) {
+      ph.push({ type: "cover", src: max.data.image });
+    } else if (max.data.proxy) {
+      ph.push({ type: "proxy", src: max.data.proxy });
+    }
+
+    if (speciesLevel && max.data.mediaUrls) {
+      ph.push(
+        ...max.data.mediaUrls.map((e) => {
+          return { type: "wiki", src: e };
+        })
+      );
+    }
+
+    return ph;
+  }, [max, speciesLevel]);
+
+  /* content = getCoverPhoto() ?? getProxyPhoto();
+
   if (speciesLevel === false) {
-    /* console.log(max.data, max.data.image); */
-    content = (
-      <img
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover"
-        }}
-        src={max.data.image}
-      />
-    );
-  } else {
-    content = (
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          height: "100%",
-          justifyContent: "center",
-          alignItems: "center",
-          display: "flex"
-        }}
-      >
-        {[node.data.image, ...node.data.mediaUrls].map((entry, index) => {
-          return (
+  } else { */
+  content = (
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+        display: "flex"
+      }}
+    >
+      {[...photos].map((entry, index) => {
+        return (
+          <>
             <img
               style={{
                 display:
-                  visibleIndex % (node.data.mediaUrls.length + 1) === index
-                    ? "block"
-                    : "none",
-                width: "auto",
-                height: "100%"
+                  visibleIndex % photos.length === index ? "block" : "none",
+                width: speciesLevel ? "auto" : "100%",
+                height: "100%",
+                objectFit: speciesLevel ? "unset" : "cover"
               }}
-              src={entry}
+              src={entry.src}
             />
-          );
-        })}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            height: "100%",
-            backgroundColor: "white",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}
-          onClick={() => {
-            setVisibleIndex(visibleIndex - 1);
-          }}
-        >
-          {"<"}
-        </div>
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            height: "100%",
-            backgroundColor: "white",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}
-          onClick={() => {
-            setVisibleIndex(visibleIndex + 1);
-          }}
-        >
-          {">"}
-        </div>
-      </div>
-    );
-  }
+            {entry.type === "proxy" && <div className="proxyText">PROXY</div>}
+          </>
+        );
+      })}
+      {speciesLevel && photos.length > 1 && (
+        <>
+          <div
+            className="imageSliderButtonDiv imageSliderButtonDivLeft"
+            onClick={() => {
+              setVisibleIndex(visibleIndex - 1);
+            }}
+          >
+            <div className="chevronLeft"></div>
+          </div>
+          <div
+            className="imageSliderButtonDiv imageSliderButtonDivRight"
+            onClick={() => {
+              setVisibleIndex(visibleIndex + 1);
+            }}
+          >
+            <div className="chevronRight"></div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+  /* } */
 
   return (
     <div
@@ -121,7 +157,8 @@ export default function TreeMapTile(props) {
         width: node.x1 - node.x0,
         height: node.y1 - node.y0,
         backgroundColor: "gray",
-        border: "solid 1px black"
+        /* border: "solid 1px black", */
+        overflow: "hidden"
       }}
     >
       {content}

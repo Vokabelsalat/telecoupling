@@ -60,7 +60,7 @@
     "flyTo": {
       "center": [-73.97992337336923, 40.76512993427731],
       "zoom": 19,
-      "speed": 0.4
+      "speed": 0.5
     },
     "mapLayer": {
       "type": "countries",
@@ -78,7 +78,7 @@
     "flyTo": {
       "center": [0, 0],
       "zoom": 1,
-      "speed": 0.8
+      "speed": 0.9
     },
     "mapLayer": {
       "type": "orchestras",
@@ -171,7 +171,7 @@
     "text": "Violins, violas, cellos and double basses all are played with a stringed instrument bow. Nevertheless, the bow is often misjudged in its importance and changed considerably over time, adapting to the developments and changes in music, compsitions and concert environment. Such as to the changes from commonly small chamber music in front of small audiences to bigger symphony orchestras in large concert halls. F.X. Tourte was experimenting with new models and a variety of materials to adapt to the new requirements F.X. Tourte invented the modern string instrument bow around 1800 in Paris. He discovered the favourable wood characteristics of pau-brasil perfectly suitable and allowing the develpment of the modern bow model. In comparison to the until then typical baroque bow, the stick was not anymore concave it rather changed to a stick with a convex curve. A variety of materials of up to 240 species have been used over history and/or are used today. The key part of a string instrument bow that is most important for the quality of a bow and for its characteristics while playing as well as for its sound characteristics is the bow stick.",
     "image": {
       "url": "./fotos/bowstory/Barockbogen-modernerBogen.png",
-      "caption": "cello bow",
+      "caption": "Baroque violin bow (top) in comparison to the modern violin bow (bottom).",
       "copyright": "Mathias Wohlleber",
       "width": "80%"
     },
@@ -382,7 +382,7 @@
   {
     "type": "text",
     "title": "Trade limitations - a cornerstone to preserve pau-brasil in the wild",
-    "text": "When few is left, already little trade can threaten species. This was and is the case for the endangered pau-brasil. Since 1998 the IUCN Red List, you remember the Species Alarm System, is already indicating that pau-brasil is threatened with extinction. In consequence since 2007, pau-brasil is listed in Appendix <ThreatCode type='cites' code='II'></ThreatCode> of the Convention on International Trade in Endangered Species of Wild Fauna and Flora (CITES). CITES is one of the most important international levers in general as it is the only convention that is legally binding and allows to internationally control species-threatening trade. Species already threatened by trade or that may be threatened in future by trade can be listed in three different categories (Appendix <ThreatCode type='cites' code='III'></ThreatCode> - less strict category, Appendix <ThreatCode type='cites' code='II'></ThreatCode> - moderate category, Appendix <ThreatCode type='cites' code='I'></ThreatCode> - strictest category) with gradually increasingly strict trade controls and restrictions. Of the 63 species used over history for sticks of string instrument bows (see timeline), 13 are listed in Appendix <ThreatCode type='cites' code='II'></ThreatCode>, pau-brasil being one of them (for eight species of the genus Handroanthus and Dipteryx this listing will come into force at the 25.11.2024",
+    "text": "When few is left, already little trade can threaten species. This was and is the case for the endangered pau-brasil. Since 1998 the IUCN Red List, you remember the Species Alarm System, is already indicating that pau-brasil is threatened with extinction. In consequence since 2007, pau-brasil is listed in Appendix <ThreatCode type='cites' code='II'></ThreatCode> of the Convention on International Trade in Endangered Species of Wild Fauna and Flora (CITES). CITES is one of the most important international levers in general as it is the only convention that is legally binding and allows to internationally control species-threatening trade. Species already threatened by trade or that may be threatened in future by trade can be listed in three different categories (Appendix <ThreatCode type='cites' code='III'></ThreatCode> - less strict category, Appendix <ThreatCode type='cites' code='II'></ThreatCode> - moderate category, Appendix <ThreatCode type='cites' code='I'></ThreatCode> - strictest category) with gradually increasingly strict trade controls and restrictions. Of the 63 species used over history for sticks of string instrument bows (see timeline), 13 are listed in Appendix <ThreatCode type='cites' code='II'></ThreatCode>, pau-brasil being one of them (for eight species of the genus Handroanthus and Dipteryx this listing will come into force at the 25.11.2024.",
     "visualization": {
       "type": "timeline",
       "width": "100%"
@@ -416,7 +416,7 @@
     "flyTo": {
       "center": [-39.257179407131325, -16.50148646718112],
       "zoom": 8,
-      "speed": 0.3
+      "speed": 0.8
     },
     "mapLayer": {
       "type": "hexagons",
@@ -464,7 +464,7 @@
     "type": "text",
     "title": "CITES CoP19 Panama, Proposal of Listing Pau-brasil in Appendix I",
 
-    "text": "The negotiations and discussions in the pau-brasil working group resulted in NOT listing pau-brasil in Appendix <ThreatCode type='cites' code='I'></ThreatCode> and rather maintaining its listing in Appendix <ThreatCode type='cites' code='II'></ThreatCode> but adapting the Annotation #10 that until 2023 excluded finished bows from the regulation and from 2023 onwards aks for an CITES export permission for finished bows leaving the country of pau-brasils origin - that means Brazil.<br/><br/><iframe width='100%' height='300' src='https://www.youtube.com/embed/TBIJ0zGiryk?start=3250' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen ></iframe>",
+    "text": "The negotiations and discussions in the pau-brasil working group resulted in NOT listing pau-brasil in Appendix <ThreatCode type='cites' code='I'></ThreatCode> and rather maintaining its listing in Appendix <ThreatCode type='cites' code='II'></ThreatCode> but adapting the Annotation #10 that until 2023 excluded finished bows from the regulation and from 2023 onwards aks for an CITES export permission for finished bows leaving the country of pau-brasils origin - that means Brazil.<br/><br/><iframe style='width: 100% !important;height: auto;aspect-ratio: 16 / 9;' width='100%' src='https://www.youtube.com/embed/TBIJ0zGiryk?start=3250' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen ></iframe>",
     "flyTo": {
       "center": [-79.548204, 8.937899],
       "zoom": 18,

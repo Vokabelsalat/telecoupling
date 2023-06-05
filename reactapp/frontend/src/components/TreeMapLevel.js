@@ -40,15 +40,10 @@ export default function TreeMapLevel(props) {
           node={node}
         />
       )}
-      <div
-        style={{
-          position: "relative",
-          left: 5,
-          top: 5,
-          color: "white"
-        }}
-      >
-        {`${node.data.name} ${node.value}`}
+      <div className="mapTileText">
+        {node.data.filterDepth === 4
+          ? `${node.data.name.slice(node.data.name.indexOf(" ") + 1)}`
+          : `${node.data.name} ${node.value}`}
       </div>
     </div>
   );

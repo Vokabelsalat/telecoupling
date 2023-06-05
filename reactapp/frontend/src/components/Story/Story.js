@@ -607,7 +607,8 @@ export default function Story(props) {
             <div
               style={{
                 width: "100%",
-                height: "100%",
+                /* height: "100%", */
+                aspectRatio: "16 / 9",
                 display: "grid",
                 gridTemplateRows: "repeat(auto-fit, minmax(100px, 1fr))",
                 gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))"
@@ -643,6 +644,7 @@ export default function Story(props) {
                     timeFrame={timeFrame}
                     categoryFilter={categoryFilter}
                     setCategoryFilter={setCategoryFilter}
+                    isStory={true}
                   />
                   {/* <StoryMap
               speciesCountries={visibleSpeciesCountries}

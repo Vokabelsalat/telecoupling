@@ -44,7 +44,8 @@ const Map = forwardRef((props, ref) => {
     getPopulationTrend,
     categoryFilter,
     setCategoryFilter,
-    timeFrame
+    timeFrame,
+    isStory = false
   } = props;
 
   const [formMapMode, setFormMapMode] = useState("countries");
@@ -1073,7 +1074,7 @@ const Map = forwardRef((props, ref) => {
         height: `${newHeight}px`
       }}
     >
-      {/* {activeMapLayer == null && (
+      {isStory === false && (
         <div style={{ height: "20px", display: "flex" }}>
           <form
             onChange={(e) => {
@@ -1121,7 +1122,7 @@ const Map = forwardRef((props, ref) => {
             <button onClick={calcEcoStatistics}>Stats</button>
           )}
         </div>
-      )} */}
+      )}
       <ReactMapGL
         ref={ref}
         /* reuseMaps={false} */
@@ -1353,7 +1354,11 @@ const Map = forwardRef((props, ref) => {
             data={countriesGeoJsonTest}
           >
             <Layer
-              beforeId={mapStyle.includes("light") ||layers.includes("state-label") ? "state-label" : null}
+              beforeId={
+                mapStyle.includes("light") || layers.includes("state-label")
+                  ? "state-label"
+                  : null
+              }
               key="countriesOrchestrasLayer"
               {...{
                 id: "countriesOrchestras",
@@ -1563,6 +1568,7 @@ const Map = forwardRef((props, ref) => {
           <Source type="geojson" id="hexagonsource" data={hexagonGeoJSONTest}>
             <Layer
               {...{
+                beforeId: "state-label",
                 id: "hexagons",
                 source: "hexagonsource",
                 ...hexagonPaint,

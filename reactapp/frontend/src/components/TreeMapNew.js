@@ -5,15 +5,17 @@ import TreeMapLevel from "./TreeMapLevel";
 export default function TreeMap(props) {
   const { width, height, data, filterTreeMap, headerOffset = 0 } = props;
 
-  var root = d3.hierarchy(data).sum(function (d) {
-    return d.value;
-  }); // Here the size of each leave is given in the 'value' field in input data
+  var root = d3
+    .hierarchy(data)
+    .sum(function (d) {
+      return d.value;
+    })
+    .sort(function (a, b) {
+      return a.value - b.value;
+    }); // Here the size of each leave is given in the 'value' field in input data
 
   // Then d3.treemap computes the position of each element of the hierarchy
-  d3
-    .treemap()
-    .size([width, height - headerOffset])
-    .padding(2)(root);
+  d3.treemap().size([width, height - headerOffset])(root);
 
   return (
     <div

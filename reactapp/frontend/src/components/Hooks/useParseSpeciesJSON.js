@@ -94,9 +94,8 @@ export function useParseSpeciesJSON(i_speciesData, slice) {
       tmpDummyImageLinks[spec] = returnDummyLink(speciesObj);
 
       speciesTreeMapData[genusSpecies] = {
-        image: tmpImageLinks[spec]
-          ? tmpImageLinks[spec]
-          : tmpDummyImageLinks[spec],
+        image: tmpImageLinks[spec],
+        proxy: tmpDummyImageLinks[spec],
         mediaUrls: speciesObj["mediaUrls"]
       };
 
@@ -310,6 +309,7 @@ export function useParseSpeciesJSON(i_speciesData, slice) {
             speciesData.push({
               name: genusSpecies,
               image: speciesTreeMapData[genusSpecies]["image"],
+              proxy: speciesTreeMapData[genusSpecies]["proxy"],
               mediaUrls: speciesTreeMapData[genusSpecies]["mediaUrls"],
               value: speciesCount[genusSpecies],
               filterDepth: 4

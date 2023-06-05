@@ -17,7 +17,9 @@ export default function TreeMapHeader(props) {
     >
       {kingdom && (
         <>
-          <div style={{ display: "flex", alignItems: "center" }}>
+          <div
+            style={{ display: "flex", alignItems: "center", margin: "0 15px" }}
+          >
             <div
               className="resetButton"
               onClick={() => {
@@ -38,8 +40,10 @@ export default function TreeMapHeader(props) {
               filterTreeMap({ data: { name: kingdom, filterDepth: 1 } });
             }}
           >
-            <div style={{ fontWeight: "bold" }}>Kingdom</div>
-            <div style={{}}>{kingdom}</div>
+            <div style={{}}>Kingdom</div>
+            <div style={{ fontWeight: "bold", fontStyle: "italic" }}>
+              {kingdom}
+            </div>
           </div>
         </>
       )}
@@ -55,8 +59,10 @@ export default function TreeMapHeader(props) {
             filterTreeMap({ data: { name: family, filterDepth: 2 } });
           }}
         >
-          <div style={{ fontWeight: "bold" }}>Family</div>
-          <div style={{}}>{family}</div>
+          <div style={{}}>Family</div>
+          <div style={{ fontWeight: "bold", fontStyle: "italic" }}>
+            {family}
+          </div>
         </div>
       )}
       {genus && (
@@ -71,8 +77,8 @@ export default function TreeMapHeader(props) {
             filterTreeMap({ data: { name: genus, filterDepth: 3 } });
           }}
         >
-          <div style={{ fontWeight: "bold" }}>Genus</div>
-          <div style={{}}>{genus}</div>
+          <div style={{}}>Genus</div>
+          <div style={{ fontWeight: "bold", fontStyle: "italic" }}>{genus}</div>
         </div>
       )}
       {species && (
@@ -87,8 +93,10 @@ export default function TreeMapHeader(props) {
             filterTreeMap({ data: { name: species, filterDepth: 4 } });
           }}
         >
-          <div style={{ fontWeight: "bold" }}>Species</div>
-          <div style={{}}>{species}</div>
+          <div style={{}}>Species</div>
+          <div style={{ fontWeight: "bold", fontStyle: "italic" }}>
+            {species}
+          </div>
         </div>
       )}
     </div>

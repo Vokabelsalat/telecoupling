@@ -6,6 +6,7 @@ import ResizeComponent from "./ResizeComponent";
 import CenterPanel from "./CenterPanel";
 import OrchestraNew from "./OrchestraNew";
 import TreeMapView from "./TreeMapViewNew";
+import { ThreatLevel } from "../utils/timelineUtils";
 //import Map from "./MapNewTest";
 import Map from "./MapNew";
 import { getOrCreate, pushOrCreateWithoutDuplicates } from "../utils/utils";
@@ -31,10 +32,22 @@ import { useParseSpeciesJSON } from "./Hooks/useParseSpeciesJSON";
 import { useOrchestraFilter } from "./Hooks/useOrchestraFilter";
 
 export const returnDummyLink = (speciesObj) => {
-  return speciesObj["Foto dummy"] != null &&
+  /*  return speciesObj["Foto dummy"] != null &&
     speciesObj["Foto dummy"].trim() !== ""
     ? "fotos/" + speciesObj["Foto dummy"].replace(" ", "")
-    : null;
+    : null; */
+  if (speciesObj["photos"] != null) {
+    let sortedPhotos = speciesObj["photos"].sort((pA, pB) => {
+      return pA.Priority - pB.Priority;
+    });
+
+    if (sortedPhotos.length > 0) {
+      if (sortedPhotos[0].Proxy != null) {
+        return "fotos/" + sortedPhotos[0].Proxy.replace(" ", "");
+      }
+    }
+  }
+  return null;
 };
 
 export const returnImageLink = (speciesObj) => {
@@ -85,8 +98,6 @@ export default function HomeNew(props) {
   const [instrument, setInstrument] = useState();
   const [instrumentGroup, setInstrumentGroup] = useState();
   const [instrumentPart, setInstrumentPart] = useState();
-
-  console.log(instrumentGroup, instrument);
 
   const [timeFrame, setTimeFrame] = useState([]);
   const [speciesData, setSpeciesData] = useState({});
@@ -158,7 +169,12 @@ export default function HomeNew(props) {
         )
         .pop();
       if (lastElement) {
-        return lastElement.assessment;
+        return ThreatLevel.revive(lastElement.assessment);
+        /* return JSON.parse(lastElement.assessment, function (key, value) {
+          return key === "" && value.hasOwnProperty("__type")
+            ? ThreatLevel.revive(value)
+            : this[key];
+        }); */
       } else {
         return citesAssessment.dataDeficient;
       }
@@ -169,17 +185,25 @@ export default function HomeNew(props) {
         )
         .pop();
       if (lastElementIUCN) {
-        return lastElementIUCN.assessment;
+        /* return JSON.parse(lastElementIUCN.assessment, function (key, value) {
+          return key === "" && value.hasOwnProperty("__type")
+            ? ThreatLevel.revive(value)
+            : this[key];
+        }); */
+        return ThreatLevel.revive(lastElementIUCN.assessment);
       } else {
         let lastElementBGCI = [...speciesObj["bgci"]]
           .filter((e) =>
-            timeFrame[1] !== undefined
-              ? e.element.assessmentYear < timeFrame[1]
-              : true
+            timeFrame[1] !== undefined ? e.element.year < timeFrame[1] : true
           )
           .pop();
         if (lastElementBGCI) {
-          return lastElementBGCI.assessment;
+          /* return JSON.parse(lastElementBGCI.assessment, function (key, value) {
+            return key === "" && value.hasOwnProperty("__type")
+              ? ThreatLevel.revive(value)
+              : this[key];
+          }); */
+          return ThreatLevel.revive(lastElementBGCI.assessment);
         } else {
           return bgciAssessment.dataDeficient;
         }
@@ -308,14 +332,14 @@ export default function HomeNew(props) {
     visibleSpeciesEcos,
     visibleSpeciesHexas
   } = useFilterSpecies(
-    kingdomData,
+    JSON.stringify(kingdomData),
     filterTreeMap,
-    instrumentData,
-    speciesCountries,
-    timelineData,
-    intersectedSpecies,
-    speciesEcos,
-    speciesHexas
+    JSON.stringify(instrumentData),
+    JSON.stringify(speciesCountries),
+    JSON.stringify(timelineData),
+    JSON.stringify(intersectedSpecies),
+    JSON.stringify(speciesEcos),
+    JSON.stringify(speciesHexas)
   );
 
   const getPopulationTrend = (speciesName) => {
