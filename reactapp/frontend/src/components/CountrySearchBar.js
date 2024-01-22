@@ -7,14 +7,16 @@ export default function CountrySearchBar(props) {
   const {
     id,
     setFilter,
-    treeMapFilter,
-    setTreeMapFilter,
-    speciesData: data
+    speciesData: data,
+    mapSearchMode,
+    mapSearchBarData,
+    value,
+    mode
   } = props;
 
-  console.log(treeMapFilter);
+  console.log(value, data, mode, mapSearchBarData, mapSearchMode);
 
-  const value = useMemo(() => {
+  /* const value = useMemo(() => {
     return treeMapFilter.species
       ? {
           title: treeMapFilter.species,
@@ -34,7 +36,7 @@ export default function CountrySearchBar(props) {
           species: null
         }
       : null;
-  }, [treeMapFilter]);
+  }, [treeMapFilter]); */
 
   //  const [value, setValue] = useState(treeMapFilter.species);
 
@@ -96,12 +98,12 @@ export default function CountrySearchBar(props) {
     <Autocomplete
       value={value}
       onChange={(event, newValue) => {
-        setTreeMapFilter({
+        /* setTreeMapFilter({
           genus: newValue && newValue["genus"] ? newValue["genus"] : null,
           species: newValue && newValue["species"] ? newValue["species"] : null,
           family: newValue && newValue["family"] ? newValue["family"] : null,
           kingdom: newValue && newValue["kingdom"] ? newValue["kingdom"] : null
-        });
+        }); */
       }}
       filterOptions={(options, params) => {
         const { inputValue } = params;

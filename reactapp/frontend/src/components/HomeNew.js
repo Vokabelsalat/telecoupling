@@ -76,6 +76,11 @@ export const getSpeciesFromTreeMap = (treeMapData) => {
 };
 
 export const filterTreeMap = (node, keys, filterLevel) => {
+  console.log("NODE", node);
+  let test = node.filter((e) => {
+    console.log("FILTER", e);
+  });
+  console.log(test);
   return node.filter((el) => {
     if (el.filterDepth === filterLevel) {
       return keys.includes(el.name);
@@ -106,6 +111,8 @@ export default function HomeNew(props) {
 
   const [threatType, setThreatType] = useState("economically");
 
+  const [formMapMode, setFormMapMode] = useState("countries");
+
   const [selectedCountry, setSelectedCountry] = useState();
 
   const [treeMapFilter, setTreeMapFilter] = useState({});
@@ -113,7 +120,7 @@ export default function HomeNew(props) {
   const [categoryFilter, setCategoryFilter] = useState(null);
   const mapRef = useRef(null);
 
-  const slice = false;
+  const slice = true;
 
   /* const returnDummyLink = (speciesObj) => {
     return speciesObj["Foto dummy"].trim() !== ""
@@ -463,6 +470,7 @@ export default function HomeNew(props) {
                     speciesData={species}
                     treeMapFilter={treeMapFilter}
                     setTreeMapFilter={setTreeMapFilter}
+                    formMapMode={formMapMode}
                   />
                 }
               </div>
@@ -536,6 +544,8 @@ export default function HomeNew(props) {
                       setSelectedCountry={setSelectedCountry}
                       ref={mapRef}
                       getPopulationTrend={getPopulationTrend}
+                      formMapMode={formMapMode}
+                      setFormMapMode={setFormMapMode}
                     />
                   </ResizeComponent>
                 )}

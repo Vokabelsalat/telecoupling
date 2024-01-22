@@ -16,7 +16,8 @@ export default function CenterPanel(props) {
     categoryFilter,
     speciesData,
     treeMapFilter,
-    setTreeMapFilter
+    setTreeMapFilter,
+    formMapMode
   } = props;
 
   return (
@@ -108,7 +109,7 @@ export default function CenterPanel(props) {
           setCategoryFilter={setCategoryFilter}
           categoryFilter={categoryFilter}
         />
-        {/* <div
+        <div
           style={{
             margin: 0,
             padding: 0
@@ -117,10 +118,12 @@ export default function CenterPanel(props) {
         >
           <CountrySearchBar
             speciesData={speciesData}
-            setTreeMapFilter={setTreeMapFilter}
-            treeMapFilter={treeMapFilter}
+            mapSearchMode={formMapMode}
+            /* mapSearchBarData={}
+          value={}
+          mode={} */
           />
-        </div> */}
+        </div>
       </div>
       <div></div>
       <div></div>

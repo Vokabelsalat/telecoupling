@@ -45,10 +45,11 @@ const Map = forwardRef((props, ref) => {
     categoryFilter,
     setCategoryFilter,
     timeFrame,
-    isStory = false
+    isStory = false,
+    formMapMode,
+    setFormMapMode
   } = props;
 
-  const [formMapMode, setFormMapMode] = useState("countries");
   const [divScale, setDivScale] = useState({ scale: [], type: "countries" });
   const [showLegend, setShowLegend] = useState(false);
   const legendRef = useRef(null);

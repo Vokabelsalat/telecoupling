@@ -3421,6 +3421,36 @@
         "NomenclatureNote": "Originally listed as Caesalpinia echinata, which became a synonym of Paubrasilia echinata in 2019, following taxonomic changes adopted at CoP18."
       }
     ],
+    "listings": {
+      "Paubrasilia echinata": {
+        "Id": 94093,
+        "Kingdom": "Plantae",
+        "Phylum": "",
+        "Class": "",
+        "Order": "Fabales",
+        "Family": "Leguminosae",
+        "Genus": "Paubrasilia",
+        "Species": "echinata",
+        "Subspecies": "",
+        "Scientific Name": "Paubrasilia echinata",
+        "Author": "(Lam.) E. Gagnon, H.C. Lima & G.P. Lewis",
+        "Rank": "SPECIES",
+        "Listing": "II",
+        "Party": "",
+        "Listed under": "Paubrasilia echinata",
+        "Full note": "",
+        "# Full note": "**II** #10 Logs, sawn wood, veneer sheets, including unfinished wood articles used for the fabrication of bows for stringed musical instruments",
+        "All_DistributionFullNames": "Brazil",
+        "All_DistributionISOCodes": "BR",
+        "NativeDistributionFullNames": "Brazil",
+        "Introduced_Distribution": "",
+        "Introduced(?)_Distribution": "",
+        "Reintroduced_Distribution": "",
+        "Extinct_Distribution": "",
+        "Extinct(?)_Distribution": "",
+        "Distribution_Uncertain": ""
+      }
+    },
     "trees": [
       {
         "id": 151048907,
@@ -3480,37 +3510,7 @@
           }
         ]
       }
-    ],
-    "listings": {
-      "Paubrasilia echinata": {
-        "Id": 94093,
-        "Kingdom": "Plantae",
-        "Phylum": "",
-        "Class": "",
-        "Order": "Fabales",
-        "Family": "Leguminosae",
-        "Genus": "Paubrasilia",
-        "Species": "echinata",
-        "Subspecies": "",
-        "Scientific Name": "Paubrasilia echinata",
-        "Author": "(Lam.) E. Gagnon, H.C. Lima & G.P. Lewis",
-        "Rank": "SPECIES",
-        "Listing": "II",
-        "Party": "",
-        "Listed under": "Paubrasilia echinata",
-        "Full note": "",
-        "# Full note": "**II** #10 Logs, sawn wood, veneer sheets, including unfinished wood articles used for the fabrication of bows for stringed musical instruments",
-        "All_DistributionFullNames": "Brazil",
-        "All_DistributionISOCodes": "BR",
-        "NativeDistributionFullNames": "Brazil",
-        "Introduced_Distribution": "",
-        "Introduced(?)_Distribution": "",
-        "Reintroduced_Distribution": "",
-        "Extinct_Distribution": "",
-        "Extinct(?)_Distribution": "",
-        "Distribution_Uncertain": ""
-      }
-    }
+    ]
   },
   "Manilkara kauki": {
     "material": [
@@ -4198,32 +4198,56 @@
           },
           {
             "country": "Indonesia",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "province": "Jawa",
-            "uncertainty": null
-          },
-          {
-            "country": "Indonesia",
-            "province": "Irian Jaya",
-            "uncertainty": null
-          },
-          {
-            "country": "Indonesia",
-            "province": "Moluccas",
-            "uncertainty": null
-          },
-          {
-            "country": "Indonesia",
-            "province": "Sulawesi",
-            "uncertainty": null
-          },
-          {
-            "country": "Indonesia",
+=======
             "province": "Lesser Sunda Is.",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           },
           {
             "country": "Indonesia",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Irian Jaya",
+=======
             "province": "Sumatera",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Indonesia",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Moluccas",
+=======
+            "province": "Irian Jaya",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Indonesia",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Sulawesi",
+=======
+            "province": "Jawa",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Indonesia",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Lesser Sunda Is.",
+=======
+            "province": "Moluccas",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Indonesia",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Sumatera",
+=======
+            "province": "Sulawesi",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           },
           {
@@ -4284,6 +4308,7 @@
           }
         ]
       }
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
     ],
     "iucn": {
       "Manilkara kauki": [
@@ -4295,6 +4320,9 @@
         }
       ]
     }
+=======
+    ]
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
   },
   "Manilkara fasciculata": {
     "material": [
@@ -4647,17 +4675,29 @@
         "TSGeolinks": [
           {
             "country": "Indonesia",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "province": "Sulawesi",
-            "uncertainty": null
-          },
-          {
-            "country": "Indonesia",
-            "province": "Irian Jaya",
-            "uncertainty": null
-          },
-          {
-            "country": "Indonesia",
+=======
             "province": "Moluccas",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Indonesia",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Irian Jaya",
+=======
+            "province": "Sulawesi",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Indonesia",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Moluccas",
+=======
+            "province": "Irian Jaya",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           },
           {
@@ -6027,7 +6067,11 @@
         "comment": "2019",
         "exclude": null,
         "TSSource": {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
           "fullCitation": "IUCN Red List of Threatened Species v. 2019.2 www.iucnredlist.org"
+=======
+          "fullCitation": null
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         },
         "TSPlantList": null
       }
@@ -6061,37 +6105,57 @@
           },
           {
             "country": "Brazil",
-            "province": "Rondônia",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
-            "province": "São Paulo",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
-            "province": "Alagoas",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
-            "province": "Espírito Santo",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
-            "province": "Mato Grosso",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
-            "province": "Rio de Janeiro",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
             "province": "Roraima",
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "São Paulo",
+=======
+            "province": "Alagoas",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Alagoas",
+=======
+            "province": "Espírito Santo",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Espírito Santo",
+=======
+            "province": "Mato Grosso",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Mato Grosso",
+=======
+            "province": "Paraíba",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+            "province": "Rio Grande do Norte",
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Roraima",
+=======
+            "province": "São Paulo",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           },
           {
@@ -6106,22 +6170,38 @@
           },
           {
             "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "province": "Sergipe",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
+=======
             "province": "Acre",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           },
           {
             "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Acre",
+=======
+            "province": "Rio de Janeiro",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "province": "Tocantins",
+=======
+            "province": "Amazonas",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           },
           {
             "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "province": "Amazonas",
+=======
+            "province": "Rondônia",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           },
           {
@@ -6131,27 +6211,47 @@
           },
           {
             "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "province": "Goiás",
+=======
+            "province": "Sergipe",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           },
           {
             "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "province": "Minas Gerais",
+=======
+            "province": "Goiás",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           },
           {
             "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "province": "Pará",
+=======
+            "province": "Tocantins",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           },
           {
             "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "province": "Pernambuco",
+=======
+            "province": "Minas Gerais",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           },
           {
             "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "province": "Rio Grande do Norte",
+=======
+            "province": "Pará",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           },
           {
@@ -6227,6 +6327,24 @@
         ],
         "TSTaxas": [
           {
+            "checkTaxon": "Piratinera guianensis"
+          },
+          {
+            "checkTaxon": "Piratinera lemeei"
+          },
+          {
+            "checkTaxon": "Piratinera mollis"
+          },
+          {
+            "checkTaxon": "Piratinera panamensis"
+          },
+          {
+            "checkTaxon": "Piratinera scabridula"
+          },
+          {
+            "checkTaxon": "Piratinera velutina"
+          },
+          {
             "checkTaxon": "Alicastrum guianense"
           },
           {
@@ -6258,24 +6376,6 @@
           },
           {
             "checkTaxon": "Piratinera discolor"
-          },
-          {
-            "checkTaxon": "Piratinera guianensis"
-          },
-          {
-            "checkTaxon": "Piratinera lemeei"
-          },
-          {
-            "checkTaxon": "Piratinera mollis"
-          },
-          {
-            "checkTaxon": "Piratinera panamensis"
-          },
-          {
-            "checkTaxon": "Piratinera scabridula"
-          },
-          {
-            "checkTaxon": "Piratinera velutina"
           }
         ]
       }
@@ -7453,6 +7553,8 @@
         "threatId": 4269789,
         "sourceId": 50135950,
         "family": "ROSACEAE",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+=======
         "genus": "Prunus",
         "species": "domestica",
         "author1": "L.",
@@ -7484,6 +7586,50 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         }
+      },
+      {
+        "threatId": 4139917,
+        "sourceId": 58905,
+        "family": "Rosaceae",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+        "genus": "Prunus",
+        "species": "domestica",
+        "author1": "L.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Global",
+        "assessmentYear": 2017,
+        "consAssCategory": "DD",
+        "consAssCriteria": null,
+        "bgciConRating": null,
+        "threatened": "Data Deficient",
+        "referenceId": 82,
+        "reference": "IUCN Red List",
+        "synonym": "Prunus communis|Prunus domestica var. juliana |Prunus insititia|Prunus italica|Prunus syriaca",
+        "distribution": null,
+        "taxonName": "Prunus domestica",
+        "genusSpecies": "Prunus domestica",
+        "bgciUrl": "http://www.iucnredlist.org/details/50135950/0",
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "IUCN Red List of Threatened Species v. 2017.3 www.iucnredlist.org"
+        },
+        "TSPlantList": {
+          "tplFamily": "Rosaceae",
+          "tplFullName": "Prunus domestica",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+          "tplAuthor": "L.",
+          "tplTaxonomicStatus": "Accepted"
+        }
+=======
+          "tplAuthor": "Thunb.",
+          "tplTaxonomicStatus": "Unassessed"
+        },
+        "countries": " Switzerland"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4139917,
@@ -7523,6 +7669,7 @@
         "countries": " Switzerland"
       },
       {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "threatId": 4151917,
         "sourceId": 106460,
         "family": "Rosaceae",
@@ -7547,17 +7694,51 @@
         "genusSpecies": "Prunus domestica",
         "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=106460",
         "comment": null,
+=======
+        "threatId": 4356919,
+        "sourceId": 317422,
+        "family": "Rosaceae",
+        "genus": "Prunus",
+        "species": "domestica",
+        "author1": "(L.) Bonnier & Layens",
+        "infraSpecRank": "ssp.",
+        "infraSpecName": "insititia",
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Unknown",
+        "assessmentYear": 2016,
+        "consAssCategory": "LC",
+        "consAssCriteria": "",
+        "bgciConRating": null,
+        "threatened": "Not Threatened",
+        "referenceId": 124,
+        "reference": "National Red List",
+        "synonym": null,
+        "distribution": "Ireland",
+        "taxonName": "Prunus domestica ssp. insititia",
+        "genusSpecies": "Prunus domestica",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=317422",
+        "comment": "Least Concern",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "exclude": null,
         "TSSource": {
           "fullCitation": "National Red List www.nationalredlist.org"
         },
         "TSPlantList": {
           "tplFamily": "Rosaceae",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
           "tplFullName": "Prunus domestica",
           "tplAuthor": "Thunb.",
           "tplTaxonomicStatus": "Unassessed"
         },
         "countries": " Switzerland"
+=======
+          "tplFullName": "Prunus domestica subsp. insititia",
+          "tplAuthor": "(L.) Bonnier & Layens",
+          "tplTaxonomicStatus": "Accepted"
+        },
+        "countries": " Ireland"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4356921,
@@ -7597,43 +7778,6 @@
         "countries": " Germany (Berlin)"
       },
       {
-        "threatId": 4356919,
-        "sourceId": 317422,
-        "family": "Rosaceae",
-        "genus": "Prunus",
-        "species": "domestica",
-        "author1": "(L.) Bonnier & Layens",
-        "infraSpecRank": "ssp.",
-        "infraSpecName": "insititia",
-        "author2": null,
-        "bgciTree": 0,
-        "bgciScope": "Unknown",
-        "assessmentYear": 2016,
-        "consAssCategory": "LC",
-        "consAssCriteria": "",
-        "bgciConRating": null,
-        "threatened": "Not Threatened",
-        "referenceId": 124,
-        "reference": "National Red List",
-        "synonym": null,
-        "distribution": "Ireland",
-        "taxonName": "Prunus domestica ssp. insititia",
-        "genusSpecies": "Prunus domestica",
-        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=317422",
-        "comment": "Least Concern",
-        "exclude": null,
-        "TSSource": {
-          "fullCitation": "National Red List www.nationalredlist.org"
-        },
-        "TSPlantList": {
-          "tplFamily": "Rosaceae",
-          "tplFullName": "Prunus domestica subsp. insititia",
-          "tplAuthor": "(L.) Bonnier & Layens",
-          "tplTaxonomicStatus": "Accepted"
-        },
-        "countries": " Ireland"
-      },
-      {
         "threatId": 4356914,
         "sourceId": 312141,
         "family": "Rosaceae",
@@ -7668,7 +7812,56 @@
           "tplAuthor": "(L.) Bonnier & Layens",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+        "countries": " Ireland"
+=======
         "countries": " Germany (Nordrhein-Westfalen)"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+      },
+      {
+        "threatId": 4354630,
+        "sourceId": 317421,
+        "family": "Rosaceae",
+        "genus": "Prunus",
+        "species": "domestica",
+        "author1": null,
+        "infraSpecRank": "ssp.",
+        "infraSpecName": "domestica",
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Unknown",
+        "assessmentYear": 2016,
+        "consAssCategory": "LC",
+        "consAssCriteria": "",
+        "bgciConRating": null,
+        "threatened": "Not Threatened",
+        "referenceId": 124,
+        "reference": "National Red List",
+        "synonym": null,
+        "distribution": "Ireland",
+        "taxonName": "Prunus domestica ssp. domestica",
+        "genusSpecies": "Prunus domestica",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=317421",
+        "comment": "Least Concern",
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "National Red List www.nationalredlist.org"
+        },
+        "TSPlantList": {
+          "tplFamily": "Rosaceae",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+          "tplFullName": "Prunus domestica subsp. insititia",
+          "tplAuthor": "(L.) Bonnier & Layens",
+          "tplTaxonomicStatus": "Accepted"
+        },
+        "countries": " Germany (Nordrhein-Westfalen)"
+=======
+          "tplFullName": "Prunus domestica subsp. domestica",
+          "tplAuthor": null,
+          "tplTaxonomicStatus": "Synonym"
+        },
+        "countries": " Ireland"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4356913,
@@ -7741,6 +7934,7 @@
           "tplFullName": "Prunus domestica subsp. italica",
           "tplAuthor": "(Borkh.) Gams",
           "tplTaxonomicStatus": "Accepted"
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         },
         "countries": " Ireland"
       },
@@ -7780,10 +7974,51 @@
           "tplTaxonomicStatus": "Synonym"
         },
         "countries": " Ireland"
+=======
+        },
+        "countries": " Ireland"
       },
       {
-        "threatId": 4383111,
-        "sourceId": 254294,
+        "threatId": 4354540,
+        "sourceId": 240769,
+        "family": "Rosaceae",
+        "genus": "Prunus",
+        "species": "domestica",
+        "author1": "",
+        "infraSpecRank": "ssp.",
+        "infraSpecName": "domestica",
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Unknown",
+        "assessmentYear": 1996,
+        "consAssCategory": "-",
+        "consAssCriteria": "",
+        "bgciConRating": null,
+        "threatened": "Not Threatened",
+        "referenceId": 124,
+        "reference": "National Red List",
+        "synonym": null,
+        "distribution": "Germany",
+        "taxonName": "Prunus domestica ssp. domestica",
+        "genusSpecies": "Prunus domestica",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=240769",
+        "comment": "Currently not threatened (Zur Zeit nicht gefährdet)",
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "National Red List www.nationalredlist.org"
+        },
+        "TSPlantList": {
+          "tplFamily": "Rosaceae",
+          "tplFullName": "Prunus domestica subsp. domestica",
+          "tplAuthor": null,
+          "tplTaxonomicStatus": "Synonym"
+        },
+        "countries": " Germany"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+      },
+      {
+        "threatId": 4383114,
+        "sourceId": 289585,
         "family": "Rosaceae",
         "genus": "Prunus",
         "species": "domestica",
@@ -7793,19 +8028,19 @@
         "author2": null,
         "bgciTree": 0,
         "bgciScope": "Unknown",
-        "assessmentYear": 1999,
-        "consAssCategory": "*",
+        "assessmentYear": 2014,
+        "consAssCategory": "LC",
         "consAssCriteria": "",
         "bgciConRating": null,
         "threatened": "Not Threatened",
         "referenceId": 124,
         "reference": "National Red List",
         "synonym": null,
-        "distribution": "Germany (Baden-Wuerttemberg)",
+        "distribution": "United Kingdom",
         "taxonName": "Prunus domestica",
         "genusSpecies": "Prunus domestica",
-        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=254294",
-        "comment": "Currently not threatened (Zur Zeit nicht gefährdet)",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=289585",
+        "comment": "Least concern",
         "exclude": null,
         "TSSource": {
           "fullCitation": "National Red List www.nationalredlist.org"
@@ -7816,6 +8051,7 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "countries": " Germany (Baden-Wuerttemberg)"
       },
       {
@@ -7854,10 +8090,13 @@
           "tplTaxonomicStatus": "Synonym"
         },
         "countries": " Germany"
+=======
+        "countries": " United Kingdom"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
-        "threatId": 4383114,
-        "sourceId": 289585,
+        "threatId": 4383111,
+        "sourceId": 254294,
         "family": "Rosaceae",
         "genus": "Prunus",
         "species": "domestica",
@@ -7867,19 +8106,19 @@
         "author2": null,
         "bgciTree": 0,
         "bgciScope": "Unknown",
-        "assessmentYear": 2014,
-        "consAssCategory": "LC",
+        "assessmentYear": 1999,
+        "consAssCategory": "*",
         "consAssCriteria": "",
         "bgciConRating": null,
         "threatened": "Not Threatened",
         "referenceId": 124,
         "reference": "National Red List",
         "synonym": null,
-        "distribution": "United Kingdom",
+        "distribution": "Germany (Baden-Wuerttemberg)",
         "taxonName": "Prunus domestica",
         "genusSpecies": "Prunus domestica",
-        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=289585",
-        "comment": "Least concern",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=254294",
+        "comment": "Currently not threatened (Zur Zeit nicht gefährdet)",
         "exclude": null,
         "TSSource": {
           "fullCitation": "National Red List www.nationalredlist.org"
@@ -7890,7 +8129,11 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "countries": " United Kingdom"
+=======
+        "countries": " Germany (Baden-Wuerttemberg)"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4383117,
@@ -12962,36 +13205,9 @@
         ],
         "TSTaxas": [
           {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "checkTaxon": "Fagus sylvatica f. tortuosa"
-          },
-          {
-            "checkTaxon": "Fagus sylvatica f. tricolor"
-          },
-          {
-            "checkTaxon": "Fagus sylvatica f. zlatia"
-          },
-          {
-            "checkTaxon": "Fagus sylvatica var. aenea"
-          },
-          {
-            "checkTaxon": "Fagus sylvatica var. albovariegata"
-          },
-          {
-            "checkTaxon": "Fagus sylvatica var. asplenifolia"
-          },
-          {
-            "checkTaxon": "Fagus sylvatica var. cochleata"
-          },
-          {
-            "checkTaxon": "Fagus sylvatica var. colorata"
-          },
-          {
-            "checkTaxon": "Fagus sylvatica var. coriacea"
-          },
-          {
-            "checkTaxon": "Fagus sylvatica var. cristata"
-          },
-          {
+=======
             "checkTaxon": "Fagus sylvatica var. foliis-striatis"
           },
           {
@@ -13004,16 +13220,17 @@
             "checkTaxon": "Castanea fagus"
           },
           {
+            "checkTaxon": "Fagus cochleata"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+          },
+          {
             "checkTaxon": "Fagus sylvatica var. laciniata"
           },
           {
-            "checkTaxon": "Fagus cochleata"
+            "checkTaxon": "Fagus comptoniifolia"
           },
           {
             "checkTaxon": "Fagus sylvatica var. luteovariegata"
-          },
-          {
-            "checkTaxon": "Fagus comptoniifolia"
           },
           {
             "checkTaxon": "Fagus cuprea"
@@ -13022,66 +13239,169 @@
             "checkTaxon": "Fagus sylvatica var. pendula"
           },
           {
-            "checkTaxon": "Fagus echinata"
-          },
-          {
             "checkTaxon": "Fagus sylvatica var. purpurea"
           },
           {
-            "checkTaxon": "Fagus incisa"
+            "checkTaxon": "Fagus echinata"
           },
           {
             "checkTaxon": "Fagus sylvatica var. pyramidalis"
           },
           {
-            "checkTaxon": "Fagus laciniata"
+            "checkTaxon": "Fagus incisa"
           },
           {
             "checkTaxon": "Fagus sylvatica var. quercifolia"
           },
           {
+            "checkTaxon": "Fagus laciniata"
+          },
+          {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "checkTaxon": "Fagus sylvatica var. heterophylla"
+          },
+          {
+            "checkTaxon": "Castanea fagus"
+=======
             "checkTaxon": "Fagus sylvatica var. quercoides"
           },
           {
             "checkTaxon": "Fagus purpurea var. roseomarginata"
           },
           {
+            "checkTaxon": "Fagus sylvatica f. aureovariegata"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+          },
+          {
             "checkTaxon": "Fagus sylvatica var. tortuosa"
           },
           {
-            "checkTaxon": "Fagus sylvatica f. aureovariegata"
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "checkTaxon": "Fagus cochleata"
+=======
+            "checkTaxon": "Fagus sylvatica f. bornyensis"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
           },
           {
             "checkTaxon": "Fagus sylvatica var. variegata"
           },
           {
-            "checkTaxon": "Fagus sylvatica f. bornyensis"
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "checkTaxon": "Fagus comptoniifolia"
+          },
+          {
+            "checkTaxon": "Fagus cuprea"
+          },
+          {
+            "checkTaxon": "Fagus sylvatica var. pendula"
+=======
+            "checkTaxon": "Fagus sylvatica f. fastigiata"
           },
           {
             "checkTaxon": "Fagus sylvatica var. vulgaris"
           },
           {
-            "checkTaxon": "Fagus sylvatica f. fastigiata"
-          },
-          {
             "checkTaxon": "Fagus sylvatica f. laciniata"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
           },
           {
             "checkTaxon": "Fagus sylvatica var. zlatia"
           },
           {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "checkTaxon": "Fagus sylvatica var. purpurea"
+=======
+            "checkTaxon": "Fagus tortuosa"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+          },
+          {
             "checkTaxon": "Fagus sylvatica f. pendula"
           },
           {
-            "checkTaxon": "Fagus tortuosa"
-          },
-          {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "checkTaxon": "Fagus sylvatica var. pyramidalis"
+=======
             "checkTaxon": "Fagus sylvatica f. purpurea"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
           },
           {
             "checkTaxon": "Fagus sylvatica f. quercifolia"
           },
           {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "checkTaxon": "Fagus sylvatica var. quercifolia"
+=======
+            "checkTaxon": "Fagus sylvatica f. quercoides"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+          },
+          {
+            "checkTaxon": "Fagus sylvatica f. retroflexa"
+          },
+          {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "checkTaxon": "Fagus purpurea var. roseomarginata"
+=======
+            "checkTaxon": "Fagus sylvatica f. roseomarginata"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+          },
+          {
+            "checkTaxon": "Fagus sylvatica f. roseomarginatis"
+          },
+          {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "checkTaxon": "Fagus sylvatica f. aureovariegata"
+=======
+            "checkTaxon": "Fagus sylvatica f. salicifolia"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+          },
+          {
+            "checkTaxon": "Fagus sylvatica f. tortuosa"
+          },
+          {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "checkTaxon": "Fagus sylvatica f. bornyensis"
+=======
+            "checkTaxon": "Fagus sylvatica f. tricolor"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+          },
+          {
+            "checkTaxon": "Fagus sylvatica f. zlatia"
+          },
+          {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "checkTaxon": "Fagus sylvatica f. fastigiata"
+=======
+            "checkTaxon": "Fagus sylvatica var. aenea"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+          },
+          {
+            "checkTaxon": "Fagus sylvatica var. albovariegata"
+          },
+          {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "checkTaxon": "Fagus sylvatica var. zlatia"
+=======
+            "checkTaxon": "Fagus sylvatica var. asplenifolia"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+          },
+          {
+            "checkTaxon": "Fagus sylvatica var. cochleata"
+          },
+          {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "checkTaxon": "Fagus tortuosa"
+          },
+          {
+            "checkTaxon": "Fagus sylvatica f. purpurea"
+=======
+            "checkTaxon": "Fagus sylvatica var. colorata"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+          },
+          {
+            "checkTaxon": "Fagus sylvatica var. coriacea"
+          },
+          {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "checkTaxon": "Fagus sylvatica f. quercoides"
           },
           {
@@ -13095,6 +13415,9 @@
           },
           {
             "checkTaxon": "Fagus sylvatica f. salicifolia"
+=======
+            "checkTaxon": "Fagus sylvatica var. cristata"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
           }
         ]
       }
@@ -13170,6 +13493,7 @@
       {
         "threatId": 4281396,
         "sourceId": 165000,
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "family": "Fagaceae",
         "genus": "Fagus",
         "species": "sylvatica",
@@ -13345,31 +13669,33 @@
       {
         "threatId": 4138837,
         "sourceId": 57777,
+=======
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "family": "Fagaceae",
         "genus": "Fagus",
         "species": "sylvatica",
-        "author1": "L.",
+        "author1": null,
         "infraSpecRank": null,
         "infraSpecName": null,
         "author2": null,
         "bgciTree": 0,
-        "bgciScope": "Unknown",
-        "assessmentYear": 2002,
+        "bgciScope": "Not Global",
+        "assessmentYear": 2016,
         "consAssCategory": "LC",
         "consAssCriteria": null,
         "bgciConRating": null,
         "threatened": "Not Threatened",
-        "referenceId": 65,
-        "reference": "NationalRL_0915",
+        "referenceId": 117,
+        "reference": "Liste rouge Plantes vasculaires - Suisse",
         "synonym": null,
         "distribution": null,
         "taxonName": "Fagus sylvatica",
         "genusSpecies": "Fagus sylvatica",
-        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=57777",
+        "bgciUrl": "https://www.bafu.admin.ch/uv-1621-f",
         "comment": null,
         "exclude": null,
         "TSSource": {
-          "fullCitation": "National Red List www.nationalredlist.org"
+          "fullCitation": null
         },
         "TSPlantList": {
           "tplFamily": "Fagaceae",
@@ -13378,6 +13704,148 @@
           "tplTaxonomicStatus": "Accepted"
         },
         "countries": " Switzerland"
+      },
+      {
+        "threatId": 4286362,
+        "sourceId": 62004722,
+        "family": "FAGACEAE",
+        "genus": "Fagus",
+        "species": "sylvatica",
+        "author1": "L.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Global",
+        "assessmentYear": 2018,
+        "consAssCategory": "LC",
+        "consAssCriteria": null,
+        "bgciConRating": null,
+        "threatened": "Not Threatened",
+        "referenceId": 122,
+        "reference": "IUCN Red List 2018.1",
+        "synonym": null,
+        "distribution": null,
+        "taxonName": "Fagus sylvatica",
+        "genusSpecies": "Fagus sylvatica",
+        "bgciUrl": "http://www.iucnredlist.org/details/62004722/0",
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "IUCN Red List of Threatened Species v. 2018.1 www.iucnredlist.org -  global assessments"
+        },
+        "TSPlantList": {
+          "tplFamily": "Fagaceae",
+          "tplFullName": "Fagus sylvatica",
+          "tplAuthor": "L.",
+          "tplTaxonomicStatus": "Accepted"
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+        },
+=======
+        }
+      },
+      {
+        "threatId": 4396092,
+        "sourceId": null,
+        "family": "FAGACEAE",
+        "genus": "Fagus",
+        "species": "sylvatica",
+        "author1": "L.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": null,
+        "bgciScope": "Global",
+        "assessmentYear": 2017,
+        "consAssCategory": "Least Concern",
+        "consAssCriteria": null,
+        "bgciConRating": "2018",
+        "threatened": "Not Threatened",
+        "referenceId": 135,
+        "reference": "IUCN Red List",
+        "synonym": "62004722",
+        "distribution": null,
+        "taxonName": "Fagus sylvatica",
+        "genusSpecies": "Fagus sylvatica",
+        "bgciUrl": "https://www.iucnredlist.org/species/62004722/62004725",
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "IUCN Red List of Threatened Species v. 2018.2 www.iucnredlist.org"
+        },
+        "TSPlantList": {
+          "tplFamily": "Fagaceae",
+          "tplFullName": "Fagus sylvatica",
+          "tplAuthor": "L.",
+          "tplTaxonomicStatus": "Accepted"
+        }
+      },
+      {
+        "threatId": 4409842,
+        "sourceId": 219,
+        "family": "Fagaceae",
+        "genus": "Fagus",
+        "species": "sylvatica",
+        "author1": null,
+        "infraSpecRank": "ssp.",
+        "infraSpecName": "sylvatica",
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Not Global",
+        "assessmentYear": 1996,
+        "consAssCategory": "LRlc",
+        "consAssCriteria": null,
+        "bgciConRating": null,
+        "threatened": "Not Threatened",
+        "referenceId": 167,
+        "reference": "Güner, A. and Zielinski, J. 1996. The conservation status of Turkish woody flora. In: D.R. Hunt (ed.) Temperate trees under threat, pp.12. Proceedings of an International Dendrological Society Symposium on the conservation status of temperate trees, 30 Se",
+        "synonym": null,
+        "distribution": null,
+        "taxonName": "Fagus sylvatica ssp. sylvatica",
+        "genusSpecies": "Fagus sylvatica",
+        "bgciUrl": null,
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "Güner, A. and Zielinski, J. 1996. The conservation status of Turkish woody flora. Proceedings of an International Dendrological Society Symposium on the conservation status of temperate trees, 30 Sept.-1 Oct. 1994, University of Bonn"
+        },
+        "TSPlantList": null
+      },
+      {
+        "threatId": 4410041,
+        "sourceId": 218,
+        "family": "Fagaceae",
+        "genus": "Fagus",
+        "species": "sylvatica",
+        "author1": null,
+        "infraSpecRank": "ssp.",
+        "infraSpecName": "orientalis",
+        "author2": "(Lipsky) Greuter & Burdet",
+        "bgciTree": 0,
+        "bgciScope": "Not Global",
+        "assessmentYear": 1996,
+        "consAssCategory": "LRlc",
+        "consAssCriteria": null,
+        "bgciConRating": null,
+        "threatened": "Not Threatened",
+        "referenceId": 167,
+        "reference": "Güner, A. and Zielinski, J. 1996. The conservation status of Turkish woody flora. In: D.R. Hunt (ed.) Temperate trees under threat, pp.12. Proceedings of an International Dendrological Society Symposium on the conservation status of temperate trees, 30 Se",
+        "synonym": null,
+        "distribution": null,
+        "taxonName": "Fagus sylvatica ssp. orientalis",
+        "genusSpecies": "Fagus sylvatica",
+        "bgciUrl": null,
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "Güner, A. and Zielinski, J. 1996. The conservation status of Turkish woody flora. Proceedings of an International Dendrological Society Symposium on the conservation status of temperate trees, 30 Sept.-1 Oct. 1994, University of Bonn"
+        },
+        "TSPlantList": {
+          "tplFamily": "Fagaceae",
+          "tplFullName": "Fagus sylvatica subsp. orientalis",
+          "tplAuthor": "(Lipsky) Greuter & Burdet",
+          "tplTaxonomicStatus": "Synonym"
+        }
       },
       {
         "threatId": 4150805,
@@ -13414,6 +13882,44 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         },
+        "countries": " Switzerland"
+      },
+      {
+        "threatId": 4138837,
+        "sourceId": 57777,
+        "family": "Fagaceae",
+        "genus": "Fagus",
+        "species": "sylvatica",
+        "author1": "L.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Unknown",
+        "assessmentYear": 2002,
+        "consAssCategory": "LC",
+        "consAssCriteria": null,
+        "bgciConRating": null,
+        "threatened": "Not Threatened",
+        "referenceId": 65,
+        "reference": "NationalRL_0915",
+        "synonym": null,
+        "distribution": null,
+        "taxonName": "Fagus sylvatica",
+        "genusSpecies": "Fagus sylvatica",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=57777",
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "National Red List www.nationalredlist.org"
+        },
+        "TSPlantList": {
+          "tplFamily": "Fagaceae",
+          "tplFullName": "Fagus sylvatica",
+          "tplAuthor": "L.",
+          "tplTaxonomicStatus": "Accepted"
+        },
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "countries": " Switzerland"
       },
       {
@@ -13454,8 +13960,13 @@
         "countries": " Germany"
       },
       {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "threatId": 4378744,
         "sourceId": 288863,
+=======
+        "threatId": 4378745,
+        "sourceId": 290985,
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "family": "Fagaceae",
         "genus": "Fagus",
         "species": "sylvatica",
@@ -13465,7 +13976,11 @@
         "author2": null,
         "bgciTree": 0,
         "bgciScope": "Unknown",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "assessmentYear": 2014,
+=======
+        "assessmentYear": 2005,
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "consAssCategory": "LC",
         "consAssCriteria": "",
         "bgciConRating": null,
@@ -13476,7 +13991,11 @@
         "distribution": "United Kingdom",
         "taxonName": "Fagus sylvatica",
         "genusSpecies": "Fagus sylvatica",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=288863",
+=======
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=290985",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "comment": "Least concern",
         "exclude": null,
         "TSSource": {
@@ -17615,6 +18134,7 @@
         ],
         "TSTaxas": [
           {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "checkTaxon": "Taxus expansa"
           },
           {
@@ -17832,6 +18352,225 @@
           },
           {
             "checkTaxon": "Taxus ericoides"
+=======
+            "checkTaxon": "Taxus foxii"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. variegata"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. xanthocarpa"
+          },
+          {
+            "checkTaxon": "Taxus hibernica"
+          },
+          {
+            "checkTaxon": "Taxus baccata ssp. eubaccata"
+          },
+          {
+            "checkTaxon": "Taxus horizontalis"
+          },
+          {
+            "checkTaxon": "Taxus baccata subf. aureovariegata"
+          },
+          {
+            "checkTaxon": "Taxus imperialis"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. adpressa-aurea"
+          },
+          {
+            "checkTaxon": "Taxus jacksonii"
+          },
+          {
+            "checkTaxon": "Taxus lugubris"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. cavendishii"
+          },
+          {
+            "checkTaxon": "Taxus marginata"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. dovastoniana"
+          },
+          {
+            "checkTaxon": "Taxus michelii"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. dovastonii"
+          },
+          {
+            "checkTaxon": "Taxus microphylla"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. dovastonii-aurea"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. dovastonii-aureovariegata"
+          },
+          {
+            "checkTaxon": "Taxus mitchellii"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. dovastonii-variegata"
+          },
+          {
+            "checkTaxon": "Taxus monstrosa"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. elegantissima"
+          },
+          {
+            "checkTaxon": "Taxus nana"
+          },
+          {
+            "checkTaxon": "Taxus parvifolia"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. erecta"
+          },
+          {
+            "checkTaxon": "Cephalotaxus adpressa"
+          },
+          {
+            "checkTaxon": "Taxus pectinata"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. glauca"
+          },
+          {
+            "checkTaxon": "Cephalotaxus brevifolia"
+          },
+          {
+            "checkTaxon": "Taxus pendula"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. lutea"
+          },
+          {
+            "checkTaxon": "Cephalotaxus tardiva"
+          },
+          {
+            "checkTaxon": "Taxus pyramidalis"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. macrocarpa"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. pendula-overeynderi"
+          },
+          {
+            "checkTaxon": "Taxus adpressa"
+          },
+          {
+            "checkTaxon": "Taxus recurvata"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. prostrata"
+          },
+          {
+            "checkTaxon": "Taxus aurea"
+          },
+          {
+            "checkTaxon": "Taxus sparsifolia"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. pyramidalis"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. aurea"
+          },
+          {
+            "checkTaxon": "Taxus tardiva"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. dovastoniana"
+          },
+          {
+            "checkTaxon": "Taxus variegata"
+          },
+          {
+            "checkTaxon": "Taxus baccata var. variegata"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. elegantissima"
+          },
+          {
+            "checkTaxon": "Taxus virgata"
+          },
+          {
+            "checkTaxon": "Taxus baccifera"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. erecta"
+          },
+          {
+            "checkTaxon": "Verataxus adpressa"
+          },
+          {
+            "checkTaxon": "Taxus columnaris"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. ericoides"
+          },
+          {
+            "checkTaxon": "Taxus communis"
+          },
+          {
+            "checkTaxon": "Taxus disticha"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. expansa"
+          },
+          {
+            "checkTaxon": "Taxus dovastonii"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. linearis"
+          },
+          {
+            "checkTaxon": "Taxus elegantissima"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. lutea"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. pendula"
+          },
+          {
+            "checkTaxon": "Taxus elvastonensis"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. pendula-graciosa"
+          },
+          {
+            "checkTaxon": "Taxus empetrifolia"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. pyramidalis"
+          },
+          {
+            "checkTaxon": "Taxus erecta"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. repandens"
+          },
+          {
+            "checkTaxon": "Taxus ericoides"
+          },
+          {
+            "checkTaxon": "Taxus expansa"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. semperaurea"
+          },
+          {
+            "checkTaxon": "Taxus fastigiata"
+          },
+          {
+            "checkTaxon": "Taxus baccata f. stricta"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
           }
         ]
       }
@@ -17979,6 +18718,8 @@
       {
         "threatId": 4239313,
         "sourceId": 616,
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+=======
         "family": "Taxaceae",
         "genus": "Taxus",
         "species": "baccata",
@@ -18157,6 +18898,188 @@
         }
       },
       {
+        "threatId": 4124946,
+        "sourceId": 3829,
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+        "family": "Taxaceae",
+        "genus": "Taxus",
+        "species": "baccata",
+        "author1": "L.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": null,
+        "bgciScope": "Not global, Armenia",
+        "assessmentYear": null,
+        "consAssCategory": "VU",
+        "consAssCriteria": null,
+        "bgciConRating": "VU",
+        "threatened": "Threatened",
+        "referenceId": 79,
+        "reference": "Red Book of Armenia",
+        "synonym": null,
+        "distribution": null,
+        "taxonName": "Taxus baccata",
+        "genusSpecies": "Taxus baccata",
+        "bgciUrl": null,
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "Red Book of Armenia"
+        },
+        "TSPlantList": {
+          "tplFamily": "Poaceae",
+          "tplFullName": "Festuca drymeja",
+          "tplAuthor": "Mert. & W.D.J.Koch",
+          "tplTaxonomicStatus": "Accepted"
+        }
+      },
+      {
+        "threatId": 4282585,
+        "sourceId": 413600,
+        "family": "Taxaceae",
+        "genus": "Taxus",
+        "species": "baccata",
+        "author1": null,
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Not Global",
+        "assessmentYear": 2016,
+        "consAssCategory": "LC",
+        "consAssCriteria": null,
+        "bgciConRating": null,
+        "threatened": "Not Threatened",
+        "referenceId": 117,
+        "reference": "Liste rouge Plantes vasculaires - Suisse",
+        "synonym": null,
+        "distribution": null,
+        "taxonName": "Taxus baccata",
+        "genusSpecies": "Taxus baccata",
+        "bgciUrl": "https://www.bafu.admin.ch/uv-1621-f",
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": null
+        },
+        "TSPlantList": {
+          "tplFamily": "Taxaceae",
+          "tplFullName": "Taxus baccata",
+          "tplAuthor": "L.",
+          "tplTaxonomicStatus": "Accepted"
+        }
+      },
+      {
+        "threatId": 4283716,
+        "sourceId": 281,
+        "family": "Taxaceae",
+        "genus": "Taxus",
+        "species": "baccata",
+        "author1": null,
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Not Global",
+        "assessmentYear": 2015,
+        "consAssCategory": "VU",
+        "consAssCriteria": null,
+        "bgciConRating": null,
+        "threatened": "Threatened",
+        "referenceId": 118,
+        "reference": "NorweigianRedList (2015)",
+        "synonym": null,
+        "distribution": null,
+        "taxonName": "Taxus baccata",
+        "genusSpecies": "Taxus baccata",
+        "bgciUrl": "https://www.biodiversity.no/Pages/135380",
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": null
+        },
+        "TSPlantList": {
+          "tplFamily": "Taxaceae",
+          "tplFullName": "Taxus baccata",
+          "tplAuthor": "L.",
+          "tplTaxonomicStatus": "Accepted"
+        }
+      },
+      {
+        "threatId": 4409672,
+        "sourceId": 28,
+        "family": "Taxaceae",
+        "genus": "Taxus",
+        "species": "baccata",
+        "author1": "L.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Not Global",
+        "assessmentYear": 1996,
+        "consAssCategory": "LRnt",
+        "consAssCriteria": null,
+        "bgciConRating": null,
+        "threatened": "Possibly Threatened",
+        "referenceId": 167,
+        "reference": "Güner, A. and Zielinski, J. 1996. The conservation status of Turkish woody flora. In: D.R. Hunt (ed.) Temperate trees under threat, pp.12. Proceedings of an International Dendrological Society Symposium on the conservation status of temperate trees, 30 Se",
+        "synonym": null,
+        "distribution": null,
+        "taxonName": "Taxus baccata",
+        "genusSpecies": "Taxus baccata",
+        "bgciUrl": null,
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "Güner, A. and Zielinski, J. 1996. The conservation status of Turkish woody flora. Proceedings of an International Dendrological Society Symposium on the conservation status of temperate trees, 30 Sept.-1 Oct. 1994, University of Bonn"
+        },
+        "TSPlantList": {
+          "tplFamily": "Taxaceae",
+          "tplFullName": "Taxus baccata",
+          "tplAuthor": "L.",
+          "tplTaxonomicStatus": "Accepted"
+        }
+      },
+      {
+        "threatId": 4238825,
+        "sourceId": 128,
+        "family": "Thelypteridaceae",
+        "genus": "Thelypteris",
+        "species": "palustris",
+        "author1": "Schott",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": null,
+        "bgciScope": "Not global, Armenia",
+        "assessmentYear": null,
+        "consAssCategory": "CR",
+        "consAssCriteria": null,
+        "bgciConRating": "CR",
+        "threatened": "Threatened",
+        "referenceId": 79,
+        "reference": "Red Book of Armenia",
+        "synonym": null,
+        "distribution": null,
+        "taxonName": "Thelypteris palustris",
+        "genusSpecies": "Thelypteris palustris",
+        "bgciUrl": null,
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "Red Book of Armenia"
+        },
+        "TSPlantList": {
+          "tplFamily": "Taxaceae",
+          "tplFullName": "Taxus baccata",
+          "tplAuthor": "L.",
+          "tplTaxonomicStatus": "Accepted"
+        },
+        "countries": " Norway"
+      },
+      {
         "threatId": 4125866,
         "sourceId": 20123,
         "family": "Taxaceae",
@@ -18192,6 +19115,7 @@
           "tplTaxonomicStatus": "Accepted"
         },
         "countries": " Estonia"
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
       },
       {
         "threatId": 4124946,
@@ -18229,43 +19153,8 @@
           "tplTaxonomicStatus": "Accepted"
         },
         "countries": " Norway"
-      },
-      {
-        "threatId": 4126206,
-        "sourceId": 21060,
-        "family": "Taxaceae",
-        "genus": "Taxus",
-        "species": "baccata",
-        "author1": "L.",
-        "infraSpecRank": null,
-        "infraSpecName": null,
-        "author2": null,
-        "bgciTree": 0,
-        "bgciScope": "Unknown",
-        "assessmentYear": 2001,
-        "consAssCategory": "NT",
-        "consAssCriteria": null,
-        "bgciConRating": null,
-        "threatened": "Possibly Threatened",
-        "referenceId": 65,
-        "reference": "NationalRL_0915",
-        "synonym": null,
-        "distribution": null,
-        "taxonName": "Taxus baccata",
-        "genusSpecies": "Taxus baccata",
-        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=21060",
-        "comment": null,
-        "exclude": null,
-        "TSSource": {
-          "fullCitation": "National Red List www.nationalredlist.org"
-        },
-        "TSPlantList": {
-          "tplFamily": "Taxaceae",
-          "tplFullName": "Taxus baccata",
-          "tplAuthor": "L.",
-          "tplTaxonomicStatus": "Accepted"
-        },
-        "countries": " Finland"
+=======
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4137178,
@@ -18302,7 +19191,11 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+        "countries": " Finland"
+=======
         "countries": " Sweden"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4139726,
@@ -18339,7 +19232,52 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+        "countries": " Sweden"
+=======
         "countries": " Switzerland"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+      },
+      {
+        "threatId": 4126206,
+        "sourceId": 21060,
+        "family": "Taxaceae",
+        "genus": "Taxus",
+        "species": "baccata",
+        "author1": "L.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Unknown",
+        "assessmentYear": 2001,
+        "consAssCategory": "NT",
+        "consAssCriteria": null,
+        "bgciConRating": null,
+        "threatened": "Possibly Threatened",
+        "referenceId": 65,
+        "reference": "NationalRL_0915",
+        "synonym": null,
+        "distribution": null,
+        "taxonName": "Taxus baccata",
+        "genusSpecies": "Taxus baccata",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=21060",
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "National Red List www.nationalredlist.org"
+        },
+        "TSPlantList": {
+          "tplFamily": "Taxaceae",
+          "tplFullName": "Taxus baccata",
+          "tplAuthor": "L.",
+          "tplTaxonomicStatus": "Accepted"
+        },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+        "countries": " Switzerland"
+=======
+        "countries": " Finland"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4143297,
@@ -18414,6 +19352,46 @@
           "tplTaxonomicStatus": "Accepted"
         },
         "countries": " Andorra"
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+=======
+      },
+      {
+        "threatId": 4174371,
+        "sourceId": 146078,
+        "family": "Taxaceae",
+        "genus": "Taxus",
+        "species": "baccata",
+        "author1": "L.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Unknown",
+        "assessmentYear": 2010,
+        "consAssCategory": "NT",
+        "consAssCriteria": null,
+        "bgciConRating": null,
+        "threatened": "Possibly Threatened",
+        "referenceId": 65,
+        "reference": "NationalRL_0915",
+        "synonym": null,
+        "distribution": null,
+        "taxonName": "Taxus baccata",
+        "genusSpecies": "Taxus baccata",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=146078",
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "National Red List www.nationalredlist.org"
+        },
+        "TSPlantList": {
+          "tplFamily": "Taxaceae",
+          "tplFullName": "Taxus baccata",
+          "tplAuthor": "L.",
+          "tplTaxonomicStatus": "Accepted"
+        },
+        "countries": " Finland"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4153817,
@@ -18450,7 +19428,11 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "countries": " Hungary"
+=======
+        "countries": " Switzerland"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4152457,
@@ -18486,6 +19468,7 @@
           "tplFullName": "Taxus baccata",
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         },
         "countries": " Switzerland"
       },
@@ -18525,6 +19508,10 @@
           "tplTaxonomicStatus": "Accepted"
         },
         "countries": " Finland"
+=======
+        },
+        "countries": " Hungary"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4175790,
@@ -18601,8 +19588,8 @@
         "countries": " Sweden"
       },
       {
-        "threatId": 4178655,
-        "sourceId": 161887,
+        "threatId": 4187702,
+        "sourceId": 181159,
         "family": "Taxaceae",
         "genus": "Taxus",
         "species": "baccata",
@@ -18612,18 +19599,18 @@
         "author2": null,
         "bgciTree": 0,
         "bgciScope": "Unknown",
-        "assessmentYear": 2008,
-        "consAssCategory": "NT",
+        "assessmentYear": 2010,
+        "consAssCategory": "VU",
         "consAssCriteria": null,
         "bgciConRating": null,
-        "threatened": "Possibly Threatened",
+        "threatened": "Threatened",
         "referenceId": 65,
         "reference": "NationalRL_0915",
         "synonym": null,
         "distribution": null,
         "taxonName": "Taxus baccata",
         "genusSpecies": "Taxus baccata",
-        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=161887",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=181159",
         "comment": null,
         "exclude": null,
         "TSSource": {
@@ -18635,7 +19622,11 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "countries": " "
+=======
+        "countries": " Norway"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4186677,
@@ -18675,8 +19666,8 @@
         "countries": " Bulgaria"
       },
       {
-        "threatId": 4187702,
-        "sourceId": 181159,
+        "threatId": 4178655,
+        "sourceId": 161887,
         "family": "Taxaceae",
         "genus": "Taxus",
         "species": "baccata",
@@ -18686,18 +19677,18 @@
         "author2": null,
         "bgciTree": 0,
         "bgciScope": "Unknown",
-        "assessmentYear": 2010,
-        "consAssCategory": "VU",
+        "assessmentYear": 2008,
+        "consAssCategory": "NT",
         "consAssCriteria": null,
         "bgciConRating": null,
-        "threatened": "Threatened",
+        "threatened": "Possibly Threatened",
         "referenceId": 65,
         "reference": "NationalRL_0915",
         "synonym": null,
         "distribution": null,
         "taxonName": "Taxus baccata",
         "genusSpecies": "Taxus baccata",
-        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=181159",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=161887",
         "comment": null,
         "exclude": null,
         "TSSource": {
@@ -18709,7 +19700,11 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "countries": " Norway"
+=======
+        "countries": " "
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4194444,
@@ -18746,7 +19741,11 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "countries": " Albania"
+=======
+        "countries": " Czech Republic"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4188856,
@@ -18783,7 +19782,11 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "countries": " Czech Republic"
+=======
+        "countries": " Albania"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4195215,
@@ -18860,6 +19863,138 @@
         "countries": " Bulgaria"
       },
       {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+        "threatId": 4381713,
+        "sourceId": 218923,
+=======
+        "threatId": 4381712,
+        "sourceId": 217485,
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+        "family": "Taxaceae",
+        "genus": "Taxus",
+        "species": "baccata",
+        "author1": "L.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Unknown",
+        "assessmentYear": 2007,
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+        "consAssCategory": "Ex",
+        "consAssCriteria": "",
+        "bgciConRating": null,
+        "threatened": "Extinct",
+        "referenceId": 124,
+        "reference": "National Red List",
+        "synonym": null,
+        "distribution": "Lithuania",
+        "taxonName": "Taxus baccata",
+        "genusSpecies": "Taxus baccata",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=218923",
+        "comment": "Extinct or possibly extinct",
+=======
+        "consAssCategory": "PV",
+        "consAssCriteria": "",
+        "bgciConRating": null,
+        "threatened": "Possibly Threatened",
+        "referenceId": 124,
+        "reference": "National Red List",
+        "synonym": null,
+        "distribution": "Hungary",
+        "taxonName": "Taxus baccata",
+        "genusSpecies": "Taxus baccata",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=217485",
+        "comment": "Near Threatened",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "National Red List www.nationalredlist.org"
+        },
+        "TSPlantList": {
+          "tplFamily": "Taxaceae",
+          "tplFullName": "Taxus baccata",
+          "tplAuthor": "L.",
+          "tplTaxonomicStatus": "Accepted"
+        },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+        "countries": " Lithuania"
+=======
+        "countries": " Hungary"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+      },
+      {
+        "threatId": 4381714,
+        "sourceId": 232770,
+        "family": "Taxaceae",
+        "genus": "Taxus",
+        "species": "baccata",
+        "author1": "L.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Unknown",
+        "assessmentYear": 2008,
+        "consAssCategory": "CR",
+        "consAssCriteria": "",
+        "bgciConRating": null,
+        "threatened": "Threatened",
+        "referenceId": 124,
+        "reference": "National Red List",
+        "synonym": null,
+        "distribution": "Andorra",
+        "taxonName": "Taxus baccata",
+        "genusSpecies": "Taxus baccata",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=232770",
+        "comment": "Critically Endangered",
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "National Red List www.nationalredlist.org"
+        },
+        "TSPlantList": {
+          "tplFamily": "Taxaceae",
+          "tplFullName": "Taxus baccata",
+          "tplAuthor": "L.",
+          "tplTaxonomicStatus": "Accepted"
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+        },
+        "countries": " Andorra"
+      },
+      {
+        "threatId": 4381712,
+        "sourceId": 217485,
+        "family": "Taxaceae",
+        "genus": "Taxus",
+        "species": "baccata",
+        "author1": "L.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Unknown",
+        "assessmentYear": 2007,
+        "consAssCategory": "PV",
+        "consAssCriteria": "",
+        "bgciConRating": null,
+        "threatened": "Possibly Threatened",
+        "referenceId": 124,
+        "reference": "National Red List",
+        "synonym": null,
+        "distribution": "Hungary",
+        "taxonName": "Taxus baccata",
+        "genusSpecies": "Taxus baccata",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=217485",
+        "comment": "Near Threatened",
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "National Red List www.nationalredlist.org"
+        },
+=======
+        },
+        "countries": " Estonia"
+      },
+      {
         "threatId": 4381713,
         "sourceId": 218923,
         "family": "Taxaceae",
@@ -18888,11 +20023,16 @@
         "TSSource": {
           "fullCitation": "National Red List www.nationalredlist.org"
         },
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "TSPlantList": {
           "tplFamily": "Taxaceae",
           "tplFullName": "Taxus baccata",
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+        },
+        "countries": " Hungary"
+=======
         },
         "countries": " Lithuania"
       },
@@ -18932,43 +20072,7 @@
           "tplTaxonomicStatus": "Accepted"
         },
         "countries": " Andorra"
-      },
-      {
-        "threatId": 4381712,
-        "sourceId": 217485,
-        "family": "Taxaceae",
-        "genus": "Taxus",
-        "species": "baccata",
-        "author1": "L.",
-        "infraSpecRank": null,
-        "infraSpecName": null,
-        "author2": null,
-        "bgciTree": 0,
-        "bgciScope": "Unknown",
-        "assessmentYear": 2007,
-        "consAssCategory": "PV",
-        "consAssCriteria": "",
-        "bgciConRating": null,
-        "threatened": "Possibly Threatened",
-        "referenceId": 124,
-        "reference": "National Red List",
-        "synonym": null,
-        "distribution": "Hungary",
-        "taxonName": "Taxus baccata",
-        "genusSpecies": "Taxus baccata",
-        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=217485",
-        "comment": "Near Threatened",
-        "exclude": null,
-        "TSSource": {
-          "fullCitation": "National Red List www.nationalredlist.org"
-        },
-        "TSPlantList": {
-          "tplFamily": "Taxaceae",
-          "tplFullName": "Taxus baccata",
-          "tplAuthor": "L.",
-          "tplTaxonomicStatus": "Accepted"
-        },
-        "countries": " Hungary"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4381715,
@@ -19008,43 +20112,6 @@
         "countries": " Spain (País Vasco)"
       },
       {
-        "threatId": 4381716,
-        "sourceId": 242668,
-        "family": "Taxaceae",
-        "genus": "Taxus",
-        "species": "baccata",
-        "author1": "L.",
-        "infraSpecRank": null,
-        "infraSpecName": null,
-        "author2": null,
-        "bgciTree": 0,
-        "bgciScope": "Unknown",
-        "assessmentYear": 1996,
-        "consAssCategory": "3",
-        "consAssCriteria": "",
-        "bgciConRating": null,
-        "threatened": "Threatened",
-        "referenceId": 124,
-        "reference": "National Red List",
-        "synonym": null,
-        "distribution": "Germany",
-        "taxonName": "Taxus baccata",
-        "genusSpecies": "Taxus baccata",
-        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=242668",
-        "comment": "Endangered (Gefährdet)",
-        "exclude": null,
-        "TSSource": {
-          "fullCitation": "National Red List www.nationalredlist.org"
-        },
-        "TSPlantList": {
-          "tplFamily": "Taxaceae",
-          "tplFullName": "Taxus baccata",
-          "tplAuthor": "L.",
-          "tplTaxonomicStatus": "Accepted"
-        },
-        "countries": " Germany"
-      },
-      {
         "threatId": 4381717,
         "sourceId": 243652,
         "family": "Taxaceae",
@@ -19079,7 +20146,52 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+        "countries": " Germany"
+=======
         "countries": " Spain (Andalucia)"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+      },
+      {
+        "threatId": 4381716,
+        "sourceId": 242668,
+        "family": "Taxaceae",
+        "genus": "Taxus",
+        "species": "baccata",
+        "author1": "L.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Unknown",
+        "assessmentYear": 1996,
+        "consAssCategory": "3",
+        "consAssCriteria": "",
+        "bgciConRating": null,
+        "threatened": "Threatened",
+        "referenceId": 124,
+        "reference": "National Red List",
+        "synonym": null,
+        "distribution": "Germany",
+        "taxonName": "Taxus baccata",
+        "genusSpecies": "Taxus baccata",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=242668",
+        "comment": "Endangered (Gefährdet)",
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "National Red List www.nationalredlist.org"
+        },
+        "TSPlantList": {
+          "tplFamily": "Taxaceae",
+          "tplFullName": "Taxus baccata",
+          "tplAuthor": "L.",
+          "tplTaxonomicStatus": "Accepted"
+        },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+        "countries": " Spain (Andalucia)"
+=======
+        "countries": " Germany"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4381718,
@@ -19227,7 +20339,11 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "countries": " Estonia"
+=======
+        "countries": " United Kingdom"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4381721,
@@ -19264,7 +20380,11 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "countries": " United Kingdom"
+=======
+        "countries": " Germany (Berlin)"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4381724,
@@ -19337,6 +20457,7 @@
           "tplFullName": "Taxus baccata",
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         },
         "countries": " Ireland"
       },
@@ -19375,6 +20496,9 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         },
+=======
+        },
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "countries": " Netherlands"
       },
       {
@@ -19415,8 +20539,13 @@
         "countries": " Austria"
       },
       {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "threatId": 4381723,
         "sourceId": 308403,
+=======
+        "threatId": 4381726,
+        "sourceId": 317667,
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "family": "Taxaceae",
         "genus": "Taxus",
         "species": "baccata",
@@ -19426,6 +20555,7 @@
         "author2": null,
         "bgciTree": 0,
         "bgciScope": "Unknown",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "assessmentYear": 2005,
         "consAssCategory": "0",
         "consAssCriteria": "",
@@ -19439,6 +20569,21 @@
         "genusSpecies": "Taxus baccata",
         "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=308403",
         "comment": "Extinct or missing (Ausgestorben oder verschollen)",
+=======
+        "assessmentYear": 2016,
+        "consAssCategory": "LC",
+        "consAssCriteria": "",
+        "bgciConRating": null,
+        "threatened": "Not Threatened",
+        "referenceId": 124,
+        "reference": "National Red List",
+        "synonym": null,
+        "distribution": "Ireland",
+        "taxonName": "Taxus baccata",
+        "genusSpecies": "Taxus baccata",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=317667",
+        "comment": "Least Concern",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "exclude": null,
         "TSSource": {
           "fullCitation": "National Red List www.nationalredlist.org"
@@ -19449,7 +20594,11 @@
           "tplAuthor": "L.",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "countries": " Germany (Berlin)"
+=======
+        "countries": " Ireland"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       }
     ]
   },
@@ -105278,6 +106427,7 @@
       {
         "threatId": 4241201,
         "sourceId": 498,
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "family": "Fabaceae",
         "genus": "Dalbergia",
         "species": "melanoxylon",
@@ -105322,6 +106472,289 @@
         "infraSpecName": null,
         "author2": null,
         "bgciTree": 0,
+        "bgciScope": "Global",
+        "assessmentYear": 2011,
+        "consAssCategory": "LC",
+        "consAssCriteria": null,
+        "bgciConRating": null,
+        "threatened": "Not Threatened",
+        "referenceId": 243,
+        "reference": "Onana 2011",
+        "synonym": null,
+        "distribution": null,
+        "taxonName": "Dalbergia melanoxylon",
+        "genusSpecies": "Dalbergia melanoxylon",
+        "bgciUrl": null,
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "Onana, J.M. ed., 2011. Flore Du Cameroun: The Vascular Plants of Cameroon: a Taxonomic Checklist with IUCN Assessments./Compiled and Ed. by Jean Michel Onana. National Herbarium of Cameroon."
+        },
+        "TSPlantList": null
+      },
+      {
+        "threatId": 407576,
+        "sourceId": 1072,
+        "family": "Leguminosae",
+        "genus": "Dalbergia",
+        "species": "melanoxylon",
+        "author1": "Guill. & Perr.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Global",
+        "assessmentYear": 2012,
+        "consAssCategory": "NT",
+        "consAssCriteria": null,
+        "bgciConRating": "NT",
+        "threatened": "Possibly Threatened",
+        "referenceId": 23,
+        "reference": "Kew_CAT",
+        "synonym": null,
+        "distribution": null,
+        "taxonName": "Dalbergia melanoxylon",
+        "genusSpecies": "Dalbergia melanoxylon",
+        "bgciUrl": null,
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": null
+        },
+        "TSPlantList": {
+          "tplFamily": "Leguminosae",
+          "tplFullName": "Dalbergia melanoxylon",
+          "tplAuthor": "Guill. & Perr.",
+          "tplTaxonomicStatus": "Accepted"
+        }
+      },
+      {
+        "threatId": 412361,
+        "sourceId": 5824,
+        "family": "Leguminosae",
+        "genus": "Dalbergia",
+        "species": "melanoxylon",
+        "author1": "Guill. & Perr.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Global",
+        "assessmentYear": 2010,
+        "consAssCategory": "Not Threatened",
+        "consAssCriteria": null,
+        "bgciConRating": null,
+        "threatened": "Not Threatened",
+        "referenceId": 23,
+        "reference": "Kew_CAT",
+        "synonym": null,
+        "distribution": null,
+        "taxonName": "Dalbergia melanoxylon",
+        "genusSpecies": "Dalbergia melanoxylon",
+        "bgciUrl": "http://www.legumes-online.net/ildis/aweb/database.htm",
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": null
+        },
+        "TSPlantList": {
+          "tplFamily": "Leguminosae",
+          "tplFullName": "Dalbergia melanoxylon",
+          "tplAuthor": "Guill. & Perr.",
+          "tplTaxonomicStatus": "Accepted"
+        }
+      },
+      {
+        "threatId": 4062164,
+        "sourceId": 32504,
+        "family": "LEGUMINOSAE",
+        "genus": "Dalbergia",
+        "species": "melanoxylon",
+        "author1": "Guill. & Perr.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Global",
+        "assessmentYear": 1998,
+        "consAssCategory": "LR/nt",
+        "consAssCriteria": null,
+        "bgciConRating": "LR/nt",
+        "threatened": "Possibly Threatened",
+        "referenceId": 10,
+        "reference": "IUCN_2014_3",
+        "synonym": null,
+        "distribution": null,
+        "taxonName": "Dalbergia melanoxylon",
+        "genusSpecies": "Dalbergia melanoxylon",
+        "bgciUrl": "http://www.iucnredlist.org/details/32504/0",
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "IUCN Red List of Threatened Species v. 2014.3 www.iucnredlist.org"
+        },
+        "TSPlantList": {
+          "tplFamily": "Leguminosae",
+          "tplFullName": "Dalbergia melanoxylon",
+          "tplAuthor": "Guill. & Perr.",
+          "tplTaxonomicStatus": "Accepted"
+        }
+      },
+      {
+        "threatId": 4127025,
+        "sourceId": 27478,
+        "family": "Fabaceae",
+        "genus": "Dalbergia",
+        "species": "melanoxylon",
+        "author1": "Guill. & Perr.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Unknown",
+        "assessmentYear": 2001,
+        "consAssCategory": "VU",
+        "consAssCriteria": "A1acdB1B2abce",
+        "bgciConRating": null,
+        "threatened": "Threatened",
+        "referenceId": 65,
+        "reference": "NationalRL_0915",
+        "synonym": null,
+        "distribution": "South, Central?",
+        "taxonName": "Dalbergia melanoxylon",
+        "genusSpecies": "Dalbergia melanoxylon",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=27478",
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "National Red List www.nationalredlist.org"
+        },
+        "TSPlantList": {
+          "tplFamily": "Leguminosae",
+          "tplFullName": "Dalbergia melanoxylon",
+          "tplAuthor": "Guill. & Perr.",
+          "tplTaxonomicStatus": "Accepted"
+        },
+        "countries": " Malawi"
+      },
+      {
+        "threatId": 4142068,
+        "sourceId": 61990,
+        "family": "Fabaceae",
+        "genus": "Dalbergia",
+        "species": "melanoxylon",
+        "author1": "Guill. & Perr.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Unknown",
+        "assessmentYear": 2001,
+        "consAssCategory": "LR/nt",
+        "consAssCriteria": null,
+        "bgciConRating": null,
+        "threatened": "Possibly Threatened",
+        "referenceId": 65,
+        "reference": "NationalRL_0915",
+        "synonym": null,
+        "distribution": "Widespread",
+        "taxonName": "Dalbergia melanoxylon",
+        "genusSpecies": "Dalbergia melanoxylon",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=61990",
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "National Red List www.nationalredlist.org"
+        },
+        "TSPlantList": {
+          "tplFamily": "Leguminosae",
+          "tplFullName": "Dalbergia melanoxylon",
+          "tplAuthor": "Guill. & Perr.",
+          "tplTaxonomicStatus": "Accepted"
+        },
+        "countries": " Zimbabwe"
+      },
+      {
+        "threatId": 4141641,
+        "sourceId": 61434,
+=======
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+        "family": "Fabaceae",
+        "genus": "Dalbergia",
+        "species": "melanoxylon",
+        "author1": "Guill. & Perr.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+        "bgciScope": "Unknown",
+        "assessmentYear": 2001,
+        "consAssCategory": "VU",
+        "consAssCriteria": "A1d",
+        "bgciConRating": null,
+        "threatened": "Threatened",
+        "referenceId": 65,
+        "reference": "NationalRL_0915",
+        "synonym": null,
+        "distribution": "Central/East",
+        "taxonName": "Dalbergia melanoxylon",
+        "genusSpecies": "Dalbergia melanoxylon",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=61434",
+        "comment": null,
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "National Red List www.nationalredlist.org"
+        },
+        "TSPlantList": {
+          "tplFamily": "Leguminosae",
+          "tplFullName": "Dalbergia melanoxylon",
+          "tplAuthor": "Guill. & Perr.",
+          "tplTaxonomicStatus": "Accepted"
+        },
+        "countries": " Zambia"
+      },
+      {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+        "threatId": 4372480,
+        "sourceId": 263725,
+=======
+        "threatId": 4437835,
+        "sourceId": 2635,
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+        "family": "Fabaceae",
+        "genus": "Dalbergia",
+        "species": "melanoxylon",
+        "author1": "Guill. & Perr.",
+        "infraSpecRank": null,
+        "infraSpecName": null,
+        "author2": null,
+        "bgciTree": 0,
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+        "bgciScope": "Unknown",
+        "assessmentYear": 2016,
+        "consAssCategory": "VU A2ad",
+        "consAssCriteria": "Probably declined by more than 30% because of harvesting for carving and fires outside protected areas in West Nile and northern Uganda. Many trees dying in woodlands in Bugungu and MFNP (probably fire-related)",
+        "bgciConRating": null,
+        "threatened": "Threatened",
+        "referenceId": 124,
+        "reference": "National Red List",
+        "synonym": null,
+        "distribution": "Uganda",
+        "taxonName": "Dalbergia melanoxylon",
+        "genusSpecies": "Dalbergia melanoxylon",
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=263725",
+        "comment": "Vulnerable",
+        "exclude": null,
+        "TSSource": {
+          "fullCitation": "National Red List www.nationalredlist.org"
+        },
+        "TSPlantList": {
+          "tplFamily": "Fabaceae",
+          "tplFullName": "Dalbergia melanoxylon",
+          "tplAuthor": "Guill. & Perr.",
+          "tplTaxonomicStatus": "Accepted"
+        },
+=======
         "bgciScope": "Global",
         "assessmentYear": 2011,
         "consAssCategory": "LC",
@@ -105596,6 +107029,7 @@
           "tplAuthor": "Guill. & Perr.",
           "tplTaxonomicStatus": "Accepted"
         },
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "countries": " Uganda"
       }
     ]
@@ -105874,17 +107308,17 @@
         "TSGeolinks": [
           {
             "country": "Brazil",
-            "province": "Amazonas",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
             "province": "Amapá",
             "uncertainty": null
           },
           {
             "country": "Brazil",
             "province": "Pará",
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+            "province": "Amazonas",
             "uncertainty": null
           },
           {
@@ -105910,10 +107344,10 @@
         ],
         "TSTaxas": [
           {
-            "checkTaxon": "Robinia panacoco"
+            "checkTaxon": "Swartzia tomentosa"
           },
           {
-            "checkTaxon": "Swartzia tomentosa"
+            "checkTaxon": "Robinia panacoco"
           }
         ]
       }
@@ -106560,67 +107994,118 @@
         "TSGeolinks": [
           {
             "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "province": "Minas Gerais",
             "uncertainty": null
           },
           {
             "country": "Brazil",
             "province": "Rondônia",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
-            "province": "Santa Catarina",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
-            "province": "Paraíba",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
-            "province": "São Paulo",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
-            "province": "Pernambuco",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
-            "province": "Paraná",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
-            "province": "Bahia",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
-            "province": "Rio de Janeiro",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
-            "province": "Brasília Distrito Federal",
-            "uncertainty": null
-          },
-          {
-            "country": "Brazil",
+=======
             "province": "Rio Grande do Norte",
             "uncertainty": "[?]"
           },
           {
             "country": "Brazil",
             "province": "Espírito Santo",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Santa Catarina",
+=======
+            "province": "Rondônia",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Paraíba",
+=======
+            "province": "Minas Gerais",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "São Paulo",
+=======
+            "province": "Santa Catarina",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Pernambuco",
+=======
+            "province": "Paraíba",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Paraná",
+=======
+            "province": "São Paulo",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Bahia",
+=======
+            "province": "Pernambuco",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Rio de Janeiro",
+=======
+            "province": "Paraná",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Brasília Distrito Federal",
+=======
+            "province": "Bahia",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Rio Grande do Norte",
+            "uncertainty": "[?]"
+          },
+          {
+            "country": "Brazil",
+            "province": "Espírito Santo",
+=======
+            "province": "Rio de Janeiro",
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+            "province": "Brasília Distrito Federal",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           }
         ],
         "TSTaxas": [
           {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "checkTaxon": "Zollernia latifolia"
           },
           {
@@ -106628,12 +108113,25 @@
           },
           {
             "checkTaxon": "Zollernia securidacifolia"
+=======
+            "checkTaxon": "Zollernia securidacifolia"
+          },
+          {
+            "checkTaxon": "Zollernia krukoffii"
+          },
+          {
+            "checkTaxon": "Zollernia vogelii"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
           },
           {
             "checkTaxon": "Zollernia houlletiana"
           },
           {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "checkTaxon": "Zollernia krukoffii"
+=======
+            "checkTaxon": "Zollernia houlletiana"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
           }
         ]
       }
@@ -107279,11 +108777,16 @@
           },
           {
             "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "province": "Amazonas",
+=======
+            "province": "Tocantins",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           },
           {
             "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
             "province": "Pará",
             "uncertainty": null
           },
@@ -107300,11 +108803,42 @@
           {
             "country": "Brazil",
             "province": "Tocantins",
+=======
+            "province": "Amazonas",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           },
           {
             "country": "Brazil",
+            "province": "Pará",
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Pernambuco",
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+            "province": "Maranhão",
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+            "province": "Bahia",
+=======
+            "province": "Goiás",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
+            "uncertainty": null
+          },
+          {
+            "country": "Brazil",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+            "province": "Acre",
+=======
             "province": "Roraima",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "uncertainty": null
           },
           {
@@ -107333,6 +108867,8 @@
             "uncertainty": null
           },
           {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+=======
             "country": "Brazil",
             "province": "Rio de Janeiro",
             "uncertainty": null
@@ -107353,6 +108889,12 @@
             "uncertainty": null
           },
           {
+            "country": "Brazil",
+            "province": "Rondônia",
+            "uncertainty": null
+          },
+          {
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
             "country": "Colombia",
             "province": null,
             "uncertainty": null
@@ -112102,6 +113644,7 @@
         }
       ]
     },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
     "trees": [
       {
         "id": 52495,
@@ -112177,6 +113720,8 @@
         ]
       }
     ],
+=======
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
     "listings": {
       "Swietenia mahagoni": {
         "Id": 16833,
@@ -112348,8 +113893,13 @@
         "TSPlantList": null
       },
       {
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "threatId": 4181502,
         "sourceId": 167829,
+=======
+        "threatId": 4154723,
+        "sourceId": 112719,
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "family": "Meliaceae",
         "genus": "Swietenia",
         "species": "mahagoni",
@@ -112358,19 +113908,32 @@
         "infraSpecName": null,
         "author2": null,
         "bgciTree": 0,
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "bgciScope": "Not Global",
         "assessmentYear": 2009,
         "consAssCategory": "LC",
         "consAssCriteria": "Preocupación menor (Least Concern)",
         "bgciConRating": null,
         "threatened": "Not Threatened",
+=======
+        "bgciScope": "Unknown",
+        "assessmentYear": 2008,
+        "consAssCategory": "CR",
+        "consAssCriteria": null,
+        "bgciConRating": null,
+        "threatened": "Threatened",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "referenceId": 65,
         "reference": "NationalRL_0915",
         "synonym": null,
         "distribution": null,
         "taxonName": "Swietenia mahagoni",
         "genusSpecies": "Swietenia mahagoni",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=167829",
+=======
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=112719",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "comment": null,
         "exclude": null,
         "TSSource": {
@@ -112382,11 +113945,19 @@
           "tplAuthor": "(L.) Jacq.",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "countries": " Cuba"
       },
       {
         "threatId": 4154723,
         "sourceId": 112719,
+=======
+        "countries": " Cayman Islands"
+      },
+      {
+        "threatId": 4181502,
+        "sourceId": 167829,
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "family": "Meliaceae",
         "genus": "Swietenia",
         "species": "mahagoni",
@@ -112395,19 +113966,32 @@
         "infraSpecName": null,
         "author2": null,
         "bgciTree": 0,
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "bgciScope": "Unknown",
         "assessmentYear": 2008,
         "consAssCategory": "CR",
         "consAssCriteria": null,
         "bgciConRating": null,
         "threatened": "Threatened",
+=======
+        "bgciScope": "Not Global",
+        "assessmentYear": 2009,
+        "consAssCategory": "LC",
+        "consAssCriteria": "Preocupación menor (Least Concern)",
+        "bgciConRating": null,
+        "threatened": "Not Threatened",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "referenceId": 65,
         "reference": "NationalRL_0915",
         "synonym": null,
         "distribution": null,
         "taxonName": "Swietenia mahagoni",
         "genusSpecies": "Swietenia mahagoni",
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=112719",
+=======
+        "bgciUrl": "http://www.nationalredlist.org/species-information/?speciesID=167829",
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
         "comment": null,
         "exclude": null,
         "TSSource": {
@@ -112419,7 +114003,11 @@
           "tplAuthor": "(L.) Jacq.",
           "tplTaxonomicStatus": "Accepted"
         },
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
         "countries": " Cayman Islands"
+=======
+        "countries": " Cuba"
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       },
       {
         "threatId": 4199930,
@@ -112457,6 +114045,84 @@
           "tplTaxonomicStatus": "Accepted"
         },
         "countries": " Dominican Republic"
+<<<<<<< HEAD:reactapp/frontend/src/data/timelinedata.json
+=======
+      }
+    ],
+    "trees": [
+      {
+        "id": 52495,
+        "taxon": "Swietenia mahagoni",
+        "family": "Meliaceae",
+        "author": "(L.) Jacq.",
+        "source": "PuertoRico Trees",
+        "problems": null,
+        "distributionDone": "yes",
+        "note": null,
+        "wcsp": null,
+        "TSGeolinks": [
+          {
+            "country": "Bahamas",
+            "province": null,
+            "uncertainty": null
+          },
+          {
+            "country": "Cayman Islands",
+            "province": null,
+            "uncertainty": null
+          },
+          {
+            "country": "Cuba",
+            "province": null,
+            "uncertainty": null
+          },
+          {
+            "country": "Dominican Republic",
+            "province": null,
+            "uncertainty": null
+          },
+          {
+            "country": "Haiti",
+            "province": null,
+            "uncertainty": null
+          },
+          {
+            "country": "Jamaica",
+            "province": null,
+            "uncertainty": null
+          },
+          {
+            "country": "Turks and Caicos Islands",
+            "province": null,
+            "uncertainty": null
+          },
+          {
+            "country": "United States",
+            "province": "Florida",
+            "uncertainty": null
+          }
+        ],
+        "TSTaxas": [
+          {
+            "checkTaxon": "Cedrela mahagoni"
+          },
+          {
+            "checkTaxon": "Cedrus mahagoni"
+          },
+          {
+            "checkTaxon": "Swietenia acutifolia"
+          },
+          {
+            "checkTaxon": "Swietenia fabrilis"
+          },
+          {
+            "checkTaxon": "Swietenia mahagoni var. praecociflora"
+          },
+          {
+            "checkTaxon": "Swietenia mahogani"
+          }
+        ]
+>>>>>>> 9666ec301bdc3a1a91a7c39b0911c7e0da599877:webapp/public/timelinedata.json
       }
     ]
   }
