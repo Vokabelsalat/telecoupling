@@ -1,5 +1,4 @@
-import { minIndex } from "d3";
-import { useCallback, useMemo, useState } from "react";
+import { Fragment, useCallback, useMemo, useState } from "react";
 
 export default function TreeMapTile(props) {
   const { node, parentTop = 0, parentLeft = 0 } = props;
@@ -63,8 +62,6 @@ export default function TreeMapTile(props) {
     }
   }, [max]);
 
-  /* const speciesLevel =
-    node.parent == null && node.children == null ? true : false; */
   const speciesLevel =
     node.data.mediaUrls != null && node.parent == null ? true : false;
 
@@ -92,10 +89,6 @@ export default function TreeMapTile(props) {
     return ph;
   }, [max, speciesLevel]);
 
-  /* content = getCoverPhoto() ?? getProxyPhoto();
-
-  if (speciesLevel === false) {
-  } else { */
   content = (
     <div
       style={{
@@ -109,7 +102,7 @@ export default function TreeMapTile(props) {
     >
       {[...photos].map((entry, index) => {
         return (
-          <>
+          <Fragment key={`MaterialViewPhoto-${index}`}>
             <img
               style={{
                 display:
@@ -119,9 +112,10 @@ export default function TreeMapTile(props) {
                 objectFit: speciesLevel ? "unset" : "cover"
               }}
               src={entry.src}
+              alt={`Material View ${index}`}
             />
             {entry.type === "proxy" && <div className="proxyText">PROXY</div>}
-          </>
+          </Fragment>
         );
       })}
       {speciesLevel && photos.length > 1 && (
@@ -157,7 +151,6 @@ export default function TreeMapTile(props) {
         width: node.x1 - node.x0,
         height: node.y1 - node.y0,
         backgroundColor: "gray",
-        /* border: "solid 1px black", */
         overflow: "hidden"
       }}
     >

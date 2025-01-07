@@ -76,11 +76,11 @@ export const getSpeciesFromTreeMap = (treeMapData) => {
 };
 
 export const filterTreeMap = (node, keys, filterLevel) => {
-  console.log("NODE", node);
+  // console.log("NODE", node);
   let test = node.filter((e) => {
-    console.log("FILTER", e);
+    // console.log("FILTER", e);
   });
-  console.log(test);
+  // console.log(test);
   return node.filter((el) => {
     if (el.filterDepth === filterLevel) {
       return keys.includes(el.name);

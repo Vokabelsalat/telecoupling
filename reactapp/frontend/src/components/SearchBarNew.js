@@ -2,6 +2,7 @@ import TextField from "@mui/material/TextField";
 import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
 import { useEffect, useState, useMemo } from "react";
 import { getFlagEmoji, langUnicode } from "./Tooltip";
+import { replaceSpecialCharacters } from "../utils/utils";
 
 export default function SearchBar(props) {
   const {
@@ -204,7 +205,9 @@ export default function SearchBar(props) {
                       } else {
                         let str = option[language];
                         return (
-                          <div>
+                          <div
+                            key={`searchOption${replaceSpecialCharacters(str)}`}
+                          >
                             {getFlagEmoji(langUnicode[language])} :{" "}
                             {str.charAt(0).toUpperCase() + str.slice(1)}
                           </div>
