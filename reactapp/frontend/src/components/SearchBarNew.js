@@ -13,7 +13,7 @@ export default function SearchBar(props) {
     speciesData: data
   } = props;
 
-  console.log(treeMapFilter);
+  // console.log(treeMapFilter);
 
   const value = useMemo(() => {
     return treeMapFilter.species

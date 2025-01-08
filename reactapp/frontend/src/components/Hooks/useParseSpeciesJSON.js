@@ -22,6 +22,8 @@ export function useParseSpeciesJSON(i_speciesData, slice) {
       )
     );
 
+    console.log("speciesData", speciesData);
+
     let tmpImageLinks = {};
     let tmpDummyImageLinks = {};
     let tmpSpeciesSignThreats = {};

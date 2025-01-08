@@ -14,7 +14,7 @@ export default function CountrySearchBar(props) {
     mode
   } = props;
 
-  console.log(value, data, mode, mapSearchBarData, mapSearchMode);
+  // console.log(value, data, mode, mapSearchBarData, mapSearchMode);
 
   /* const value = useMemo(() => {
     return treeMapFilter.species
@@ -98,6 +98,8 @@ export default function CountrySearchBar(props) {
     <Autocomplete
       value={value}
       onChange={(event, newValue) => {
+        console.log(event, newValue);
+
         /* setTreeMapFilter({
           genus: newValue && newValue["genus"] ? newValue["genus"] : null,
           species: newValue && newValue["species"] ? newValue["species"] : null,

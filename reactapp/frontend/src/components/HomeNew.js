@@ -546,6 +546,7 @@ export default function HomeNew(props) {
                       getPopulationTrend={getPopulationTrend}
                       formMapMode={formMapMode}
                       setFormMapMode={setFormMapMode}
+                      timeFrame={timeFrame}
                     />
                   </ResizeComponent>
                 )}

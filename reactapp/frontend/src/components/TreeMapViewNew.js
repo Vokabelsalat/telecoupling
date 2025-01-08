@@ -5,6 +5,8 @@ import { useState } from "react";
 export default function TreeMapView(props) {
   const { width, height, data, treeMapFilter, setTreeMapFilter } = props;
 
+  console.log("TREE MAP FILTER", treeMapFilter);
+
   const { kingdom, family, genus, species } = treeMapFilter;
 
   const [rootNode, setRootNode] = useState();
