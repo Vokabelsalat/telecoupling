@@ -11,6 +11,7 @@ import colorsys from "colorsys";
 import * as d3Scale from "d3-scale";
 import DiversityScale from "./DiversityScale";
 import Legend from "./LegendNew";
+import { nanoid } from "nanoid";
 
 import ReactMapGL, {
   Layer,
@@ -131,7 +132,6 @@ const Map = forwardRef((props, ref) => {
       };
     }, [activeMapLayer, formMapMode]);
 
-  /* console.log("speciesCountries", speciesCountries); */
   const [countriesGeoJson, setCountriesGeoJson] = useState(null);
   const [countriesGeoJsonTest, setCountriesGeoJsonTest] = useState(null);
   const [ecoRegionsGeoJson, setEcoRegionsGeoJson] = useState(null);
@@ -865,6 +865,7 @@ const Map = forwardRef((props, ref) => {
 
     // const counts = [props.mag1, props.mag2, props.mag3, props.mag4, props.mag5];
     const data = props.data;
+
     const grouped = groupBy(Object.values(data), "numvalue");
 
     const sortedGroupedKeys = Object.keys(grouped).sort().reverse();
@@ -903,7 +904,8 @@ const Map = forwardRef((props, ref) => {
                 (offsets[index] + grouped[item].length) / total,
                 r - 1,
                 r0 - 1,
-                grouped[item][0].getColor(colorBlind)
+                grouped[item][0].getColor(colorBlind),
+                `donut-segment-${index}-${nanoid()}`
               );
             })}
           </g>
@@ -915,7 +917,7 @@ const Map = forwardRef((props, ref) => {
     );
   }
 
-  function donutSegment(start, end, r, r0, color) {
+  function donutSegment(start, end, r, r0, color, key) {
     if (end - start === 1) end -= 0.00001;
     const a0 = 2 * Math.PI * (start - 0.25);
     const a1 = 2 * Math.PI * (end - 0.25);
@@ -927,6 +929,7 @@ const Map = forwardRef((props, ref) => {
 
     return (
       <path
+        key={key}
         d={`M ${r + r0 * x0} ${r + r0 * y0} L ${r + r * x0} ${
           r + r * y0
         } A ${r} ${r} 0 ${largeArc} 1 ${r + r * x1} ${r + r * y1} L ${
