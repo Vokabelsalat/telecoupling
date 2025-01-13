@@ -537,7 +537,7 @@ button {
 
 .MuiSwitch-root {
   width: 65px !important;
-  transform: scale(1.5);
+  /* transform: scale(1.2); */
 }
 
 .MuiSwitch-root > .Mui-checked {
@@ -1109,4 +1109,13 @@ a:any-link {
   font-style: italic;
   text-shadow: 1px 1px 0px #656565;
   font-size: 11cqw;
+}
+
+.maplayer-select {
+  vertical-align: middle;
+  margin: 0;
+}
+
+.maplayer-select:hover {
+  cursor: pointer;
 }

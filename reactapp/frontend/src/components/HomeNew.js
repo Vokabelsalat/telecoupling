@@ -120,7 +120,7 @@ export default function HomeNew(props) {
   const [categoryFilter, setCategoryFilter] = useState(null);
   const mapRef = useRef(null);
 
-  const slice = true;
+  const slice = false;
 
   /* const returnDummyLink = (speciesObj) => {
     return speciesObj["Foto dummy"].trim() !== ""
@@ -522,7 +522,7 @@ export default function HomeNew(props) {
                   position: "relative"
                 }}
               >
-                <div>
+                {/*  <div>
                   {selectedCountry}
                   <button
                     onClick={() => {
@@ -531,7 +531,7 @@ export default function HomeNew(props) {
                   >
                     X
                   </button>
-                </div>
+                </div> */}
                 {showMap && (
                   <ResizeComponent>
                     <Map
@@ -542,6 +542,7 @@ export default function HomeNew(props) {
                       getSpeciesThreatLevel={getSpeciesSignThreat}
                       threatType={threatType}
                       setSelectedCountry={setSelectedCountry}
+                      selectedCountry={selectedCountry}
                       ref={mapRef}
                       getPopulationTrend={getPopulationTrend}
                       formMapMode={formMapMode}

@@ -10,8 +10,8 @@ import {
 import colorsys from "colorsys";
 import * as d3Scale from "d3-scale";
 import DiversityScale from "./DiversityScale";
-import Legend from "./LegendNew";
 import { nanoid } from "nanoid";
+import { Square3Stack3DIcon } from "@heroicons/react/24/solid";
 
 import ReactMapGL, {
   Layer,
@@ -1078,8 +1078,35 @@ const Map = forwardRef((props, ref) => {
         height: `${newHeight}px`
       }}
     >
-      {isStory === false && (
-        <div style={{ height: "20px", display: "flex" }}>
+      {
+        isStory === false && (
+          <div
+            style={{
+              height: "50px",
+              display: "grid",
+              gridTemplateColumns: "30% 70%",
+              marginRight: "5px",
+              gap: "5px",
+              paddingLeft: "2px"
+            }}
+          >
+            <div className="diversityScaleWrapper">
+              <DiversityScale
+                className="diversityScale"
+                scales={divScale}
+                mapMode={mapMode}
+              />
+            </div>
+            {/* <div className="diversityScaleWrapper">
+              <DiversityScale
+                className="diversityScale"
+                scales={divScale}
+                mapMode={mapMode}
+              />
+            </div> */}
+          </div>
+        )
+        /*         <div style={{ height: "20px", display: "flex" }}>
           <form
             onChange={(e) => {
               setFormMapMode(e.target.value);
@@ -1125,8 +1152,66 @@ const Map = forwardRef((props, ref) => {
           {mapMode === "ecoregions" && (
             <button onClick={calcEcoStatistics}>Stats</button>
           )}
+        </div> */
+        /* <div
+        className="mapLegend"
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "center"
+        }}
+      >
+        <div
+          className="mapLegendHoverHandle"
+          onClick={() => {
+            setShowLegend(!showLegend);
+            setFocusOnLegend();
+          }}
+          onMouseEnter={() => {
+            console.log("Mouse Enter");
+            setShowLegend(!showLegend);
+            setFocusOnLegend();
+          }}
+        >
+          Legend
         </div>
-      )}
+        <div
+          className="mapLegendWrapper"
+          ref={legendRef}
+          tabIndex={-1}
+          onBlur={(event) => {
+            setShowLegend(false);
+          }}
+        >
+          {showLegend && (
+            <>
+              {showThreatDonuts && (
+                <div className="mapLegendThreatWrapper">
+                  <Legend
+                    type={threatType}
+                    threatType={threatType}
+                    colorBlind={colorBlind}
+                    setCategoryFilter={setCategoryFilter}
+                    categoryFilter={categoryFilter}
+                  />
+                </div>
+              )}
+              <div className="diversityScaleWrapper">
+                <DiversityScale
+                  className="diversityScale"
+                  scales={divScale}
+                  mapMode={mapMode}
+                />
+              </div>
+            </>
+          )}
+        </div> 
+      </div> */
+      }
       <ReactMapGL
         ref={ref}
         /* reuseMaps={false} */
@@ -1138,7 +1223,7 @@ const Map = forwardRef((props, ref) => {
           latitude: 0,
           zoom: 1
         }}
-        style={{ width: "100%", height: "100%" }}
+        style={{ width: "100%", height: "100%", position: "relative" }}
         //mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
         //mapStyle="https://demotiles.maplibre.org/style.json"
         //mapStyle="mapbox://styles/mapbox/streets-v11"
@@ -1615,60 +1700,133 @@ const Map = forwardRef((props, ref) => {
             }}
           />
         </Source>
-      </ReactMapGL>
-      <div
-        className="mapLegend"
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          width: "100%",
-          display: "flex",
-          alignItems: "flex-end",
-          justifyContent: "center"
-        }}
-      >
         <div
-          className="mapLegendHoverHandle"
+          class="mapboxgl-ctrl mapboxgl-ctrl-top-left"
+          style={{
+            top: 10,
+            left: 10,
+            borderRadius: "4px",
+            backgroundColor: "white",
+            /* width: "29px",
+            height: "29px", */
+            padding: "3px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center"
+          }}
+          type="button"
           onClick={() => {
-            setShowLegend(!showLegend);
-            setFocusOnLegend();
+            setShowLegend(true);
           }}
-        >
-          Legend
-        </div>
-        <div
-          className="mapLegendWrapper"
-          ref={legendRef}
-          tabIndex={-1}
-          onBlur={(event) => {
+          onMouseEnter={() => {
+            setShowLegend(true);
+            // setFocusOnLegend();
+          }}
+          onMouseLeave={() => {
             setShowLegend(false);
+            // setFocusOnLegend();
           }}
         >
-          {showLegend && (
-            <>
-              {showThreatDonuts && (
-                <div className="mapLegendThreatWrapper">
-                  <Legend
-                    type={threatType}
-                    threatType={threatType}
-                    colorBlind={colorBlind}
-                    setCategoryFilter={setCategoryFilter}
-                    categoryFilter={categoryFilter}
+          {showLegend ? (
+            <div
+              style={{
+                display: "flex",
+                boxShadow:
+                  "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
+              }}
+            >
+              <form
+                onChange={(e) => {
+                  setFormMapMode(e.target.value);
+                }}
+              >
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: " repeat(2, auto)",
+                    gap: "4px"
+                  }}
+                >
+                  <input
+                    class="maplayer-select"
+                    type="radio"
+                    id="countries-select"
+                    name="map_mode"
+                    value="countries"
+                    defaultChecked={mapMode === "countries"}
                   />
+                  <label for="countries-select" class="maplayer-select">
+                    Countries
+                  </label>
+                  <input
+                    class="maplayer-select"
+                    type="radio"
+                    id="ecoregions-select"
+                    name="map_mode"
+                    value="ecoregions"
+                    defaultChecked={mapMode === "ecoregions"}
+                  />
+                  <label for="ecoregions-select" class="maplayer-select">
+                    Ecoregions
+                  </label>
+                  <input
+                    class="maplayer-select"
+                    type="radio"
+                    id="hexagons-select"
+                    name="map_mode"
+                    value="hexagons"
+                    defaultChecked={mapMode === "hexagons"}
+                  />
+                  <label for="hexagons-select" class="maplayer-select">
+                    Hexagons
+                  </label>
+                  <div
+                    style={{
+                      gridColumnStart: 1,
+                      gridColumnEnd: "span 2",
+                      height: "1px",
+                      width: "100%",
+                      backgroundColor: "gray"
+                    }}
+                  ></div>
+                  <input
+                    class="maplayer-select"
+                    type="radio"
+                    id="orchestras-select"
+                    name="map_mode"
+                    value="orchestras"
+                    defaultChecked={mapMode === "orchestras"}
+                  />
+                  <label for="orchestras-select" class="maplayer-select">
+                    Orchestras
+                  </label>
+                  <input
+                    class="maplayer-select"
+                    type="radio"
+                    id="protection-select"
+                    name="map_mode"
+                    value="protection"
+                    defaultChecked={mapMode === "protection"}
+                  />
+                  <label for="protection-select" class="maplayer-select">
+                    Protection Potential
+                  </label>
                 </div>
+              </form>
+              {mapMode === "ecoregions" && (
+                <button onClick={calcEcoStatistics}>Stats</button>
               )}
-              <div className="diversityScaleWrapper">
-                <DiversityScale
-                  className="diversityScale"
-                  scales={divScale}
-                  mapMode={mapMode}
-                />
-              </div>
-            </>
+            </div>
+          ) : (
+            <Square3Stack3DIcon
+              width={24}
+              height={24}
+              fill="gray"
+              stroke="white"
+            />
           )}
         </div>
-      </div>
+      </ReactMapGL>
     </div>
   );
 });

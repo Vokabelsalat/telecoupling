@@ -49,16 +49,16 @@ export default function OrchestraNew(props) {
         actWidth = actWidth > 0 ? actWidth : 1;
         actHeight = actHeight > 0 ? actHeight : 0.5;
 
-        let tmpScale = scale;
-        if (width >= height) {
-          tmpScale = width / (actWidth + 1);
-        }
-        if (height > width) {
-          tmpScale = height / (actHeight + 1);
-        }
+        let tmpScale = Math.min(
+          (width - 5) / actWidth,
+          (height - 5) / actHeight
+        );
 
-        setScaledWidth(actWidth * scale);
-        setScaledHeight(actHeight * scale);
+        let tmpScaledWidth = actWidth * tmpScale;
+        let tmpScaledHeight = actHeight * tmpScale;
+
+        setScaledWidth(tmpScaledWidth);
+        setScaledHeight(tmpScaledHeight);
         setScale(tmpScale);
       }
     }
@@ -85,7 +85,7 @@ export default function OrchestraNew(props) {
         setScaleString(scaleStringTmp);
       }
     },
-    [scaledWidth, scaledHeight]
+    [scaledWidth, scaledHeight, scale]
   );
 
   useEffect(() => {
@@ -97,12 +97,15 @@ export default function OrchestraNew(props) {
   return (
     <div
       style={{
-        width: { width },
-        height: { height },
+        width: `${width}px`,
+        height: `${height}px`,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        position: "relative"
+        position: "relative",
+        overflow: "hidden",
+        border: "1px solid black",
+        padding: "1px"
       }}
     >
       {instrumentGroup && (
@@ -124,13 +127,7 @@ export default function OrchestraNew(props) {
           Reset
         </div>
       )}
-      <svg
-        width={scaledWidth}
-        height={scaledHeight}
-        style={{
-          border: "1px solid gray"
-        }}
-      >
+      <svg width={scaledWidth} height={scaledHeight}>
         <g
           ref={ref}
           transform={`${scaleString ? scaleString : `scale(${scale})`}`}
@@ -245,53 +242,3 @@ export default function OrchestraNew(props) {
     </div>
   );
 }
-
-/* return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        backgroundColor: "lime",
-        display: "flex",
-        position: "relative",
-        overflow: "hidden"
-      }}
-    >
-      <OrchestraGroup
-        posX={width / 2 - height / 2}
-        posY={height / 2}
-        parentWidth={parentWidth}
-      ></OrchestraGroup>
-      <OrchestraGroup
-        posX={width / 2 - height / 2}
-        posY={height / 2}
-        parentWidth={parentWidth}
-        rotation={40}
-      ></OrchestraGroup>
-      <OrchestraGroup
-        posX={width / 2 - height / 2}
-        posY={height / 2}
-        parentWidth={parentWidth}
-        rotation={-40}
-      ></OrchestraGroup>
-      <OrchestraGroup
-        posX={width / 2 - height / 2}
-        posY={height / 2}
-        parentWidth={parentWidth}
-        rotation={80}
-      ></OrchestraGroup>
-      <OrchestraGroup
-        posX={width / 2 - height / 2}
-        posY={height / 2}
-        parentWidth={parentWidth}
-        rotation={-80}
-      ></OrchestraGroup>
-      <OrchestraGroup
-        middle={true}
-        posX={width / 2 - height / 2}
-        posY={height / 2}
-        parentWidth={parentWidth}
-        rotation={0}
-      ></OrchestraGroup>
-    </div>
-  ); */
