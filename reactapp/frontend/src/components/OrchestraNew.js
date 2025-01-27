@@ -104,7 +104,6 @@ export default function OrchestraNew(props) {
         alignItems: "center",
         position: "relative",
         overflow: "hidden",
-        border: "1px solid black",
         padding: "1px"
       }}
     >

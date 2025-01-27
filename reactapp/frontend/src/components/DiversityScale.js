@@ -1,7 +1,24 @@
 import { useMemo } from "react";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { ChevronDownIcon, CheckIcon } from "@heroicons/react/16/solid";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions
+} from "@headlessui/react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEarthAmericas,
+  faHandHolding,
+  faMountainSun,
+  faWater
+} from "@fortawesome/free-solid-svg-icons";
+import SpeciesIcon from "./SpeciesIcon";
+import { iucnAssessment } from "../utils/timelineUtils";
 
 export default function DiversityScale(props) {
-  const { scales = {}, className } = props;
+  const { scales = {}, className, setMapMode, colorBlind } = props;
   /*   const stringedScales = JSON.stringify(scales);
 
   const scale = useMemo(() => {
@@ -37,9 +54,9 @@ export default function DiversityScale(props) {
         typeText = "Species";
         typeTextSecond = "Ecoregion";
         break;
-      case "rescure":
-        typeText = "Protection";
-        typeTextSecond = "Potential";
+      case "protection":
+        typeText = "Protection Potential";
+        typeTextSecond = "Ecogregion";
         break;
       case "orchestras":
         typeText = "Orchestras";
@@ -102,6 +119,162 @@ export default function DiversityScale(props) {
     return { scaleElements, typeText, typeTextSecond, col };
   }, [scale, mapMode]);
 
+  const orangeIconColor = iucnAssessment.get("CR").getColor(colorBlind);
+  const redIconColor = iucnAssessment.get("EX").getColor(colorBlind);
+  const yellowIconColor = iucnAssessment.get("NT").getColor(colorBlind);
+  const greenIconColor = iucnAssessment.get("LC").getColor(colorBlind);
+  const neutralIconColor = "gray";
+
+  const blueIconColor = "rgba(45, 45, 255, 0.8)";
+
+  const MapModeListboxOption = (params) => {
+    const { id } = params;
+
+    switch (id) {
+      case "countries":
+        return (
+          <>
+            <div className="flex gap-1 items-center">
+              <SpeciesIcon
+                animalColor={orangeIconColor}
+                plantColor={yellowIconColor}
+                neutralColor={greenIconColor}
+              />
+              <div className="text-sm/6 text-nowrap">
+                Species<span className="maplayer-devider">/</span>Country
+              </div>
+            </div>
+            <FontAwesomeIcon icon={faEarthAmericas} color={blueIconColor} />
+          </>
+        );
+      case "ecoregionsterr":
+        return (
+          <>
+            <div className="flex gap-1 items-center">
+              <SpeciesIcon
+                animalColor={orangeIconColor}
+                plantColor={yellowIconColor}
+                neutralColor={greenIconColor}
+              />
+              <div className="text-sm/6 text-nowrap">
+                Species<span className="maplayer-devider">/</span>Terr.
+                Ecoregion
+              </div>
+            </div>
+            <FontAwesomeIcon icon={faMountainSun} color={blueIconColor} />
+          </>
+        );
+      case "hexagons":
+        return (
+          <>
+            {" "}
+            <div className="flex gap-1 items-center">
+              <SpeciesIcon
+                animalColor={orangeIconColor}
+                plantColor={yellowIconColor}
+                neutralColor={greenIconColor}
+              />
+              <div className="text-sm/6 text-nowrap">
+                Species<span className="maplayer-devider">/</span>Hexagon
+              </div>
+            </div>
+            <div
+              style={{
+                width: "15px",
+                height: "15px",
+                backgroundColor: blueIconColor,
+                "-webkit-clip-path":
+                  "polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)",
+                clipPath:
+                  "polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)"
+              }}
+            ></div>
+          </>
+        );
+      case "ecoregionsmar":
+        return (
+          <>
+            <div className="flex gap-1 items-center">
+              <SpeciesIcon
+                animalColor={orangeIconColor}
+                plantColor={yellowIconColor}
+                neutralColor={greenIconColor}
+              />
+              <div className="text-sm/6 text-nowrap">
+                Species<span className="maplayer-devider">/</span>Mar. Ecoregion
+              </div>
+            </div>
+            <FontAwesomeIcon icon={faWater} color={blueIconColor} />
+          </>
+        );
+      case "orchestras":
+        return (
+          <>
+            <div className="flex gap-1 items-center">
+              <div className="w-[18px] h-[20px] flex items-center justify-center">
+                <div
+                  style={{
+                    width: "18px",
+                    height: "18px",
+                    backgroundColor: "purple",
+                    borderRadius: "50%"
+                  }}
+                ></div>
+              </div>
+              <div className="text-sm/6 text-nowrap">
+                Orchestras<span className="maplayer-devider">/</span>
+                Country
+              </div>
+            </div>
+            <FontAwesomeIcon icon={faEarthAmericas} color={blueIconColor} />
+          </>
+        );
+      case "protection":
+        return (
+          <>
+            <div className="flex gap-1 items-center">
+              <SpeciesIcon
+                animalColor={orangeIconColor}
+                plantColor={yellowIconColor}
+                neutralColor={greenIconColor}
+              />
+              <div className="text-sm/6 w-min leading-none">
+                Species
+                <span className="maplayer-devider">/</span>Ecoregion Protection
+                Potential
+              </div>
+            </div>
+            <div className="relative h-[21px] w-5">
+              <FontAwesomeIcon
+                className="absolute top-0 left-1"
+                icon={faMountainSun}
+                color={orangeIconColor}
+                size="xs"
+              />
+              <FontAwesomeIcon
+                className="absolute bottom-0 left-0"
+                icon={faHandHolding}
+                color={redIconColor}
+                size="lg"
+              />
+            </div>
+          </>
+        );
+      default:
+        break;
+    }
+  };
+
+  const mapModeListOptions = [
+    "countries",
+    "ecoregionsterr",
+    "ecoregionsmar",
+    "hexagons",
+    "devider",
+    "orchestras",
+    "protection"
+  ];
+
   return (
     <>
       <div
@@ -124,22 +297,76 @@ export default function DiversityScale(props) {
             height: "100%",
             alignSelf: "center",
             width: "min-content",
-            display: "grid",
-            gridTemplateColumns: "auto",
-            gridTemplateRows: "auto auto",
             fontSize: "smaller",
-            marginTop: "-9px",
             marginLeft: "5px"
           }}
         >
-          <div>{typeText}</div>
-          <div
-            style={{
-              borderTop: mapMode === "rescure" ? "" : "1px solid black"
-            }}
-          >
-            {typeTextSecond}
+          {/* <div style={{textWrapMode: "nowrap", height: "100%", display: "flex"}}>{typeText}<span className="maplayer-devider">/</span>{typeTextSecond}</div> */}
+          <div className="mx-auto h-full">
+            <Listbox value={mapMode} onChange={setMapMode}>
+              <ListboxButton className="relative block w-full rounded-[4px] bg-white border border-gray-400 py-1.5 pr-8 pl-3 text-left text-sm/6 focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25">
+                <div className="flex gap-1 items-center">
+                  <MapModeListboxOption id={mapMode} />
+                </div>
+                <ChevronDownIcon
+                  className="group pointer-events-none absolute top-2.5 right-2.5 size-4 fill-gray-400"
+                  aria-hidden="true"
+                />
+              </ListboxButton>
+              <ListboxOptions
+                anchor="bottom end"
+                className="w-auto rounded-[4px] border border-gray-400 bg-white [--anchor-gap:var(--spacing-1)] focus:outline-none data-[leave]:data-[closed]:opacity-0 z-[9999]"
+              >
+                {mapModeListOptions.map((e) => {
+                  if (e === "devider") {
+                    return (
+                      <div
+                        className="my-[2px]"
+                        style={{
+                          gridColumnStart: 1,
+                          gridColumnEnd: "span 2",
+                          height: "1px",
+                          width: "100%",
+                          backgroundColor: "gray"
+                        }}
+                      ></div>
+                    );
+                  } else {
+                    return (
+                      <ListboxOption
+                        key={`${e}-listoption`}
+                        value={e}
+                        className="justify-between p-1 px-[6px] group flex cursor-pointer items-center gap-2 hover:bg-gray-100 select-none data-[focus]:bg-purple/10"
+                      >
+                        <MapModeListboxOption id={e} />
+                      </ListboxOption>
+                    );
+                  }
+                })}
+              </ListboxOptions>
+            </Listbox>
           </div>
+
+          {/* <div className="w-52 text-right z-50">
+            <Listbox value={mapMode} onChange={()=>{}}>
+            <ListboxButton
+              className='relative block w-full rounded-lg bg-white/5 py-1.5 pr-8 pl-3 text-left text-sm/6 focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'>
+              <span>{typeText}<span className="maplayer-devider">/</span>{typeTextSecond}</span>
+              <ChevronDownIcon
+                className="group pointer-events-none absolute top-2.5 right-2.5 size-4 fill-gray-400"
+                aria-hidden="true"
+              />
+            </ListboxButton>
+              <ListboxOptions anchor="bottom">
+                  <ListboxOption key={"countries-listoption"} value={"countries"} className="data-[focus]:bg-blue-100">
+                    Species<span className="maplayer-devider">/</span>Countries
+                  </ListboxOption>
+                  <ListboxOption key={"ecoregions-listoption"} value={"ecoregions"} className="data-[focus]:bg-blue-100">
+                  Species<span className="maplayer-devider">/</span>Ecoregions
+                  </ListboxOption>
+              </ListboxOptions>
+            </Listbox>
+          </div> */}
         </div>
       </div>
       <div
@@ -154,7 +381,7 @@ export default function DiversityScale(props) {
           alignItems: "center"
         }}
       >
-        {mapMode === "orchestras" && (
+        {/* {mapMode === "orchestras" && (
           <>
             <div
               style={{
@@ -166,23 +393,7 @@ export default function DiversityScale(props) {
             ></div>
             Orchestra
           </>
-        )}
-        {mapMode === "hexagons" && (
-          <>
-            <div
-              style={{
-                width: "15px",
-                height: "15px",
-                backgroundColor: "blue",
-                "-webkit-clip-path":
-                  "polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)",
-                clipPath:
-                  "polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)"
-              }}
-            ></div>
-            Distribution
-          </>
-        )}
+        )} */}
       </div>
     </>
   );

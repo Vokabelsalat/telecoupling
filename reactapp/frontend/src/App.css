@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import url("https://fonts.googleapis.com/css?family=Great+Vibes");
 @import url("https://fonts.googleapis.com/css?family=Montserrat");
 
@@ -1118,4 +1122,108 @@ a:any-link {
 
 .maplayer-select:hover {
   cursor: pointer;
+}
+
+.maplayer-devider {
+  font-weight: bold;
+  font-size: larger;
+  padding: 0 3px;
+}
+
+
+.pieContainer {
+  height: 20px;
+  position: relative;
+}
+
+.pieBackground {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 100%;
+} 
+
+.pie {
+  transition: all 1s;
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 100%;
+  clip: rect(0px, 10px, 20px, 0px);
+}
+
+.hold {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 100%;
+  clip: rect(0px, 20px, 20px, 10px);
+}
+
+.pieSlice1 .pie {
+  transform:rotate(120deg);
+}
+
+ .pieSlice2 {
+  transform: rotate(120deg);
+}
+
+.pieSlice2 .pie {
+  transform: rotate(120deg);
+}
+
+.pieSlice3 {
+  transform: rotate(240deg);
+}
+
+.pieSlice3 .pie {
+  transform: rotate(120deg);
+}
+
+.pieSlice4 .pie {
+  transform:rotate(90deg);
+}
+
+ .pieSlice5 {
+  transform: rotate(90deg);
+}
+
+.pieSlice5 .pie {
+  transform: rotate(90deg);
+}
+
+.pieSlice6 {
+  transform: rotate(180deg);
+}
+
+.pieSlice6 .pie {
+  transform: rotate(90deg);
+}
+
+ .pieSlice7 {
+  transform: rotate(270deg);
+}
+
+.pieSlice7 .pie {
+  transform: rotate(90deg);
+}
+
+.innerCircle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: white;
+  border-radius: 100%;
+  top: 5px;
+  left: 5px; 
+  color: white;
+}
+.innerCircle .content {
+  position: absolute;
+  display: block;
+  width: 120px;
+  top: 30px;
+  left: 0;
+  text-align: center;
+  font-size: 14px;
 }

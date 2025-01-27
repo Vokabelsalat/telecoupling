@@ -74,8 +74,8 @@ const Map = forwardRef((props, ref) => {
             mapMode = "countries";
             interactiveLayerIds = ["countriesSpecies", "extraPolygonLineLayer"];
             break;
-          case "ecoregions":
-            mapMode = "ecoregions";
+          case "ecoregionsterr":
+            mapMode = "ecoregionsterr";
             interactiveLayerIds = ["ecoRegions"];
             break;
           case "hexagons":
@@ -174,7 +174,7 @@ const Map = forwardRef((props, ref) => {
       case "countries":
         max = countriesHeatMapMax;
         break;
-      case "ecoregions":
+      case "ecoregionsterr":
         max = ecoregionHeatMapMax;
         break;
       case "hexagons":
@@ -1003,7 +1003,7 @@ const Map = forwardRef((props, ref) => {
             const iso = feat.properties.ISO3CD;
             hoverIds = [isoToCountryID[iso]];
             break;
-          case "ecoregions":
+          case "ecoregionsterr":
             const ecoID = feat.properties.ECO_ID;
             hoverIds = [ecosToMyIDs[ecoID]];
             console.log(feat.properties);
@@ -1084,7 +1084,7 @@ const Map = forwardRef((props, ref) => {
             style={{
               height: "50px",
               display: "grid",
-              gridTemplateColumns: "30% 70%",
+              gridTemplateColumns: "100%",
               marginRight: "5px",
               gap: "5px",
               paddingLeft: "2px"
@@ -1095,6 +1095,8 @@ const Map = forwardRef((props, ref) => {
                 className="diversityScale"
                 scales={divScale}
                 mapMode={mapMode}
+                setMapMode={setFormMapMode}
+                colorBlind={colorBlind}
               />
             </div>
             {/* <div className="diversityScaleWrapper">
@@ -1235,7 +1237,7 @@ const Map = forwardRef((props, ref) => {
 
           if (
             ecoRegionsGeoJson &&
-            ["hexagons", "ecoregions", "protection"].includes(mapMode)
+            ["hexagons", "ecoregionsterr", "protection"].includes(mapMode)
           ) {
             updateEcoregions();
           }
@@ -1367,7 +1369,7 @@ const Map = forwardRef((props, ref) => {
                   ] */
                 },
                 layout: {
-                  visibility: mapMode === "ecoregions" ? "visible" : "none"
+                  visibility: mapMode === "ecoregionsterr" ? "visible" : "none"
                 }
               }}
             />
@@ -1427,9 +1429,11 @@ const Map = forwardRef((props, ref) => {
                 "circle-radius": 0
               },
               layout: {
-                visibility: ["hexagons", "ecoregions", "protection"].includes(
-                  mapMode
-                )
+                visibility: [
+                  "hexagons",
+                  "ecoregionsterr",
+                  "protection"
+                ].includes(mapMode)
                   ? "visible"
                   : "none"
               }
@@ -1599,7 +1603,7 @@ const Map = forwardRef((props, ref) => {
           })}
         {ecoThreatMarkers &&
           showThreatDonuts &&
-          ["hexagons", "ecoregions", "protection"].includes(mapMode) &&
+          ["hexagons", "ecoregionsterr", "protection"].includes(mapMode) &&
           ecoThreatMarkers.map((element, index) => {
             return (
               <Marker
@@ -1726,106 +1730,7 @@ const Map = forwardRef((props, ref) => {
             setShowLegend(false);
             // setFocusOnLegend();
           }}
-        >
-          {showLegend ? (
-            <div
-              style={{
-                display: "flex",
-                boxShadow:
-                  "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
-              }}
-            >
-              <form
-                onChange={(e) => {
-                  setFormMapMode(e.target.value);
-                }}
-              >
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: " repeat(2, auto)",
-                    gap: "4px"
-                  }}
-                >
-                  <input
-                    class="maplayer-select"
-                    type="radio"
-                    id="countries-select"
-                    name="map_mode"
-                    value="countries"
-                    defaultChecked={mapMode === "countries"}
-                  />
-                  <label for="countries-select" class="maplayer-select">
-                    Countries
-                  </label>
-                  <input
-                    class="maplayer-select"
-                    type="radio"
-                    id="ecoregions-select"
-                    name="map_mode"
-                    value="ecoregions"
-                    defaultChecked={mapMode === "ecoregions"}
-                  />
-                  <label for="ecoregions-select" class="maplayer-select">
-                    Ecoregions
-                  </label>
-                  <input
-                    class="maplayer-select"
-                    type="radio"
-                    id="hexagons-select"
-                    name="map_mode"
-                    value="hexagons"
-                    defaultChecked={mapMode === "hexagons"}
-                  />
-                  <label for="hexagons-select" class="maplayer-select">
-                    Hexagons
-                  </label>
-                  <div
-                    style={{
-                      gridColumnStart: 1,
-                      gridColumnEnd: "span 2",
-                      height: "1px",
-                      width: "100%",
-                      backgroundColor: "gray"
-                    }}
-                  ></div>
-                  <input
-                    class="maplayer-select"
-                    type="radio"
-                    id="orchestras-select"
-                    name="map_mode"
-                    value="orchestras"
-                    defaultChecked={mapMode === "orchestras"}
-                  />
-                  <label for="orchestras-select" class="maplayer-select">
-                    Orchestras
-                  </label>
-                  <input
-                    class="maplayer-select"
-                    type="radio"
-                    id="protection-select"
-                    name="map_mode"
-                    value="protection"
-                    defaultChecked={mapMode === "protection"}
-                  />
-                  <label for="protection-select" class="maplayer-select">
-                    Protection Potential
-                  </label>
-                </div>
-              </form>
-              {mapMode === "ecoregions" && (
-                <button onClick={calcEcoStatistics}>Stats</button>
-              )}
-            </div>
-          ) : (
-            <Square3Stack3DIcon
-              width={24}
-              height={24}
-              fill="gray"
-              stroke="white"
-            />
-          )}
-        </div>
+        ></div>
       </ReactMapGL>
     </div>
   );
