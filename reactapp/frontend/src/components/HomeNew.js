@@ -32,10 +32,6 @@ import { useParseSpeciesJSON } from "./Hooks/useParseSpeciesJSON";
 import { useOrchestraFilter } from "./Hooks/useOrchestraFilter";
 
 export const returnDummyLink = (speciesObj) => {
-  /*  return speciesObj["Foto dummy"] != null &&
-    speciesObj["Foto dummy"].trim() !== ""
-    ? "fotos/" + speciesObj["Foto dummy"].replace(" ", "")
-    : null; */
   if (speciesObj["photos"] != null) {
     let sortedPhotos = speciesObj["photos"].sort((pA, pB) => {
       return pA.Priority - pB.Priority;
@@ -43,23 +39,33 @@ export const returnDummyLink = (speciesObj) => {
 
     if (sortedPhotos.length > 0) {
       if (sortedPhotos[0].Proxy != null) {
-        return "fotos/" + sortedPhotos[0].Proxy.replace(" ", "");
+        return {
+          link: "fotos/" + sortedPhotos[0].Proxy.replace(" ", ""),
+          source: sortedPhotos[0].Source
+        };
       }
     }
   }
   return null;
 };
 
-export const returnImageLink = (speciesObj) => {
+export const returnImageLinks = (speciesObj) => {
   if (speciesObj["photos"] != null) {
     let sortedPhotos = speciesObj["photos"].sort((pA, pB) => {
       return pA.Priority - pB.Priority;
     });
 
-    if (sortedPhotos.length > 0) {
-      if (sortedPhotos[0].Foto != null) {
-        return "fotos/" + sortedPhotos[0].Foto.replace(" ", "");
+    const returnLinks = [];
+    for (const photo of sortedPhotos) {
+      if (photo.Foto != null) {
+        returnLinks.push({
+          link: "fotos/" + photo.Foto.replace(" ", ""),
+          source: photo.Source
+        });
       }
+    }
+    if (returnLinks.length > 0) {
+      return returnLinks;
     }
   }
   return null;
@@ -121,42 +127,6 @@ export default function HomeNew(props) {
   const mapRef = useRef(null);
 
   const slice = false;
-
-  /* const returnDummyLink = (speciesObj) => {
-    return speciesObj["Foto dummy"].trim() !== ""
-      ? "fotos/" + speciesObj["Foto dummy"].replace(" ", "")
-      : null;
-  }; */
-
-  /*   let returnImageLink = (speciesObj) => {
-    if (speciesObj["photos"] !== null) {
-      let sortedPhotos = speciesObj["photos"].sort((pA, pB) => {
-        return pA.Priority - pB.Priority;
-      });
-
-      if (sortedPhotos.length > 0) {
-        if (sortedPhotos[0].Foto !== null) {
-          return "fotos/" + sortedPhotos[0].Foto.replace(" ", "");
-        }
-      }
-    }
-    return null;
-  }; */
-
-  let returnDummyLink = (speciesObj) => {
-    if (speciesObj["photos"] !== null) {
-      let sortedPhotos = speciesObj["photos"].sort((pA, pB) => {
-        return pA.Priority - pB.Priority;
-      });
-
-      if (sortedPhotos.length > 0) {
-        if (sortedPhotos[0].Proxy !== null) {
-          return "fotos/" + sortedPhotos[0].Proxy.replace(" ", "");
-        }
-      }
-    }
-    return null;
-  };
 
   const getSpeciesSignThreat = (species, type = null) => {
     if (type === null) {

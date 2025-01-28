@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import PieChartHelper from "./PieChartHelper";
+import { nanoid } from "nanoid";
 
 export default function PieChartNew(props) {
   const {
@@ -23,7 +24,7 @@ export default function PieChartNew(props) {
       height: size,
       showThreatDonuts: showThreatDonuts
     });
-  });
+  }, [id, data, getThreatLevel, colorBlind, size, showThreatDonuts]);
 
   return (
     <div

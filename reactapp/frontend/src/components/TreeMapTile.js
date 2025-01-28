@@ -73,7 +73,9 @@ export default function TreeMapTile(props) {
     const ph = [];
 
     if (max.data.image) {
-      ph.push({ type: "cover", src: max.data.image });
+      for (const photo of max.data.image) {
+        ph.push({ type: "cover", src: photo.link });
+      }
     } else if (max.data.proxy) {
       ph.push({ type: "proxy", src: max.data.proxy });
     }

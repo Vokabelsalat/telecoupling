@@ -6,6 +6,8 @@ import {
 import TimelineHeader from "./TimelineHeader";
 import TimelineFront from "./TimelineFront";
 import TimelineRows from "./TimelineRows";
+import { useContext } from "react";
+import { TooltipContext } from "./TooltipProvider";
 
 export default function TimelineNew(props) {
   const {
@@ -34,6 +36,37 @@ export default function TimelineNew(props) {
     colorBlind
   );
 
+  const { setTooltip } = useContext(TooltipContext);
+
+  const onMouseEnter = (event) => {
+    setTooltip(
+      sciName,
+      "species",
+      {
+        x: event.pageX + 15,
+        y: event.pageY + 15
+      },
+      {
+        imageLink: imageLink,
+        dummyLink: dummyImageLink,
+        leftIconColor,
+        rightIconColor,
+        isAnimal,
+        bgci: data.bgci,
+        iucn: data.iucn,
+        cites: data.cites
+      }
+    );
+    event.stopPropagation();
+    event.preventDefault();
+    // setHover(true);
+  };
+
+  const onMouseLeave = (event) => {
+    // setHover(false);
+    setTooltip(null, null, null);
+  };
+
   return (
     <div
       key={`timelineNew${sciName}`}
@@ -52,6 +85,8 @@ export default function TimelineNew(props) {
           gridRowStart: 1,
           gridRowEnd: 1
         }}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
       >
         <TimelineHeader
           species={species}
@@ -70,6 +105,8 @@ export default function TimelineNew(props) {
           gridRowStart: 2,
           gridRowEnd: 2
         }}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
       >
         <TimelineFront
           speciesName={sciName}

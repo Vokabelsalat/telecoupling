@@ -7,11 +7,13 @@ export function TooltipProvider(props) {
   const [tooltipText, setTooltipText] = useState();
   const [tooltipMode, setTooltipMode] = useState();
   const [tooltipPosition, setTooltipPosition] = useState();
+  const [tooltipOptions, setTooltipOptions] = useState();
 
-  const setTooltip = (text, mode, position) => {
+  const setTooltip = (text, mode, position, options = {}) => {
     setTooltipText(text);
     setTooltipMode(mode);
     setTooltipPosition(position);
+    setTooltipOptions(options);
   };
 
   return (
@@ -23,7 +25,9 @@ export function TooltipProvider(props) {
         setTooltipPosition,
         tooltipMode,
         setTooltipMode,
-        setTooltip
+        setTooltip,
+        tooltipOptions,
+        setTooltipOptions
       }}
     >
       {children}

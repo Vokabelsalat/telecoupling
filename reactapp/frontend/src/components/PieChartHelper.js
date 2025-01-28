@@ -109,7 +109,7 @@ class PieChartD3 {
       })
       .attr("transform", "translate(" + origo + "," + origo + ")");
 
-    arcs
+    /* arcs
       .append("svg:path")
       .attr("class", pathClassFunc)
       .attr("stroke-width", strokeWidth)
@@ -118,6 +118,28 @@ class PieChartD3 {
       .attr("background", color)
       .attr("border-color", color)
       .attr("d", arc)
+      .append("svg:title")
+      .text(pathTitleFunc); */
+
+    arcs
+      .append("svg:path")
+      .attr("class", pathClassFunc)
+      .attr("stroke-width", strokeWidth)
+      .attr("fill", color)
+      .attr("stroke", color)
+      .each(function (d) {
+        this._current = { startAngle: 0, endAngle: 0 }; // Set initial state for animation
+      })
+      .transition()
+      .duration(1000) // Define the duration of the animation
+      .attrTween("d", function (d) {
+        const interpolate = d3.interpolate(this._current, d);
+        this._current = interpolate(1); // Update the current state
+        return function (t) {
+          return arc(interpolate(t));
+        };
+      })
+      .selection() // Return the selection after transition
       .append("svg:title")
       .text(pathTitleFunc);
 

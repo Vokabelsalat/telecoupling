@@ -30,7 +30,8 @@ export default function ThreatCode(props) {
         backgroundColor: assessment.getColor(colorBlind),
         color: assessment.getForegroundColor(colorBlind),
         padding: "0 3px",
-        borderRadius: "6px"
+        width: "100%",
+        textAlign: "center"
       }}
     >
       {code}

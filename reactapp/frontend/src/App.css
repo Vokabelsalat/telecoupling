@@ -1227,3 +1227,7 @@ a:any-link {
   text-align: center;
   font-size: 14px;
 }
+
+.arc path {
+  transition: fill 0.3s ease;
+}

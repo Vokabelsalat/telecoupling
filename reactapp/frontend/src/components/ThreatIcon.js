@@ -1,5 +1,5 @@
 export default function ThreatIcon(props) {
-  const { leftColor, rightColor, isAnimal } = props;
+  const { leftColor, rightColor, isAnimal, size = "small" } = props;
 
   const url = isAnimal ? "/animalIconLeft.svg" : "/plantIconLeft.svg";
   const urlRight = isAnimal ? "/animalIconRight.svg" : "/plantIconRight.svg";
@@ -8,8 +8,8 @@ export default function ThreatIcon(props) {
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "8px 8px",
-        gridTemplateRows: "17px"
+        gridTemplateColumns: size === "small" ? "8px 8px" : "32px 32px",
+        gridTemplateRows: size === "small" ? "17px" : "65px"
       }}
     >
       <div

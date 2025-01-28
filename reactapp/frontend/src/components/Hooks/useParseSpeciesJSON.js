@@ -5,7 +5,7 @@ import {
   bgciAssessment,
   citesAssessment
 } from "../../utils/timelineUtils";
-import { returnImageLink, returnDummyLink } from "../HomeNew";
+import { returnImageLink, returnDummyLink, returnImageLinks } from "../HomeNew";
 
 export function useParseSpeciesJSON(i_speciesData, slice) {
   return useMemo(() => {
@@ -92,7 +92,8 @@ export function useParseSpeciesJSON(i_speciesData, slice) {
         genera[genus] = [genusSpecies];
       }
 
-      tmpImageLinks[spec] = returnImageLink(speciesObj);
+      tmpImageLinks[spec] = returnImageLinks(speciesObj);
+
       tmpDummyImageLinks[spec] = returnDummyLink(speciesObj);
 
       speciesTreeMapData[genusSpecies] = {
