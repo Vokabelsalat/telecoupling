@@ -75,8 +75,10 @@ export default function Tooltip(props) {
     if (tooltipMode === "text") {
       return tooltipText;
     } else if (tooltipMode === "species") {
-      let species = tooltipText;
-      let labels = speciesLabels[species];
+      const species = tooltipText;
+      const labels = speciesLabels[species];
+      const threatThreatLevel = tooltipOptions.threatThreat;
+      const tradeThreatLevel = tooltipOptions.tradeThreat;
 
       return (
         <div className="grid grid-cols-1 grid-rows-[auto_auto_auto_auto_auto] p-1 gap-x-2">
@@ -102,23 +104,37 @@ export default function Tooltip(props) {
                 tooltipOptions.imageLink,
                 tooltipOptions.dummyLink
               )}
-            <div className="self-center w-auto h-min grid grid-cols-[repeat(5,min-content)] grid-rows-4 gap-x-3">
-              <div className="col-span-2 flex content-end font-bold">Trade</div>
-              <div className="row-span-4 flex items-center justify-center">
+            <div className="self-center w-auto h-min grid grid-cols-[repeat(5,min-content)] grid-rows-5 gap-x-3">
+              <div className="col-span-2 flex justify-end font-bold">Trade</div>
+              <div className="row-span-5 flex items-center justify-center">
                 <ThreatIcon
-                  leftColor={tooltipOptions.leftIconColor}
-                  rightColor={tooltipOptions.rightIconColor}
+                  leftColor={tradeThreatLevel.getColor(
+                    tooltipOptions.colorBlind
+                  )}
+                  rightColor={threatThreatLevel.getColor(
+                    tooltipOptions.colorBlind
+                  )}
                   isAnimal={tooltipOptions.isAnimal}
                   size="big"
                 />
               </div>
               <div className="col-span-2 font-bold">Threat</div>
-              <div className="row-span-2">CITES:</div>
+              <div className="col-span-2 flex justify-end text-nowrap">
+                {tradeThreatLevel.getName()}
+              </div>
+              <div className="col-span-2 text-nowrap">
+                {threatThreatLevel.getName()}
+              </div>
               <div className="row-span-2">
-                <ThreatCode
-                  type="cites"
-                  code={getLatestAssessment(tooltipOptions.cites)}
-                />
+                {tooltipOptions.cites.length > 0 ? "CITES:" : ""}
+              </div>
+              <div className="row-span-2">
+                {tooltipOptions.cites.length > 0 && (
+                  <ThreatCode
+                    type="cites"
+                    code={getLatestAssessment(tooltipOptions.cites)}
+                  />
+                )}
               </div>
               <div className="">IUCN:</div>
               <div className="">

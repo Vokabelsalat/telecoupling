@@ -28,13 +28,12 @@ export default function TimelineNew(props) {
   const { speciesName, genusName } = species;
   const sciName = `${genusName} ${speciesName}`;
 
-  const leftIconColor = getTreeThreatLevel(sciName, "economically").getColor(
-    colorBlind
-  );
+  const tradeThreat = getTreeThreatLevel(sciName, "economically");
+  const threatThreat = getTreeThreatLevel(sciName, "ecologically");
 
-  const rightIconColor = getTreeThreatLevel(sciName, "ecologically").getColor(
-    colorBlind
-  );
+  const leftIconColor = tradeThreat.getColor(colorBlind);
+
+  const rightIconColor = threatThreat.getColor(colorBlind);
 
   const { setTooltip } = useContext(TooltipContext);
 
@@ -49,12 +48,13 @@ export default function TimelineNew(props) {
       {
         imageLink: imageLink,
         dummyLink: dummyImageLink,
-        leftIconColor,
-        rightIconColor,
         isAnimal,
         bgci: data.bgci,
         iucn: data.iucn,
-        cites: data.cites
+        cites: data.cites,
+        colorBlind,
+        tradeThreat,
+        threatThreat
       }
     );
     event.stopPropagation();
@@ -86,7 +86,7 @@ export default function TimelineNew(props) {
           gridRowEnd: 1
         }}
         onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
+        // onMouseLeave={onMouseLeave}
       >
         <TimelineHeader
           species={species}
@@ -106,7 +106,7 @@ export default function TimelineNew(props) {
           gridRowEnd: 2
         }}
         onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
+        // onMouseLeave={onMouseLeave}
       >
         <TimelineFront
           speciesName={sciName}
