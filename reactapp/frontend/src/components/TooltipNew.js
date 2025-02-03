@@ -34,13 +34,15 @@ const getLatestAssessment = (assessments) => {
 const createSpeciesPhoto = (imageLink, dummyLink) => {
   if (imageLink != null && imageLink.length > 0) {
     return (
-      <div className="h-auto w-[300px]">
+      <div className="h-auto w-[300px] max-h-[200px]">
         <img src={imageLink[0].link} />
       </div>
     );
   } else if (dummyLink != null) {
     return (
-      <div className="h-auto w-[300px]">{createProxyPhoto(dummyLink)}</div>
+      <div className="h-auto w-[300px] max-h-[200px]">
+        {createProxyPhoto(dummyLink)}
+      </div>
     );
   } else {
     return <></>;

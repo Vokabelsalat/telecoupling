@@ -54,7 +54,6 @@ export default function TimelineNew(props) {
   };
 
   const onMouseLeave = (event) => {
-    // setHover(false);
     setTooltip(null);
   };
 
