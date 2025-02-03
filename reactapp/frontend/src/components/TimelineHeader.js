@@ -11,6 +11,7 @@ export default function TimelineHeader(props) {
   const sciName = `${genusName} ${speciesName}`;
 
   const [hover, setHover] = useState(false);
+  const { setTooltip } = useContext(TooltipContext);
 
   return (
     <div
@@ -44,10 +45,10 @@ export default function TimelineHeader(props) {
       >
         <span
           style={{ fontWeight: hover ? "bold" : "normal", cursor: "pointer" }}
-          /* onMouseLeave={(event) => {
+          onMouseLeave={(event) => {
             setHover(false);
-            setTooltip(null, null, null);
-          }} */
+            setTooltip(null);
+          }}
           onClick={() => {
             setTreeMapFilter({
               kingdom: kingdomName,
