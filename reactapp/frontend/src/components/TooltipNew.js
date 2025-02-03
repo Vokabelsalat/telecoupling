@@ -67,28 +67,7 @@ const getImageSource = (imageLink, dummyLink) => {
 };
 
 export default function Tooltip(props) {
-  const { speciesLabels } = props;
-
-  const { tooltipText, tooltipMode, tooltipPosition, tooltipOptions } =
-    useContext(TooltipContext);
-
-  const tooltipRef = useRef(null);
-
-  const dims = useRefDimensions(tooltipRef);
-
-  const position = useMemo(() => {
-    const test = {
-      x: Math.min(
-        window.innerWidth - dims.width,
-        (tooltipPosition != null ? tooltipPosition.x : 0) + 25
-      ),
-      y: Math.min(
-        window.innerHeight - dims.height,
-        (tooltipPosition != null ? tooltipPosition.y : 0) + 25
-      )
-    };
-    return test;
-  }, [dims, tooltipPosition]);
+  const { speciesLabels, tooltipMode, tooltipText, tooltipOptions } = props;
 
   const tooltipContent = useMemo(() => {
     if (tooltipMode === "text") {
@@ -192,7 +171,8 @@ export default function Tooltip(props) {
   if (tooltipText === "" || tooltipText == null) {
     return <></>;
   } else {
-    return (
+    return tooltipContent;
+    /* return (
       <div
         ref={tooltipRef}
         style={{
@@ -208,6 +188,6 @@ export default function Tooltip(props) {
       >
         <div className="relative size-full">{tooltipContent}</div>
       </div>
-    );
+    ); */
   }
 }

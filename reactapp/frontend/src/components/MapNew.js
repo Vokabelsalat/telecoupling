@@ -11,7 +11,13 @@ import colorsys from "colorsys";
 import * as d3Scale from "d3-scale";
 import DiversityScale from "./DiversityScale";
 import { nanoid } from "nanoid";
-import { Square3Stack3DIcon } from "@heroicons/react/24/solid";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEarthAmericas,
+  faHandHolding,
+  faMountainSun,
+  faWater
+} from "@fortawesome/free-solid-svg-icons";
 
 import ReactMapGL, {
   Layer,
@@ -21,7 +27,12 @@ import ReactMapGL, {
   Source
 } from "react-map-gl";
 
+import { useContext } from "react";
+import { TooltipContext } from "./TooltipProvider";
+
 import { bgciAssessment } from "../utils/timelineUtils";
+
+const blueIconColor = "rgba(45, 45, 255, 0.8)";
 
 const Map = forwardRef((props, ref) => {
   const {
@@ -54,6 +65,8 @@ const Map = forwardRef((props, ref) => {
   const [divScale, setDivScale] = useState({ scale: [], type: "countries" });
   const [showLegend, setShowLegend] = useState(false);
   const legendRef = useRef(null);
+  const [isTerrestial, setTerrestial] = useState(true);
+  const { setTooltip } = useContext(TooltipContext);
 
   const setDivScaleWithType = useCallback((scaleAndType) => {
     /* console.log("set", scaleAndType); */
@@ -74,8 +87,8 @@ const Map = forwardRef((props, ref) => {
             mapMode = "countries";
             interactiveLayerIds = ["countriesSpecies", "extraPolygonLineLayer"];
             break;
-          case "ecoregionsterr":
-            mapMode = "ecoregionsterr";
+          case "ecoregions":
+            mapMode = "ecoregions";
             interactiveLayerIds = ["ecoRegions"];
             break;
           case "hexagons":
@@ -174,7 +187,7 @@ const Map = forwardRef((props, ref) => {
       case "countries":
         max = countriesHeatMapMax;
         break;
-      case "ecoregionsterr":
+      case "ecoregions":
         max = ecoregionHeatMapMax;
         break;
       case "hexagons":
@@ -1003,7 +1016,7 @@ const Map = forwardRef((props, ref) => {
             const iso = feat.properties.ISO3CD;
             hoverIds = [isoToCountryID[iso]];
             break;
-          case "ecoregionsterr":
+          case "ecoregions":
             const ecoID = feat.properties.ECO_ID;
             hoverIds = [ecosToMyIDs[ecoID]];
             console.log(feat.properties);
@@ -1237,7 +1250,7 @@ const Map = forwardRef((props, ref) => {
 
           if (
             ecoRegionsGeoJson &&
-            ["hexagons", "ecoregionsterr", "protection"].includes(mapMode)
+            ["hexagons", "ecoregions", "protection"].includes(mapMode)
           ) {
             updateEcoregions();
           }
@@ -1369,7 +1382,7 @@ const Map = forwardRef((props, ref) => {
                   ] */
                 },
                 layout: {
-                  visibility: mapMode === "ecoregionsterr" ? "visible" : "none"
+                  visibility: mapMode === "ecoregions" ? "visible" : "none"
                 }
               }}
             />
@@ -1429,11 +1442,9 @@ const Map = forwardRef((props, ref) => {
                 "circle-radius": 0
               },
               layout: {
-                visibility: [
-                  "hexagons",
-                  "ecoregionsterr",
-                  "protection"
-                ].includes(mapMode)
+                visibility: ["hexagons", "ecoregions", "protection"].includes(
+                  mapMode
+                )
                   ? "visible"
                   : "none"
               }
@@ -1603,7 +1614,7 @@ const Map = forwardRef((props, ref) => {
           })}
         {ecoThreatMarkers &&
           showThreatDonuts &&
-          ["hexagons", "ecoregionsterr", "protection"].includes(mapMode) &&
+          ["hexagons", "ecoregions", "protection"].includes(mapMode) &&
           ecoThreatMarkers.map((element, index) => {
             return (
               <Marker
@@ -1705,32 +1716,69 @@ const Map = forwardRef((props, ref) => {
           />
         </Source>
         <div
-          class="mapboxgl-ctrl mapboxgl-ctrl-top-left"
+          className="mapboxgl-ctrl mapboxgl-ctrl-group"
           style={{
+            position: "absolute",
             top: 10,
-            left: 10,
+            right: 10,
             borderRadius: "4px",
             backgroundColor: "white",
-            /* width: "29px",
-            height: "29px", */
-            padding: "3px",
+            width: "60px",
+            height: "29px",
             display: "flex",
             justifyContent: "center",
-            alignItems: "center"
+            alignItems: "center",
+            cursor: "pointer"
           }}
           type="button"
-          onClick={() => {
-            setShowLegend(true);
+          onClick={(e) => {
+            setTerrestial(!isTerrestial);
           }}
-          onMouseEnter={() => {
-            setShowLegend(true);
-            // setFocusOnLegend();
-          }}
-          onMouseLeave={() => {
-            setShowLegend(false);
-            // setFocusOnLegend();
-          }}
-        ></div>
+        >
+          <div className="tools-box w-full h-full">
+            <div className="grid grid-cols-2 w-[60px] justify-items-center h-full">
+              <div
+                className="border-r border-[#e5e7eb] rounded-[4px_0px_0px_4px] w-full h-full flex justify-center items-center delay-150 duration-500 ease-in-out transition-colors"
+                onMouseEnter={(e) => {
+                  setTooltip({
+                    tooltipText: "Terrestrial",
+                    tooltipMode: "text"
+                  });
+                }}
+                onMouseLeave={() => {
+                  setTooltip(null);
+                }}
+                style={{
+                  backgroundColor: isTerrestial ? "transparent" : "#f3f3f4"
+                }}
+              >
+                <FontAwesomeIcon
+                  icon={faMountainSun}
+                  color={isTerrestial ? blueIconColor : "gray"}
+                  className="delay-150 duration-1000 ease-in-out transition-colors"
+                />
+              </div>
+              <div
+                className="flex items-center justify-center size-full delay-150 duration-500 ease-in-out transition-colors rounded-[0px_4px_4px_0px]"
+                onMouseEnter={(e) => {
+                  setTooltip({ tooltipText: "Marine", tooltipMode: "text" });
+                }}
+                onMouseLeave={() => {
+                  setTooltip(null);
+                }}
+                style={{
+                  backgroundColor: isTerrestial ? "#f3f3f4" : "transparent"
+                }}
+              >
+                <FontAwesomeIcon
+                  icon={faWater}
+                  color={isTerrestial ? "gray" : blueIconColor}
+                  className="delay-150 duration-1000 ease-in-out transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </ReactMapGL>
     </div>
   );

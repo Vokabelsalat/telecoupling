@@ -6,7 +6,6 @@ import StoryMap from "../StoryMapCleanUp";
 import Map from "../MapNew";
 import bowContents from "./bowstory";
 import concertContents from "./concertstory";
-import { useRefDimensions } from "./useRefDimensions";
 import { useTreeMapFilter } from "../Hooks/useTreeMapFilter";
 import { useParseSpeciesJSON } from "../Hooks/useParseSpeciesJSON";
 import { useFilterSpecies } from "../Hooks/useFilterSpecies";

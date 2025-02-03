@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ChevronDownIcon, CheckIcon } from "@heroicons/react/16/solid";
+import Switch from "@mui/material/Switch";
 import {
   Listbox,
   ListboxButton,
@@ -147,7 +148,7 @@ export default function DiversityScale(props) {
             <FontAwesomeIcon icon={faEarthAmericas} color={blueIconColor} />
           </>
         );
-      case "ecoregionsterr":
+      case "ecoregions":
         return (
           <>
             <div className="flex gap-1 items-center">
@@ -157,8 +158,7 @@ export default function DiversityScale(props) {
                 neutralColor={greenIconColor}
               />
               <div className="text-sm/6 text-nowrap">
-                Species<span className="maplayer-devider">/</span>Terr.
-                Ecoregion
+                Species<span className="maplayer-devider">/</span>Ecoregion
               </div>
             </div>
             <FontAwesomeIcon icon={faMountainSun} color={blueIconColor} />
@@ -191,7 +191,7 @@ export default function DiversityScale(props) {
             ></div>
           </>
         );
-      case "ecoregionsmar":
+      /* case "ecoregionsmar":
         return (
           <>
             <div className="flex gap-1 items-center">
@@ -206,7 +206,7 @@ export default function DiversityScale(props) {
             </div>
             <FontAwesomeIcon icon={faWater} color={blueIconColor} />
           </>
-        );
+        ); */
       case "orchestras":
         return (
           <>
@@ -267,8 +267,7 @@ export default function DiversityScale(props) {
 
   const mapModeListOptions = [
     "countries",
-    "ecoregionsterr",
-    "ecoregionsmar",
+    "ecoregions",
     "hexagons",
     "devider",
     "orchestras",

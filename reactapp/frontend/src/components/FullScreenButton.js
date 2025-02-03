@@ -18,10 +18,10 @@ export default function FullScreenButton(props) {
       onClick={onClick}
       onMouseEnter={(event) => {
         if (setTooltip)
-          setTooltip("Enter Fullscreen", { x: event.pageX, y: event.pageY });
+          setTooltip({ tooltipText: "Enter Fullscreen", tooltipMode: "text" });
       }}
       onMouseLeave={(event) => {
-        if (setTooltip) setTooltip("", { x: event.pageX, y: event.pageY });
+        if (setTooltip) setTooltip(null);
       }}
     >
       {scaleString !== "" ? (

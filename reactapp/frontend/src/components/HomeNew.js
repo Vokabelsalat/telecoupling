@@ -330,9 +330,9 @@ export default function HomeNew(props) {
   return (
     <>
       <HoverProvider>
-        <TooltipProvider>
+        <TooltipProvider speciesLabels={speciesLabels}>
           <OverlayProvider>
-            {<Tooltip speciesLabels={speciesLabels} />}
+            {/* {<Tooltip speciesLabels={speciesLabels} />} */}
             {<Overlay />}
             <div
               style={{

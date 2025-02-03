@@ -1231,3 +1231,7 @@ a:any-link {
 .arc path {
   transition: fill 0.3s ease;
 }
+
+.mapboxgl-ctrl-top-right {
+  top: 35px !important;
+}

@@ -1,8 +1,3 @@
-import {
-  ArrowsPointingInIcon,
-  ArrowsPointingOutIcon
-} from "@heroicons/react/24/solid";
-
 import TimelineHeader from "./TimelineHeader";
 import TimelineFront from "./TimelineFront";
 import TimelineRows from "./TimelineRows";
@@ -38,14 +33,10 @@ export default function TimelineNew(props) {
   const { setTooltip } = useContext(TooltipContext);
 
   const onMouseEnter = (event) => {
-    setTooltip(
-      sciName,
-      "species",
-      {
-        x: event.pageX + 15,
-        y: event.pageY + 15
-      },
-      {
+    setTooltip({
+      tooltipText: sciName,
+      tooltipMode: "species",
+      tooltipOptions: {
         imageLink: imageLink,
         dummyLink: dummyImageLink,
         isAnimal,
@@ -56,7 +47,7 @@ export default function TimelineNew(props) {
         tradeThreat,
         threatThreat
       }
-    );
+    });
     event.stopPropagation();
     event.preventDefault();
     // setHover(true);
@@ -64,7 +55,7 @@ export default function TimelineNew(props) {
 
   const onMouseLeave = (event) => {
     // setHover(false);
-    setTooltip(null, null, null);
+    setTooltip(null);
   };
 
   return (
@@ -86,7 +77,7 @@ export default function TimelineNew(props) {
           gridRowEnd: 1
         }}
         onMouseEnter={onMouseEnter}
-        // onMouseLeave={onMouseLeave}
+        onMouseLeave={onMouseLeave}
       >
         <TimelineHeader
           species={species}
@@ -106,7 +97,7 @@ export default function TimelineNew(props) {
           gridRowEnd: 2
         }}
         onMouseEnter={onMouseEnter}
-        // onMouseLeave={onMouseLeave}
+        onMouseLeave={onMouseLeave}
       >
         <TimelineFront
           speciesName={sciName}

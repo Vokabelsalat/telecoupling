@@ -77,7 +77,7 @@ export default function TreeMapTile(props) {
         ph.push({ type: "cover", src: photo.link });
       }
     } else if (max.data.proxy) {
-      ph.push({ type: "proxy", src: max.data.proxy });
+      ph.push({ type: "proxy", src: max.data.proxy.link });
     }
 
     if (speciesLevel && max.data.mediaUrls) {
