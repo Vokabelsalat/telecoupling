@@ -20,11 +20,11 @@ def check_and_rotate_images(folder_path):
                     rotated_img = img.rotate(90, expand=True)
                     
                     # Overwrite the original file with the rotated image
-                    rotated_img.save(file_path.replace("/Users/kusnick/Documents/musecologyNew/telecoupling/reactapp/frontend/public/fotos", "/Users/kusnick/Documents/musecologyNew/telecoupling/reactapp/frontend/public/fotos_rotated"))
+                    rotated_img.save(file_path.replace("../../public/fotos", "../../public/fotos"))
 
                 else:
                     print(f"{file_name}: {width}x{height}")
 
 if __name__ == "__main__":
-    folder_path = "/Users/kusnick/Documents/musecologyNew/telecoupling/reactapp/frontend/public/fotos"  # <-- Update  this path
+    folder_path = "../../public/fotos"  # <-- Update  this path
     check_and_rotate_images(folder_path)
